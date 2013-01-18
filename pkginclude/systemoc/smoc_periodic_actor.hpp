@@ -40,8 +40,8 @@ public:
   sc_time updateReleaseTime()
   {
     while(nextReleaseTime_ <= sc_time_stamp()){
+      period_counter++; // increment first, initial execution is scheduled @ offset
       nextReleaseTime_ = period_counter * period + offset + calculateMobility();
-      period_counter++;
     }
     return nextReleaseTime_;
   }
