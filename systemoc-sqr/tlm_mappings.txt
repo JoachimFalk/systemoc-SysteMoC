@@ -1,3 +1,11 @@
+# Architecture:
+#
+# Cpu1 --    |- MemCpu1
+#       |    |
+#      Bus1 --- MemShared
+#       |    |
+# Cpu2 --    |- MemCpu2
+
 Res Cpu1 type Cpu kind or1k
 Res Cpu2 type Cpu kind or1k
 
