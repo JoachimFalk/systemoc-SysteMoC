@@ -23,7 +23,8 @@ public:
     period(per),
     offset(off),
     nextReleaseTime_(off),
-    jitter(jitter)
+    jitter(jitter),
+    reexecute(false)
   {
     // TODO: negative mobility values may result in negative release times
     //nextReleaseTime_ += calculateMobility();
@@ -48,12 +49,23 @@ public:
 
   // override getNextReleaseTime from ScheduledTask
   sc_time getNextReleaseTime(){
-    return updateReleaseTime();
+    if(reexecute){
+        reexecute = false;
+        return sc_time_stamp();
+    }else{
+        return updateReleaseTime();
+    }
   }
+
 
 sc_time getPeriod(){ return period; }
 
 sc_time getOffset(){ return offset; }
+
+protected:
+  void forceReexecution(){
+    reexecute = true;
+  }
 
 private:
   int period_counter;
@@ -61,6 +73,7 @@ private:
   sc_time offset;
   sc_time nextReleaseTime_;
   float jitter;
+  bool reexecute;
 
 };
 
