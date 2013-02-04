@@ -11,20 +11,19 @@
 
 
 #include <systemoc/smoc_moc.hpp>
-#include <systemoc/smoc_tt.hpp>
-//#include <actorlibrary/tt/TT.hpp>
+#include <actorlibrary/tt/TT.hpp>
 
 
 
 template<typename DATA_TYPE, int PORTS=1>
- class Product_p: public smoc_periodic_actor {
+ class Product_p: public PeriodicActor {
 public:
 
   smoc_port_in<DATA_TYPE>   in[PORTS];
   smoc_port_out<DATA_TYPE>  out;	
   
-  Product_p( sc_module_name name, sc_time period, sc_time offset, std::string operators )
-    : smoc_periodic_actor(name, start, period, offset), operators(operators) {
+  Product_p( sc_module_name name, sc_time period, sc_time offset, EventQueue* eventQueue, std::string operators )
+    : PeriodicActor(name, start, period, offset, eventQueue), operators(operators) {
 
     Expr::Ex<bool >::type eIn(in[0](1) );
 
@@ -32,7 +31,7 @@ public:
       eIn = eIn && in[i](1);
     }
 
-    start = //Expr::till( this->getEvent() ) >>  
+    start = Expr::till( this->getEvent() ) >>  
 	out(1) >> eIn                    >> 
       CALL(Product_p::multiply) >> start
 	;
@@ -42,7 +41,7 @@ protected:
   std::string operators;
 
   void multiply() {   
-	//this->resetEvent();
+	this->resetEvent();
     DATA_TYPE output;
 
     output = (DATA_TYPE)1;

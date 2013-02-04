@@ -25,8 +25,7 @@
 #include <cstdlib>
 #include <iostream>
 #include <systemoc/smoc_moc.hpp>
-#include <systemoc/smoc_tt.hpp>
-//#include <actorlibrary/tt/TT.hpp>
+#include <actorlibrary/tt/TT.hpp>
 
 			/* 
 			 * Integer logicOperator = 0 means operator = "=="
@@ -39,19 +38,19 @@
 
 
 template<typename T>
- class CompareToX_p:  public smoc_periodic_actor {
+ class CompareToX_p:  public PeriodicActor {
 public:
 
   smoc_port_in<T>   in;
   smoc_port_out<T>  out;	
   
-  CompareToX_p( sc_module_name name,sc_time per, sc_time off, int logicOperator, T X )
-    : smoc_periodic_actor(name, start, per, off), logicOperator(logicOperator) , X(X) {
+  CompareToX_p( sc_module_name name,sc_time per, sc_time off, EventQueue* _eq, int logicOperator, T X )
+    : PeriodicActor(name, start, per, off, _eq), logicOperator(logicOperator) , X(X) {
 
     
 
 
-    start = //Expr::till( this->getEvent() )  >>
+    start = Expr::till( this->getEvent() )  >>
       out(1)     >> in (1)     >>
       CALL(CompareToX_p::process) >> start
       ;
@@ -62,7 +61,7 @@ protected:
    T X;
 
   void process() {   
-    //this->resetEvent();
+    this->resetEvent();
     
     T data = in[0];
     T outData = 0;

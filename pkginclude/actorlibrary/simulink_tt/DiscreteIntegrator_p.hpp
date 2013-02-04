@@ -49,20 +49,19 @@
 #include <cstdlib>
 #include <iostream>
 #include <systemoc/smoc_moc.hpp>
-#include <systemoc/smoc_tt.hpp>
-//#include <actorlibrary/tt/TT.hpp>
+#include <actorlibrary/tt/TT.hpp>
 
 template<typename T>
- class DiscreteIntegrator_p: public smoc_periodic_actor {
+ class DiscreteIntegrator_p: public PeriodicActor {
 public:
   smoc_port_in<T>  in;
   smoc_port_out<T>  out;
 
-  DiscreteIntegrator_p( sc_module_name name, sc_time per, sc_time off, T gain,T sampleTime,   T ic )
-    : smoc_periodic_actor(name, start, per, off), gain(gain), sampleTime(sampleTime),  state(ic) {
+  DiscreteIntegrator_p( sc_module_name name, sc_time per, sc_time off, EventQueue* eventQueue, T gain,T sampleTime,   T ic )
+    : PeriodicActor(name, start, per, off, eventQueue), gain(gain), sampleTime(sampleTime),  state(ic) {
 
 
-    start = //Expr::till( this->getEvent() )  >>
+    start = Expr::till( this->getEvent() )  >>
       out(1)     >> in (1)     >>
       CALL(DiscreteIntegrator_p::process) >> start
       ;
@@ -82,7 +81,7 @@ protected:
 	//sampleTime = 0.01;
          //std::cout << "Scope:<" << this->name() << "> " << " @ " << " state:" << state << " gain:" << gain << " sampleTime:" << sampleTime << std::endl;
 	//std::cerr << this->name() << " : fired @ " << sc_time_stamp() << std::endl;
-	 //this->resetEvent();
+	 this->resetEvent();
          out[0] = state;
          u = in[0];
 	 //if( abs((gain*sampleTime)*u) < (T)0.01 )

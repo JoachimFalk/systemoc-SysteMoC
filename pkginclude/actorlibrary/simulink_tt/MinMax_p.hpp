@@ -16,21 +16,20 @@
 #include <iostream>
 
 #include <systemoc/smoc_moc.hpp>
-#include <systemoc/smoc_tt.hpp>
-//#include <actorlibrary/tt/TT.hpp>
+#include <actorlibrary/tt/TT.hpp>
 /*
 A MinMax block accepts and outputs real-valued signals of any data type except int64 and uint64 
 */
 
 template<typename T, int INPUTPORTS=1>
 
- class MinMax_p: public smoc_periodic_actor {
+ class MinMax_p: public PeriodicActor {
 public:
   smoc_port_in<T>   in[INPUTPORTS];
   smoc_port_out<T>  out;	
 
-  MinMax_p( sc_module_name name, sc_time period, sc_time offset, int function )
-    : smoc_periodic_actor(name, start, period, offset), function(function) {
+  MinMax_p( sc_module_name name, sc_time period, sc_time offset, EventQueue* eventQueue, int function )
+    : PeriodicActor(name, start, period, offset, eventQueue), function(function) {
 
     Expr::Ex<bool >::type eIn(in[0](1) );
 
@@ -38,7 +37,7 @@ public:
       eIn = eIn && in[i](1);
     }
 
-    start = //Expr::till( this->getEvent() ) >>
+    start = Expr::till( this->getEvent() ) >>
       out(1) 		>>
       eIn                    >> 
       CALL(MinMax_p::minmax) >> start
@@ -56,7 +55,7 @@ protected:
   
 
   void minmax() {   
-	//this->resetEvent();
+	this->resetEvent();
 	T output = (T)0;
 
 	

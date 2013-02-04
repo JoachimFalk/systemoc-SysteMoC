@@ -24,11 +24,11 @@
 			 */
 
 
-template<typename T , int PORTS=1>
+template<typename DATA_TYPE, typename T , int PORTS=1>
  class Logic: public smoc_actor {
 public:
 
-  smoc_port_in<T>   in[PORTS];
+  smoc_port_in<DATA_TYPE>   in[PORTS];
   smoc_port_out<T>  out;	
   
   Logic( sc_module_name name, int logicOperator )
@@ -40,75 +40,71 @@ public:
       eIn = eIn && in[i](1);
     }
 
-    start = out(1) 	>> 
-	eIn                    >> 
+    start = eIn                    >> 
       CALL(Logic::process) >> start
       ;
   }
 protected:
  
   int logicOperator;
-  //bool inputsLogic[PORTS];
+  bool inputsLogic[PORTS];
 
   void process() {   
     
     T output;
 
-    /*	    
+    	    
     for( int i=0; i < PORTS; i++ ){
        if( in[i][0] > 0 )
 	  inputsLogic[i] = true;
 	else
 	  inputsLogic[i] = false;
     }
-   */
-    output = in[0][0];
+
     switch(logicOperator)
     {
-	
-        case 0: /* AND */
+	output = inputsLogic[0];
+        case '0': /* AND */
            for( int i=1; i<PORTS; i++ )
-		output = output && in[i][0];
+		output = output && inputsLogc[i];
 	   break;
-        case 1: /* OR */
+        case '1': /* OR */
            for( int i=1; i<PORTS; i++ )
-		output = output || in[i][0];
+		output = output || inputsLogc[i];
 	   break;
-        case 2: /* NAND */
+        case '2': /* NAND */
            for( int i=1; i<PORTS; i++ )
-		output = output && in[i][0];
+		output = output && inputsLogc[i];
+	   output = !ouput;
+	   break;
+        case '3': /* NOR */
+           for( int i=1; i<PORTS; i++ )
+		output = output || inputsLogc[i];
 	   output = !output;
 	   break;
-        case 3: /* NOR */
+        case '4': /* XOR : true + true ---> false, true + false ---> true */
            for( int i=1; i<PORTS; i++ )
-		output = output || in[i][0];
-	   output = !output;
-	   break;
-        case 4: /* XOR : true + true ---> false, true + false ---> true */
-           for( int i=1; i<PORTS; i++ )
-               if( output == in[i][0] )
+               if( output == inputsLogc[i] )
 		  output = 0;
                else
                   output = 1;
 	   break;
-        case 5: /* NXOR */
+        case '5': /* NXOR */
            for( int i=1; i<PORTS; i++ )
-               if( output == in[i][0] )
+               if( output == inputsLogc[i] )
 		  output = 0;
                else
                   output = 1;
            output = !output;
 	   break;
-        case 6: /* NOT : Should have only one input */
-           output = !in[0][0];
-           //std::cout << "Logic: IN  :" << in[0][0] << " @ " << sc_time_stamp() << std::endl;
-           //std::cout << "Logic: OUT :" << output  << " @ " << sc_time_stamp() << std::endl;
+        case '6': /* NOT : Should have only one input */
+           output = !inputsLogc[0];
 	   break;
         default:
 	   break;
     }
 
-    out[0] = (T)output;
+    out[0] = output;
   }
 
   smoc_firing_state start;

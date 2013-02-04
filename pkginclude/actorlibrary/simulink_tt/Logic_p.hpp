@@ -15,8 +15,7 @@
 #include <cstdlib>
 #include <iostream>
 #include <systemoc/smoc_moc.hpp>
-#include <systemoc/smoc_tt.hpp>
-//#include <actorlibrary/tt/TT.hpp>
+#include <actorlibrary/tt/TT.hpp>
 			/* 
 			 * Integer logicOperator = 0 means operator = AND
 			 * Integer logicOperator = 1 means operator = OR 
@@ -29,14 +28,14 @@
 
 
 template<typename T , int PORTS=1>
- class Logic_p: public smoc_periodic_actor {
+ class Logic_p: public PeriodicActor {
 public:
 
   smoc_port_in<T>   in[PORTS];
   smoc_port_out<T>  out;	
   
-  Logic_p( sc_module_name name, sc_time period, sc_time offset, int logicOperator )
-    : smoc_periodic_actor(name, start, period, offset), logicOperator(logicOperator) {
+  Logic_p( sc_module_name name, sc_time period, sc_time offset, EventQueue* eventQueue, int logicOperator )
+    : PeriodicActor(name, start, period, offset, eventQueue), logicOperator(logicOperator) {
 
     Expr::Ex<bool >::type eIn(in[0](1) );
 
@@ -44,7 +43,7 @@ public:
       eIn = eIn && in[i](1);
     }
 
-    start = //Expr::till( this->getEvent() ) >>
+    start = Expr::till( this->getEvent() ) >>
 	out(1) 	>> eIn                    >> 
       CALL(Logic_p::process) >> start
       ;
@@ -57,7 +56,7 @@ protected:
   void process() {   
     
 
-    //this->resetEvent();
+    this->resetEvent();
 
     //DATA_TYPE output;
     T output;

@@ -19,21 +19,20 @@ One:to detect when the input crosses through zero.
 #include <cstdlib>
 #include <iostream>
 #include <systemoc/smoc_moc.hpp>
-#include <systemoc/smoc_tt.hpp>
-//#include <actorlibrary/tt/TT.hpp>
+#include <actorlibrary/tt/TT.hpp>
 
 
 template<typename T>
- class Signum_p: public smoc_periodic_actor {
+ class Signum_p: public PeriodicActor {
 public:
   smoc_port_in<T>  in;
   smoc_port_out<T>  out;
 
-  Signum_p( sc_module_name name, sc_time per, sc_time off)
-    : smoc_periodic_actor( name, start, per, off){
+  Signum_p( sc_module_name name, sc_time per, sc_time off, EventQueue* eventQueue )
+    : PeriodicActor( name, start, per, off, eventQueue ){
 
 
-    start = // Expr::till( this->getEvent() )  >>
+    start =  Expr::till( this->getEvent() )  >>
       in(1)              >>
       out(1)             >>
       CALL(Signum_p::process) >> start
@@ -43,7 +42,7 @@ public:
 protected:
 
   void process() {
-	//this->resetEvent();
+	this->resetEvent();
 	T data = in[0];
 	if(  data == 0 )
 	  out[0] = 0; 

@@ -27,11 +27,11 @@
 
 
 
-template<typename T , int PORTS=1>
+template<typename DATA_TYPE, typename T , int PORTS=1>
  class RelationalOperator: public smoc_actor {
 public:
 
-  smoc_port_in<T>   in[PORTS];
+  smoc_port_in<DATA_TYPE>   in[PORTS];
   smoc_port_out<T>  out;	
   
   RelationalOperator( sc_module_name name, int logicOperator )
@@ -43,53 +43,65 @@ public:
       eIn = eIn && in[i](1);
     }
 
-    start = out(1) >> eIn                    >> 
+    start = eIn                    >> 
       CALL(RelationalOperator::process) >> start
       ;
   }
 protected:
  
   int logicOperator;
-  //bool inputsLogic[PORTS];
+  bool inputsLogic[PORTS];
 
   void process() {   
     
     T output;
 
     	    
-   output = 0.0;
+    for( int i=0; i < PORTS; i++ ){
+       inputsLogic[i] = in[i][0];
+    }
+
+/* 
+ * Integer logicOperator = 0 means operator = "=="
+ * Integer logicOperator = 1 means operator = "~=" 
+ * Integer logicOperator = 2 means operator = "<"
+ * Integer logicOperator = 3 means operator = "<="
+ * Integer logicOperator = 4 means operator = ">="
+ * Integer logicOperator = 5 means operator = ">"
+ */
+
     switch(logicOperator)
     {
-	
+	output = 0;
         case 0: 
-           if( in[0][0] == in[1][0] )
+           if( inputsLogc[0] == inputsLogc[1] )
 		output = 1;
 	   break;
         case 1: 
-           if( in[0][0] != in[1][0] )
+           if( inputsLogc[0] != inputsLogc[1] )
 		output = 1;
 	   break;        
         case 2: 
-           if( in[0][0] < in[1][0] )
+           if( inputsLogc[0] < inputsLogc[1] )
 		output = 1;
 	   break;        
         case 3: 
-           if( in[0][0] <= in[1][0] )
+           if( inputsLogc[0] <= inputsLogc[1] )
 		output = 1;
-           //std::cout << "RelationOperator> Operator: " << logicOperator << " @ " << sc_time_stamp() << std::endl;	    
 	   break;        
         case 4: 
-           if( in[0][0] >= in[1][0] )
+           if( inputsLogc[0] >= inputsLogc[1] )
 		output = 1;
 	   break;        
         case 5: 
-           if( in[0][0] > in[1][0] )
+           if( inputsLogc[0] > inputsLogc[1] )
 		output = 1;
 	   break;        
         default:
 	   break;
     }
-    out[0] = (T)output;
+
+    out[0] = output;
   }
 
   smoc_firing_state start;

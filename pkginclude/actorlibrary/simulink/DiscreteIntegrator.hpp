@@ -55,7 +55,7 @@ public:
   smoc_port_out<T>  out;
 
   DiscreteIntegrator( sc_module_name name, T gain, T sampleTime, T ic )
-    : smoc_actor(name, start), gain(gain), sampleTime(sampleTime), state(ic) {
+    : smoc_actor(name, start), gain(gain), sampleTime(sampleTime), ic(ic) {
 
 
     start = in(1)              >>
@@ -71,20 +71,16 @@ protected:
   //int step = 0;
   T ic;
   T state;
-  T u;
 
   void process() {
 	 //step++;
-	 
-         
-         out[0] = state;
-         u = in[0];
-	 //step++;
-	 state = state + gain*sampleTime*u;
+	 out[0] = state;
+         state = state + gain*sampleTime*in[0]
+	 step++;
   }
 
   smoc_firing_state start;
-  //smoc_firing_state loop;
+  smoc_firing_state loop;
 };
 
 #endif // __INCLUDED__DISCRETEINTEGRATOR__HPP__

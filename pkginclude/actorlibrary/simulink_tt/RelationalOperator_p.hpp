@@ -27,19 +27,18 @@
 #include <cstdlib>
 #include <iostream>
 #include <systemoc/smoc_moc.hpp>
-#include <systemoc/smoc_tt.hpp>
-//#include <actorlibrary/tt/TT.hpp>
+#include <actorlibrary/tt/TT.hpp>
 
 
 template<typename T , int PORTS=1>
- class RelationalOperator_p: public smoc_periodic_actor {
+ class RelationalOperator_p: public PeriodicActor {
 public:
 
   smoc_port_in<T>   in[PORTS];
   smoc_port_out<T>  out;	
   
-  RelationalOperator_p( sc_module_name name, sc_time per, sc_time off, int logicOperator )
-    : smoc_periodic_actor(name, start, per, off), logicOperator(logicOperator) {
+  RelationalOperator_p( sc_module_name name, sc_time per, sc_time off, EventQueue* _eq, int logicOperator )
+    : PeriodicActor(name, start, per, off, _eq), logicOperator(logicOperator) {
 
     Expr::Ex<bool >::type eIn(in[0](1) );
 
@@ -47,7 +46,7 @@ public:
       eIn = eIn && in[i](1);
     }
 
-    start =  //Expr::till( this->getEvent() )  >>
+    start =  Expr::till( this->getEvent() )  >>
       out(1)  >> eIn               >>
       CALL(RelationalOperator_p::process) >> start
       ;
@@ -59,7 +58,7 @@ protected:
   //T inputsLogic[PORTS];
 
   void process() {   
-    //this->resetEvent();
+    this->resetEvent();
     T output;
 
     //std::cout << "RelationOperator> get: " << in[0][0] << " @ " << sc_time_stamp() << std::endl;

@@ -7,16 +7,13 @@
 
 
 
-#ifndef __INCLUDED__MINMAX_P__HPP__
-#define __INCLUDED__MINMAX_P__HPP__
+#ifndef __INCLUDED__MINMAX__HPP__
+#define __INCLUDED__MINMAX__HPP__
 
 #include <cstdlib>
 #include <algorithm>
 
-#include <iostream>
 
-#include <systemoc/smoc_moc.hpp>
-//#include <actorlibrary/tt/TT.hpp>
 /*
 A MinMax block accepts and outputs real-valued signals of any data type except int64 and uint64 
 */

@@ -13,10 +13,7 @@
 #ifndef __INCLUDED__DATATYPECONVERSION__HPP__
 #define __INCLUDED__DATATYPECONVERSION__HPP__
 
-#include <cstdlib>
-#include <iostream>
-#include <systemoc/smoc_moc.hpp>
-//#include <actorlibrary/tt/TT.hpp>
+#include <stdlib.h>
 
 
 template<typename T, typename S>
@@ -26,11 +23,11 @@ public:
   smoc_port_out<S>  out;
 
   DataTypeConversion( sc_module_name name )
-    : smoc_actor( name, start ){
+    : smoc_actor(name, start){
 
 
-    start = 
-      out(1)     >> in (1)     >>
+    start = in(1)              >>
+      out(1)                   >>
       CALL(DataTypeConversion::process) >> start
       ;
   }
@@ -38,7 +35,6 @@ public:
 protected:
 
   void process() {
-
 	 out[0] = (S)(in[0]);
   }
 

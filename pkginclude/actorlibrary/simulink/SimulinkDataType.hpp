@@ -1,9 +1,8 @@
 
 
-
-
 #ifndef __INCLUDED__SIMULINKDATATYPE__HPP__
 #define __INCLUDED__SIMULINKDATATYPE__HPP__
+
 
 typedef unsigned char  uchar_T;
 typedef unsigned short ushort_T;
@@ -26,9 +25,7 @@ typedef unsigned short uint16_T;
 /* Unsigned 32-bit integer */
 typedef unsigned int   uint32_T;
 /* single : single-precision floating point*/
-//typedef float  real32_T;
-//typedef int  real32_T;
-
+typedef float  real32_T;
 /* double : double-precision floating point*/
 typedef double real64_T;
 /* 

@@ -34,7 +34,7 @@ public:
       eIn = eIn && in[i](1);
     }
 
-    start = eIn  >> out(1)                  >> 
+    start = eIn                    >> 
       CALL(Sum::sum) >> start
       ;
   }
@@ -44,7 +44,7 @@ protected:
 
   void sum() {   
     DATA_TYPE output;
-    std::cout << "Sum S>  @ " << sc_time_stamp() << std::endl;
+
     for( int i = 0; i<PORTS; i++ ){
       if( operators[i] == '+' ){
         output = output + in[i][0];
@@ -54,7 +54,6 @@ protected:
         assert(0);
       }
     }
-    std::cout << "Sum E> output: " << output << std::endl; 
     out[0] = output;
   }
 

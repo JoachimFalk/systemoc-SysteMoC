@@ -10,8 +10,7 @@
 #include <cstdlib>
 #include <iostream>
 #include <systemoc/smoc_moc.hpp>
-#include <systemoc/smoc_tt.hpp>
-//#include <actorlibrary/tt/TT.hpp>
+#include <actorlibrary/tt/TT.hpp>
 
 
 
@@ -33,17 +32,17 @@
 
 
 template<typename T>
- class CFSInputAdapter_p: public smoc_periodic_actor {
+ class CFSInputAdapter_p: public PeriodicActor {
 public:
   //smoc_port_in<T>  in;
   smoc_port_out<T>  out;
 struct sembuf operation[1];
 
-  CFSInputAdapter_p( sc_module_name name, sc_time per, sc_time off, int _port )
-    : smoc_periodic_actor(name, start, per, off),index(_port), sim_step() {
+  CFSInputAdapter_p( sc_module_name name, sc_time per, sc_time off, EventQueue* eventQueue, int _port )
+    : PeriodicActor(name, start, per, off, eventQueue),index(_port), sim_step() {
 	
 
-    start = //Expr::till( this->getEvent() )  >>
+    start = Expr::till( this->getEvent() )  >>
       out(1)     >> //in (1)     >>
       CALL(CFSInputAdapter_p::process) >> start
       ;
@@ -129,7 +128,7 @@ protected:
   int semid;
 
   void process() {
- 	//this->resetEvent();
+ 	this->resetEvent();
 
 
 
@@ -168,7 +167,6 @@ protected:
 	//	sleep(0.0000000000001);
 		//sleep(0.001);		
 	out[0] = shm_v_ptr[0];
-	//cout << "lll";
 	#endif
 
 	#ifdef SHAREDMEMORY4	
@@ -180,7 +178,7 @@ protected:
 
 
 	/*********** SHARED MEMORY ****************/
-	#ifdef SHAREDMEMORY6
+	#ifdef SHAREDMEMORY
         
 	while(shm_c_ptr[0]!=0){ // Read
 		//Uif(shm_c_ptr_end[0]>50.0) 

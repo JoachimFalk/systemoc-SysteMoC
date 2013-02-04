@@ -20,19 +20,18 @@ from the first (top) input, and then add the third (bottom) input.
 
 
 #include <systemoc/smoc_moc.hpp>
-#include <systemoc/smoc_tt.hpp>
-//#include <actorlibrary/tt/TT.hpp>
+#include <actorlibrary/tt/TT.hpp>
 //enum OPERATOR {PLUS, MINUS};
 
 template<typename DATA_TYPE, int PORTS=1>
- class Sum_p: public smoc_periodic_actor {
+ class Sum_p: public PeriodicActor {
 public:
 
   smoc_port_in<DATA_TYPE>   in[PORTS];
   smoc_port_out<DATA_TYPE>  out;	
   
-  Sum_p( sc_module_name name, sc_time per, sc_time off, std::string operators )
-    : smoc_periodic_actor(name, start, per, off), operators(operators) {
+  Sum_p( sc_module_name name, sc_time per, sc_time off, EventQueue* _eq, std::string operators )
+    : PeriodicActor(name, start, per, off, _eq), operators(operators) {
 
     Expr::Ex<bool >::type eIn(in[0](1) );
 
@@ -40,7 +39,7 @@ public:
       eIn = eIn && in[i](1);
     }
 
-    start = //Expr::till( this->getEvent() )  >>
+    start = Expr::till( this->getEvent() )  >>
       out(1) >> eIn                    >> 
       CALL(Sum_p::sum) >> start
       ;
@@ -50,7 +49,7 @@ protected:
   std::string operators;
 
   void sum() {   
-	//this->resetEvent();
+	this->resetEvent();
 
           
 
