@@ -74,27 +74,27 @@ protected:
     {
 	output = 0;
         case 0: 
-           if( inputsLogc[0] == inputsLogc[1] )
+           if( inputsLogc[0] == inputsLogic[1] )
 		output = 1;
 	   break;
         case 1: 
-           if( inputsLogc[0] != inputsLogc[1] )
+           if( inputsLogc[0] != inputsLogic[1] )
 		output = 1;
 	   break;        
         case 2: 
-           if( inputsLogc[0] < inputsLogc[1] )
+           if( inputsLogc[0] < inputsLogic[1] )
 		output = 1;
 	   break;        
         case 3: 
-           if( inputsLogc[0] <= inputsLogc[1] )
+           if( inputsLogc[0] <= inputsLogic[1] )
 		output = 1;
 	   break;        
         case 4: 
-           if( inputsLogc[0] >= inputsLogc[1] )
+           if( inputsLogc[0] >= inputsLogic[1] )
 		output = 1;
 	   break;        
         case 5: 
-           if( inputsLogc[0] > inputsLogc[1] )
+           if( inputsLogc[0] > inputsLogic[1] )
 		output = 1;
 	   break;        
         default:

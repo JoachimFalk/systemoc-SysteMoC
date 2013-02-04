@@ -66,39 +66,39 @@ protected:
 	output = inputsLogic[0];
         case '0': /* AND */
            for( int i=1; i<PORTS; i++ )
-		output = output && inputsLogc[i];
+		output = output && inputsLogic[i];
 	   break;
         case '1': /* OR */
            for( int i=1; i<PORTS; i++ )
-		output = output || inputsLogc[i];
+		output = output || inputsLogic[i];
 	   break;
         case '2': /* NAND */
            for( int i=1; i<PORTS; i++ )
-		output = output && inputsLogc[i];
+		output = output && inputsLogic[i];
 	   output = !ouput;
 	   break;
         case '3': /* NOR */
            for( int i=1; i<PORTS; i++ )
-		output = output || inputsLogc[i];
+		output = output || inputsLogic[i];
 	   output = !output;
 	   break;
         case '4': /* XOR : true + true ---> false, true + false ---> true */
            for( int i=1; i<PORTS; i++ )
-               if( output == inputsLogc[i] )
+               if( output == inputsLogic[i] )
 		  output = 0;
                else
                   output = 1;
 	   break;
         case '5': /* NXOR */
            for( int i=1; i<PORTS; i++ )
-               if( output == inputsLogc[i] )
+               if( output == inputsLogic[i] )
 		  output = 0;
                else
                   output = 1;
            output = !output;
 	   break;
         case '6': /* NOT : Should have only one input */
-           output = !inputsLogc[0];
+           output = !inputsLogic[0];
 	   break;
         default:
 	   break;
