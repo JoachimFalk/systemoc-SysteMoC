@@ -75,8 +75,8 @@ protected:
   void process() {
 	 //step++;
 	 out[0] = state;
-         state = state + gain*sampleTime*in[0]
-	 step++;
+         state = state + gain*sampleTime*in[0];
+	 //step++;
   }
 
   smoc_firing_state start;

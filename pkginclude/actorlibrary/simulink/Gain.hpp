@@ -15,13 +15,14 @@
 template<typename DATA_TYPE>
  class Gain: public smoc_actor {
 public:
+  smoc_port_in<DATA_TYPE>  in;
   smoc_port_out<DATA_TYPE>  out;
 
   Gain( sc_module_name name, DATA_TYPE gain )
     : smoc_actor(name, start), gain(gain) {
 
-    start = out(1)     >>
-      CALL(gain::process) >> start
+    start = in(1) >> out(1)     >>
+      CALL(Gain::process) >> start
       ;
   }
 

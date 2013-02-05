@@ -75,7 +75,7 @@ protected:
         case '2': /* NAND */
            for( int i=1; i<PORTS; i++ )
 		output = output && inputsLogic[i];
-	   output = !ouput;
+	   output = !output;
 	   break;
         case '3': /* NOR */
            for( int i=1; i<PORTS; i++ )

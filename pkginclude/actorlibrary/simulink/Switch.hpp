@@ -8,7 +8,7 @@
 #define __INCLUDED__SWITCH__HPP__
 
 template<typename T, int PORTS=3>
-class Switch: public smoc_actor {
+class Switch : public smoc_actor {
 public:
 	smoc_port_in<T> in[PORTS];
 	smoc_port_out<T> out;
@@ -16,7 +16,7 @@ public:
 	Switch(sc_module_name name, T threshold, int criteria) :
 			smoc_actor(name, start), _threshold(threshold), _criteria(criteria) {
 
-		start = in(1) >> out(1) >> CALL(Switch::process) >> start;
+		start = in[0](1) >> in[1](1) >> in[2](1) >> out(1) >> CALL(Switch::process) >> start;
 	}
 
 protected:
