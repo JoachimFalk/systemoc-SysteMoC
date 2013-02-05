@@ -7,10 +7,10 @@
 #ifndef __INCLUDED__SWITCH__HPP__
 #define __INCLUDED__SWITCH__HPP__
 
-template<typename T, int PORTS=3>
+template<typename T>
 class Switch : public smoc_actor {
 public:
-	smoc_port_in<T> in[PORTS];
+	smoc_port_in<T> in[3];
 	smoc_port_out<T> out;
 
 	Switch(sc_module_name name, T threshold, int criteria) :
@@ -26,24 +26,24 @@ protected:
 	void process() {
 		switch (_criteria) {
 		case 1:
-			if (in[1] >= _threshold) {
-				out[0] = in[0];
+			if (in[1][0] >= _threshold) {
+				out[0] = in[0][0];
 			} else {
-				out[0] = in[2];
+				out[0] = in[2][0];
 			}
 			break;
 		case 2:
-			if (in[1] > _threshold) {
-				out[0] = in[0];
+			if (in[1][0] > _threshold) {
+				out[0] = in[0][0];
 			} else {
-				out[0] = in[2];
+				out[0] = in[2][0];
 			}
 			break;
 		case 3:
-			if (in[1] != 0) {
-				out[0] = in[0];
+			if (in[1][0] != 0) {
+				out[0] = in[0][0];
 			} else {
-				out[0] = in[2];
+				out[0] = in[2][0];
 			}
 			break;
 		default:

@@ -9,6 +9,7 @@
 #include <cstdlib>
 #include <iostream>
 
+#include <systemoc/smoc_expr.hpp>
 
 template<typename DATA_TYPE, typename S, int PORTS=1>
  class Scope: public smoc_actor {

@@ -27,11 +27,11 @@
 
 
 
-template<typename DATA_TYPE, typename T , int PORTS=1>
+template<typename T , int PORTS=1>
  class RelationalOperator: public smoc_actor {
 public:
 
-  smoc_port_in<DATA_TYPE>   in[PORTS];
+  smoc_port_in<T>   in[PORTS];
   smoc_port_out<T>  out;	
   
   RelationalOperator( sc_module_name name, int logicOperator )

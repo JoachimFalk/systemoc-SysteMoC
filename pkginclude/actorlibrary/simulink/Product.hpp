@@ -7,6 +7,7 @@
 #define __INCLUDED__PRODUCT__HPP__
 
 
+#include <systemoc/smoc_expr.hpp>
 
 
 

@@ -12,24 +12,24 @@ One:to detect when the input crosses through zero.
 */
 
 
-#ifndef __INCLUDED__SIGN__HPP__
-#define __INCLUDED__SIGN__HPP__
+#ifndef __INCLUDED__SIGNUM__HPP__
+#define __INCLUDED__SIGNUM__HPP__
 
 
 
 template<typename T>
- class Sign: public smoc_actor {
+ class Signum : public smoc_actor {
 public:
   smoc_port_in<T>  in;
   smoc_port_out<T>  out;
 
-  Sign( sc_module_name name )
+  Signum( sc_module_name name )
     : smoc_actor(name, start){
 
 
     start = in(1)              >>
       out(1)                   >>
-      CALL(Sign::process) >> start
+      CALL(Signum ::process) >> start
       ;
   }
 
@@ -49,5 +49,5 @@ protected:
   smoc_firing_state start;
 };
 
-#endif // __INCLUDED__SIGN__HPP__
+#endif // __INCLUDED__SIGNUM__HPP__
 

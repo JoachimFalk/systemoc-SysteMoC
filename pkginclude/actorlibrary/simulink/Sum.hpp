@@ -16,6 +16,7 @@ the second (middle) input
 from the first (top) input, and then add the third (bottom) input. 
 */
 #include <iostream>
+#include <systemoc/smoc_expr.hpp>
 //enum OPERATOR {PLUS, MINUS};
 
 template<typename DATA_TYPE, int PORTS=1>
