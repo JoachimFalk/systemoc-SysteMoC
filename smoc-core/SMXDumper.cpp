@@ -250,28 +250,46 @@ void recurse(Visitor &visitor, sc_core::sc_object &obj) {
 #else
   typedef std::vector<sc_core::sc_object*>  sc_object_list;
 #endif
-  for (sc_object_list::const_iterator iter = obj.get_child_objects().begin();
-       iter != obj.get_child_objects().end();
-       ++iter) {
-    // Actors/Graphs first!
-    if (dynamic_cast<sc_core::sc_module *>(*iter) &&
-        // But ignore smoc_scheduler_top!
-        dynamic_cast<smoc_scheduler_top *>(*iter) == NULL)
-      apply_visitor(visitor, *static_cast<sc_core::sc_module *>(*iter));
+  {
+    sc_core::sc_module *mod;
+    for (sc_object_list::const_iterator iter = obj.get_child_objects().begin();
+         iter != obj.get_child_objects().end();
+         ++iter) {
+      // Actors/Graphs first!
+      if ((mod = dynamic_cast<sc_core::sc_module *>(*iter))) {
+        // But ignore internal SysteMoC sc_modules, which should start with __smoc_!
+        // -> first identify leaf name of the hierarchical SystemC name, i.e., if name == "a.b.c" then leaf name == "c"
+        std::string            name = mod->name();
+        std::string::size_type pos  = name.rfind('.');
+        if (pos != std::string::npos)
+          pos++;
+        else
+          pos = 0;
+        // Now name.substr(pos, ...) is the leaf name
+        if (name.substr(pos, sizeof("__smoc_")-1) != "__smoc_")
+          apply_visitor(visitor, *static_cast<sc_core::sc_module *>(*iter));
+      }
+    }
   }
-  for (sc_object_list::const_iterator iter = obj.get_child_objects().begin();
-       iter != obj.get_child_objects().end();
-       ++iter) {
-    // Channels next!
-    if (dynamic_cast<smoc_root_chan *>(*iter))
-      apply_visitor(visitor, *static_cast<smoc_root_chan *>(*iter));
+  {
+    smoc_root_chan *chan;
+    for (sc_object_list::const_iterator iter = obj.get_child_objects().begin();
+         iter != obj.get_child_objects().end();
+         ++iter) {
+      // Channels next!
+      if ((chan = dynamic_cast<smoc_root_chan *>(*iter)))
+        apply_visitor(visitor, *chan);
+    }
   }
-  for (sc_object_list::const_iterator iter = obj.get_child_objects().begin();
-       iter != obj.get_child_objects().end();
-       ++iter) {
-    // Ports last!
-    if (dynamic_cast<sc_core::sc_port_base *>(*iter))
-      apply_visitor(visitor, *static_cast<sc_core::sc_port_base *>(*iter));
+  {
+    sc_core::sc_port_base *port;
+    for (sc_object_list::const_iterator iter = obj.get_child_objects().begin();
+         iter != obj.get_child_objects().end();
+         ++iter) {
+      // Ports last!
+      if ((port = dynamic_cast<sc_core::sc_port_base *>(*iter)))
+        apply_visitor(visitor, *port);
+    }
   }
 }
 
