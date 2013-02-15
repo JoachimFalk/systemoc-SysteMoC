@@ -242,8 +242,8 @@ private:
   smoc_firing_state normal, shutdown, lpi, wakeup, init;
 
 public:
-  smoc_vpc_event_p readyTasks;
-  smoc_vpc_event_p noReadyTasks;
+  smoc::smoc_vpc_event_p readyTasks;
+  smoc::smoc_vpc_event_p noReadyTasks;
   smoc_port_out<bool>wup;
   smoc_port_out<bool>sdown;
   smoc_port_out<bool>statechange_out;
@@ -254,18 +254,18 @@ public:
 
   GovernorDPMP(sc_module_name name)
       : smoc_actor( name, init){
-    readyTasks = new smoc_vpc_event();
-    noReadyTasks = new smoc_vpc_event();
+    readyTasks = new smoc::smoc_vpc_event();
+    noReadyTasks = new smoc::smoc_vpc_event();
     //sc_event componentCallback;
     init =  CALL(GovernorDPMP::initProcess) >> normal;
-    normal = !GUARD(GovernorDPMP::hasStatechangeInput) >> Expr::till(*noReadyTasks) >> (sdown(1) && statechange_out(1)) >>
+    normal = !GUARD(GovernorDPMP::hasStatechangeInput) >> smoc::Expr::till(*noReadyTasks) >> (sdown(1) && statechange_out(1)) >>
              CALL(GovernorDPMP::shutdownPowerMode) >> shutdown  |
-             GUARD(GovernorDPMP::hasStatechangeInput) >> Expr::till(*noReadyTasks) >>  (sdown(1) && statechange_in(1) && statechange_out(1)) >> CALL(GovernorDPMP::shutdownPowerMode2) >> shutdown;
-    lpi =    wup(1) >> /*(GUARD(GovernorDPMP::hasNewTasks)) >> */ Expr::till(*readyTasks) >>
+             GUARD(GovernorDPMP::hasStatechangeInput) >> smoc::Expr::till(*noReadyTasks) >>  (sdown(1) && statechange_in(1) && statechange_out(1)) >> CALL(GovernorDPMP::shutdownPowerMode2) >> shutdown;
+    lpi =    wup(1) >> /*(GUARD(GovernorDPMP::hasNewTasks)) >> */ smoc::Expr::till(*readyTasks) >>
              CALL(GovernorDPMP::wakeupPowerMode) >> wakeup;
     shutdown = (sleep(1) && statechange_in(1)) >>
              CALL(GovernorDPMP::sleepPowerMode) >> lpi |
-              /*(GUARD(GovernorDPMP::hasNewTasks)) >>*/ Expr::till(*readyTasks) >>  (wup(1) && interrupted(1)) >>
+              /*(GUARD(GovernorDPMP::hasNewTasks)) >>*/ smoc::Expr::till(*readyTasks) >>  (wup(1) && interrupted(1)) >>
              CALL(GovernorDPMP::wakeupPowerMode) >> wakeup;
     wakeup = norm(1) >>
              CALL(GovernorDPMP::normalPowerMode) >> normal;
