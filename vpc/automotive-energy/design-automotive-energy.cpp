@@ -46,6 +46,8 @@
 #include <systemoc/smoc_port.hpp>
 #include <systemoc/smoc_fifo.hpp>
 #include <systemoc/smoc_node_types.hpp>
+#include <systemoc/smoc_event.hpp>
+#include <systemoc/smoc_expr.hpp>
 #include <CoSupport/Tracing/TracingFactory.hpp>
 
 
