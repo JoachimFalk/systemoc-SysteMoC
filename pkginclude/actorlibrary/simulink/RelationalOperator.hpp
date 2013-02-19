@@ -43,7 +43,7 @@ public:
       eIn = eIn && in[i](1);
     }
 
-    start = eIn                    >> 
+    start = eIn  >> out(1)                 >> 
       CALL(RelationalOperator::process) >> start
       ;
   }
