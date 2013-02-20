@@ -51,14 +51,20 @@ protected:
 
   void process() {   
     
-    T output;
-
+    T output=0.0;
+    
+#ifdef _DEBUG    
+    cout << name() ;
+#endif    
     	    
     for( int i=0; i < PORTS; i++ ){
        if( in[i][0] > 0 )
 	  inputsLogic[i] = true;
 	else
 	  inputsLogic[i] = false;
+#ifdef _DEBUG	
+	cout << " " << inputsLogic[i] << " ";
+#endif
     }
 
     switch(logicOperator)
@@ -105,6 +111,9 @@ protected:
     }
 
     out[0] = output;
+#ifdef _DEBUG    
+    cout << " " << output << " ->" << endl;
+#endif
   }
 
   smoc_firing_state start;

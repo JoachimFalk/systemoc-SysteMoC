@@ -44,18 +44,30 @@ protected:
   std::string operators;
 
   void sum() {   
-    DATA_TYPE output;
-
+    
+    
+#ifdef _DEBUG    
+    cout << name();
+#endif    
+    DATA_TYPE output= 0.0;
+    
     for( int i = 0; i<PORTS; i++ ){
+      
+      DATA_TYPE tmp = in[i][0];
+#ifdef _DEBUG      
+      cout << " " << tmp;
+#endif
+      
       if( operators[i] == '+' ){
-        output = output + in[i][0];
+        output = output + tmp;
       }else if( operators[i] == '-' ){
-        output = output - in[i][0];
-      }else{
-        assert(0);
+        output = output - tmp;
       }
     }
     out[0] = output;
+#ifdef _DEBUG    
+    cout << " " << output << endl;
+#endif
   }
 
   smoc_firing_state start;

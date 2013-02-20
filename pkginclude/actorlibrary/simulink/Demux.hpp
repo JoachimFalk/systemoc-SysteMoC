@@ -29,10 +29,17 @@ public:
 protected:
 
 	void process() {
-		for (int i = 0; i < PORTS; i++) {
+
+#ifdef _DEBUG
+	cout << "Demux " << name() ;
+#endif
 			DATA_TYPE tmp = in[0];
+		for (int i = 0; i < PORTS; i++) {
 			out[i][0] = tmp;
 		}
+#ifdef _DEBUG
+	cout << " out:" << tmp << " ->" << endl;
+#endif
 	}
 
 	smoc_firing_state start;

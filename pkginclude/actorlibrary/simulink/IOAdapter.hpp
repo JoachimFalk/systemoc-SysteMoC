@@ -27,8 +27,18 @@ public:
 
 protected:
 
-  void process() {
-	 out[0] = in[0];
+  void process() 
+  {
+#ifdef _DEBUG
+	 cout << name() ;
+#endif
+	 T tmp = 0.0;
+	 tmp = in[0];
+	 out[0] = tmp;
+	 
+#ifdef _DEBUG	 
+	 cout << " " << tmp << " ->" << endl;
+#endif
   }
 
   smoc_firing_state start;

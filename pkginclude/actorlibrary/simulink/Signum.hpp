@@ -36,14 +36,22 @@ public:
 protected:
 
   void process() {
-
-	T data = in[0];
+#ifdef _DEBUG	
+    cout << name() ;
+#endif    
+    
+	T data = 0.0;
+	data = in[0];
 	if(  data == 0 )
 	  out[0] = 0; 
 	if(  data > 0 )
 	  out[0] = 1;
 	if(  data < 0 )
 	  out[0] = -1; 
+
+#ifdef _DEBUG	
+	cout << " -" << data << " ->" << endl;
+#endif
   }
 
   smoc_firing_state start;

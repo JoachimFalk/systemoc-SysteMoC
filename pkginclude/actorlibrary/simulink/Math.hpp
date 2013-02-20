@@ -33,17 +33,28 @@ protected:
 	int _mathOperator;
 
 	void process() {
+#ifdef _DEBUG	  
+		cout << name() ;
+#endif
+	  
+		T inV = in[0];
+		T outV = 0.0;
+	  
 		switch (_mathOperator) {
 		case 1: // "sqrt"
-			out[0] = std::sqrt(in[0]);
+			outV = std::sqrt(inV);
 			break;
 		case 2: // "exp"
-			out[0] = std::exp(in[0]);
+			outV = std::exp(inV);
 			break;
 		default:
-			// ERROR?
+			// FIXME			
 			break;
 		}
+		out[0] = outV;
+#ifdef _DEBUG		
+		cout << " inV " << inV << " outV " << outV << " ->" << endl;
+#endif		
 	}
 
 	smoc_firing_state start;
