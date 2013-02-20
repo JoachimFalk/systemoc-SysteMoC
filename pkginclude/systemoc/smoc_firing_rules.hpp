@@ -98,6 +98,7 @@ class smoc_firing_state_base
 public:
   typedef smoc_firing_state_base this_type;
 
+  friend class FiringStateBaseImpl;
 protected:
   smoc_firing_state_base(const SmartPtr &p);
 
