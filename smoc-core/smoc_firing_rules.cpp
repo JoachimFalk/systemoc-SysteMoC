@@ -886,7 +886,7 @@ void FiringStateBaseImpl::addTransition(const smoc_transition_list& stl) {
         PartialTransition(
           st->getExpr(),
           st->getInterfaceAction().getAction(),
-          st->getInterfaceAction().getDestState().getImpl()));
+          st->getInterfaceAction().getDestState()->getImpl()));
   }
 }
   
