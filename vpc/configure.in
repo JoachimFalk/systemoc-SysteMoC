@@ -68,6 +68,7 @@ m4_sinclude([automotive-testcase/configure.in.frag])
 m4_sinclude([src-snk/configure.in.frag])
 m4_sinclude([vpc-api/configure.in.frag])
 m4_sinclude([automotive-energy/configure.in.frag])
+m4_sinclude([automotive-diagnosis/configure.in.frag])
 
 SUBDIRS=$subdirs
 AC_SUBST(SUBDIRS)
