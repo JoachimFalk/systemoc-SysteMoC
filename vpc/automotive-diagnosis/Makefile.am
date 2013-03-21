@@ -40,7 +40,8 @@ MY_LDADD += -lsystemoc
 endif
 
 
-diagnosis_SOURCES= design-diagnosis.cpp
+diagnosis_SOURCES= design-diagnosis.cpp\
+	ActorDisabler.cpp	
 diagnosis_LDADD = $(MY_LDADD)
 
 
