@@ -49,8 +49,8 @@ public:
      csc2("CameraSensorComponent2_a73", sc_time(5, SC_MS), sc_time(1, SC_MS), 0.0,"a74", true, "sensor_trace"),
      csc3("CameraSensorComponent3_a57", sc_time(5, SC_MS), sc_time(1, SC_MS), 0.0,"a58"),
      csc4("CameraSensorComponent4_a24", sc_time(5, SC_MS), sc_time(1, SC_MS), 0.0,"a25"),
-     hd1("HDCam1_a2634", sc_time(40, SC_MS), sc_time(1, SC_MS), 0.0,"a2635"),
-     hd2("HDCam2_a2662", sc_time(40, SC_MS), sc_time(1, SC_MS), 0.0,"a2663"),
+//     hd1("HDCam1_a2634", sc_time(40, SC_MS), sc_time(1, SC_MS), 0.0,"a2635"),
+//     hd2("HDCam2_a2662", sc_time(40, SC_MS), sc_time(1, SC_MS), 0.0,"a2663"),
      tr1("TriggerRadar1_a415", sc_time(5, SC_MS), sc_time(1, SC_MS), 0.0,"a416", true, "trace2"),
      tr2("TriggerRadar2_a431", sc_time(5, SC_MS), sc_time(1, SC_MS), 0.0,"a432"),
      sensor("Sensor_a447", sc_time(5, SC_MS), sc_time(1, SC_MS), 0.0,"a448"),
@@ -80,19 +80,19 @@ public:
      fogft("FogLmpFrAct_a1161","a1162","a1163"),
      idc("ImageDataCollector_a226","a227","a228","a229","a230","a231","a232"),
      df("DataFusion_a669","a670","a687","a671"),
-     hdproc("HDprocessing_a2383","a2384","a2385","a2386"),
+ //    hdproc("HDprocessing_a2383","a2384","a2385","a2386"),
      acc("AdaptiveCruiseControl_a745","a746","a811","a747"),
      tbta("ThrottleBreakTorqueArbitration_a776","a777","a778","a779","a780"),
      fogl("FogLmp_a1079","a1080","a1081","a1082","a1083"),
      vac2("VideoActuatorComponent2_a367","a368"),
      vac1("VideoActuatorComponent1_a383","a384", "sensor_trace"),
      foglOn("FogLmpOn_a1191","a1192", "turn01_trace"),
-     hdvidact("HDVidAct_a2498","a2499"),
-     act("Actuators_a905","a906","a907", "trace2"),
-     st1("simpleTask1_a3210", sc_time(3, SC_MS), SC_ZERO_TIME),
-     st2("simpleTask2_a3669", sc_time(4, SC_MS), SC_ZERO_TIME),
-     restbus1send("Restbus1send_a3703", sc_time(4, SC_MS), sc_time(2, SC_MS), "a3704", 0.1),
-     restbus1receive("Restbus1receive_a3719", "a3720")
+//     hdvidact("HDVidAct_a2498","a2499"),
+     act("Actuators_a905","a906","a907", "trace2")
+ //    st1("simpleTask1_a3210", sc_time(3, SC_MS), SC_ZERO_TIME),
+ //    st2("simpleTask2_a3669", sc_time(4, SC_MS), SC_ZERO_TIME),
+//     restbus1send("Restbus1send_a3703", sc_time(4, SC_MS), sc_time(2, SC_MS), "a3704", 0.1),
+//     restbus1receive("Restbus1receive_a3719", "a3720")
   {
 
 smoc_fifo<sc_time> ib1("a187",2), ib2("a195",1), ib3("a203",1), ib4("a211",1);
@@ -101,10 +101,10 @@ ib2.connect(csc3.out).connect(iprep3.in);
 ib3.connect(csc2.out).connect(iprep2.in);
 ib4.connect(csc1.out).connect(iprep1.in);
 
-smoc_fifo<sc_time> hd_chan1("a2678", 5000), hd_chan2("a2685", 5000), hd_chan3("a2512", 5000);
-hd_chan1.connect(hd1.out).connect(hdproc.in1);
-hd_chan2.connect(hd2.out).connect(hdproc.in2);
-hd_chan3.connect(hdproc.out).connect(hdvidact.in);
+//smoc_fifo<sc_time> hd_chan1("a2678", 5000), hd_chan2("a2685", 5000), hd_chan3("a2512", 5000);
+//hd_chan1.connect(hd1.out).connect(hdproc.in1);
+//hd_chan2.connect(hd2.out).connect(hdproc.in2);
+//hd_chan3.connect(hdproc.out).connect(hdvidact.in);
 
 smoc_fifo<sc_time> im1("a285"), im2("a272"), im32("a266"), im42("a260");
 im1.connect(iprep1.out).connect(idc.in4);
@@ -162,8 +162,8 @@ foglmp.connect(fogl.out).connect(slfog.in);
 slfog_c.connect(slfog.out).connect(fogft.in);
 foglmpact.connect(fogft.out).connect(foglOn.in);
 
-smoc_fifo<sc_time> restbus1channel("a3733", 10);
-restbus1channel.connect(restbus1send.out).connect(restbus1receive.in);
+//smoc_fifo<sc_time> restbus1channel("a3733", 10);
+//restbus1channel.connect(restbus1send.out).connect(restbus1receive.in);
 
 /*#ifdef PERFORMANCE_EVALUATION
       CoSupport::SystemC::PerformanceEvaluation::getInstance().startUnit();
@@ -177,7 +177,7 @@ initDiagnosisTasks();
 
 protected:
   SimpleSource_tt  csc1, csc2, csc3, csc4;
-  SimpleSource_tt_hd hd1, hd2;
+  //SimpleSource_tt_hd hd1, hd2;
   SimpleSource_tt  tr1, tr2, sensor;
   SimpleSource_tt  diagnose, turn01, turn02;
   SimpleTask  iprep1, iprep2, iprep3, iprep4;
@@ -194,18 +194,18 @@ protected:
   SimpleTask4_2 idc;
   SimpleTask2_1 acc;
   SimpleTask2_1 df;
-  SimpleTask2_1_hd hdproc;
+ // SimpleTask2_1_hd hdproc;
   SimpleTask2_2 tbta;
   SimpleTask3_1 fogl;
 
   SimpleSink vac2, vac1;
   SimpleSink foglOn;
-  SimpleSink_hd hdvidact;
+//  SimpleSink_hd hdvidact;
   SimpleSink2 act;
 
-  SimpleTask_tt st1, st2;
-  SimpleSource_tt_2  restbus1send;
-  SimpleSink_2 restbus1receive;
+//  SimpleTask_tt st1, st2;
+//  SimpleSource_tt_2  restbus1send;
+//  SimpleSink_2 restbus1receive;
 
   std::string testname;
     int testcost;
