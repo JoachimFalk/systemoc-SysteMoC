@@ -24,7 +24,8 @@ public:
     offset(off),
     nextReleaseTime_(off),
     jitter(jitter),
-    reexecute(false)
+    reexecute(false),
+    periodicActorActive(true)
   {
     // TODO: negative mobility values may result in negative release times
     //nextReleaseTime_ += calculateMobility();
@@ -53,7 +54,12 @@ public:
         reexecute = false;
         return sc_time_stamp();
     }else{
-        return updateReleaseTime();
+    	if(periodicActorActive){
+    		return updateReleaseTime();
+    	}else{
+    		periodicActorActive=true;
+    		return SC_ZERO_TIME;
+    	}
     }
   }
 
@@ -67,6 +73,14 @@ protected:
     reexecute = true;
   }
 
+  void stopPeriodicActorExecution(){
+	  periodicActorActive = false;
+    }
+
+  void restartPeriodicActorExecution(){
+  	  periodicActorActive = true;
+    }
+
 private:
   int period_counter;
   sc_time period;
@@ -74,6 +88,7 @@ private:
   sc_time nextReleaseTime_;
   float jitter;
   bool reexecute;
+  bool periodicActorActive;
 
 };
 
