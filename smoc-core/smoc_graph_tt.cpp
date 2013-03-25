@@ -3,7 +3,8 @@
 
 smoc_graph_tt::smoc_graph_tt(const sc_module_name& name) :
   smoc_graph_base(name, run),
-  ttNodeQueue("ttEventQueue"),
+  // Prefix all SysteMoC internal modules with __smoc_ to enable filtering out the module on smx dump!
+  ttNodeQueue("__smoc_ttEventQueue"),
   run("run")
 {
   constructor();
@@ -11,7 +12,8 @@ smoc_graph_tt::smoc_graph_tt(const sc_module_name& name) :
 
 smoc_graph_tt::smoc_graph_tt() :
   smoc_graph_base(sc_gen_unique_name("smoc_graph_tt"), run),
-  ttNodeQueue("ttNodeQueue"),
+  // Prefix all SysteMoC internal modules with __smoc_ to enable filtering out the module on smx dump!
+  ttNodeQueue("__smoc_ttNodeQueue"),
   run("run")
 {
   constructor();
