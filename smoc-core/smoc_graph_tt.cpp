@@ -125,7 +125,7 @@ void smoc_graph_tt::reEnableActor(std::string actor_name){
   smoc_periodic_actor *entry = dynamic_cast<smoc_periodic_actor *>( nodeToEnable );
       if(entry){
         nodeDisabled[entry] = false;
-        ttNodeQueue.registerNode(entry, entry->getOffset());
+        ttNodeQueue.registerNode(entry, entry->getNextReleaseTime());
       }else{
         //nodes of other types then smoc_periodic_actor will be added to ddf_nodes_activations
         //could be another graph or other nodes
