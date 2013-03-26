@@ -105,9 +105,25 @@ void smoc_graph_tt::scheduleTT() {
 }
 
 void smoc_graph_tt::disableActor(std::string actor_name){
-  std::cout<<"smoc_graph_tt::disable_actor " << actor_name << " has id" << nameToNode[actor_name] << std::endl;
+#ifdef SYSTEMOC_ENABLE_VPC
+  if(nameToNode[actor_name] == 0){
+      //first run of disableActor (no initialization of graph)
+    for(smoc_node_list::const_iterator iter = getNodes().begin();
+          iter != getNodes().end(); ++iter)
+      {
+        nameToNode[(*iter)->name()] = *iter;
+      }
+  }
+#endif //SYSTEMOC_ENABLE_VPC
+
   assert(nameToNode[actor_name] != 0);
   smoc_root_node* nodeToDisable = nameToNode[actor_name];
+
+#ifdef SYSTEMOC_ENABLE_VPC
+  smoc_actor *entry = dynamic_cast<smoc_actor *>( nodeToDisable );
+  entry->setActive(false);
+#endif //SYSTEMOC_ENABLE_VPC
+
   if(ddf_nodes_activations.contains(*nodeToDisable)){
     ddf_nodes_activations.remove(*nodeToDisable);
   }else{
@@ -122,6 +138,10 @@ void smoc_graph_tt::disableActor(std::string actor_name){
 void smoc_graph_tt::reEnableActor(std::string actor_name){
   assert(nameToNode[actor_name] != 0);
   smoc_root_node* nodeToEnable = nameToNode[actor_name];
+#ifdef SYSTEMOC_ENABLE_VPC
+  smoc_actor *actor = dynamic_cast<smoc_actor *>( nodeToEnable );
+  actor->setActive(true);
+#endif //SYSTEMOC_ENABLE_VPC
   smoc_periodic_actor *entry = dynamic_cast<smoc_periodic_actor *>( nodeToEnable );
       if(entry){
         nodeDisabled[entry] = false;
