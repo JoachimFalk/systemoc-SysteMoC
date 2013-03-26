@@ -68,6 +68,10 @@ bool smoc_actor::canExecute()
     smoc_actor* sActor =static_cast<smoc_actor*>(this);
     bool canFire = sActor->canFire();
 
+#ifdef SYSTEMOC_ENABLE_VPC
+    canFire = canFire && getActive;
+#endif //SYSTEMOC_ENABLE_VPC
+
     return canFire;
 }
 
