@@ -88,17 +88,35 @@ public:
   }
 };
 
-class m_h_top: public smoc_graph {
+template <typename T>
+class m_h_foo: public smoc_graph {
+public:
+  smoc_port_out<T> out;
 protected:
   m_h_src<int>     src;
   m_h_sink<int>    snk1, snk2;
 public:
-  m_h_top(sc_module_name name, size_t iter)
+  m_h_foo(sc_module_name name, size_t iter)
     : smoc_graph(name),
       src("src", iter),
       snk1("snk1"), snk2("snk2") {
     connectNodePorts(src.out, snk1.in);
     connectNodePorts(src.out, snk2.in);
+    src.out(out);
+  }
+};
+
+class m_h_top: public smoc_graph {
+protected:
+  m_h_foo<int>   foo;
+  m_h_sink<int>  snk3, snk4;
+public:
+  m_h_top(sc_module_name name, size_t iter)
+    : smoc_graph(name),
+      foo("foo", iter),
+      snk3("snk3"), snk4("snk4") {
+    connectNodePorts(foo.out, snk3.in);
+    connectNodePorts(foo.out, snk4.in);
   }
 };
 
