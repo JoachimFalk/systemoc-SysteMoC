@@ -97,19 +97,25 @@ protected:
     IFACE::template PortMixin<smoc_port_base<IFACE>,IFACE>::finalise();
   }
 
-  iface_type       *operator -> () {
-    smoc::Detail::PortBaseIf *iface = this->get_interface();
-    if (iface == NULL)
-      this->report_error(SC_ID_GET_IF_, "port is not bound");
-    return static_cast<iface_type *>(iface);
-  }
+// FIXME: If we need this again, we have to rework this to support multiple interfaces.
+//        We would need to return a proxy class that calls the interface method on all the
+//        interfaces of this port!
+//iface_type       *operator -> () {
+//  smoc::Detail::PortBaseIf *iface = this->get_interface();
+//  if (iface == NULL)
+//    this->report_error(SC_ID_GET_IF_, "port is not bound");
+//  return static_cast<iface_type *>(iface);
+//}
 
-  iface_type const *operator -> () const {
-    const smoc::Detail::PortBaseIf *iface = this->get_interface();
-    if (iface == NULL)
-      this->report_error(SC_ID_GET_IF_, "port is not bound");
-    return static_cast<iface_type const *>(iface);
-  }
+// FIXME: If we need this again, we have to rework this to support multiple interfaces.
+//        We would need to return a proxy class that calls the interface method on all the
+//        interfaces of this port!
+//iface_type const *operator -> () const {
+//  const smoc::Detail::PortBaseIf *iface = this->get_interface();
+//  if (iface == NULL)
+//    this->report_error(SC_ID_GET_IF_, "port is not bound");
+//  return static_cast<iface_type const *>(iface);
+//}
 public:
   /// @brief bind interface to this port
   /// This bounce function changes the visibility

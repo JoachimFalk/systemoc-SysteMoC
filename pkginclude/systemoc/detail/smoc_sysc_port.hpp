@@ -141,16 +141,15 @@ class smoc_sysc_port
 
   template <class PORT, class IFACE> friend class smoc::Detail::PortInBaseIf::PortMixin;
   template <class PORT, class IFACE> friend class smoc::Detail::PortOutBaseIf::PortMixin;
-
-//FIXME: HACK make protected or private
-public:
-  //FIXME(MS): allow more than one "IN-Port" per Signal
-  smoc_sysc_port           *parent;
-  smoc_sysc_port           *child;
 private:
+
   typedef std::vector<smoc::Detail::PortBaseIf *>     Interfaces;
   typedef std::vector<smoc_port_access_base_if *>     PortAccesses;
   typedef std::map<size_t, smoc::smoc_event_and_list> BlockEventMap;
+
+  //FIXME(MS): allow more than one "IN-Port" per Signal
+  smoc_sysc_port           *parent;
+  smoc_sysc_port           *child;
 
   Interfaces    interfaces;
   PortAccesses  portAccesses;
@@ -249,16 +248,8 @@ protected:
   }
 #endif //SYSTEMOC_ENABLE_DEBUG
 public:
-  // get the first interface without checking for nil
-  smoc::Detail::PortBaseIf       *get_interface()
-    { return interfaces.front(); }
-  smoc::Detail::PortBaseIf const *get_interface() const
-    { return interfaces.front(); }
-
-  smoc_sysc_port *getParentPort() const
-    { return parent; }
-  smoc_sysc_port *getChildPort() const
-    { return child; }
+  smoc_sysc_port const *getParentPort() const;
+  smoc_sysc_port const *getActorPort() const;
 
   virtual bool isInput()  const = 0;
   bool         isOutput() const
@@ -266,6 +257,16 @@ public:
 
   const char *name() const
     { return sc_core::sc_object::name(); }
+
+//// get the first interface without checking for nil
+//smoc::Detail::PortBaseIf       *get_interface()
+//  { return interfaces.front(); }
+//smoc::Detail::PortBaseIf const *get_interface() const
+//  { return interfaces.front(); }
+private:
+  // disable get_interface() from sc_core::sc_port_base
+  sc_core::sc_interface       *get_interface();
+  sc_core::sc_interface const *get_interface() const;
 };
 
 typedef std::list<smoc_sysc_port *>       smoc_sysc_port_list;

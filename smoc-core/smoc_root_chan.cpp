@@ -51,27 +51,6 @@ using CoSupport::String::Concat;
 // value_type will be constructed as T(), which initializes primite types to 0!
 static std::map<std::string, size_t> _smoc_channel_name_map;
 
-// FIXME: Introduce hacks or whatever means neccessary to get
-// rid of getParentPort()
-// FIXME: not needed anymore?
-/*sc_port_base* getRootPort(sc_port_base* p) {
-  smoc_sysc_port* sp = dynamic_cast<smoc_sysc_port*>(p);
-  if(!sp) return p;
-  while(sp->getParentPort())
-    sp = sp->getParentPort();
-  return sp;
-}*/
-
-// FIXME: Introduce hacks or whatever means neccessary to get
-// rid of getChildPort()
-sc_port_base* getLeafPort(sc_port_base* p) {
-  smoc_sysc_port* sp = dynamic_cast<smoc_sysc_port*>(p);
-  if(!sp) return p;
-  while(sp->getChildPort())
-    sp = sp->getChildPort();
-  return sp;
-}
-
 smoc_root_chan::smoc_root_chan(const std::string& name)
   : sc_prim_channel(name.empty() ? sc_gen_unique_name( "smoc_unnamed_channel" ) : name.c_str()),
     myName(name),
@@ -116,9 +95,11 @@ void smoc_root_chan::generateName() {
       for (EntryMap::const_iterator iter = entries.begin();
            iter != entries.end();
            ++iter ) {
+        smoc_sysc_port const *p  = dynamic_cast<smoc_sysc_port *>(iter->second);
+        sc_port_base   const *ap = p != NULL ? p->getActorPort() : iter->second;
         genName
           << (iter == entries.begin() ? "" : "|")
-          << getLeafPort(iter->second)->get_parent()->name();
+          << ap->get_parent()->name();
       }
     }
     genName << "_";
@@ -128,9 +109,11 @@ void smoc_root_chan::generateName() {
       for (OutletMap::const_iterator iter = outlets.begin();
            iter != outlets.end();
            ++iter ) {
+        smoc_sysc_port const *p  = dynamic_cast<smoc_sysc_port *>(iter->second);
+        sc_port_base   const *ap = p != NULL ? p->getActorPort() : iter->second;
         genName
           << (iter == outlets.begin() ? "" : "|")
-          << getLeafPort(iter->second)->get_parent()->name();
+          << ap->get_parent()->name();
       }
     }
     genName << "_";

@@ -87,9 +87,20 @@ void smoc_sysc_port::finalise() {
 #endif // SYSTEMOC_DEBUG
 }
 
+smoc_sysc_port const *smoc_sysc_port::getParentPort() const {
+  return parent;
+}
+
+smoc_sysc_port const *smoc_sysc_port::getActorPort() const {
+  smoc_sysc_port const *retval = this;
+  while (retval->child)
+    retval = retval->child;
+  return retval;
+}
+
 #ifdef SYSTEMOC_ENABLE_VPC
 void smoc_sysc_port::finaliseVpcLink(std::string actorName){
-  assert (getLeafPort(this) == this);
+  assert (this->getActorPort() == this);
   for (Interfaces::iterator iter = interfaces.begin();
        iter != interfaces.end();
        ++iter) {

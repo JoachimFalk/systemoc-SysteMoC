@@ -260,8 +260,10 @@ void printConnectedActors(const smoc_root_chan *chan, CoSupport::Streams::Filter
   for (smoc_port_registry::EntryMap::const_iterator iter = entries.begin();
       iter != entries.end();
       ++iter ) {
+    smoc_sysc_port const *p  = dynamic_cast<smoc_sysc_port *>(iter->second);
+    sc_port_base   const *ap = p != NULL ? p->getActorPort() : iter->second;
     stream << "<source actor=\""
-        << getLeafPort(iter->second)->get_parent()->name()
+        << ap->get_parent()->name()
         << "\"/>" << std::endl;
   }
 
@@ -269,8 +271,10 @@ void printConnectedActors(const smoc_root_chan *chan, CoSupport::Streams::Filter
   for (smoc_port_registry::OutletMap::const_iterator iter = outlets.begin();
       iter != outlets.end();
       ++iter ) {
+    smoc_sysc_port const *p  = dynamic_cast<smoc_sysc_port *>(iter->second);
+    sc_port_base   const *ap = p != NULL ? p->getActorPort() : iter->second;
     stream << "<sink actor=\""
-        << getLeafPort(iter->second)->get_parent()->name()
+        << ap->get_parent()->name()
         << "\"/>" << std::endl;
   }
 }

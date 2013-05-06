@@ -61,7 +61,6 @@ class smoc_multicast_sr_signal_chan_base
 : public smoc_root_chan {
   typedef smoc_multicast_sr_signal_chan_base  this_type;
 public:
-  friend class smoc_graph_sr;
   friend class smoc_multicast_outlet_base;
   friend class smoc_multicast_entry_base;
 
@@ -130,7 +129,6 @@ private:
 
 
 class smoc_multicast_outlet_base {
-  friend class smoc_graph_sr;
 public:
   virtual ~smoc_multicast_outlet_base() {}
 protected:
@@ -139,7 +137,6 @@ protected:
 };
 
 class smoc_multicast_entry_base {
-  friend class smoc_graph_sr;  
 public:
   virtual ~smoc_multicast_entry_base() {}
 protected:
