@@ -80,17 +80,6 @@ namespace Detail {
 
 _SMOC_GENERATE_APPLY_VISITOR(smoc_graph)
 
-/* smoc_graph_sr */
-
-namespace Detail {
-  template<template <class> class M, class Visitor>
-  typename Visitor::result_type
-  apply_visitor_helper(Visitor &visitor, typename M<smoc_graph_sr>::type *ptr)
-    { return visitor(*ptr); }
-} // namespace Detail
-
-_SMOC_GENERATE_APPLY_VISITOR(smoc_graph_sr)
-
 /* smoc_graph_base */
 
 namespace Detail {
@@ -98,7 +87,6 @@ namespace Detail {
   typename Visitor::result_type
   apply_visitor_helper(Visitor &visitor, typename M<smoc_graph_base>::type *ptr) {
     _SMOC_HANDLE_DERIVED_CLASS(smoc_graph);
-    _SMOC_HANDLE_DERIVED_CLASS(smoc_graph_sr);
     assert(!"WTF?! Unhandled derived class of smoc_graph_base!");
   }
 } // namespace Detail

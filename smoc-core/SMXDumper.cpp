@@ -66,7 +66,7 @@ namespace smoc { namespace Detail {
 
 namespace SGX = SystemCoDesigner::SGX;
 
-typedef std::map<sc_port_base *, SGX::Port::Ptr>  SCPortBase2Port;
+typedef std::map<sc_port_base const *, SGX::Port::Ptr>  SCPortBase2Port;
 typedef std::map<sc_interface *, SGX::Port::Ptr>  SCInterface2Port;
 
 using CoSupport::String::Concat;

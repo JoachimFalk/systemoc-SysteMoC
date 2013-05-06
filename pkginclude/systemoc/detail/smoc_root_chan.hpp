@@ -110,6 +110,4 @@ public:
 
 typedef std::list<smoc_root_chan *> smoc_chan_list;
 
-sc_port_base* getLeafPort(sc_port_base* p);
-
 #endif // _INCLUDED_DETAIL_SMOC_ROOT_CHAN_HPP

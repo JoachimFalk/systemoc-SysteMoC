@@ -247,29 +247,4 @@ private:
   smoc_node_ready_list ol;
 };
 
-/**
- * SR graph. TODO: write FSM
- */
-class smoc_graph_sr : public smoc_graph_base {
-public:
-  // construct graph with name
-  explicit smoc_graph_sr(const sc_module_name& name);
-
-  // construct graph with generated name
-  smoc_graph_sr();
-
-private:
-  // graph scheduler FSM states
-  smoc_firing_state init, stop;
-
-  // common constructor code
-  void constructor();
-
-  void action();
-
-  void scheduleSR(smoc_graph_base *c);
-  size_t countDefinedInports(smoc_root_node &n);
-  size_t countDefinedOutports(smoc_root_node &n);
-};
-
 #endif // _INCLUDED_SMOC_GRAPH_TYPE_HPP
