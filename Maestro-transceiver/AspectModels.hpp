@@ -218,9 +218,11 @@ public:
 
         if ((*itr).path().extension() == ".xml")
           {
-
+#if BOOST_FILESYSTEM_VERSION > 2
+            string xmlFileName = (*itr).path().filename().native();
+#else
             string xmlFileName = (*itr).path().filename();
-
+#endif
 
 
             try {
@@ -598,9 +600,11 @@ public:
             {
 
 
+#if BOOST_FILESYSTEM_VERSION > 2
+              string xmlFileName = (*itr).path().filename().native();
+#else
               string xmlFileName = (*itr).path().filename();
-
-
+#endif
 
               try {
                   XMLPlatformUtils::Initialize();
