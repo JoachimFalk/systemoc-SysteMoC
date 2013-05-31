@@ -26,12 +26,6 @@
 #include "simple_sink2.hpp"
 #include "ActorDisabler.hpp"
 #include <CoSupport/Tracing/TracingFactory.hpp>
-#include<Bistdata.hpp>
-#include<Mux.hpp>
-#include<Demux.hpp>
-#include<Bisttest.hpp>
-#include<Testanalyser.hpp>
-
 
 #define PERFORMANCE_EVALUATION
 
@@ -169,10 +163,6 @@ restbus1channel.connect(restbus1send.out).connect(restbus1receive.in);
       CoSupport::SystemC::PerformanceEvaluation::getInstance().startUnit();
 #endif // PERFORMANCE_EVALUATION
 */
-
-
-initDiagnosisTasks();
-
   }
 
 protected:
@@ -206,118 +196,6 @@ protected:
   SimpleTask_tt st1, st2;
   SimpleSource_tt_2  restbus1send;
   SimpleSink_2 restbus1receive;
-
-  std::string testname;
-    int testcost;
-    int result;
-    int period1;
-    int payload1;
-    int period2;
-    int payload2;
-    int period3;
-    int payload3;
-    int period4;
-    int payload4;
-    int period5;
-    int payload5;
-
-    void initActors(std::string testname, int testcost, int result, int period1, int payload1, int period2, int payload2, int period3, int payload3, int period4, int payload4, int period5, int payload5){
-
-  		Bistdata 		*bistdata1 = new Bistdata(("bistdata"+testname).c_str(), testcost);
-  		Mux   			*mux1 = new Mux(("mux"+testname).c_str(),true, testcost, result, period1, payload1, period2, payload2, period3, payload3, period4, payload4, period5, payload5);
-  	  	Mux				*mux2 =	new Mux(("mux2"+testname).c_str(),false, testcost, result, period1, payload1, period2, payload2, period3, payload3, period4, payload4, period5, payload5);
-  	    Demux			*demux1 = new Demux(("demux"+testname).c_str(), payload1, payload2, payload3, payload4, payload5);
-  	  	Demux			*demux2 = new Demux(("demux2"+testname).c_str(), payload1, payload2, payload3, payload4, payload5);
-  	    Bisttest		*bisttest1 = new Bisttest(("bisttest"+testname).c_str(), testcost, result, payload1, payload2, payload3, payload4, payload5);
-  	    Testanalyser	*testanalyser1 = new Testanalyser(("testanalyser"+testname).c_str(), result, payload1, payload2, payload3, payload4, payload5);
-
-
-  	      smoc_fifo<int> bist2mux(("bist2mux"+testname).c_str(), testcost);
-  	      connectNodePorts(bistdata1->out, mux1->in,bist2mux);
-
-//  	      std::cout<<"connected "<<bistdata1->name() <<" to "<<mux1->name()<<std::endl;
-//  	      std::cout<<"name of channel is "<< ("bist2mux"+testname).c_str() << std::endl;
-
-
-
-  	      smoc_fifo<int> mux2demux(("mux2demux"+testname).c_str(), 2);
-  	      connectNodePorts(mux1->out1, demux1->in1,mux2demux);
-
-  	      smoc_fifo<int> mux2demux2(("mux2demux2"+testname).c_str(), 2);
-  	      connectNodePorts(mux1->out2, demux1->in2,mux2demux2);
-
-  	      smoc_fifo<int> mux2demux3(("mux2demux3"+testname).c_str(), 2);
-  	      connectNodePorts(mux1->out3, demux1->in3, mux2demux3);
-
-  	      smoc_fifo<int> mux2demux4(("mux2demux4"+testname).c_str(), 2);
-  	      connectNodePorts(mux1->out4, demux1->in4, mux2demux4);
-
-  	      smoc_fifo<int> mux2demux5(("mux2demux5"+testname).c_str(), 2);
-  	      connectNodePorts(mux1->out5, demux1->in5, mux2demux5);
-
-  	      smoc_fifo<int> demux2bist(("demux2bist"+testname).c_str(), 8);
-  	      connectNodePorts(demux1->out, bisttest1->in,demux2bist);
-
-  	      smoc_fifo<int> test2mux(("test2mux"+testname).c_str(), result);
-  	      connectNodePorts(bisttest1->out, mux2->in,test2mux);
-
-  	      smoc_fifo<int> mux22demux2(("mux22demux2"+testname).c_str(), 2);
-  	      connectNodePorts(mux2->out1, demux2->in1,mux22demux2);
-
-  	      smoc_fifo<int> mux22demux22(("mux22demux22"+testname).c_str(), 2);
-  	      connectNodePorts(mux2->out2, demux2->in2,mux22demux22);
-
-  	      smoc_fifo<int> mux22demux23(("mux22demux23"+testname).c_str(), 2);
-  	      connectNodePorts(mux2->out3, demux2->in3, mux22demux23);
-
-  	      smoc_fifo<int> mux22demux24(("mux22demux24"+testname).c_str(), 2);
-  	      connectNodePorts(mux2->out4, demux2->in4, mux22demux24);
-
-  	      smoc_fifo<int> mux22demux25(("mux22demux25"+testname).c_str(), 2);
-  	      connectNodePorts(mux2->out5, demux2->in5, mux22demux25);
-
-  	      smoc_fifo<int> demux2testanalyser(("demux2testanalyser"+testname).c_str(), 8);
-  	      connectNodePorts(demux2->out, testanalyser1->in,demux2testanalyser);
-    }
-
-    void initDiagnosisTasks(){
-  	  std::string line;
-  	  char split_char = ',';
-
-  	    ifstream parametrization ("parametrization.txt");
-  	    if (parametrization.is_open()){
-  		      while (getline (parametrization,line)){
-
-  		    std::istringstream split(line);
-  	        std::vector<std::string> parameter;
-
-  	        for (std::string each; std::getline(split, each, split_char); parameter.push_back(each));
-
-
-  	           if(parameter.size() == 13){
-
-  	           testname = parameter[0];
-  	           testcost = atoi(parameter[1].c_str());
-  	 	       result 	= atoi(parameter[2].c_str());
-  	 	       payload1 = atoi(parameter[3].c_str());
-  	 	       period1 	= atoi(parameter[4].c_str());
-  	 	       payload2 = atoi(parameter[5].c_str());
-  	 	       period2 	= atoi(parameter[6].c_str());
-  	 	       payload3 = atoi(parameter[7].c_str());
-  	 	       period3 	= atoi(parameter[8].c_str());
-  	 	       payload4 = atoi(parameter[9].c_str());
-  	 	       period4 	= atoi(parameter[10].c_str());
-  	 	       payload5	= atoi(parameter[11].c_str());
-  	 	       period5 	= atoi(parameter[12].c_str());
-
-  	 	      initActors(testname, testcost, result, period1, payload1, period2, payload2, period3, payload3, period4, payload4, period5, payload5);
-  	           }
-  	      }
-
-  	      parametrization.close();
-  	    }
-    }
-
 };
 
 int sc_main (int argc, char **argv) {
