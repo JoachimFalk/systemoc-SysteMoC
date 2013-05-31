@@ -4,8 +4,10 @@ DISABLE TTGraph.CameraSensorComponent2_a73
 DISABLE TTGraph.CameraSensorComponent3_a57
 DISABLE TTGraph.CameraSensorComponent4_a24
 @100ms
-DISABLE TTGraph.WheelSensor_a506
+DISABLE TTGraph.HDCam1_a2634
+DISABLE TTGraph.HDCam2_a2662
 
 @500ms
-ENABLE TTGraph.WheelSensor_a506
+ENABLE TTGraph.HDCam1_a2634
+ENABLE TTGraph.HDCam2_a2662
 
