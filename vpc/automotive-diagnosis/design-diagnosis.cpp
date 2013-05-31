@@ -325,7 +325,7 @@ int sc_main (int argc, char **argv) {
 
   CoSupport::Tracing::TracingFactory::getInstance().setTraceFile("tracing.log");
   TTGraph tt_Test("TTGraph");
-  ActorDisabler disabler1(&tt_Test);
+  //ActorDisabler disabler1(&tt_Test);
   smoc_scheduler_top top(tt_Test);
 
   sc_start(sc_time(runtime,SC_MS));
