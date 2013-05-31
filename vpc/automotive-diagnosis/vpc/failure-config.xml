@@ -1,29 +1,11 @@
-@0ms
-DISABLE TTGraph.bistdatabisttest
-DISABLE TTGraph.muxbisttest
-DISABLE TTGraph.mux2bisttest
-DISABLE TTGraph.demuxbisttest
-DISABLE TTGraph.demux2bisttest
-DISABLE TTGraph.bisttestbisttest
-DISABLE TTGraph.testanalyserbisttest
+@10ms
+DISABLE TTGraph.CameraSensorComponent1_a89
+DISABLE TTGraph.CameraSensorComponent2_a73
+DISABLE TTGraph.CameraSensorComponent3_a57
+DISABLE TTGraph.CameraSensorComponent4_a24
 @100ms
-DISABLE TTGraph.ImagePreprocessing1_a169
-DISABLE TTGraph.ef2_a1032
-@200ms
-ENABLE TTGraph.bistdatabisttest
-ENABLE TTGraph.muxbisttest
-ENABLE TTGraph.mux2bisttest
-ENABLE TTGraph.demuxbisttest
-ENABLE TTGraph.demux2bisttest
-ENABLE TTGraph.bisttestbisttest
-ENABLE TTGraph.testanalyserbisttest
-@2000ms
-DISABLE TTGraph.bistdatabisttest
-DISABLE TTGraph.muxbisttest
-DISABLE TTGraph.mux2bisttest
-DISABLE TTGraph.demuxbisttest
-DISABLE TTGraph.demux2bisttest
-DISABLE TTGraph.bisttestbisttest
-DISABLE TTGraph.testanalyserbisttest
-ENABLE TTGraph.ef2_a1032
-ENABLE TTGraph.ImagePreprocessing1_a169
+DISABLE TTGraph.WheelSensor_a506
+
+@500ms
+ENABLE TTGraph.WheelSensor_a506
+
