@@ -199,14 +199,14 @@
     <hop name="Mem" >
     	<timing latency="59 us" dii="59 us" />
     </hop>
-    <hop name="Bus" > 
+    <hop name="Bus2" > 
     	<attribute type="priority" value="3" /> 
     	<timing latency="50 us" dii="50 us" powermode="FAST"/>
     	<timing latency="50 us" dii="50 us" powermode="SLOW"/>
     	<timing latency="50 us" dii="50 us" powermode="FAST"/>
     </hop> 
   	<hop name="CPU_2" >
-    	<timing latency="1 us" dii="1 us" />
+    	<timing latency="60 us" dii="60 us" />
     </hop>
   </route>
   
