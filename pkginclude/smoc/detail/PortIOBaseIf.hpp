@@ -176,7 +176,7 @@ protected:
   /// @brief Reset
   virtual void reset() {}
 public:
-  virtual size_t      inTokenId() const = 0;
+//virtual size_t      inTokenId() const = 0;
   virtual size_t      numAvailable() const = 0;
   virtual std::string getChannelName() const = 0;
 
@@ -302,7 +302,7 @@ protected:
   /// @brief Reset
   virtual void reset() {}
 public:
-  virtual size_t      outTokenId() const = 0;
+//virtual size_t      outTokenId() const = 0;
   virtual size_t      numFree() const = 0;
   virtual std::string getChannelName() const = 0;
 

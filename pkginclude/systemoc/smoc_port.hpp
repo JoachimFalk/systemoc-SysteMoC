@@ -164,11 +164,11 @@ protected:
 public:
   bool isInput() const { return true; }
 
-  size_t tokenId(size_t i=0) const
-    { return (*this)->inTokenId() + i; }
-  
+//size_t tokenId(size_t i=0) const
+//  { return (*this)->inTokenId() + i; }
+
   size_t numAvailable() const
-    { return (*this)->numAvailable(); }
+    { return this->availableCount(); }
 };
 
 template <typename IFACE>
@@ -189,11 +189,11 @@ protected:
 public:
   bool isInput() const { return false; }
  
-  size_t tokenId(size_t i=0) const
-    { return (*this)->outTokenId() + i; }
+//size_t tokenId(size_t i=0) const
+//  { return (*this)->outTokenId() + i; }
   
   size_t numFree() const
-    { return (*this)->numFree(); }
+    { return this->availableCount(); }
 };
 
 template <typename T>

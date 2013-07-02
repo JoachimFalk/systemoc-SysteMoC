@@ -132,3 +132,9 @@ void smoc_sysc_port::finaliseVpcLink(std::string actorName){
   }
 }
 #endif //SYSTEMOC_ENABLE_VPC
+
+// disable get_interface() from sc_core::sc_port_base
+sc_core::sc_interface       *smoc_sysc_port::get_interface()
+ { assert(!"WTF?! The method smoc_sysc_port::get_interface() is disabled and should have never been called!"); }
+sc_core::sc_interface const *smoc_sysc_port::get_interface() const
+ { assert(!"WTF?! The method smoc_sysc_port::get_interface() const is disabled and should have never been called!"); }

@@ -141,15 +141,18 @@ class smoc_sysc_port
 
   template <class PORT, class IFACE> friend class smoc::Detail::PortInBaseIf::PortMixin;
   template <class PORT, class IFACE> friend class smoc::Detail::PortOutBaseIf::PortMixin;
+public:
+  typedef std::vector<smoc::Detail::PortBaseIf *>       Interfaces;
+  typedef std::vector<smoc::Detail::PortBaseIf const *> ConstInterfaces;
 private:
-
-  typedef std::vector<smoc::Detail::PortBaseIf *>     Interfaces;
   typedef std::vector<smoc_port_access_base_if *>     PortAccesses;
   typedef std::map<size_t, smoc::smoc_event_and_list> BlockEventMap;
 
-  //FIXME(MS): allow more than one "IN-Port" per Signal
-  smoc_sysc_port           *parent;
-  smoc_sysc_port           *child;
+  smoc_sysc_port *parent;
+  // FIXME: In the future the FIFO may not be at the lca level of the connected actors.
+  //        Hence, we may have multiple FIFOs at a lower level in the pg hierarchy.
+  //        Therefore, we might need to support multiple child ports.
+  smoc_sysc_port *child; 
 
   Interfaces    interfaces;
   PortAccesses  portAccesses;
@@ -263,6 +266,11 @@ public:
 //  { return interfaces.front(); }
 //smoc::Detail::PortBaseIf const *get_interface() const
 //  { return interfaces.front(); }
+
+  Interfaces      const &get_interfaces()
+    { return interfaces; }
+  ConstInterfaces const &get_interfaces() const
+    { return reinterpret_cast<ConstInterfaces const &>(interfaces); }
 private:
   // disable get_interface() from sc_core::sc_port_base
   sc_core::sc_interface       *get_interface();
