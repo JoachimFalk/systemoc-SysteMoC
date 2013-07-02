@@ -62,6 +62,8 @@
 #include <systemoc/smoc_multiplex_fifo.hpp>
 #include <systemoc/smoc_multireader_fifo.hpp>
 
+#define SYSTEMOC_DEBUG
+
 namespace smoc { namespace Detail {
 
 namespace SGX = SystemCoDesigner::SGX;
@@ -380,6 +382,8 @@ public:
 
   void operator ()(smoc_reset_chan &obj);
 
+  ~GraphSubVisitor();
+
   using ProcessSubVisitor::operator();
 };
 
@@ -413,22 +417,33 @@ public:
     port.direction() = p.isInput() ? SGX::Port::In : SGX::Port::Out;
     sassert(psv.ports.insert(std::make_pair(&p, &port)).second);
     psv.proc.ports().push_back(port);
+    if (p.getActorPort() == &p) {
+#ifdef SYSTEMOC_DEBUG
+      std::cerr << p.name() << " => expectedChannelConnections";
+#endif
+      for (smoc_sysc_port::Interfaces::const_iterator iter = p.get_interfaces().begin();
+           iter != p.get_interfaces().end();
+           ++iter) {
+#ifdef SYSTEMOC_DEBUG
+        std::cerr << " " << reinterpret_cast<void *>(*iter);
+#endif
+        sassert(psv.epc.expectedChannelConnections.insert(
+          std::make_pair(*iter, &port)).second);
+      }
+#ifdef SYSTEMOC_DEBUG
+      std::cerr << std::endl;
+#endif
+    }
     if (p.getParentPort()) {
 #ifdef SYSTEMOC_DEBUG
       std::cerr << p.name() << " => expectedOuterPorts " << p.getParentPort()->name() << std::endl;
 #endif
       sassert(psv.epc.expectedOuterPorts.insert(
         std::make_pair(p.getParentPort(), &port)).second);
-    } else {
-#ifdef SYSTEMOC_DEBUG
-      std::cerr << p.name() << " => expectedChannelConnections" << std::endl;
-#endif
-      sassert(psv.epc.expectedChannelConnections.insert(
-        std::make_pair(p.get_interface(), &port)).second);
     }
     SCPortBase2Port::iterator iter = psv.expectedOuterPorts.find(&p);
     if (iter != psv.expectedOuterPorts.end()) {
-      port.innerConnectedPort() = iter->second;
+      port.otherPorts().insert(iter->second);
       psv.expectedOuterPorts.erase(iter); // handled it!
     }
 #ifdef SYSTEMOC_DEBUG
@@ -480,7 +495,10 @@ public:
       SCInterface2Port::iterator iter =
         gsv.expectedChannelConnections.find(sci);
       if (iter != gsv.expectedChannelConnections.end()) {
-        pChan.peerPort() = iter->second;
+#ifdef SYSTEMOC_DEBUG
+        std::cerr << "DumpFifoBase::connectPort handeled expectedChannelConnection " << reinterpret_cast<void *>(iter->first) << std::endl;
+#endif
+        pChan.actorPort() = iter->second;
         gsv.expectedChannelConnections.erase(iter); // handled it!
         return;
       }
@@ -490,8 +508,11 @@ public:
       SCInterface2Port::iterator iter =
         gsv.unclassifiedPorts.find(sci);
       if (iter != gsv.unclassifiedPorts.end()) {
+#ifdef SYSTEMOC_DEBUG
+        std::cerr << "DumpFifoBase::connectPort handeled unclassifiedPort " << reinterpret_cast<void *>(iter->first) << std::endl;
+#endif
         iter->second->direction() = d;
-        pChan.peerPort() = iter->second;
+        pChan.actorPort() = iter->second;
         gsv.unclassifiedPorts.erase(iter); // handled it!
         return;
       }
@@ -895,6 +916,14 @@ void GraphSubVisitor::operator ()(smoc_reset_chan &obj) {
   DumpResetNet(*this)(obj);
 }
 
+GraphSubVisitor::~GraphSubVisitor() {
+  // Kick expectedChannelConnections one layer up
+  epc.expectedChannelConnections.insert(
+    expectedChannelConnections.begin(),
+    expectedChannelConnections.end());
+  expectedChannelConnections.clear();
+}
+
 void dumpSMX(std::ostream &file, smoc_simulation_ctx *simCTX, smoc_graph_base &g) {
   SGX::NetworkGraphAccess ngx;
   SMXDumpCTX              ctx(simCTX);
@@ -909,7 +938,7 @@ void dumpSMX(std::ostream &file, smoc_simulation_ctx *simCTX, smoc_graph_base &g
   ngx.architectureGraphPtr() = SGX::ArchitectureGraph("dummy architecture graph").toPtr(); 
   // There may be dangling ports => erase them or we get an assertion!
   epc.expectedOuterPorts.clear();
-  epc.expectedChannelConnections.clear();
+//epc.expectedChannelConnections.clear();
   ngx.save(file);
 }
 
