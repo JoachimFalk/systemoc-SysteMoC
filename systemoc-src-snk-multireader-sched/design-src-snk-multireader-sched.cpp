@@ -52,8 +52,7 @@ private:
   void src() {
     for(size_t j = 0; j < N; ++j) {
       std::cout
-        << name() << ": generate token with id "
-        << out.tokenId(j) << " with value " << i << std::endl;
+        << name() << ": generate token with value " << i << std::endl;
       out[j] = i++; --iter;
     }
   }
@@ -77,8 +76,7 @@ private:
   void sink() {
     for(size_t i = 0; i < N; ++i) {
       std::cout
-        << name() << ": received token with id "
-        << in.tokenId(i) << " and value " << in[i] << std::endl;
+        << name() << ": received token with value " << in[i] << std::endl;
     }
   }
   
