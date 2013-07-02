@@ -2,9 +2,9 @@
 # Process this file with autoconf to produce a configure script.
 
 AC_INIT(
-  [SysteMoC Testcases Mainline Branch], [0.9.1],
-  [falk@cs.fau.de streubuehr@cs.fau.de christian.zebelein@informatik.uni-erlangen.de],
-  [SysteMoC-Testcases--mainline-])
+  [SysteMoC Testcases Devel Branch], [1.0],
+  [falk@cs.fau.de],
+  [SysteMoC-Testcases--devel-])
 
 AC_PREREQ(2.57)
 
@@ -95,12 +95,10 @@ m4_sinclude([systemoc-sqr-int/configure.in.frag])
 m4_sinclude([systemoc-cluster-example/configure.in.frag])
 m4_sinclude([systemoc-fir/configure.in.frag])
 m4_sinclude([systemoc-getValueAt/configure.in.frag])
-#m4_sinclude([systemoc-par/configure.in.frag])
 m4_sinclude([systemoc-sdf/configure.in.frag])
 m4_sinclude([systemoc-select/configure.in.frag])
 m4_sinclude([systemoc-event/configure.in.frag])
 m4_sinclude([systemoc-periodic/configure.in.frag])
-m4_sinclude([systemoc-sr/configure.in.frag])
 m4_sinclude([systemoc-fsm-and-composition/configure.in.frag])
 m4_sinclude([systemoc-fsm-xor-composition/configure.in.frag])
 m4_sinclude([systemoc-fsm-junction-state/configure.in.frag])
@@ -115,15 +113,6 @@ m4_sinclude([systemoc-src-snk-multiwriter/configure.in.frag])
 m4_sinclude([systemoc-src-snk-noconsume/configure.in.frag])
 m4_sinclude([systemoc-src-snk-void/configure.in.frag])
 m4_sinclude([systemoc-systemc/configure.in.frag])
-
-if test "$acjf_cv_systemoc_wsdf_support" = "yes"; then
-  m4_sinclude([systemoc-wsdf/configure.in.frag])
-  m4_sinclude([systemoc-wsdf-dist/configure.in.frag])
-  m4_sinclude([systemoc-wsdf-expr/configure.in.frag])
-  m4_sinclude([systemoc-wsdf-recons-dila/configure.in.frag])
-  m4_sinclude([systemoc-wsdf-src-snk/configure.in.frag])
-  true; # dummy statement otherwise if xxx; then <emty> fi is a syntax error
-fi
 
 SUBDIRS=$subdirs
 AC_SUBST(SUBDIRS)

@@ -84,8 +84,7 @@ private:
     Token t(rand(0, inst), val++);
 
     std::cout
-      << name() << ": generate token with id " << out.tokenId(0)
-      << " and value " << t << std::endl;
+      << name() << ": generate token with value " << t << std::endl;
   
     out[0] = t;
 
@@ -118,8 +117,7 @@ private:
 
   void snk() {
     std::cout
-      << name() << ": received token with id " << in.tokenId(0)
-      << " and value " << in[0] << std::endl;
+      << name() << ": received token with value " << in[0] << std::endl;
     assert(in[0].first == idx);
   }
   

@@ -53,8 +53,7 @@ private:
   
   void src() {
     std::cout
-      << name() << ": generate token with id "
-      << out.tokenId(0) << " with value " << i << std::endl;
+      << name() << ": generate token with value " << i << std::endl;
     out[0] = i++; --iter;
   }
   smoc_firing_state start;
@@ -78,8 +77,7 @@ private:
   
   void sink(void) {
     std::cout
-      << name() << ": received token with id "
-      << in.tokenId(0) << " and value " << in[0] << std::endl;
+      << name() << ": received token with value " << in[0] << std::endl;
   }
   
   smoc_firing_state start;
