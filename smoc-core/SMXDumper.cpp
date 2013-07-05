@@ -62,7 +62,7 @@
 #include <systemoc/smoc_multiplex_fifo.hpp>
 #include <systemoc/smoc_multireader_fifo.hpp>
 
-#define SYSTEMOC_DEBUG
+//#define SYSTEMOC_DEBUG
 
 namespace smoc { namespace Detail {
 
@@ -443,7 +443,10 @@ public:
     }
     SCPortBase2Port::iterator iter = psv.expectedOuterPorts.find(&p);
     if (iter != psv.expectedOuterPorts.end()) {
-      port.otherPorts().insert(iter->second);
+#ifdef SYSTEMOC_DEBUG
+      std::cerr << " => handeled expectedOuterPorts " << iter->second->name() << " connected to outer port " << p.name() << std::endl;
+#endif
+      iter->second->otherPorts().insert(port.toPtr());
       psv.expectedOuterPorts.erase(iter); // handled it!
     }
 #ifdef SYSTEMOC_DEBUG
