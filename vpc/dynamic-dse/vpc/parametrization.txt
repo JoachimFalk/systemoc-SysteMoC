@@ -1,0 +1,2 @@
+test;10;msg;rec1;rec2
+test2;5;msg2;rec3;rec5;rec6;rec6

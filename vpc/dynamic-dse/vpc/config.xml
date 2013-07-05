@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE vpcconfiguration SYSTEM "cmx.dtd">
+
+<vpcconfiguration>
+  <resources>
+    <component name="ECU" scheduler="PSNOPRE">
+      <attribute type="transaction">
+        <parameter type="delay" value="200 us" />
+        <parameter type="size" value="1" />
+      </attribute>
+      <attribute type="powermode">
+        <attribute type="SLOW">
+          <parameter type="RUNNING" value="20.0 mW" />
+          <parameter type="IDLE" value="5.0 mW" />
+          <parameter type="STALLED" value="5.0 mW" />
+        </attribute>
+      </attribute>
+       <attribute type="multicastgroup" value="msg">
+  	<attribute type="task" value="msg_top.test_2_msg_rec1"/>
+	<attribute type="task" value="msg_top.test_2_msg_rec2"/>
+       </attribute>
+       <attribute type="multicastgroup" value="msg2">
+	<attribute type="task" value="msg_top.test2_2_msg2_rec3"/>
+	<attribute type="task" value="msg_top.test2_2_msg2_rec4"/>
+	<attribute type="task" value="msg_top.test2_2_msg2_rec5"/>
+	<attribute type="task" value="msg_top.test2_2_msg2_rec6"/>
+  </attribute>
+    </component>
+     </resources>
+  <mappings>
+    <mapping source="top.test" target="ECU">
+      <timing delay="42.857142857142854us" />
+    </mapping>
+	<mapping source="top.rec1" target="ECU">
+      <timing delay="42.857142857142854us" />
+    </mapping>
+    <mapping source="top.rec2" target="ECU">
+      <timing delay="42.857142857142854us" />
+    </mapping>
+    <mapping source="top.test2" target="ECU">
+      <timing delay="42.857142857142854us" />
+    </mapping>
+    <mapping source="top.rec3" target="ECU">
+      <timing delay="42.857142857142854us" />
+    </mapping>
+    <mapping source="top.rec4" target="ECU">
+      <timing delay="42.857142857142854us" />
+    </mapping>
+    <mapping source="top.rec5" target="ECU">
+      <timing delay="42.857142857142854us" />
+    </mapping>
+    <mapping source="top.rec6" target="ECU">
+      <timing delay="42.857142857142854us" />
+    </mapping>
+  </mappings>
+  <topology tracing="true">
+ <route source="top.test" destination="msg_rec1">
+  <hop name="ECU">        <timing dii="10" latency="10" /> </hop>
+</route>
+ <route source="msg_rec1" destination="top.rec1"/>
+ <route source="top.test" destination="msg_rec2">
+ <hop name="ECU">        <timing dii="10" latency="10" /> </hop>
+</route>
+<route source="msg_rec2" destination="top.rec2"/>
+ <route source="top.test2" destination="msg2_rec3">
+ <hop name="ECU">        <timing dii="10" latency="10" /> </hop>
+</route>
+<route source="msg2_rec3" destination="top.rec3"/>
+ <route source="top.test2" destination="msg2_rec4">
+ <hop name="ECU">        <timing dii="10" latency="10" /> </hop>
+</route>
+<route source="msg2_rec4" destination="top.rec4"/>
+ <route source="top.test2" destination="msg2_rec5">
+ <hop name="ECU">        <timing dii="10" latency="10" /> </hop>
+</route>
+<route source="msg2_rec5" destination="top.rec5"/>
+ <route source="top.test2" destination="msg2_rec6">
+ <hop name="ECU">        <timing dii="10" latency="10" /> </hop>
+</route>
+<route source="msg2_rec6" destination="top.rec6"/>
+
+
+  </topology>
+</vpcconfiguration>
+

@@ -1,0 +1,11 @@
+# -BEGIN- autovars
+version=@VERSION@
+
+SYSTEMOC_ENABLE_VPC=@SYSTEMOC_ENABLE_VPC@
+
+builddir=`dirname $0`;
+builddir=`cd $builddir; pwd`
+
+srcdir=`cd $builddir; cd @srcdir@; pwd`
+top_srcdir=`cd $builddir; cd @top_srcdir@; pwd`
+# -END- autovars
