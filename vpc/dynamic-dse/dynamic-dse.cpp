@@ -52,18 +52,23 @@ class Top: public smoc_graph_tt {
   smoc_port_out<sc_time>* addTaskChain(std::string sender, double periode){
     std::string testname = sender;
     SingleSource_tt*     src = new SingleSource_tt(sender.c_str(), sc_time(periode, SC_MS), SC_ZERO_TIME, 0.0, testname.c_str());
-    std::cout<<"addTaskChain for " << sender << "with " << periode <<std::endl;
     return &(src->out);
     //smoc_fifo fifo = new smoc_fifo(messagename, 10000);
   }
 
   void addNewReceiver (smoc_port_out<sc_time>* outport, std::string messagename, std::string receiverName){
     SingleSink* snk = new SingleSink(receiverName.c_str(), receiverName.c_str() );
-    smoc_fifo<sc_time>* fifo = new smoc_fifo<sc_time>( (messagename + "_" + receiverName).c_str());
+    smoc_fifo<sc_time>* fifo = new smoc_fifo<sc_time>(messagename);
     fifo->connect(*outport);
     fifo->connect(snk->in);
-    std::cout<<"addNewReceiver"<<std::endl;
   }
+
+  void addMultipleReceiver (smoc_port_out<sc_time>* outport, std::string messagename, std::string receiverName){
+      SingleSink* snk = new SingleSink(receiverName.c_str(), receiverName.c_str() );
+      smoc_fifo<sc_time>* fifo = new smoc_fifo<sc_time>( (messagename + "_top." + receiverName).c_str());
+      fifo->connect(*outport);
+      fifo->connect(snk->in);
+    }
 
 public:
   Top(sc_module_name name)
@@ -77,7 +82,6 @@ public:
                ifstream parametrization ("parametrization.txt");
                if (parametrization.is_open()){
                  while (getline (parametrization,line)){
-                     std::cout<<"while()"<<std::endl;
                    smoc_port_out<sc_time>* outport;
 
                    std::istringstream split(line);
@@ -96,19 +100,18 @@ public:
                       messagename = parameter[2];
                       }
                       int counter = 0;
-                      while((counter+3)< parameter.size()){
+                      if(parameter.size() == 4){
                           std::string receiverName = parameter[counter+3];
-                          std::cout<<"create receiver " << receiverName << " for " << messagename <<std::endl;
                           addNewReceiver(outport, messagename, receiverName);
-                          counter++;
+                      }else{
+                        while((counter+3)< parameter.size()){
+                            std::string receiverName = parameter[counter+3];
+                            addMultipleReceiver(outport, messagename, receiverName);
+                            counter++;
+                        }
                       }
-
-
-
                  }
-
                  parametrization.close();
-                 std::cout<<"ende"<<std::endl;
                }
 
 
