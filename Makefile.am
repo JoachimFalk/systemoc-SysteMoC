@@ -22,7 +22,10 @@
 
 include $(auxdir)/jfrules.mk
 
-SUBDIRS=
+# This is only needed if there is a configure.in in this directory
+ACLOCAL_AMFLAGS=-I ../BuildSystem/m4
+
+SUBDIRS= @SUBDIRS@
 
 AM_LDFLAGS = @AM_LDFLAGS@ $(SYSTEMOC_LDFLAGS)
 AM_CPPFLAGS= @AM_CPPFLAGS@ $(SYSTEMOC_INCLUDE) -Wno-deprecated
