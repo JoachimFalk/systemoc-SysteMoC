@@ -34,7 +34,6 @@ AM_CPPFLAGS =				\
 	$(TLM1_INCLUDE)			\
 	$(XERCES_INCLUDE)		\
 	$(COSUPPORT_INCLUDE)		\
-	$(LIBWSDF_INCLUDE)		\
 	$(LIBSGX_INCLUDE)		\
 	$(SYSTEMC_VPC_INCLUDE)		\
 	$(MAESTROMM_INCLUDE)		\
@@ -48,7 +47,6 @@ AM_LDFLAGS=				\
 	$(TLM1_LDFLAGS)			\
 	$(XERCES_LDFLAGS)		\
 	$(COSUPPORT_LDFLAGS)		\
-	$(LIBWSDF_LDFLAGS)		\
 	$(LIBSGX_LDFLAGS)		\
 	$(SYSTEMC_VPC_LDFLAGS)		\
 	$(MAESTROMM_LDFLAGS)		\
@@ -89,17 +87,6 @@ libsystemoc_la_SOURCES =			\
 	smoc-core/smoc_debug_stream.cpp
 #	smoc_ngx_sync.cpp
 
-if SYSTEMOC_ENABLE_WSDF
-libsystemoc_la_SOURCES +=				\
-	wsdf/smoc_md_buffer.cpp				\
-	wsdf/smoc_md_loop.cpp				\
-	wsdf/smoc_md_port.cpp 				\
-	wsdf/smoc_md_buffer_analysis.cpp 		\
-	wsdf/smoc_md_ba_linearized_buffer.cpp	 	\
-	wsdf/smoc_md_ba_linearized_buffer_size.cpp 	\
-	wsdf/smoc_md_ba_linearized_buffer_schedule.cpp
-endif
-
 libsystemoc_la_LDFLAGS =					\
 	$(AM_LDFLAGS)						\
 	-version-info 0:0:0 					\
@@ -131,15 +118,6 @@ else
 # It may not be possible to find LIBSGX_LIBPATH for
 # libsgx installed in the wild and not in the source dir.
 libsystemoc_la_LIBADD += -lsgx
-endif
-endif
-if SYSTEMOC_ENABLE_WSDF
-if PKG_LIBWSDF_USE_SRCDIR_VERSION
-libsystemoc_la_LIBADD += $(LIBWSDF_LIBPATH)/libwsdf.la
-else
-# It may not be possible to find LIBWSDF_LIBPATH for
-# libwsdf installed in the wild and not in the source dir.
-libsystemoc_la_LIBADD += -lwsdf
 endif
 endif
 
