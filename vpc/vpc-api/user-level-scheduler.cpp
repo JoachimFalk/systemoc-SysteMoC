@@ -220,8 +220,10 @@ public:
         cpu0->setTransferTiming(transfer);
         cpu1->setTransferTiming(transfer);
 
-        VC::Route::Ptr writeRoute = VC::createRoute(getLeafPort(&source.out));
-        VC::Route::Ptr readRoute = VC::createRoute(getLeafPort(&sink.in));
+//      VC::Route::Ptr writeRoute = VC::createRoute(getLeafPort(&source.out));
+//      VC::Route::Ptr readRoute = VC::createRoute(getLeafPort(&sink.in));
+        VC::Route::Ptr writeRoute = VC::createRoute(&source.out);
+        VC::Route::Ptr readRoute = VC::createRoute(&sink.in);
 
         sc_time d(10, SC_NS);
         sc_time l(20, SC_NS);
