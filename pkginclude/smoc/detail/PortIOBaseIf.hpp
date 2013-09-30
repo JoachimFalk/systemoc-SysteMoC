@@ -260,7 +260,7 @@ public:
     // Provide [] access operator for port.
     Proxy operator[](size_t n)  {
 #ifdef SYSTEMOC_PORT_ACCESS_COUNTER
-      (*getImpl())->incrementAccessCount();
+      getImpl()->incrementAccessCount();
 #endif // SYSTEMOC_PORT_ACCESS_COUNTER
       return Proxy(getImpl()->portAccesses, n);
     }
