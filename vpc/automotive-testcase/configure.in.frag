@@ -5,7 +5,7 @@ dnl AC_CHECK_HEADERS(fcntl.h limits.h syslog.h unistd.h)
 
 dnl Checks for typedefs, structures, and compiler characteristics.
 
-ACJF_NEED_PKG([ActorLibrary])
+ACJF_CHECK_PKG([ActorLibrary])
 
 AC_CONFIG_FILES([
   automotive-testcase/Makefile
