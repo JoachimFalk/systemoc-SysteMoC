@@ -140,11 +140,6 @@ protected:
     >());
   }
 
-  /// connect ports using the specified channel initializer
-  template<int s, class PortA, class PortB, class ChanInit>
-  void connectNodePorts(PortA &a, PortB &b, ChanInit i)
-    { i.connect(a).connect(b); }
-
   /// connect ports using the default channel initializer
   template<int s, class PortA, class PortB>
   void connectNodePorts(PortA &a, PortB &b) {
