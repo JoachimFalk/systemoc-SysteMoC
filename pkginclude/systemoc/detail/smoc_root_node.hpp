@@ -66,15 +66,13 @@
 #define GUARD(func)   guard(&func, #func)
 #define VAR(variable) var(variable, #variable)
 #define TILL(event)   till(event, #event)
-#define SR_TICK(func) call(&func, #func)
-#define SR_GO(func)   call(&func, #func)
+#define LITERAL(lit)  literal(lit)
 
 #define SMOC_CALL(func)    call(&func, #func)
 #define SMOC_GUARD(func)   guard(&func, #func)
 #define SMOC_VAR(variable) var(variable, #variable)
 #define SMOC_TILL(event)   till(event, #event)
-#define SMOC_SR_TICK(func) call(&func, #func)
-#define SMOC_SR_GO(func)   call(&func, #func)
+#define SMOC_LITERAL(lit)  literal(lit)
 
 /**
  * smoc_root_node is the base class of all systemoc nodes be it
@@ -165,6 +163,11 @@ protected:
   static
   typename smoc::Expr::Var<T>::type var(T &x, const char *name = NULL)
     { return smoc::Expr::var(x,name); }
+
+  template <typename T>
+  static
+  typename smoc::Expr::Literal<T>::type literal(T const &x)
+    { return smoc::Expr::literal(x); }
 
   // FIXME: change this to work on plain SystemC events!
   static
