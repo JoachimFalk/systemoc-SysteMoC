@@ -26,24 +26,24 @@ SUBDIRS=
 
 if SYNTH_SW
   SW_SYNTH_SUBDIR = synthesis-sw
-  include $(pkg_synthesis_sw_builddir)/Rules-Synth-II.mk
+  include $(pkg_synthesis_sw_builddir)/mk/Rules-Synth-II.mk
 endif
 if SYNTH_PTHREAD
   PTHREAD_SYNTH_SUBDIR = synthesis-pthread
   PTHREAD_SYNTH_INST_FLAGS = --no-preprocess-macros
-  include $(pkg_synthesis_pthread_builddir)/Rules-Synth-II.mk
+  include $(pkg_synthesis_pthread_builddir)/mk/Rules-Synth-II.mk
 endif
 if SYNTH_SYSC
   SYSC_SYNTH_SUBDIR = synthesis-sysc
-  include $(pkg_synthesis_systemc_builddir)/Rules-Synth-II.mk
+  include $(pkg_synthesis_systemc_builddir)/mk/Rules-Synth-II.mk
 endif
 if SYNTH_CYN
   CYN_SYNTH_SUBDIR = synthesis-cyn
-  include $(pkg_synthesis_cynthesizer_builddir)/Rules-Synth-II.mk
+  include $(pkg_synthesis_cynthesizer_builddir)/mk/Rules-Synth-II.mk
 endif
 if SYNTH_TLM
   TLM_SYNTH_SUBDIR = synthesis-tlm
-  include $(pkg_synthesis_tlm_builddir)/Rules-Synth-II.mk
+  include $(pkg_synthesis_tlm_builddir)/mk/Rules-Synth-II.mk
 endif
 
 AM_LDFLAGS = @AM_LDFLAGS@ @SYSTEMOC_LDFLAGS@
