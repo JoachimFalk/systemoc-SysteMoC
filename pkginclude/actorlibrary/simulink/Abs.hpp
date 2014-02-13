@@ -31,7 +31,7 @@ public:
 protected:
 
   void process() {
-	 out[0] = abs(in[0]);
+	 out[0] = abs((double)in[0]);
   }
 
   smoc_firing_state start;

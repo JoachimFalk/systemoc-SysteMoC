@@ -15,20 +15,21 @@
 #include <cstdlib>
 #include <iostream>
 #include <systemoc/smoc_moc.hpp>
-#include <actorlibrary/tt/TT.hpp>
+#include <systemoc/smoc_tt.hpp>
+//#include <actorlibrary/tt/TT.hpp>
 
 
 template<typename T>
- class Abs_p:  public PeriodicActor {
+ class Abs_p:  public smoc_periodic_actor {
 public:
   smoc_port_in<T>  in;
   smoc_port_out<T>  out;
 
-  Abs_p( sc_module_name name, sc_time period, sc_time offset, EventQueue* eventQueue )
-    : PeriodicActor(name, start, period, offset, eventQueue){
+  Abs_p( sc_module_name name, sc_time period, sc_time offset )
+    : smoc_periodic_actor(name, start, period, offset){
 
 
-    start =  Expr::till( this->getEvent() )  >>
+    start =  //Expr::till( this->getEvent() )  >>
       in(1)                    >>
       out(1)                   >>
       CALL(Abs_p::process) >> start
@@ -38,7 +39,7 @@ public:
 protected:
 
   void process() {
-	this->resetEvent();
+	 //this->resetEvent();
 	 out[0] = abs((double)in[0]);
   }
 

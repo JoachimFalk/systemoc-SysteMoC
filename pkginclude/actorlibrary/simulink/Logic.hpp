@@ -52,65 +52,56 @@ protected:
   void process() {   
     
     T output=0.0;
-    
-#ifdef _DEBUG    
-    cout << name() ;
-#endif    
-    	    
-    for( int i=0; i < PORTS; i++ ){
-       if( in[i][0] > 0 )
-	  inputsLogic[i] = true;
-	else
-	  inputsLogic[i] = false;
-#ifdef _DEBUG	
-	cout << " " << inputsLogic[i] << " ";
-#endif
-    }
 
+    output = in[0][0];
     switch(logicOperator)
     {
-	output = inputsLogic[0];
-        case '0': /* AND */
+	
+        case 0: /* AND */
            for( int i=1; i<PORTS; i++ )
-		output = output && inputsLogic[i];
+		output = output && in[i][0];
 	   break;
-        case '1': /* OR */
+        case 1: /* OR */
            for( int i=1; i<PORTS; i++ )
-		output = output || inputsLogic[i];
+		output = output || in[i][0];
 	   break;
-        case '2': /* NAND */
+        case 2: /* NAND */
            for( int i=1; i<PORTS; i++ )
-		output = output && inputsLogic[i];
+		output = output && in[i][0];
 	   output = !output;
 	   break;
-        case '3': /* NOR */
+        case 3: /* NOR */
            for( int i=1; i<PORTS; i++ )
-		output = output || inputsLogic[i];
+		output = output || in[i][0];
 	   output = !output;
 	   break;
-        case '4': /* XOR : true + true ---> false, true + false ---> true */
+        case 4: /* XOR : true + true ---> false, true + false ---> true */
            for( int i=1; i<PORTS; i++ )
-               if( output == inputsLogic[i] )
+               if( output == in[i][0] )
 		  output = 0;
                else
                   output = 1;
 	   break;
-        case '5': /* NXOR */
+        case 5: /* NXOR */
            for( int i=1; i<PORTS; i++ )
-               if( output == inputsLogic[i] )
+               if( output == in[i][0] )
 		  output = 0;
                else
                   output = 1;
            output = !output;
 	   break;
-        case '6': /* NOT : Should have only one input */
-           output = !inputsLogic[0];
+        case 6: /* NOT : Should have only one input */
+           output = !in[0][0];
+           //std::cout << "Logic: IN  :" << in[0][0] << " @ " << sc_time_stamp() << std::endl;
+           //std::cout << "Logic: OUT :" << output  << " @ " << sc_time_stamp() << std::endl;
 	   break;
         default:
 	   break;
     }
 
-    out[0] = output;
+    out[0] = (T)output;
+    //cout << name() << " " << output << " - " << logicOperator << endl;
+    
 #ifdef _DEBUG    
     cout << " " << output << " ->" << endl;
 #endif

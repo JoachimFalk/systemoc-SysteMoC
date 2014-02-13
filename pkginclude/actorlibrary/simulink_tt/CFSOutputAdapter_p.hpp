@@ -10,7 +10,8 @@
 #include <cstdlib>
 #include <iostream>
 #include <systemoc/smoc_moc.hpp>
-#include <actorlibrary/tt/TT.hpp>
+#include <systemoc/smoc_tt.hpp>
+//#include <actorlibrary/tt/TT.hpp>
 
 
 
@@ -26,23 +27,23 @@
 
 
 // Header file for socket API
-#include <actorlibrary/tt/Socket.h>
+#include "blocklibrary/Socket.h"
 
 
-template<typename T>
- class CFSOutputAdapter_p: public PeriodicActor {
+template<typename T, int PORTS=1>
+ class CFSOutputAdapter_p: public smoc_periodic_actor {
 public:
   smoc_port_in<T>  in;
   //smoc_port_out<T>  out;
-struct sembuf operation[1];
-T Integration;
+  //struct sembuf operation[1];
+  T Integration;
 
 
-  CFSOutputAdapter_p( sc_module_name name, sc_time per, sc_time off, EventQueue* eventQueue, int _port )
-    : PeriodicActor(name, start, per, off, eventQueue),index(_port), sim_step() {
+  CFSOutputAdapter_p( sc_module_name name, sc_time per, sc_time off, int _port )
+    : smoc_periodic_actor(name, start, per, off),index(_port), sim_step() {
 	
 
-    start = Expr::till( this->getEvent() )  >>
+    start = //Expr::till( this->getEvent() )  >>
       in(1)     >> //in (1)     >>
       CALL(CFSOutputAdapter_p::process) >> start
       ;
@@ -57,11 +58,11 @@ T Integration;
 	semkey = 001122334402;
 	//semid = semget( semkey, NUMSEMS, 0666);
 	//semid = semget(semkey, NUMSEMS, 0666 | IPC_CREAT);
-semid = 163845;
-Integration = 0.0;
+        semid = 163845;
+      Integration = 0.0;
 
       key_c = 001122334475; // simpler for me to harcode key instead of ftok()
-      key_v = 001122334470; // simpler for me to harcode key instead of ftok()
+      key_v = 001122335570; // simpler for me to harcode key instead of ftok()
       // create shared memory
       if ((shmid_c = shmget(key_c,SHM_size,0666 | IPC_CREAT )) == -1){
          perror ("shmget error");
@@ -77,26 +78,28 @@ Integration = 0.0;
       // Obtain shared memory for control flag
       // attach pointer
       shm_c_ptr = (int*) shmat (shmid_c, NULL, 0);
-      if ((int)shm_c_ptr == -1){
-         perror("shmat error");
-         exit(1);
-      }
+      //if ((int)shm_c_ptr == -1){
+         //perror("shmat error");
+         //exit(1);
+      //}
       // Obtain shared memory for simulation result
       // attach pointer
       shm_v_ptr = (double*) shmat (shmid_v, NULL, 0);
-      if ((int)shm_v_ptr == -1){
-         perror("shmat error");
-         exit(1);
-      }
+      //if ((int)shm_v_ptr == -1){
+         //perror("shmat error");
+         //exit(1);
+      //}
   }
 
 protected:
 
   int sim_step;
   int semid;
+  smoc_firing_state start;
+  int index;
 
   void process() {
- 	this->resetEvent();
+ 	//this->resetEvent();
 
 
 	#ifdef SHAREDMEMORY1
@@ -104,9 +107,9 @@ protected:
 	// shm_c_ptr[0]++; // 
 	//cout << "- " << index << " " << semid << " " << in[0]  << " " << shm_v_ptr[index] << endl;
 	//if( index == 1 )
-	operation[0].sem_num = index;//else operations[0].sem_num = 10;
-	operation[0].sem_op  = 1;
-	operation[0].sem_flg = IPC_NOWAIT;
+	//operation[0].sem_num = index;//else operations[0].sem_num = 10;
+	//operation[0].sem_op  = 1;
+	//operation[0].sem_flg = IPC_NOWAIT;
         rc = semop( semid, operation, 1);
         if(rc==-1)
 	{
@@ -118,8 +121,10 @@ protected:
 
 
 	#ifdef SHAREDMEMORYMULTIPORT
+	
 	shm_v_ptr[index] = in[0];
 	shm_c_ptr[0]++;
+	std::cout << shm_v_ptr[index] << " Writing output\n";
 	#endif
 	
 	#ifdef SHAREDMEMORY
@@ -187,8 +192,7 @@ protected:
 	//sim_step++;	
   }
 
-  smoc_firing_state start;
-  int index;
+
 };
 
 #endif // __INCLUDED__CFSOUTPUTADAPTER_P__HPP__

@@ -12,32 +12,43 @@
 
 
 #include <systemoc/smoc_moc.hpp>
-#include <actorlibrary/tt/TT.hpp>
+#include <systemoc/smoc_tt.hpp>
+//#include <actorlibrary/tt/TT.hpp>
+
 
 
 
 
 template<typename DATA_TYPE>
- class Constant_p: public PeriodicActor {
+ class Constant_p: public smoc_periodic_actor {
 public:
   smoc_port_out<DATA_TYPE>  out;
+  static DATA_TYPE ste;
 
-  Constant_p( sc_module_name name, sc_time per, sc_time off, EventQueue* _eq, DATA_TYPE constValue )
-    : PeriodicActor(name, start, per, off, _eq), constValue(constValue) {
 
-    start = Expr::till( this->getEvent() )  >>
+  Constant_p( sc_module_name name, sc_time per, sc_time off, DATA_TYPE constValue )
+    : smoc_periodic_actor(name, start, per, off), constValue(constValue) {
+
+    start = //Expr::till( this->getEvent() )  >>
       out(1)     >>
       CALL(Constant_p::process) >> start
       ;
   }
 
+
+
 protected:
   DATA_TYPE constValue;
 
   void process() {
-    this->resetEvent();
-      //std::cout << "Constant> I am alive!" << std::endl;
+    //this->resetEvent();
+      //std::cout << "Constant> send: " << constValue << " @ " << sc_time_stamp() << std::endl;
+     
       out[0] = constValue;
+
+      //FIXME: just for testing!!!
+     // constValue += 0.1;
+      
   }
 
   smoc_firing_state start;

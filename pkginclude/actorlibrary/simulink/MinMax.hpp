@@ -37,15 +37,24 @@ protected:
 
   void minmax() {   
 	
-	T output;
+	T output = (T)0;
 		
-	for( int i=0; i<=INPUTPORTS; i++ ){
+	for( int i=0; i<INPUTPORTS; i++ ){
 	  if( function == '<' )
+	  //if( function == 1 )
 		output = std::min( output, in[i][0] );
+		//output = ( output < in[i][0] ) ? output : in[i][0];
 	  if( function == '>' )
+          //if( function == 2 )	  
 		output = std::max( output, in[i][0] );
+		//output = ( output > in[i][0] ) ? in[i][0] : output;
+		//output = 2.3;
+          else
+	        //output = std::min(output, in[i][0]);
+		output = ( output < in[i][0] ) ? output : in[i][0];
 	}
 	out[0] = output;
+	std::cout << "MinMax> get " << output << " " << sc_time_stamp() << std::endl;
   }
 
   smoc_firing_state start;

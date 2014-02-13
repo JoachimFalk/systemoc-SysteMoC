@@ -20,18 +20,20 @@ from the first (top) input, and then add the third (bottom) input.
 
 
 #include <systemoc/smoc_moc.hpp>
-#include <actorlibrary/tt/TT.hpp>
+#include <systemoc/smoc_tt.hpp>
+#include <systemoc/smoc_expr.hpp>
+//#include <actorlibrary/tt/TT.hpp>
 //enum OPERATOR {PLUS, MINUS};
 
 template<typename DATA_TYPE, int PORTS=1>
- class Sum_p: public PeriodicActor {
+ class Sum_p: public smoc_periodic_actor {
 public:
 
   smoc_port_in<DATA_TYPE>   in[PORTS];
   smoc_port_out<DATA_TYPE>  out;	
   
-  Sum_p( sc_module_name name, sc_time per, sc_time off, EventQueue* _eq, std::string operators )
-    : PeriodicActor(name, start, per, off, _eq), operators(operators) {
+  Sum_p( sc_module_name name, sc_time per, sc_time off, std::string operators )
+    : smoc_periodic_actor(name, start, per, off), operators(operators) {
 
     Expr::Ex<bool >::type eIn(in[0](1) );
 
@@ -39,7 +41,7 @@ public:
       eIn = eIn && in[i](1);
     }
 
-    start = Expr::till( this->getEvent() )  >>
+    start = //Expr::till( this->getEvent() )  >>
       out(1) >> eIn                    >> 
       CALL(Sum_p::sum) >> start
       ;
@@ -49,17 +51,21 @@ protected:
   std::string operators;
 
   void sum() {   
-	this->resetEvent();
+	//this->resetEvent();
 
           
 
     DATA_TYPE output=0.0;
 	
     for( int i = 0; i<PORTS; i++ ){
+      DATA_TYPE tmp = in[i][0];
+      	#ifdef EnablePrint
+	std::cout << sc_time_stamp() << " " <<  name() << " " << " in[" << i << "]=" << tmp << "\n";
+	#endif
       if( operators[i] == '+' ){
-        output = output + in[i][0];
+        output = output + tmp;
       }else if( operators[i] == '-' ){
-        output = output - in[i][0];
+        output = output - tmp;
       }else{
         assert(0);
       }
@@ -77,7 +83,10 @@ std::cout << "Sum> output: " << output << " @ " << sc_time_stamp()
 
 */
     out[0] = output;//output;
-	
+    
+	#ifdef EnablePrint
+	std::cout << sc_time_stamp() << " " <<  name() << " " << " out : " << output << "\n";
+	#endif
   }
 
   smoc_firing_state start;

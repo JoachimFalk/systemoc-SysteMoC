@@ -23,21 +23,23 @@
 
 #ifndef __INCLUDED__LOOKUP_P__HPP__
 #define __INCLUDED__LOOKUP_P__HPP__
-
+#include <cstdlib>
+#include <iostream>
 #include <systemoc/smoc_moc.hpp>
-#include <actorlibrary/tt/TT.hpp>
+#include <systemoc/smoc_tt.hpp>
+//#include <actorlibrary/tt/TT.hpp>
 
 template<typename T>
- class Lookup_p:  public PeriodicActor {
+ class Lookup_p:  public smoc_periodic_actor {
 public:
   smoc_port_in<T>  in;
   smoc_port_out<T>  out;
 
-  Lookup_p( sc_module_name name,sc_time per, sc_time off, EventQueue* _eq, T* inputs, T* table, int length )
-    : PeriodicActor(name, start, per, off, _eq), inputs(inputs), table(table), length(length){
+  Lookup_p( sc_module_name name,sc_time per, sc_time off, T* inputs, T* table, int length )
+    : smoc_periodic_actor(name, start, per, off), inputs(inputs), table(table), length(length){
 
 
-    start = Expr::till( this->getEvent() )  >>
+    start = //Expr::till( this->getEvent() )  >>
       out(1)     >> in (1)     >>
       CALL(Lookup_p::process) >> start
       ;
@@ -52,6 +54,7 @@ protected:
   T yData;
   
   void process() {
+ 	//this->resetEvent();
         int index=0;
 	int boundary = 0;
         T xA;
@@ -60,7 +63,7 @@ protected:
         T yB; 
 
         xData = in[0];
-	 
+	//std::cout << "Lookup> get: " << xData << " @ " << sc_time_stamp() << std::endl;
         for( index=0; index<length; index++ ){
            if( xData > inputs[index] )
               boundary = index;

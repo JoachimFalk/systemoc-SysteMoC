@@ -44,8 +44,8 @@ public:
   smoc_port_in<T>   in;
   smoc_port_out<T>  out;	
   
-  CompareToX( sc_module_name name )
-    : smoc_actor(name, start){
+  CompareToX( sc_module_name name, int logicOperator, T X )
+    : smoc_actor(name, start), logicOperator(logicOperator) , X(X) {
 
     
 

@@ -10,21 +10,22 @@
 #include <cstdlib>
 #include <iostream>
 #include <systemoc/smoc_moc.hpp>
-#include <actorlibrary/tt/TT.hpp>
+#include <systemoc/smoc_tt.hpp>
+//#include <actorlibrary/tt/TT.hpp>
 
 template<typename T>
- class DiscreteDerivative_p: public PeriodicActor {
+ class DiscreteDerivative_p: public smoc_periodic_actor {
 public:
   smoc_port_in<T>  in;
   smoc_port_out<T>  out;
 
-  DiscreteDerivative_p( sc_module_name name, sc_time per, sc_time off, EventQueue* eventQueue, T gain,T sampleTime,   T ic )
-    : PeriodicActor(name, start, per, off, eventQueue), gain(gain), sampleTime(sampleTime),  init(ic) {
+  DiscreteDerivative_p( sc_module_name name, sc_time per, sc_time off, T gain,T sampleTime,   T ic )
+    : smoc_periodic_actor(name, start, per, off), gain(gain), sampleTime(sampleTime),  init(ic) {
 
 
     in_ = 0.0;
 
-    start = Expr::till( this->getEvent() )  >>
+    start = //Expr::till( this->getEvent() )  >>
       out(1)     >> in (1)     >>
       CALL(DiscreteDerivative_p::process) >> start
       ;
@@ -41,7 +42,7 @@ protected:
 	//std::cerr << this->name() << " : fired @ " << sc_time_stamp() << std::endl;
 	 //step++;
          //std::cout << "Scope:<" << this->name() << "> " << " @ " << " state:" << state << " gain:" << gain << " sampleTime:" << sampleTime << std::endl;
-	 this->resetEvent();
+	 //this->resetEvent();
          //printf ("in last: %5.6f, gain:%3.3f", in_, gain);
          out[0]=((in[0] - in_ )*gain)/sampleTime; 
          in_ = in[0];

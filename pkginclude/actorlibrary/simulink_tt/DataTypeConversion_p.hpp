@@ -16,20 +16,23 @@
 #include <cstdlib>
 #include <iostream>
 #include <systemoc/smoc_moc.hpp>
-#include <actorlibrary/tt/TT.hpp>
+#include <systemoc/smoc_tt.hpp>
+//#include <actorlibrary/tt/TT.hpp>
 
 
 template<typename T, typename S>
- class DataTypeConversion_p: public PeriodicActor {
+//template<typename T>
+ class DataTypeConversion_p: public smoc_periodic_actor {
 public:
   smoc_port_in<T>  in;
   smoc_port_out<S>  out;
+//	smoc_port_out<T>  out;
 
-  DataTypeConversion_p( sc_module_name name, sc_time per, sc_time off, EventQueue* _eq )
-    : PeriodicActor(name, start, per, off, _eq ){
+  DataTypeConversion_p( sc_module_name name, sc_time per, sc_time off)
+    : smoc_periodic_actor(name, start, per, off){
 
 
-    start = Expr::till( this->getEvent() )  >>
+    start = //Expr::till( this->getEvent() )  >>
       out(1)     >> in (1)     >>
       CALL(DataTypeConversion_p::process) >> start
       ;
@@ -38,8 +41,9 @@ public:
 protected:
 
   void process() {
-	this->resetEvent();
+	 //this->resetEvent();
 	 out[0] = (S)(in[0]);
+	//out[0] = in[0];
   }
 
   smoc_firing_state start;

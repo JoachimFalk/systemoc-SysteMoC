@@ -36,6 +36,8 @@ protected:
 	 tmp = in[0];
 	 out[0] = tmp;
 	 
+	 //cout << name() << " " << tmp << endl;
+	 
 #ifdef _DEBUG	 
 	 cout << " " << tmp << " ->" << endl;
 #endif

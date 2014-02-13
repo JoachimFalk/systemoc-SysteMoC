@@ -47,13 +47,15 @@ protected:
       
       DATA_TYPE tmp = in[i][0];
 #ifdef _DEBUG      
-      cout << " " << tmp;
+      cout << name() << " " << tmp << " [" << i << "]" << endl;
 #endif
+      
+
       
       if( operators[i] == '*' ){
         output = output * tmp;
       }else if( operators[i] == '/' ){
-	assert(tmp!=0); 
+	//assert(tmp!=0); 
         output = output / tmp;
       }
     }

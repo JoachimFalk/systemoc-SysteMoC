@@ -10,7 +10,9 @@
 #include <cstdlib>
 #include <iostream>
 #include <systemoc/smoc_moc.hpp>
-#include <actorlibrary/tt/TT.hpp>
+#include <systemoc/smoc_tt.hpp>
+#include <systemoc/smoc_expr.hpp>
+//#include <actorlibrary/tt/TT.hpp>
 
 
 
@@ -27,23 +29,28 @@
 
 
 // Header file for socket API
-#include <actorlibrary/tt/Socket.h>
+#include "blocklibrary/Socket.h"
 
 
 
-template<typename T>
- class CFSInputAdapter_p: public PeriodicActor {
+template<typename T, int PORTS=1>
+ class CFSInputAdapter_p: public smoc_periodic_actor {
 public:
   //smoc_port_in<T>  in;
-  smoc_port_out<T>  out;
-struct sembuf operation[1];
+  smoc_port_out<T>  out[PORTS];
+  struct sembuf operation[1];
 
-  CFSInputAdapter_p( sc_module_name name, sc_time per, sc_time off, EventQueue* eventQueue, int _port )
-    : PeriodicActor(name, start, per, off, eventQueue),index(_port), sim_step() {
+  CFSInputAdapter_p( sc_module_name name, sc_time per, sc_time off, int _port )
+    : smoc_periodic_actor(name, start, per, off),index(_port), sim_step() {
 	
 
-    start = Expr::till( this->getEvent() )  >>
-      out(1)     >> //in (1)     >>
+	Expr::Ex<bool>::type eOut(out[0](1));
+	for(int i=1; i<PORTS; i++)
+	   eOut=eOut && out[i](1);
+
+
+    start = //Expr::till( this->getEvent() )  >>
+      eOut     >> //in (1)     >>
       CALL(CFSInputAdapter_p::process) >> start
       ;
       
@@ -65,26 +72,12 @@ struct sembuf operation[1];
 	//semkey = 001122334403;  11 sems
     //semid = semget(semkey, NUMSEMS, 0666); 666 (rw-rw-rw-) permissions
     //semid = semget(semkey, NUMSEMS, 0666 | IPC_CREAT);
-semid = 131076;
+    semid = 131076;
 
       
 
       key_c = 001122334475; // simpler for me to harcode key instead of ftok()
-      key_v = 001122334470; // simpler for me to harcode key instead of ftok()
-
-      // This variable controls wann ends the systeMoC Simulation
-      key_t key_c_end;
-      int shmid_c_end;
-      key_c_end = 001122334465; // simpler for me to harcode key instead of ftok()
-      if ((shmid_c_end = shmget(key_c_end,SHM_size,0666 | IPC_CREAT )) == -1){
-         perror ("shmget error");
-    	 exit (1);
-      }
-      shm_c_ptr_end = (double*) shmat (shmid_c_end, NULL, 0);
-      if ((int)shm_c_ptr_end == -1){
-         perror("shmat error");
-         exit(1);
-      }
+      key_v = 001122335570; // simpler for me to harcode key instead of ftok()
 
 
       // create shared memory
@@ -102,17 +95,17 @@ semid = 131076;
       // Obtain shared memory for control flag
       // attach pointer
       shm_c_ptr = (int*) shmat (shmid_c, NULL, 0);
-      if ((int)shm_c_ptr == -1){
-         perror("shmat error");
-         exit(1);
-      }
+      //if ((int)shm_c_ptr == -1){
+      //   perror("shmat error");
+      //   exit(1);
+      //}
       // Obtain shared memory for simulation result
       // attach pointer
       shm_v_ptr = (double*) shmat (shmid_v, NULL, 0);
-      if ((int)shm_v_ptr == -1){
-         perror("shmat error");
-         exit(1);
-      }
+      //if ((int)shm_v_ptr == -1){
+      //   perror("shmat error");
+      //   exit(1);
+      //}
       /*******************************************************************************/
       
       
@@ -126,9 +119,11 @@ protected:
 
   int sim_step;
   int semid;
+  smoc_firing_state start;
+  int index;
 
   void process() {
- 	this->resetEvent();
+ 	//this->resetEvent();
 
 
 
@@ -154,10 +149,15 @@ protected:
 
 	#ifdef SHAREDMEMORYMULTIPORT
 	//cout << shm_v_ptr[0] << endl;
+	cout << name() << " " << shm_c_ptr[0] << " waiting update for shared memory " << sc_time_stamp() << "\n";
 	while(shm_c_ptr[0]!=0) 
-		sleep(0.0000000000001);
+		::sleep(0.0000000000001);
 		//sleep(0.001);		
-	out[0] = shm_v_ptr[index];
+	for( int i = 0; i<PORTS; i++ ){
+           out[i][0] = shm_v_ptr[index];
+	   cout << "reading " << shm_v_ptr[index] << "\n";
+	}
+	//cout << shm_c_ptr[0] << " reading data from shared memory...\n";
 	#endif
 	
 	#ifdef SHAREDMEMORY
@@ -167,6 +167,7 @@ protected:
 	//	sleep(0.0000000000001);
 		//sleep(0.001);		
 	out[0] = shm_v_ptr[0];
+	//cout << "lll";
 	#endif
 
 	#ifdef SHAREDMEMORY4	
@@ -178,7 +179,7 @@ protected:
 
 
 	/*********** SHARED MEMORY ****************/
-	#ifdef SHAREDMEMORY
+	#ifdef SHAREDMEMORY6
         
 	while(shm_c_ptr[0]!=0){ // Read
 		//Uif(shm_c_ptr_end[0]>50.0) 
@@ -252,8 +253,7 @@ protected:
 	//sim_step++;	
   }
 
-  smoc_firing_state start;
-  int index;
+
 };
 
 #endif // __INCLUDED__CFSINPUTADAPTER_P__HPP__
