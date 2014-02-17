@@ -3,7 +3,7 @@
 
 AC_INIT(
   [SysteMoC Devel Branch], [1.0],
-  [joachim.falk@informatik.uni-erlangen.de christian.zebelein@informatik.uni-erlangen.de],
+  [joachim.falk@informatik.uni-erlangen.de],
   [SysteMoC--devel-])
 AC_PREREQ(2.57)
 ACJF_INIT
@@ -92,15 +92,11 @@ AC_EXEEXT
 ACJF_CHECK_LIB_SYSTEMC
 ACJF_CHECK_LIB_TLM1
 ACJF_CHECK_LIB_BOOST
-ACJF_CHECK_LIB_COSUPPORT
-
-ACJF_CHECK_LIB_MAESTROMM([enable_maestro_mm=yes], [enable_maestro_mm=no])
-AM_CONDITIONAL([SYSTEMOC_ENABLE_MAESTROMM], [test x"$enable_maestro_mm" = x"yes"])
-# This is a define for pkginclude/systemoc/smoc_config.h to guarantee
-# consistency for Examples and Testcases
-if test x"$enable_maestro_mm" = x"yes"; then
-  AC_DEFINE([SYSTEMOC_ENABLE_MAESTROMM], [yes], [Defined if MetaMap library support is enabled])
-fi
+ACJF_CHECK_LIB_COSUPPORT_SYSTEMC([[version:>= 1.0]])
+ACJF_CHECK_LIB_COSUPPORT_TRACING([[version:>= 1.0]])
+ACJF_CHECK_LIB_COSUPPORT_STREAMS([[version:>= 1.0]])
+ACJF_CHECK_LIB_COSUPPORT_SMARTPTR([[version:>= 1.0]])
+ACJF_CHECK_LIB_COSUPPORT_MATH([[version:>= 1.0]])
 
 ### TRACING ###
 # --enable-transition-trace option
@@ -161,29 +157,39 @@ if test x"$enable_hooking" = x"yes"; then
   AC_DEFINE([SYSTEMOC_ENABLE_HOOKING], [yes], [Defined if hooking infrastructure is provided])
 fi
 
-dnl AM_CONDITIONAL([PKG_XERCES_USE_SRCDIR_VERSION], false)
-dnl AM_CONDITIONAL([PKG_LIBSGX_USE_SRCDIR_VERSION], false)
+SYSTEMOC_OPTIONAL_REQUIRES=""
 ACJF_CHECK_LIB_SGX([enable_sgx=yes], [enable_sgx=no])
-AM_CONDITIONAL([SYSTEMOC_ENABLE_SGX], [test x"$enable_sgx" = x"yes"])
+dnl AM_CONDITIONAL([SYSTEMOC_ENABLE_SGX], [test x"$enable_sgx" = x"yes"])
 # This is a define for pkginclude/systemoc/smoc_config.h to guarantee
 # consistency for Examples and Testcases
 if test x"$enable_sgx" = x"yes"; then
   AC_DEFINE([SYSTEMOC_ENABLE_SGX], [yes], [Defined if SGX support is enabled])
+  SYSTEMOC_OPTIONAL_REQUIRES="${SYSTEMOC_OPTIONAL_REQUIRES} libsgx"
 fi
 
 ACJF_CHECK_LIB_SYSTEMC_VPC([enable_vpc=yes], [enable_vpc=no])
-dnl AM_CONDITIONAL([PKG_SYSTEMC_VPC_USE_SRCDIR_VERSION], false)
-AM_CONDITIONAL([SYSTEMOC_ENABLE_VPC], [test x"$enable_vpc" = x"yes"])
+dnl AM_CONDITIONAL([SYSTEMOC_ENABLE_VPC], [test x"$enable_vpc" = x"yes"])
 # This is a define for pkginclude/systemoc/smoc_config.h to guarantee
 # consistency for Examples and Testcases
 if test x"$enable_vpc" = x"yes"; then
   AC_DEFINE([SYSTEMOC_ENABLE_VPC], [yes], [Defined if SystemC-VPC support is enabled])
+  SYSTEMOC_OPTIONAL_REQUIRES="${SYSTEMOC_OPTIONAL_REQUIRES} libsystemcvpc"
 fi
+
+ACJF_CHECK_LIB_MAESTROMM([enable_maestro_mm=yes], [enable_maestro_mm=no])
+AM_CONDITIONAL([SYSTEMOC_ENABLE_MAESTROMM], [test x"$enable_maestro_mm" = x"yes"])
+# This is a define for pkginclude/systemoc/smoc_config.h to guarantee
+# consistency for Examples and Testcases
+if test x"$enable_maestro_mm" = x"yes"; then
+  AC_DEFINE([SYSTEMOC_ENABLE_MAESTROMM], [yes], [Defined if MetaMap library support is enabled])
+  SYSTEMOC_OPTIONAL_REQUIRES="${SYSTEMOC_OPTIONAL_REQUIRES} libmaestro_mm"
+fi
+AC_SUBST([SYSTEMOC_OPTIONAL_REQUIRES])
 
 AC_CONFIG_FILES([
   Makefile
   pkginclude/Makefile
-  SysteMoC.pc
+  pkgconfig/libsystemoc.pc
 ])
 
 ACJF_DONE
