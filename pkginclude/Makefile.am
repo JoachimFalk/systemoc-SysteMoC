@@ -25,6 +25,7 @@ include $(auxdir)/jfrules.mk
 SUBDIRS=
 
 nobase_include_HEADERS = \
+	systemoc/smoc_config.h \
 	smoc/smoc_hooking.hpp \
 	smoc/smoc_expr.hpp \
 	smoc/smoc_event.hpp \
