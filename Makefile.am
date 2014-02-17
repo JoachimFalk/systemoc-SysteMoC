@@ -28,115 +28,99 @@ SUBDIRS = pkginclude
 # This is only needed if there is a configure.in in this directory
 ACLOCAL_AMFLAGS=-I ../BuildSystem/m4
 
-AM_CPPFLAGS =				\
-	@AM_CPPFLAGS@			\
-	$(SYSTEMC_INCLUDE)		\
-	$(TLM1_INCLUDE)			\
-	$(XERCES_INCLUDE)		\
-	$(COSUPPORT_INCLUDE)		\
-	$(LIBSGX_INCLUDE)		\
-	$(SYSTEMC_VPC_INCLUDE)		\
-	$(MAESTROMM_INCLUDE)		\
-	$(BOOST_INCLUDE)		\
-	-Ipkginclude			\
-	-I$(srcdir)/pkginclude
+AM_LDFLAGS = @AM_LDFLAGS@
 
-AM_LDFLAGS=				\
-	@AM_LDFLAGS@			\
-	$(SYSTEMC_LDFLAGS)		\
-	$(TLM1_LDFLAGS)			\
-	$(XERCES_LDFLAGS)		\
-	$(COSUPPORT_LDFLAGS)		\
-	$(LIBSGX_LDFLAGS)		\
-	$(SYSTEMC_VPC_LDFLAGS)		\
-	$(MAESTROMM_LDFLAGS)		\
-	$(BOOST_LDFLAGS)
+AM_CPPFLAGS= @AM_CPPFLAGS@ \
+	-Ipkginclude \
+	-I$(srcdir)/pkginclude
 
 pkgconfigdir = $(libdir)/pkgconfig
 
-pkgconfig_DATA = SysteMoC.pc
+nodist_pkgconfig_DATA =	\
+	libsystemoc.pc
+
+%.pc: pkgconfig/%.pc
+	@sed -e '/^srctreemode_\w\+\s*=/d' \
+	     -e 's/\$${srctreemode_libdir}\/lib\([^ 	]*\).la/-l\1/g' \
+	     -e 's/\$${srctreemode_\(\w\+\)}/\$${\1}/g' \
+	  < $^ > $@
+
+CLEANFILES=$(nodist_pkgconfig_DATA)
 
 lib_LTLIBRARIES = libsystemoc.la
 
-libsystemoc_la_SOURCES =			\
-	smoc-core/IOPattern.cpp			\
-	smoc-core/IdPool.cpp			\
-	smoc-core/TraceLog.cpp			\
-	smoc-core/VpcInterface.cpp		\
-	smoc-core/smoc_simulation_ctx.cpp	\
-	smoc-core/smoc_hooking.cpp		\
-	smoc-core/smoc_main.cpp			\
-	smoc-core/smoc_elab_and_sim.cpp		\
-	smoc-core/smoc_fifo.cpp			\
-	smoc-core/smoc_multiplex_fifo.cpp	\
-	smoc-core/smoc_multireader_fifo.cpp	\
-	smoc-core/LatencyQueue.cpp		\
-	smoc-core/smoc_multicast_sr_signal.cpp	\
-	smoc-core/smoc_reset.cpp		\
-	smoc-core/smoc_graph_type.cpp		\
-	smoc-core/smoc_graph_tt.cpp		\
-	smoc-core/smoc_actor.cpp		\
-	smoc-core/smoc_root_node.cpp		\
-	smoc-core/smoc_sysc_port.cpp		\
-	smoc-core/smoc_firing_rules.cpp		\
-	smoc-core/smoc_chan_if.cpp		\
-	smoc-core/smoc_root_chan.cpp		\
-	smoc-core/smoc_moc.cpp			\
-	smoc-core/SMXDumper.cpp			\
-	smoc-core/smoc_func_call.cpp		\
+libsystemoc_la_SOURCES = \
+	smoc-core/IOPattern.cpp \
+	smoc-core/IdPool.cpp \
+	smoc-core/TraceLog.cpp \
+	smoc-core/VpcInterface.cpp \
+	smoc-core/smoc_simulation_ctx.cpp \
+	smoc-core/smoc_hooking.cpp \
+	smoc-core/smoc_main.cpp \
+	smoc-core/smoc_elab_and_sim.cpp \
+	smoc-core/smoc_fifo.cpp \
+	smoc-core/smoc_multiplex_fifo.cpp \
+	smoc-core/smoc_multireader_fifo.cpp \
+	smoc-core/LatencyQueue.cpp \
+	smoc-core/smoc_multicast_sr_signal.cpp \
+	smoc-core/smoc_reset.cpp \
+	smoc-core/smoc_graph_type.cpp \
+	smoc-core/smoc_graph_tt.cpp \
+	smoc-core/smoc_actor.cpp \
+	smoc-core/smoc_root_node.cpp \
+	smoc-core/smoc_sysc_port.cpp \
+	smoc-core/smoc_firing_rules.cpp \
+	smoc-core/smoc_chan_if.cpp \
+	smoc-core/smoc_root_chan.cpp \
+	smoc-core/smoc_moc.cpp \
+	smoc-core/SMXDumper.cpp \
+	smoc-core/smoc_func_call.cpp \
 	smoc-core/smoc_debug_stream.cpp
 #	smoc_ngx_sync.cpp
 
-libsystemoc_la_LDFLAGS =					\
-	$(AM_LDFLAGS)						\
-	-version-info 0:0:0 					\
+libsystemoc_la_CPPFLAGS = $(AM_CPPFLAGS) \
+	$(BOOST_CPPFLAGS) \
+	$(SYSTEMC_CPPFLAGS) \
+	$(TLM1_CPPFLAGS) \
+	$(COSUPPORT_SYSTEMC_CPPFLAGS) \
+	$(COSUPPORT_TRACING_CPPFLAGS) \
+	$(COSUPPORT_STREAMS_CPPFLAGS) \
+	$(COSUPPORT_SMARTPTR_CPPFLAGS) \
+	$(COSUPPORT_MATH_CPPFLAGS) \
+	$(LIBSGX_CPPFLAGS) \
+	$(SYSTEMC_VPC_CPPFLAGS) \
+	$(MAESTROMM_CPPFLAGS)
+libsystemoc_la_LDFLAGS = $(AM_LDFLAGS) \
+	$(BOOST_LDFLAGS) \
+	$(SYSTEMC_LDFLAGS) \
+	$(TLM1_LDFLAGS) \
+	$(COSUPPORT_SYSTEMC_LDFLAGS) \
+	$(COSUPPORT_TRACING_LDFLAGS) \
+	$(COSUPPORT_STREAMS_LDFLAGS) \
+	$(COSUPPORT_SMARTPTR_LDFLAGS) \
+	$(COSUPPORT_MATH_LDFLAGS) \
+	$(LIBSGX_LDFLAGS) \
+	$(SYSTEMC_VPC_LDFLAGS) \
+	$(MAESTROMM_LDFLAGS) \
+	-version-info 0:0:0 \
 	-no-undefined
-libsystemoc_la_LIBADD = 					\
-	-lsystemc 						\
-	-lboost_program_options$(BOOST_LIBPOSTFIX)
-if PKG_COSUPPORT_USE_SRCDIR_VERSION
-libsystemoc_la_LIBADD += 					\
-	$(COSUPPORT_LIBPATH)/libcosupport-systemc.la		\
-	$(COSUPPORT_LIBPATH)/libcosupport-tracing.la	        \
-	$(COSUPPORT_LIBPATH)/libcosupport-streams.la		\
-	$(COSUPPORT_LIBPATH)/libcosupport-smartptr.la		\
-	$(COSUPPORT_LIBPATH)/libcosupport-math.la			
-else
-# It may not be possible to find COSUPPORT_LIBPATH for
-# cosupport installed in the wild and not in the source dir.
-libsystemoc_la_LIBADD += 					\
-	-lcosupport-systemc					\
-	-lcosupport-tracing					\
-	-lcosupport-streams					\
-	-lcosupport-smartptr					\
-	-lcosupport-math
-endif
-if SYSTEMOC_ENABLE_SGX
-if PKG_LIBSGX_USE_SRCDIR_VERSION
-libsystemoc_la_LIBADD += $(LIBSGX_LIBPATH)/libsgx.la
-else
-# It may not be possible to find LIBSGX_LIBPATH for
-# libsgx installed in the wild and not in the source dir.
-libsystemoc_la_LIBADD += -lsgx
-endif
-endif
-
-if SYSTEMOC_ENABLE_VPC
-if PKG_SYSTEMC_VPC_USE_SRCDIR_VERSION
-libsystemoc_la_LIBADD += $(SYSTEMC_VPC_LIBPATH)/libsystemcvpc.la
-else
-# It may not be possible to find SYSTEMC_VPC_LIBPATH for
-# libsystemcvpc installed in the wild and not in the source dir.
-libsystemoc_la_LIBADD += -lsystemcvpc
-endif
-endif
-
-if SYSTEMOC_ENABLE_MAESTROMM
-if PKG_MAESTROMM_USE_SRCDIR_VERSION
-libsystemoc_la_LIBADD += $(MAESTROMM_LIBPATH)/libmaestro_mm.la
-else
-# It may not be possible to find SYSTEMC_VPC_LIBPATH for
-# libsystemcvpc installed in the wild and not in the source dir.
-libsystemoc_la_LIBADD += -lmaestro_mm
-endif
-endif
+libsystemoc_la_LIBADD = \
+	-lboost_program_options$(BOOST_LIBPOSTFIX) \
+	-lsystemc \
+	$(COSUPPORT_SYSTEMC_LIBS) \
+	$(COSUPPORT_TRACING_LIBS) \
+	$(COSUPPORT_STREAMS_LIBS) \
+	$(COSUPPORT_SMARTPTR_LIBS) \
+	$(COSUPPORT_MATH_LIBS) \
+	$(LIBSGX_LIBS) \
+	$(SYSTEMC_VPC_LIBS) \
+	$(MAESTROMM_LIBS)
+libsystemoc_la_DEPENDENCIES = \
+	$(COSUPPORT_SYSTEMC_DEPENDENCIES) \
+	$(COSUPPORT_TRACING_DEPENDENCIES) \
+	$(COSUPPORT_STREAMS_DEPENDENCIES) \
+	$(COSUPPORT_SMARTPTR_DEPENDENCIES) \
+	$(COSUPPORT_MATH_DEPENDENCIES) \
+	$(LIBSGX_DEPENDENCIES) \
+	$(SYSTEMC_VPC_DEPENDENCIES) \
+	$(MAESTROMM_DEPENDENCIES)

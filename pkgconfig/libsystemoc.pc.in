@@ -1,0 +1,34 @@
+# Common information
+PACKAGE=@PACKAGE@
+PACKAGE_VERSION=@PACKAGE_VERSION@
+
+# Installation information
+prefix=@prefix@
+exec_prefix=@exec_prefix@
+libdir=@libdir@
+includedir=@includedir@
+
+# Information for source tree mode (this is deleted if this pkg-config file was installed)
+srctreemode_srcdir=@abs_top_srcdir@
+srctreemode_builddir=@abs_top_builddir@
+srctreemode_libdir=${srctreemode_builddir}
+srctreemode_includedir=${srctreemode_builddir}/pkginclude -I${srctreemode_srcdir}/pkginclude
+
+# pkg-config fields
+# human-readable name
+Name: SysteMoC
+# human-readable description
+Description: SysteMoC modeling library
+Version: ${PACKAGE_VERSION}
+URL: http://www12.informatik.uni-erlangen.de/research/systemoc
+#Conflicts: foobar <= 4.5
+Requires.private: \
+  libcosupport-systemc >= 1.0 \
+  libcosupport-tracing >= 1.0 \
+  libcosupport-streams >= 1.0 \
+  libcosupport-smartptr >= 1.0 \
+  libcosupport-math >= 1.0 \
+  @SYSTEMOC_OPTIONAL_REQUIRES@
+Libs: -L${srctreemode_libdir} ${srctreemode_libdir}/libsystemoc.la
+Libs.private: @SYSTEMC_LDFLAGS@ -lsystemc @BOOST_LDFLAGS@ -lboost_program_options@BOOST_LIBPOSTFIX@
+Cflags: -I${srctreemode_includedir} @SYSTEMC_INCLUDE@ @TLM1_INCLUDE@ @BOOST_INCLUDE@
