@@ -3,6 +3,7 @@
 	<name>SysteMoC</name>
 	<comment></comment>
 	<projects>
+		<project>BuildSystem</project>
 		<project>LibSGX</project>
 		<project>Support</project>
 	</projects>
