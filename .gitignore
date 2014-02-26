@@ -1,4 +1,6 @@
 config.h.in
 configure
 Makefile.in
-.settings
+aclocal.m4
+autom4te.cache
+tags
