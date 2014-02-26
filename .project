@@ -3,6 +3,7 @@
 	<name>Examples-SysteMoC-Tutorial</name>
 	<comment></comment>
 	<projects>
+		<project>BuildSystem</project>
 		<project>Support</project>
 		<project>SysteMoC</project>
 	</projects>
