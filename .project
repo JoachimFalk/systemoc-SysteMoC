@@ -3,6 +3,7 @@
 	<name>ActorLibrary</name>
 	<comment></comment>
 	<projects>
+		<project>BuildSystem</project>
 		<project>Support</project>
 		<project>SysteMoC</project>
 	</projects>
