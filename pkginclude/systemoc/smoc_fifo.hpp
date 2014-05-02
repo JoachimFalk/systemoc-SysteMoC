@@ -420,7 +420,7 @@ public:
   this_type &operator<<(typename this_type::add_param_ty x) {
     if(chan)
       assert(!"Can't place initial token: Channel already created!");
-    add(x);
+    this->add(x);
     return *this;
   }
   
