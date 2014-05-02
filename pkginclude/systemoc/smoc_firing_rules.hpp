@@ -42,6 +42,8 @@
 #include <boost/variant.hpp>
 #include <boost/shared_ptr.hpp>
 
+#include <smoc/smoc_expr.hpp>
+
 #include <CoSupport/SmartPtr/intrusive_refcount_ptr.hpp>
 #include <CoSupport/Streams/stl_output_for_list.hpp>
 #include <CoSupport/DataTypes/Facade.hpp>
@@ -51,7 +53,6 @@
 
 #include <systemoc/smoc_config.h>
 
-#include <smoc/smoc_expr.hpp>
 #include "detail/smoc_func_call.hpp"
 
 #include <boost/static_assert.hpp>
