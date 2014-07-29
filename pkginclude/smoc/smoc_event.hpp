@@ -35,10 +35,10 @@
 #ifndef _INCLUDED_SMOC_SMOC_EVENT_HPP
 #define _INCLUDED_SMOC_SMOC_EVENT_HPP
 
-#include <boost/intrusive_ptr.hpp>
-
-#include <CoSupport/SystemC/systemc_support.hpp>
 #include <CoSupport/SmartPtr/RefCountObject.hpp>
+#include <CoSupport/SystemC/systemc_support.hpp>
+
+#include <boost/intrusive_ptr.hpp>
 
 #include <systemoc/smoc_config.h>
 
