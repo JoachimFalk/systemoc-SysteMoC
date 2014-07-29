@@ -43,20 +43,18 @@
 
 #include <boost/scoped_ptr.hpp>
 
+#include <smoc/smoc_expr.hpp>
+
 #include <sgx.hpp>
 #include <CoSupport/String/Concat.hpp>
 
 #include <smoc/detail/DumpingInterfaces.hpp>
-
-//#include "smoc_ast_ngx_visitor.hpp"
-//#include <smoc/detail/astnodes.hpp>
 
 #include "apply_visitor.hpp"
 #include <systemoc/detail/smoc_root_node.hpp>
 #include <systemoc/detail/smoc_root_chan.hpp>
 #include <systemoc/detail/smoc_sysc_port.hpp>
 #include <systemoc/detail/smoc_firing_rules_impl.hpp>
-#include <smoc/smoc_expr.hpp>
 #include <systemoc/smoc_actor.hpp>
 #include <systemoc/smoc_fifo.hpp>
 #include <systemoc/smoc_multiplex_fifo.hpp>
