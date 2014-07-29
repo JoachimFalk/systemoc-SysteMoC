@@ -41,12 +41,13 @@
 
 #include <boost/variant.hpp>
 #include <boost/blank.hpp>
-#include <boost/intrusive_ptr.hpp>
 
 #include <systemoc/smoc_config.h>
 
 #include <smoc/smoc_expr.hpp>
 #include <smoc/smoc_simulation_ctx.hpp>
+
+#include <boost/intrusive_ptr.hpp>
 
 #ifdef SYSTEMOC_ENABLE_VPC
 # include <vpc.hpp>
