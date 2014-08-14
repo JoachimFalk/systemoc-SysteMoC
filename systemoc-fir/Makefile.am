@@ -32,10 +32,6 @@ if SYNTH_PTHREAD
   PTHREAD_SYNTH_SUBDIR = synthesis-pthread
   include $(pkg_synthesis_pthread_builddir)/mk/Rules-Synth-II.mk
 endif
-if SYNTH_SYSC
-  SYSC_SYNTH_SUBDIR = synthesis-sysc
-  include $(pkg_synthesis_systemc_builddir)/mk/Rules-Synth-II.mk
-endif
 if SYNTH_CYN
   CYN_SYNTH_SUBDIR = synthesis-cyn
   include $(pkg_synthesis_cynthesizer_builddir)/mk/Rules-Synth-II.mk
@@ -91,11 +87,6 @@ endif
 if SYNTH_PTHREAD
 synth-pthread: fir-$(PTHREAD_SYNTH_SUBDIR)/top
 .PHONY: synth-pthread
-endif
-
-if SYNTH_SYSC
-synth-sysc: fir-$(SYSC_SYNTH_SUBDIR)/top
-.PHONY: synth-sysc
 endif
 
 if SYNTH_CYN

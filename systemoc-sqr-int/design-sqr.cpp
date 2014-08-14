@@ -34,14 +34,7 @@
  * ENHANCEMENTS, OR MODIFICATIONS.
  */
 
-#include <cstdlib>
-#ifndef XILINX_EDK_RUNTIME
-# include <iostream>
-#else
-# include <stdlib.h>
-#endif
-
-#include <cassert>
+#include "smoc_synth_std_includes.hpp"
 
 #include <systemoc/smoc_moc.hpp>
 #include <systemoc/smoc_port.hpp>
@@ -54,23 +47,26 @@ class Src: public smoc_actor {
 public:
   smoc_port_out<int> out;
 private:
-  int iter;
   int i;
 
   void src() {
-    std::cout << "src: " << i << " @ " << sc_time_stamp() << std::endl;
+#if defined(SYSTEMC_VERSION) || defined(SQR_LOGGING)
+    std::cout << "src: " << i << std::endl;
+#endif //defined(SYSTEMC_VERSION) || defined(SQR_LOGGING)
     out[0] = i++;
   }
   
   smoc_firing_state start;
 public:
-  Src(sc_module_name name, int iter_)
-    : smoc_actor(name, start), iter(iter_), i(1) {
-    
-      SMOC_REGISTER_CPARAM(iter);
-      
+  Src(sc_module_name name, int from)
+    : smoc_actor(name, start), i(from)
+  {
+      SMOC_REGISTER_CPARAM(from);
+      char *init = std::getenv("SRC_ITERS");
+      if (init)
+        i = NUM_MAX_ITERATIONS - std::atoll(init);
       start =
-        (VAR(i) <= VAR(iter)) >>
+        (VAR(i) <= NUM_MAX_ITERATIONS) >>
         out(1)                         >>
         CALL(Src::src)                 >> start
       ;
@@ -102,7 +98,9 @@ private:
   bool check() const {
     int in = i2[0];
     bool ret = in*in <= tmp_i1 && (in+1)*(in+1) > tmp_i1;
+#if defined(SYSTEMC_VERSION) || defined(SQR_LOGGING)
     std::cout << "check: " << tmp_i1 << ", " << in << std::endl;
+#endif //defined(SYSTEMC_VERSION) || defined(SQR_LOGGING)
     return ret;
   }
   
@@ -179,7 +177,9 @@ public:
   smoc_port_in<int> in;
 private:
   void sink() {
-    std::cout << "sink: " << in[0] << " @ " << sc_time_stamp() << std::endl;
+#if defined(SYSTEMC_VERSION) || defined(SQR_LOGGING)
+    std::cout << "sink: " << in[0] << std::endl;
+#endif //defined(SYSTEMC_VERSION) || defined(SQR_LOGGING)
   }
   
   smoc_firing_state start;
@@ -204,33 +204,32 @@ protected:
   Approx   approx;
   Dup      dup;
 public:
-  SqrRoot( sc_module_name name, int iter = 100 )
+  SqrRoot( sc_module_name name, const int from = 1 )
     : smoc_graph(name),
-      src("a1", iter),
+      src("a1", from),
       snk("a5"),
       sqrloop("a2"),
       approx("a3"),
       dup("a4") {
     connectNodePorts(src.out, sqrloop.i1);
     connectNodePorts(sqrloop.o1, approx.i1);
-#ifndef KASCPAR_PARSING
     connectNodePorts(approx.o1,  dup.i1,
                      smoc_fifo<int>(1));
     connectNodePorts(dup.o1,     approx.i2,
                      smoc_fifo<int>() << 1 );
-#endif
     connectNodePorts(dup.o2,     sqrloop.i2);
     connectNodePorts(sqrloop.o2, snk.in);
   }
 };
 
 int sc_main (int argc, char **argv) {
-  int iter = 100;
+  int from = 1;
   if (argc == 2) {
-    iter = atoi(argv[1]);
-    assert(iter >= 1);
+    const int iterations = atoi(argv[1]);
+    assert(iterations < NUM_MAX_ITERATIONS);
+    from = NUM_MAX_ITERATIONS - iterations;
   }
-  smoc_top_moc<SqrRoot> sqrroot("sqrroot", iter);
+  smoc_top_moc<SqrRoot> sqrroot("sqrroot", from);
   sc_start();
   return 0;
 }
