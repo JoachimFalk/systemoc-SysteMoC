@@ -25,24 +25,27 @@ include $(auxdir)/jfrules.mk
 SUBDIRS=
 
 if SYNTH_SW
-  SW_SYNTH_SUBDIR = synthesis-sw
+  SW_SYNTH_INST_FLAGS = --no-preprocess-macros -I$(srcdir)
+  SW_SYNTH_CPPFLAGS   = -I$(srcdir)
   include $(pkg_synthesis_sw_builddir)/mk/Rules-Synth-II.mk
 endif
 if SYNTH_PTHREAD
-  PTHREAD_SYNTH_SUBDIR = synthesis-pthread
+  PTHREAD_SYNTH_INST_FLAGS = --no-preprocess-macros -I$(srcdir)
+  PTHREAD_SYNTH_CPPFLAGS   = -I$(srcdir)
   include $(pkg_synthesis_pthread_builddir)/mk/Rules-Synth-II.mk
 endif
-if SYNTH_SYSC
-  SYSC_SYNTH_SUBDIR = synthesis-sysc
-  include $(pkg_synthesis_systemc_builddir)/mk/Rules-Synth-II.mk
-endif
 if SYNTH_CYN
-  CYN_SYNTH_SUBDIR = synthesis-cyn
+  CYN_SYNTH_INST_FLAGS = --no-preprocess-macros -I$(srcdir)
+  CYN_SYNTH_CPPFLAGS   = -I$(srcdir)
   include $(pkg_synthesis_cynthesizer_builddir)/mk/Rules-Synth-II.mk
 endif
 if SYNTH_TLM
-  TLM_SYNTH_SUBDIR = synthesis-tlm
+  TLM_SYNTH_INST_FLAGS = --no-preprocess-macros -I$(srcdir)
+  TLM_SYNTH_CPPFLAGS   = -I$(srcdir)
   include $(pkg_synthesis_tlm_builddir)/mk/Rules-Synth-II.mk
+endif
+if CLUSTERING
+  include $(pkg_clustering_builddir)/mk/Rules-Synth-II.mk
 endif
 
 AM_LDFLAGS = @AM_LDFLAGS@ @SYSTEMOC_LDFLAGS@
@@ -81,34 +84,33 @@ autotest.sh: simulation-sqr $(srcdir)/autotest-sh
 	cat autovars.sh $(srcdir)/autotest-sh >> $@
 	chmod +x $@
 
-smoc_synth_std_includes.hpp: $(srcdir)/smoc_synth_std_includes.hpp.in
-	cp -f $< $@
-
 # to check we just call the 'autotest.sh' script
 check: autotest.sh
 	./autotest.sh
 
+# .PHONY is outside conditional to make automake happy
+.PHONY: synth-sw synth-clustering-sw
 if SYNTH_SW
 synth-sw: sqr-$(SW_SYNTH_SUBDIR)/top
-.PHONY: synth-sw
+if CLUSTERING
+synth-clustering-sw: sqr-fsm-sched-$(SW_SYNTH_SUBDIR)/top
+endif
 endif
 
+# .PHONY is outside conditional to make automake happy
+.PHONY: synth-pthread 
 if SYNTH_PTHREAD
 synth-pthread: sqr-$(PTHREAD_SYNTH_SUBDIR)/top
-.PHONY: synth-pthread
 endif
 
-if SYNTH_SYSC
-synth-sysc: sqr-$(SYSC_SYNTH_SUBDIR)/top
-.PHONY: synth-sysc
-endif
-
+# .PHONY is outside conditional to make automake happy
+.PHONY: synth-cyn
 if SYNTH_CYN
 synth-cyn: sqr-$(CYN_SYNTH_SUBDIR)/top
-.PHONY: synth-cyn
 endif
 
+# .PHONY is outside conditional to make automake happy
+.PHONY: synth-tlm
 if SYNTH_TLM
 synth-tlm: sqr-$(TLM_SYNTH_SUBDIR)/top
-.PHONY: synth-tlm
 endif

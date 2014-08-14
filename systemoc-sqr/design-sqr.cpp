@@ -34,22 +34,14 @@
  * ENHANCEMENTS, OR MODIFICATIONS.
  */
 
-#include <iostream>
+#include "smoc_synth_std_includes.hpp"
 
 #include <systemoc/smoc_moc.hpp>
 #include <systemoc/smoc_port.hpp>
 #include <systemoc/smoc_fifo.hpp>
 #include <systemoc/smoc_node_types.hpp>
 
-#include <cmath>
-#include <cassert>
-#include <cstdlib> // for atoi
-
 using namespace std; 
-
-// Maximum (and default) number of Src iterations. Lower default number via
-//  command line parameter.
-const int NUM_MAX_ITERATIONS = 1000000;
 
 class Src: public smoc_actor {
 public:
@@ -58,17 +50,21 @@ private:
   int i;
   
   void src() {
+#if defined(SYSTEMC_VERSION) || defined(SQR_LOGGING)
     std::cout << "src: " << i << std::endl;
+#endif //defined(SYSTEMC_VERSION) || defined(SQR_LOGGING)
     out[0] = i++;
   }
   
   smoc_firing_state start;
 public:
   Src(sc_module_name name, int from)
-    : smoc_actor(name, start), i(from) {
-    
+    : smoc_actor(name, start), i(from)
+  {
       SMOC_REGISTER_CPARAM(from);
-      
+      char *init = std::getenv("SRC_ITERS");
+      if (init)
+        i = NUM_MAX_ITERATIONS - std::atoll(init);
       start =
         (VAR(i) <= NUM_MAX_ITERATIONS) >>
         out(1)                         >>
@@ -100,7 +96,9 @@ private:
   // guard  functions used by the
   // FSM declared in the constructor
   bool check() const {
+#if defined(SYSTEMC_VERSION) || defined(SQR_LOGGING)
     std::cout << "check: " << tmp_i1 << ", " << i2[0] << std::endl;
+#endif //defined(SYSTEMC_VERSION) || defined(SQR_LOGGING)
     return std::fabs(tmp_i1 - i2[0]*i2[0]) < 0.0001;
   }
   
@@ -177,7 +175,9 @@ public:
   smoc_port_in<double> in;
 private:
   void sink(void) {
+#if defined(SYSTEMC_VERSION) || defined(SQR_LOGGING)
     std::cout << "sink: " << in[0] << std::endl;
+#endif //defined(SYSTEMC_VERSION) || defined(SQR_LOGGING)
   }
   
   smoc_firing_state start;
