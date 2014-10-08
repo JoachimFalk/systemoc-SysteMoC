@@ -101,8 +101,8 @@ public:
 
   friend class FiringStateBaseImpl;
 protected:
-  smoc_firing_state_base(const SmartPtr &p);
-
+  explicit smoc_firing_state_base(_StorageType const &x): FFType(x) {}
+  smoc_firing_state_base(SmartPtr const &p);
 public:
   /// @brief Add transitions to state
   void addTransition(const smoc_transition_list &tl);
@@ -124,7 +124,8 @@ class smoc_hierarchical_state
   typedef smoc_hierarchical_state this_type;
 
 protected:
-  smoc_hierarchical_state(const SmartPtr &p);
+  explicit smoc_hierarchical_state(_StorageType const &x): FFType(x) {}
+  smoc_hierarchical_state(SmartPtr const &p);
   
   smoc_hierarchical_state(const this_type &);
   this_type& operator=(const this_type &);
@@ -152,7 +153,8 @@ class smoc_firing_state
   typedef smoc_firing_state this_type;
 
 protected:
-  smoc_firing_state(const SmartPtr &p);
+  explicit smoc_firing_state(_StorageType const &x): FFType(x) {}
+  smoc_firing_state(SmartPtr const &p);
   
   smoc_firing_state(const this_type &);
   this_type& operator=(const this_type &);
@@ -176,8 +178,10 @@ public:
 
 protected:
   friend class smoc_and_state;
-  smoc_xor_state(const SmartPtr &p);
   
+  explicit smoc_xor_state(_StorageType const &x): FFType(x) {}
+  smoc_xor_state(const SmartPtr &p);
+
   smoc_xor_state(const this_type &);
   this_type& operator=(const this_type &);
 
@@ -203,6 +207,7 @@ public:
   typedef smoc_and_state this_type;
 
 protected:
+  explicit smoc_and_state(_StorageType const &x): FFType(x) {}
   smoc_and_state(const SmartPtr &p);
   
   smoc_and_state(const this_type &);
@@ -228,7 +233,8 @@ public:
   typedef smoc_junction_state this_type;
 
 protected:
-  smoc_junction_state(const SmartPtr &p);
+  explicit smoc_junction_state(_StorageType const &x): FFType(x) {}
+  smoc_junction_state(SmartPtr const &p);
 
   smoc_junction_state(const this_type &);
   this_type& operator=(const this_type &);
@@ -263,7 +269,8 @@ public:
   typedef smoc_multi_state this_type;
 
 protected:
-  smoc_multi_state(const SmartPtr &p);
+  explicit smoc_multi_state(_StorageType const &x): FFType(x) {}
+  smoc_multi_state(SmartPtr const &p);
   
   smoc_multi_state(const this_type &);
   this_type& operator=(const this_type &);
