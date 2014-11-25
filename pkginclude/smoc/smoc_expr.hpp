@@ -114,6 +114,23 @@ namespace smoc { namespace Detail {
       pi.value = CoSupport::String::asStr(p);
       pil.push_back(pi);
     }
+
+    void operator()(const std::string &p) {
+      ParamInfo pi;
+      //pi.name = FIXME;
+      pi.type = typeid(std::string).name();
+      pi.value = std::string("std::string(\"")+p+"\")";
+      pil.push_back(pi);
+    }
+
+    void operator()(const std::string& name, const std::string &p) {
+      ParamInfo pi;
+      pi.name = name;
+      pi.type = typeid(std::string).name();
+      pi.value = std::string("std::string(\"")+p+"\")";
+      pil.push_back(pi);
+    }
+
   };
 
 #ifdef SYSTEMOC_ENABLE_SGX
