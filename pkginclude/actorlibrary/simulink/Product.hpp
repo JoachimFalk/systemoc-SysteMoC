@@ -9,26 +9,24 @@
 
 #include <systemoc/smoc_expr.hpp>
 
-
-
 template<typename DATA_TYPE, int PORTS=1>
- class Product: public smoc_actor {
+class Product: public smoc_actor {
 public:
-
   smoc_port_in<DATA_TYPE>   in[PORTS];
   smoc_port_out<DATA_TYPE>  out;	
   
-  Product( sc_module_name name, std::string operators )
-    : smoc_actor(name, start), operators(operators) {
+  Product(sc_module_name name, std::string operators)
+    : smoc_actor(name, start), operators(operators)
+  {
+    SMOC_REGISTER_CPARAM(operators);
 
     Expr::Ex<bool >::type eIn(in[0](1) );
 
-    for(int i = 1; i < PORTS; i++){
+    for (int i = 1; i < PORTS; i++) {
       eIn = eIn && in[i](1);
     }
-
-    start = eIn       >> out(1)      >> 
-      CALL(Product::multiply) >> start
+    start =
+        eIn >> out(1) >> CALL(Product::multiply) >> start
       ;
   }
 protected:

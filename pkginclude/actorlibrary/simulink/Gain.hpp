@@ -19,7 +19,9 @@ public:
   smoc_port_out<DATA_TYPE>  out;
 
   Gain( sc_module_name name, DATA_TYPE gain )
-    : smoc_actor(name, start), gain(gain) {
+    : smoc_actor(name, start), gain(gain)
+  {
+    SMOC_REGISTER_CPARAM(gain);
 
     start = in(1) >> out(1)     >>
       CALL(Gain::process) >> start

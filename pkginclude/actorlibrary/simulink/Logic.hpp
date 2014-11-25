@@ -13,26 +13,25 @@
 #define __INCLUDED__LOGIC__HPP__
 
 
-			/* 
-			 * Integer logicOperator = 0 means operator = AND
-			 * Integer logicOperator = 1 means operator = OR 
-			 * Integer logicOperator = 2 means operator = NAND
-			 * Integer logicOperator = 3 means operator = NOR
-			 * Integer logicOperator = 4 means operator = XOR
-			 * Integer logicOperator = 5 means operator = NXOR
-			 * Integer logicOperator = 6 means operator = NOT
-			 */
-
-
-template<typename T , int PORTS=1>
+/* 
+ * Integer logicOperator = 0 means operator = AND
+ * Integer logicOperator = 1 means operator = OR 
+ * Integer logicOperator = 2 means operator = NAND
+ * Integer logicOperator = 3 means operator = NOR
+ * Integer logicOperator = 4 means operator = XOR
+ * Integer logicOperator = 5 means operator = NXOR
+ * Integer logicOperator = 6 means operator = NOT
+ */
+template<typename T, int PORTS=1>
  class Logic: public smoc_actor {
 public:
-
   smoc_port_in<T>   in[PORTS];
   smoc_port_out<T>  out;	
   
-  Logic( sc_module_name name, int logicOperator )
-    : smoc_actor(name, start), logicOperator(logicOperator) {
+  Logic( sc_module_name name, int logicOperator)
+    : smoc_actor(name, start), logicOperator(logicOperator)
+  {
+    SMOC_REGISTER_CPARAM(logicOperator);
 
     Expr::Ex<bool >::type eIn(in[0](1) );
 

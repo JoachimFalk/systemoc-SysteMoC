@@ -35,7 +35,9 @@ public:
   smoc_port_out<T>  out;	
   
   RelationalOperator( sc_module_name name, int logicOperator )
-    : smoc_actor(name, start), logicOperator(logicOperator) {
+    : smoc_actor(name, start), logicOperator(logicOperator)
+  {
+    SMOC_REGISTER_CPARAM(logicOperator);
 
     Expr::Ex<bool >::type eIn(in[0](1) );
 

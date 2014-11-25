@@ -20,7 +20,7 @@ from the first (top) input, and then add the third (bottom) input.
 //enum OPERATOR {PLUS, MINUS};
 
 template<typename DATA_TYPE, int PORTS=1>
- class Sum: public smoc_actor {
+class Sum: public smoc_actor {
 public:
 
   smoc_port_in<DATA_TYPE>   in[PORTS];
@@ -28,6 +28,8 @@ public:
   
   Sum( sc_module_name name, std::string operators )
     : smoc_actor(name, start), operators(operators) {
+
+    SMOC_REGISTER_CPARAM(operators);
 
     Expr::Ex<bool >::type eIn(in[0](1) );
 

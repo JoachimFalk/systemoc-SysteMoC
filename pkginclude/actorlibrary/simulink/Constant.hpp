@@ -25,7 +25,9 @@ public:
   smoc_port_out<DATA_TYPE>  out;
 
   Constant( sc_module_name name, DATA_TYPE constValue )
-    : smoc_actor(name, start), constValue(constValue) {
+    : smoc_actor(name, start), constValue(constValue)
+  {
+    SMOC_REGISTER_CPARAM(constValue);
 
     start = out(1)     >>
       CALL(Constant::process) >> start
