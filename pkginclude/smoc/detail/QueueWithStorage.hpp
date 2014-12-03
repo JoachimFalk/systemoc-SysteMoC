@@ -250,7 +250,7 @@ protected:
   /// right.
   template <class G>
   void dropRInvisible(G const &g) {
-    base_type::dropRInvisible(moveTokensRight(DropRInvisibleWrapGenerator<G>(g, this->visibleCount())));
+    base_type::dropRInvisible(this->moveTokensRight(DropRInvisibleWrapGenerator<G>(g, this->visibleCount())));
   }
 private:
   template <class G>
