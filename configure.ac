@@ -56,7 +56,7 @@ AC_PROG_CPP
 AC_DISABLE_SHARED
 AC_PROG_LIBTOOL
 
-AM_INIT_AUTOMAKE
+AM_INIT_AUTOMAKE([subdir-objects])
 
 ACJF_ARG_DEBUG([yes], [], [-DNDEBUG])
 if test x"$enable_debug" = x"yes"; then
