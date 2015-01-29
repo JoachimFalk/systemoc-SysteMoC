@@ -74,7 +74,7 @@
 #include <xercesc/dom/DOMErrorHandler.hpp>
 #include <xercesc/util/XMLString.hpp>
 
-#include <CoSupport/XML/xerces_support.hpp>
+#include <CoSupport/XML/Xerces/common.hpp>
 
 
 using namespace CoSupport::XML::Xerces;
