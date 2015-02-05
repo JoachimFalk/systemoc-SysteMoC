@@ -45,5 +45,5 @@ autotest.sh: simulation-junction-state $(srcdir)/autotest-sh
 	chmod +x $@
 
 # to check we just call the 'autotest.sh' script
-check: autotest.sh
+check-local: autotest.sh
 	./autotest.sh
