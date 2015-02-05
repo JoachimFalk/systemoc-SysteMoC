@@ -72,5 +72,5 @@ libactorlibrary_la_LIBADD =		\
 #	chmod +x $@
 #
 ## to check we just call the 'autotest.sh' script
-#check: autotest.sh $(noinst_PROGRAMS)
+#check-local: autotest.sh $(noinst_PROGRAMS)
 #	./autotest.sh
