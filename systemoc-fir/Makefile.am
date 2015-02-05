@@ -76,7 +76,7 @@ autotest.sh: simulation-fir $(srcdir)/autotest-sh
 	chmod +x $@
 
 # to check we just call the 'autotest.sh' script
-check: autotest.sh
+check-local: autotest.sh
 	./autotest.sh
 
 if SYNTH_SW
