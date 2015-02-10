@@ -48,22 +48,17 @@ if CLUSTERING
   include $(pkg_clustering_builddir)/mk/Rules-Synth-II.mk
 endif
 
-AM_LDFLAGS = @AM_LDFLAGS@ @SYSTEMOC_LDFLAGS@
-AM_CPPFLAGS= @AM_CPPFLAGS@ @SYSTEMOC_INCLUDE@ -Wno-deprecated
-
 noinst_PROGRAMS= simulation-sqr syscsim-sqr
 
-simulation_sqr_SOURCES= design-sqr.cpp
-simulation_sqr_LDADD =
-if PKG_SYSTEMOC_USE_SRCDIR_VERSION
-simulation_sqr_LDADD += $(SYSTEMOC_LIBPATH)/libsystemoc.la
-else
-# SYSTEMOC_LIBPATH may not be defined for external libraries
-simulation_sqr_LDADD += -lsystemoc
-endif
+simulation_sqr_SOURCES	= design-sqr.cpp
+simulation_sqr_CPPFLAGS	= $(AM_CPPFLAGS) $(SYSTEMOC_INCLUDE)
+simulation_sqr_LDFLAGS	= $(AM_LDFLAGS) $(SYSTEMOC_LDFLAGS)
+simulation_sqr_LDADD	= $(SYSTEMOC_LINKFLAGS)
 
-syscsim_sqr_SOURCES= systemc-sqr.cpp
-syscsim_sqr_LDADD = -lsystemc
+syscsim_sqr_SOURCES	= systemc-sqr.cpp
+syscsim_sqr_CPPFLAGS	= $(AM_CPPFLAGS) $(SYSTEMC_INCLUDE)
+syscsim_sqr_LDFLAGS	= $(AM_LDFLAGS) $(SYSTEMC_LDFLAGS)
+syscsim_sqr_LDADD	= -lsystemc
 
 clean-local:
 	rm -f sqr.cpp sqr.smx sqr.ngx
