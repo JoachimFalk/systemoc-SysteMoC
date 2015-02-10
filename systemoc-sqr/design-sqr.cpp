@@ -174,9 +174,13 @@ class Sink: public smoc_actor {
 public:
   smoc_port_in<double> in;
 private:
+  volatile int sinkDump;
+
   void sink(void) {
+    int value = in[0];
+    sinkDump = value;
 #if defined(SYSTEMC_VERSION) || defined(SQR_LOGGING)
-    std::cout << "sink: " << in[0] << std::endl;
+    std::cout << "sink: " << value << std::endl;
 #endif //defined(SYSTEMC_VERSION) || defined(SQR_LOGGING)
   }
   
