@@ -50,6 +50,13 @@ endif
 
 noinst_PROGRAMS= simulation-sqr syscsim-sqr
 
+if PKG_SYSTEMOC_USE_SRCDIR_VERSION
+SYSTEMOC_LINKFLAGS = $(SYSTEMOC_LIBPATH)/libsystemoc.la
+else
+# SYSTEMOC_LIBPATH may not be defined for external libraries
+SYSTEMOC_LINKFLAGS = -lsystemoc
+endif
+
 simulation_sqr_SOURCES	= design-sqr.cpp
 simulation_sqr_CPPFLAGS	= $(AM_CPPFLAGS) $(SYSTEMOC_INCLUDE)
 simulation_sqr_LDFLAGS	= $(AM_LDFLAGS) $(SYSTEMOC_LDFLAGS)
@@ -85,7 +92,7 @@ autotest.sh: simulation-sqr $(srcdir)/autotest-sh autovars.sh
 # to check we just call the 'autotest.sh' script
 check-local: autotest.sh
 	./autotest.sh
-  
+
 # .PHONY is outside conditional to make automake happy
 .PHONY: synth-sw synth-clustering-sw
 if SYNTH_SW
