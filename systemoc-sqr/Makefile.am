@@ -57,6 +57,9 @@ else
 SYSTEMOC_LINKFLAGS = -lsystemoc
 endif
 
+AM_CPPFLAGS= @AM_CPPFLAGS@
+AM_LDFLAGS = @AM_LDFLAGS@
+
 simulation_sqr_SOURCES	= design-sqr.cpp
 simulation_sqr_CPPFLAGS	= $(AM_CPPFLAGS) $(SYSTEMOC_INCLUDE)
 simulation_sqr_LDFLAGS	= $(AM_LDFLAGS) $(SYSTEMOC_LDFLAGS)
