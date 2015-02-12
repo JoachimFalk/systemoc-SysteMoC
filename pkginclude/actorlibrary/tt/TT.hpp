@@ -1,6 +1,8 @@
 #ifndef __INCLUDED__TT__HPP__
 #define __INCLUDED__TT__HPP__
 
+#include <CoSupport/compatibility-glue/nullptr.h>
+
 #include "Event.hpp"
 
 /*struct used to store an event with a certain release-time*/
@@ -36,7 +38,7 @@ public:
   //SystemC-Prozess, der die queue topped und die notwendige Zeit wartet.
   void waiter();
 		
-  EventQueue(sc_module_name name): sc_module(name), current(NULL) {
+  EventQueue(sc_module_name name): sc_module(name), current(nullptr) {
     SC_THREAD(waiter);
   };
 

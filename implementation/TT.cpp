@@ -1,3 +1,5 @@
+#include <CoSupport/compatibility-glue/nullptr.h>
+
 #include <actorlibrary/tt/TT.hpp>
 
 float randfloat(void){
@@ -25,7 +27,7 @@ void EventQueue::registerEvent(Event* event, sc_time time){
   TimeEventPair tep(time, event);
   pqueue.push(tep);	
   //is it earlier to release then the current event?
-  if(current!=NULL && time < current->time){
+  if(current!=nullptr && time < current->time){
     // 		cout<<"Spezialfall! "<<endl;
     wait_interrupt.notify();
   }
@@ -57,7 +59,7 @@ void EventQueue::waiter(){
       }
 			
     }else {
-      current= NULL;
+      current= nullptr;
       wait();
     }
   }

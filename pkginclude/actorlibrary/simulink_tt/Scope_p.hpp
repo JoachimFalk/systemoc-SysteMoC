@@ -7,6 +7,8 @@
 #define __INCLUDED__SCOPE_P__HPP__
 
 
+#include <CoSupport/compatibility-glue/nullptr.h>
+
 #include <stdio.h>
 
 #include <errno.h>
@@ -52,7 +54,7 @@ protected:
 	
 if( message != "" ){
 	fp = fopen(  message, "a");
-	if (fp == NULL) {
+	if (fp == nullptr) {
 		fprintf(stderr, "cannot open %s for writing %s", this->name(), strerror(errno));
 		std::cout << "cannot open %s for writing:" << step << "\n\r"; 
 		exit(EXIT_FAILURE);

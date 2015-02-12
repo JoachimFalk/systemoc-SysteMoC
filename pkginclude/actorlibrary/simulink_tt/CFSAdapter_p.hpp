@@ -6,6 +6,8 @@
 #ifndef __INCLUDED__CFSADAPTER_P__HPP__
 #define __INCLUDED__CFSADAPTER_P__HPP__
 
+#include <CoSupport/compatibility-glue/nullptr.h>
+
 #include <cstdlib>
 #include <iostream>
 #include <systemoc/smoc_moc.hpp>
@@ -59,7 +61,7 @@ protected:
 	}
 	//printf("id is %d\n", shmid);
 	// attach pointer
-	shm_scan_ptr = (int*) shmat (shmid, NULL, 0);
+	shm_scan_ptr = (int*) shmat (shmid, nullptr, 0);
 	if ((int)shm_scan_ptr == -1){
 		perror("shmat error");
 		exit(1);

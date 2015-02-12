@@ -7,6 +7,8 @@
 #ifndef __INCLUDED__CFSOUTPUTADAPTER__HPP__
 #define __INCLUDED__CFSOUTPUTADAPTER__HPP__
 
+#include <CoSupport/compatibility-glue/nullptr.h>
+
 #include <cstdlib>
 #include <iostream>
 #include <systemoc/smoc_moc.hpp>
@@ -76,14 +78,14 @@ Integration = 0.0;
       //printf("id is %d\n", shmid_v);
       // Obtain shared memory for control flag
       // attach pointer
-      shm_c_ptr = (int*) shmat (shmid_c, NULL, 0);
+      shm_c_ptr = (int*) shmat (shmid_c, nullptr, 0);
       if ((int)shm_c_ptr == -1){
          perror("shmat error");
          exit(1);
       }
       // Obtain shared memory for simulation result
       // attach pointer
-      shm_v_ptr = (double*) shmat (shmid_v, NULL, 0);
+      shm_v_ptr = (double*) shmat (shmid_v, nullptr, 0);
       if ((int)shm_v_ptr == -1){
          perror("shmat error");
          exit(1);
