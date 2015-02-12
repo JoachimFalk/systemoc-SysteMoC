@@ -36,6 +36,8 @@
 #ifndef _INCLUDED_ACTIVATION_PATTERN_HPP
 #define _INCLUDED_ACTIVATION_PATTERN_HPP
 
+#include <CoSupport/compatibility-glue/nullptr.h>
+
 #include <list>
 
 #include <systemoc/smoc_config.h>
@@ -65,7 +67,7 @@ namespace smoc { namespace Detail {
   class IOPattern {
   public:
     IOPattern() :
-      ioPatternWaiter(NULL) {}
+      ioPatternWaiter(nullptr) {}
 
     void finalise();
 

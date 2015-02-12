@@ -2,6 +2,8 @@
 #define __INCLUDED__SMOC_GRAPH__TT__HPP__
 
 
+#include <CoSupport/compatibility-glue/nullptr.h>
+
 #include <systemoc/smoc_graph_type.hpp>
 #include <boost/smart_ptr.hpp>
 
@@ -52,7 +54,7 @@ public:
     TimeNodePair tnp(time, node);
     pqueue.push(tnp);	
     //is the new node earlier to release then the current node? or is there currently no node aktiv? -> reactivate the waiter
-    if((current!=NULL && time < current->time) || current == NULL ){
+    if((current!=nullptr && time < current->time) || current == nullptr ){
       node_added.notify();
     }
   }

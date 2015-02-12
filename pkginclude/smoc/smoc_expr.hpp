@@ -45,6 +45,8 @@
 #include <list>
 #include <map>
 
+#include <CoSupport/compatibility-glue/nullptr.h>
+
 #include <CoSupport/commondefs.h>
 #include <CoSupport/SmartPtr/RefCountObject.hpp>
 #include <CoSupport/DataTypes/oneof.hpp>
@@ -600,8 +602,8 @@ private:
   const T    &x;
   const char *name;
 public:
-  explicit DVar(T &x, const char *name_ = NULL)
-    : x(x),name(name_ != NULL ? name_ : "") {}
+  explicit DVar(T &x, const char *name_ = nullptr)
+    : x(x),name(name_ != nullptr ? name_ : "") {}
 };
 
 template <typename T>
@@ -629,7 +631,7 @@ public:
 
 template<class T>
 struct D<DVar<T> >: public DBase<DVar<T> > {
-  D(T &x, const char *name = NULL): DBase<DVar<T> >(DVar<T>(x,name)) {}
+  D(T &x, const char *name = nullptr): DBase<DVar<T> >(DVar<T>(x,name)) {}
 };
 
 // Make a convenient typedef for the placeholder type.
@@ -638,7 +640,7 @@ struct Var { typedef D<DVar<T> > type; };
 
 template <typename T>
 static inline
-typename Var<T>::type var(T &x, const char *name = NULL)
+typename Var<T>::type var(T &x, const char *name = nullptr)
   { return typename Var<T>::type(x,name); }
 
 /****************************************************************************
@@ -802,8 +804,8 @@ private:
   smoc_event_waiter &v;
   const char        *name;
 public:
-  explicit DSMOCEvent(smoc_event_waiter &v, const char *name_ = NULL)
-    : v(v), name(name_ != NULL ? name_ : "") {}
+  explicit DSMOCEvent(smoc_event_waiter &v, const char *name_ = nullptr)
+    : v(v), name(name_ != nullptr ? name_ : "") {}
 };
 
 template <>
@@ -851,7 +853,7 @@ struct Sensitivity<DSMOCEvent> {
 
 template <>
 struct D<DSMOCEvent>: public DBase<DSMOCEvent> {
-  D(smoc_event_waiter &v, const char *name = NULL)
+  D(smoc_event_waiter &v, const char *name = nullptr)
     : DBase<DSMOCEvent>(DSMOCEvent(v, name)) {}
 };
 
@@ -861,7 +863,7 @@ struct SMOCEvent { typedef D<DSMOCEvent> type; };
 // smoc_event_waiter may be an event or a event list
 // till-waiting for events allows for hierarchical graph scheduling
 static inline
-SMOCEvent::type till(smoc_event_waiter &e, const char *name = NULL)
+SMOCEvent::type till(smoc_event_waiter &e, const char *name = nullptr)
   { return SMOCEvent::type(e, name); }
 
 /****************************************************************************
@@ -911,7 +913,7 @@ class DBinOpExecute;
 template<typename TA, typename TB>                                    \
 struct DBinOpExecute<TA,TB,Op,Value> {                                \
   typedef DBinOpExecute<TA,TB,Op,Value>                 this_type;    \
-  BOOST_TYPEOF_NESTED_TYPEDEF_TPL(nested, (*(TA*)(NULL)) op (*(TB*)(NULL))) \
+  BOOST_TYPEOF_NESTED_TYPEDEF_TPL(nested, (*(TA*)(nullptr)) op (*(TB*)(nullptr))) \
   typedef typename nested::type result_type;                          \
                                                                       \
   template <class A, class B>                                         \
@@ -1338,7 +1340,7 @@ class DUnOpExecute;
 template<typename TE>                                                 \
 struct DUnOpExecute<TE,Op,Value> {                                    \
   typedef DUnOpExecute<TE,Op,Value>   this_type;                      \
-  BOOST_TYPEOF_NESTED_TYPEDEF_TPL(nested, op (*(TE*)(NULL)))          \
+  BOOST_TYPEOF_NESTED_TYPEDEF_TPL(nested, op (*(TE*)(nullptr)))          \
   typedef typename nested::type result_type;                          \
                                                                       \
   template <class E>                                                  \

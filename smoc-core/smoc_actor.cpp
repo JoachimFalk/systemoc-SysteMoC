@@ -31,6 +31,8 @@
  * ENHANCEMENTS, OR MODIFICATIONS.
  */
 
+#include <CoSupport/compatibility-glue/nullptr.h>
+
 #include <systemoc/smoc_actor.hpp>
 #include <systemoc/smoc_graph_type.hpp>
 
@@ -111,7 +113,7 @@ void smoc_actor::registerSleepingListener(MetaMap::SleepingListener& sListener){
 void smoc_actor::execute()
 {
     //std::cerr << "smoc::Scheduling::execute" << std::endl;
-    //assert(dynamic_cast<smoc_actor*>(actor) != NULL);
+    //assert(dynamic_cast<smoc_actor*>(actor) != nullptr);
     MetaMap::Actor::execute();
     dynamic_cast<smoc_actor*>(this)->schedule();
 }

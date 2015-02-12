@@ -41,6 +41,8 @@
 
 #include <systemc>
 
+#include <CoSupport/compatibility-glue/nullptr.h>
+
 #include <CoSupport/commondefs.h>
 
 #include <systemoc/smoc_config.h>
@@ -432,16 +434,16 @@ private:
   chan_type *chan;
 public:
   smoc_multicast_sr_signal( )
-    : smoc_multicast_sr_signal_chan<T>::chan_init("", 1), chan(NULL)
+    : smoc_multicast_sr_signal_chan<T>::chan_init("", 1), chan(nullptr)
   {}
 
   explicit smoc_multicast_sr_signal( const std::string& name )
-    : smoc_multicast_sr_signal_chan<T>::chan_init(name, 1), chan(NULL)
+    : smoc_multicast_sr_signal_chan<T>::chan_init(name, 1), chan(nullptr)
   {}
 
   /// @brief Constructor
   smoc_multicast_sr_signal(const this_type &x)
-    : smoc_multicast_sr_signal<T>::chan_init(x), chan(NULL)
+    : smoc_multicast_sr_signal<T>::chan_init(x), chan(nullptr)
   {}
 
   this_type &operator <<(typename this_type::add_param_ty x)
@@ -457,7 +459,7 @@ public:
     { return this->connect(p); }
 private:
   chan_type *getChan() {
-    if (chan == NULL)
+    if (chan == nullptr)
       chan = new chan_type(*this);
     return chan;
   }

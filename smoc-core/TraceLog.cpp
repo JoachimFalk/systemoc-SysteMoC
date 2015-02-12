@@ -32,6 +32,8 @@
  * ENHANCEMENTS, OR MODIFICATIONS.
  */
 
+#include <CoSupport/compatibility-glue/nullptr.h>
+
 #include <time.h>
 #include <sstream>
 #include <cassert>
@@ -261,7 +263,7 @@ void printConnectedActors(const smoc_root_chan *chan, CoSupport::Streams::Filter
       iter != entries.end();
       ++iter ) {
     smoc_sysc_port const *p  = dynamic_cast<smoc_sysc_port *>(iter->second);
-    sc_port_base   const *ap = p != NULL ? p->getActorPort() : iter->second;
+    sc_port_base   const *ap = p != nullptr ? p->getActorPort() : iter->second;
     stream << "<source actor=\""
         << ap->get_parent()->name()
         << "\"/>" << std::endl;
@@ -272,7 +274,7 @@ void printConnectedActors(const smoc_root_chan *chan, CoSupport::Streams::Filter
       iter != outlets.end();
       ++iter ) {
     smoc_sysc_port const *p  = dynamic_cast<smoc_sysc_port *>(iter->second);
-    sc_port_base   const *ap = p != NULL ? p->getActorPort() : iter->second;
+    sc_port_base   const *ap = p != nullptr ? p->getActorPort() : iter->second;
     stream << "<sink actor=\""
         << ap->get_parent()->name()
         << "\"/>" << std::endl;

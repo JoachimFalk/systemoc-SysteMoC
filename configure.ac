@@ -45,6 +45,10 @@ ACJF_CHECK_CROSSTOOL(CXX, g++)
 ACJF_CHECK_CROSSTOOL(AR, ar)
 ACJF_CHECK_CROSSTOOL(RANLIB, ranlib)
 ACJF_CHECK_CROSSTOOL(NM, nm)
+
+ACJF_ENABLE_DIALECTS_C99_CXX11
+
+AM_INIT_AUTOMAKE([subdir-objects])
 AC_PROG_CXXCPP
 AC_PROG_CPP
 # Checks for programs.
@@ -55,8 +59,6 @@ AC_PROG_CPP
 
 AC_DISABLE_SHARED
 AC_PROG_LIBTOOL
-
-AM_INIT_AUTOMAKE([subdir-objects])
 
 ACJF_ARG_DEBUG([yes], [], [-DNDEBUG])
 if test x"$enable_debug" = x"yes"; then

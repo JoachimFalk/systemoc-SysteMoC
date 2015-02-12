@@ -39,6 +39,8 @@
 #include <stdexcept>
 #include <time.h>
 
+#include <CoSupport/compatibility-glue/nullptr.h>
+
 #include <CoSupport/SmartPtr/RefCountObject.hpp>
 #include <CoSupport/DataTypes/oneof.hpp>
 #include <CoSupport/String/Concat.hpp>
@@ -231,7 +233,7 @@ void RuntimeTransition::execute(smoc_root_node *actor, int mode) {
     MODE_GRAPH
   } execMode;
   
-  if(dynamic_cast<smoc_graph_base*>(actor) == NULL) {
+  if(dynamic_cast<smoc_graph_base*>(actor) == nullptr) {
     execMode =
 #ifdef SYSTEMOC_ENABLE_VPC
       actor->getCurrentState() != actor->getCommState()
@@ -356,7 +358,7 @@ void RuntimeTransition::execute(smoc_root_node *actor, int mode) {
 # endif
   }
   else {
-    smoc::Expr::evalTo<smoc::Expr::CommExec>(getExpr(), VpcInterface(NULL));
+    smoc::Expr::evalTo<smoc::Expr::CommExec>(getExpr(), VpcInterface(nullptr));
   }
 
   #ifdef SYSTEMOC_ENABLE_MAESTROMM
@@ -428,7 +430,7 @@ void RuntimeTransition::finaliseRuntimeTransition(smoc_root_node *node) {
 #ifdef SYSTEMOC_ENABLE_VPC
 
   smoc_actor * actor = dynamic_cast<smoc_actor *>(node);
-  if (actor != NULL) {
+  if (actor != nullptr) {
 
     FunctionNames guardNames;
     FunctionNames actionNames;
@@ -669,7 +671,7 @@ void FiringFSMImpl::finalise(
 //  {outDbg << "finalising states" << std::endl;
 //  ScopedIndent s1(outDbg);
     
-    // finalize all non-hierarchical states, i.e., dynamic_cast<HierarchicalStateImpl*>(...) == NULL
+    // finalize all non-hierarchical states, i.e., dynamic_cast<HierarchicalStateImpl*>(...) == nullptr
     for(FiringStateBaseImplSet::iterator sIter = states.begin();
         sIter != states.end(); ++sIter)
     {

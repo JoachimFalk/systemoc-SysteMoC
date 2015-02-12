@@ -35,6 +35,8 @@
 #ifndef _INCLUDED_SMOC_CHAN_ADAPTER_HPP
 #define _INCLUDED_SMOC_CHAN_ADAPTER_HPP
 
+#include <CoSupport/compatibility-glue/nullptr.h>
+
 #include <tlm.h>
 
 #include <boost/type_traits/is_base_of.hpp>
@@ -55,45 +57,45 @@ namespace tlm {
 template<>
 class tlm_blocking_get_if<void> : public virtual sc_core::sc_interface {
 public:
-  virtual void get(tlm_tag<void> * = NULL) = 0; // can't use "void&"
+  virtual void get(tlm_tag<void> * = nullptr) = 0; // can't use "void&"
 };
 
 template<>
 class tlm_nonblocking_get_if<void> : public virtual sc_core::sc_interface {
 public:
-  virtual bool nb_get(tlm_tag<void> * = NULL) = 0; // can't use "void&"
-  virtual bool nb_can_get(tlm_tag<void> * = NULL) const = 0;
-  virtual const sc_core::sc_event &ok_to_get(tlm_tag<void> * = NULL) const = 0;
+  virtual bool nb_get(tlm_tag<void> * = nullptr) = 0; // can't use "void&"
+  virtual bool nb_can_get(tlm_tag<void> * = nullptr) const = 0;
+  virtual const sc_core::sc_event &ok_to_get(tlm_tag<void> * = nullptr) const = 0;
 };
 
 // peek interfaces
 template<>
 class tlm_blocking_peek_if<void> : public virtual sc_core::sc_interface {
 public:
-  virtual void peek(tlm_tag<void> * = NULL) const = 0;
+  virtual void peek(tlm_tag<void> * = nullptr) const = 0;
 };
 
 template<>
 class tlm_nonblocking_peek_if<void> : public virtual sc_core::sc_interface {
 public:
-  virtual bool nb_peek(tlm_tag<void> * = NULL) const = 0;
-  virtual bool nb_can_peek(tlm_tag<void> * = NULL) const = 0;
-  virtual const sc_core::sc_event &ok_to_peek(tlm_tag<void> * = NULL) const = 0;
+  virtual bool nb_peek(tlm_tag<void> * = nullptr) const = 0;
+  virtual bool nb_can_peek(tlm_tag<void> * = nullptr) const = 0;
+  virtual const sc_core::sc_event &ok_to_peek(tlm_tag<void> * = nullptr) const = 0;
 };
 
 // put interfaces
 template<>
 class tlm_blocking_put_if<void> : public virtual sc_core::sc_interface {
 public:
-  virtual void put(tlm_tag<void> * = NULL) = 0; // can't use "const void&"
+  virtual void put(tlm_tag<void> * = nullptr) = 0; // can't use "const void&"
 };
 
 template<>
 class tlm_nonblocking_put_if<void> : public virtual sc_core::sc_interface {
 public:
-  virtual bool nb_put(tlm_tag<void> * = NULL) = 0; // can't use "const void&"
-  virtual bool nb_can_put(tlm_tag<void> * = NULL) const = 0;
-  virtual const sc_core::sc_event &ok_to_put(tlm_tag<void> * = NULL) const = 0;
+  virtual bool nb_put(tlm_tag<void> * = nullptr) = 0; // can't use "const void&"
+  virtual bool nb_can_put(tlm_tag<void> * = nullptr) const = 0;
+  virtual const sc_core::sc_event &ok_to_put(tlm_tag<void> * = nullptr) const = 0;
 };
 
 } // namespace tlm
@@ -230,7 +232,7 @@ public:
     : smoc::Detail::ChanAdapterMid<smoc_port_in_if<T,R> >(in_if) {}
 
   /// see tlm::tlm_blocking_get_if<T>
-  T get(tlm::tlm_tag<T> * = NULL) {
+  T get(tlm::tlm_tag<T> * = nullptr) {
     
     wait(this->dataAvailable);
     
@@ -244,8 +246,8 @@ public:
     const T &t = (*ca)[0];
     
 #ifdef SYSTEMOC_ENABLE_VPC
-    // TODO (ms): care for VpcInterface(NULL) 
-    this->getIface().commitRead(1u, smoc::Detail::VpcInterface(NULL));
+    // TODO (ms): care for VpcInterface(nullptr) 
+    this->getIface().commitRead(1u, smoc::Detail::VpcInterface(nullptr));
 #else
     this->getIface().commitRead(1u);
 #endif
@@ -276,7 +278,7 @@ public:
     : smoc::Detail::ChanAdapterMid<smoc_port_in_if<void,R> >(in_if) {}
 
   /// see tlm::tlm_blocking_get_if<void>
-  void get(tlm::tlm_tag<void> * = NULL) {
+  void get(tlm::tlm_tag<void> * = nullptr) {
     wait(this->dataAvailable);
     
     typename this_type::iface_impl_type::access_type *ca =
@@ -288,7 +290,7 @@ public:
 #endif
     
 #ifdef SYSTEMOC_ENABLE_VPC
-    this->getIface().commitRead(1u, smoc::Detail::VpcInterface(NULL));
+    this->getIface().commitRead(1u, smoc::Detail::VpcInterface(nullptr));
 #else
     this->getIface().commitRead(1u);
 #endif
@@ -334,7 +336,7 @@ public:
     t = (*ca)[0];
     
 #ifdef SYSTEMOC_ENABLE_VPC
-    this->getIface().commitRead(1u, smoc::Detail::VpcInterface(NULL));
+    this->getIface().commitRead(1u, smoc::Detail::VpcInterface(nullptr));
 #else
     this->getIface().commitRead(1u);
 #endif
@@ -343,11 +345,11 @@ public:
   }
   
   /// see tlm_nonblocking_get_if<T>
-  bool nb_can_get(tlm::tlm_tag<T> * = NULL) const
+  bool nb_can_get(tlm::tlm_tag<T> * = nullptr) const
     { return this->dataAvailable; }
 
   /// see tlm_nonblocking_get_if<T>
-  const sc_core::sc_event& ok_to_get(tlm::tlm_tag<T> * = NULL) const
+  const sc_core::sc_event& ok_to_get(tlm::tlm_tag<T> * = nullptr) const
     { return scev.getSCEvent(); }
 };
 
@@ -376,7 +378,7 @@ public:
       scev(this->dataAvailable) {}
 
   /// see tlm_nonblocking_get_if<void>
-  bool nb_get(tlm::tlm_tag<void> * = NULL) {
+  bool nb_get(tlm::tlm_tag<void> * = nullptr) {
     if (!this->dataAvailable)
       return false;
     
@@ -389,7 +391,7 @@ public:
 #endif
     
 #ifdef SYSTEMOC_ENABLE_VPC
-    this->getIface().commitRead(1u, smoc::Detail::VpcInterface(NULL));
+    this->getIface().commitRead(1u, smoc::Detail::VpcInterface(nullptr));
 #else
     this->getIface().commitRead(1u);
 #endif
@@ -398,11 +400,11 @@ public:
   }
 
   /// see tlm_nonblocking_get_if<void>
-  bool nb_can_get(tlm::tlm_tag<void> * = NULL) const
+  bool nb_can_get(tlm::tlm_tag<void> * = nullptr) const
     { return this->dataAvailable; }
 
   /// see tlm_nonblocking_get_if<void>
-  const sc_core::sc_event& ok_to_get(tlm::tlm_tag<void> * = NULL) const
+  const sc_core::sc_event& ok_to_get(tlm::tlm_tag<void> * = nullptr) const
     { return scev.getSCEvent(); }
 };
 
@@ -427,7 +429,7 @@ public:
   smoc_chan_adapter(typename this_type::iface_impl_type &in_if)
     : smoc::Detail::ChanAdapterMid<smoc_port_in_if<T,R> >(in_if) {}
 
-  T peek(tlm::tlm_tag<T> *t = NULL) const {
+  T peek(tlm::tlm_tag<T> *t = nullptr) const {
     wait(this->dataAvailable);
     
     typename this_type::iface_impl_type::access_type *ca =
@@ -462,7 +464,7 @@ public:
   smoc_chan_adapter(typename this_type::iface_impl_type &in_if)
     : smoc::Detail::ChanAdapterMid<smoc_port_in_if<void,R> >(in_if) {}
 
-  void peek(tlm::tlm_tag<void> *t = NULL) const {
+  void peek(tlm::tlm_tag<void> *t = nullptr) const {
     wait(this->dataAvailable);
     
     typename this_type::iface_impl_type::access_type *ca =
@@ -518,11 +520,11 @@ public:
   }
 
   /// see tlm_nonblocking_peek_if<T>
-  bool nb_can_peek(tlm::tlm_tag<T> * = NULL) const
+  bool nb_can_peek(tlm::tlm_tag<T> * = nullptr) const
     { return this->dataAvailable; }
 
   /// see tlm_nonblocking_peek_if<T>
-  const sc_core::sc_event& ok_to_peek(tlm::tlm_tag<T> * = NULL) const
+  const sc_core::sc_event& ok_to_peek(tlm::tlm_tag<T> * = nullptr) const
     { return scev.getSCEvent(); }
 };
 
@@ -551,7 +553,7 @@ public:
       scev(this->dataAvailable) {}
 
   /// see tlm_nonblocking_peek_if<void>
-  bool nb_peek(tlm::tlm_tag<void> * = NULL) {
+  bool nb_peek(tlm::tlm_tag<void> * = nullptr) {
     if (!this->dataAvailable)
       return false;
     
@@ -567,11 +569,11 @@ public:
   }
 
   /// see tlm_nonblocking_peek_if<void>
-  bool nb_can_peek(tlm::tlm_tag<void> * = NULL) const
+  bool nb_can_peek(tlm::tlm_tag<void> * = nullptr) const
     { return this->dataAvailable; }
 
   /// see tlm_nonblocking_peek_if<void>
-  const sc_core::sc_event& ok_to_peek(tlm::tlm_tag<void> * = NULL) const
+  const sc_core::sc_event& ok_to_peek(tlm::tlm_tag<void> * = nullptr) const
     { return scev.getSCEvent(); }
 };
 
@@ -610,7 +612,7 @@ public:
     (*ca)[0] = t;
     
 #ifdef SYSTEMOC_ENABLE_VPC
-    this->getIface().commitWrite(1u, smoc::Detail::VpcInterface(NULL));
+    this->getIface().commitWrite(1u, smoc::Detail::VpcInterface(nullptr));
 #else
     this->getIface().commitWrite(1u);
 #endif
@@ -639,7 +641,7 @@ public:
     : smoc::Detail::ChanAdapterMid<smoc_port_out_if<void,R,S> >(out_if) {}
 
   /// see tlm::tlm_blocking_put_if<void>
-  void put(tlm::tlm_tag<void> * = NULL) {
+  void put(tlm::tlm_tag<void> * = nullptr) {
     wait(this->spaceAvailable);
     
     typename this_type::iface_impl_type::access_type *ca =
@@ -651,7 +653,7 @@ public:
 #endif
     
 #ifdef SYSTEMOC_ENABLE_VPC
-    this->getIface().commitWrite(1u, smoc::Detail::VpcInterface(NULL));
+    this->getIface().commitWrite(1u, smoc::Detail::VpcInterface(nullptr));
 #else
     this->getIface().commitWrite(1u);
 #endif
@@ -698,7 +700,7 @@ public:
     
 #ifdef SYSTEMOC_ENABLE_VPC
     // TODO (ms): handle immediate notification !!!
-    this->getIface().commitWrite(1u, smoc::Detail::VpcInterface(NULL));
+    this->getIface().commitWrite(1u, smoc::Detail::VpcInterface(nullptr));
 #else
     this->getIface().commitWrite(1u);
 #endif
@@ -707,11 +709,11 @@ public:
   }
 
   /// see tlm::tlm_nonblocking_put_if<T>
-  bool nb_can_put(tlm::tlm_tag<T> * = NULL) const
+  bool nb_can_put(tlm::tlm_tag<T> * = nullptr) const
     { return this->spaceAvailable; }
 
   /// see tlm::tlm_nonblocking_put_if<T>
-  const sc_core::sc_event &ok_to_put(tlm::tlm_tag<T> * = NULL) const
+  const sc_core::sc_event &ok_to_put(tlm::tlm_tag<T> * = nullptr) const
     { return scev.getSCEvent(); }
 };
 
@@ -740,7 +742,7 @@ public:
       scev(this->spaceAvailable) {}
 
   /// see tlm::tlm_nonblocking_put_if<void>
-  bool nb_put(tlm::tlm_tag<void> * = NULL) {
+  bool nb_put(tlm::tlm_tag<void> * = nullptr) {
     if (!this->spaceAvailable)
       return false;
     
@@ -753,7 +755,7 @@ public:
 #endif
     
 #ifdef SYSTEMOC_ENABLE_VPC
-    this->getIface().commitWrite(1u, smoc::Detail::VpcInterface(NULL));
+    this->getIface().commitWrite(1u, smoc::Detail::VpcInterface(nullptr));
 #else
     this->getIface().commitWrite(1u);
 #endif
@@ -762,11 +764,11 @@ public:
   }
 
   /// see tlm::tlm_nonblocking_put_if<void>
-  bool nb_can_put(tlm::tlm_tag<void> * = NULL) const
+  bool nb_can_put(tlm::tlm_tag<void> * = nullptr) const
     { return this->spaceAvailable; }
 
   /// see tlm::tlm_nonblocking_put_if<void>
-  const sc_core::sc_event &ok_to_put(tlm::tlm_tag<void> * = NULL) const
+  const sc_core::sc_event &ok_to_put(tlm::tlm_tag<void> * = nullptr) const
     { return scev.getSCEvent(); }
 };
 

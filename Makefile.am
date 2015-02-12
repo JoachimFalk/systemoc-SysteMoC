@@ -28,11 +28,11 @@ SUBDIRS = pkginclude
 # This is only needed if there is a configure.in in this directory
 ACLOCAL_AMFLAGS=-I ../BuildSystem/m4
 
-AM_LDFLAGS = @AM_LDFLAGS@
-
 AM_CPPFLAGS= @AM_CPPFLAGS@ \
 	-Ipkginclude \
 	-I$(srcdir)/pkginclude
+
+AM_LDFLAGS = @AM_LDFLAGS@
 
 pkgconfigdir = $(libdir)/pkgconfig
 

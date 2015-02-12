@@ -40,6 +40,8 @@
 #include <queue>
 #include <map>
 
+#include <CoSupport/compatibility-glue/nullptr.h>
+
 #include <CoSupport/commondefs.h>
 
 #include <boost/noncopyable.hpp>
@@ -391,18 +393,18 @@ private:
 public:
   /// @brief Constructor
   smoc_multireader_fifo(size_t n = 1, smoc_multireader_scheduler* so = 0)
-    : base_type("", n, so), chan(NULL)
+    : base_type("", n, so), chan(nullptr)
   {}
 
   /// @brief Constructor
   explicit smoc_multireader_fifo(
       const std::string& name, size_t n = 1, smoc_multireader_scheduler* so = 0)
-    : base_type(name, n, so), chan(NULL)
+    : base_type(name, n, so), chan(nullptr)
   {}
 
   /// @brief Constructor
   smoc_multireader_fifo(const this_type &x)
-    : base_type(x), chan(NULL)
+    : base_type(x), chan(nullptr)
   {
     if(x.chan)
       assert(!"Can't copy initializer: Channel already created!");
@@ -420,7 +422,7 @@ public:
 
 private:
   chan_type *getChan() {
-    if (chan == NULL)
+    if (chan == nullptr)
       chan = new chan_type(*this);
     return chan;
   }

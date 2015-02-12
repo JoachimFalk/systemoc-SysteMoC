@@ -35,6 +35,8 @@
 #ifndef _INCLUDED_SMOC_SIMULATIONCTX_HPP
 #define _INCLUDED_SMOC_SIMULATIONCTX_HPP
 
+#include <CoSupport/compatibility-glue/nullptr.h>
+
 #include <ostream>
 #include <vector>
 
@@ -110,13 +112,13 @@ public:
 #endif // SYSTEMOC_NEED_IDS
 #ifdef SYSTEMOC_ENABLE_TRANSITION_TRACE
   bool isTraceDumpingEnabled() const
-    { return dumpTraceFile != NULL; }
+    { return dumpTraceFile != nullptr; }
   std::ostream &getTraceFile() const
     { return *dumpTraceFile; }
 #endif // SYSTEMOC_ENABLE_TRANSITION_TRACE
 #ifdef SYSTEMOC_ENABLE_DATAFLOW_TRACE
   bool isDataflowTracingEnabled() const
-    { return dataflowTraceLog != NULL; }
+    { return dataflowTraceLog != nullptr; }
   smoc::Detail::TraceLogStream *getDataflowTraceLog() const
     { return dataflowTraceLog; }
 #endif // SYSTEMOC_ENABLE_DATAFLOW_TRACE

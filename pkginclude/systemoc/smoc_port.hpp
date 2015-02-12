@@ -38,6 +38,8 @@
 
 #include <vector>
 
+#include <CoSupport/compatibility-glue/nullptr.h>
+
 #include <CoSupport/commondefs.h>
 
 #include <systemc>
@@ -102,7 +104,7 @@ protected:
 //        interfaces of this port!
 //iface_type       *operator -> () {
 //  smoc::Detail::PortBaseIf *iface = this->get_interface();
-//  if (iface == NULL)
+//  if (iface == nullptr)
 //    this->report_error(SC_ID_GET_IF_, "port is not bound");
 //  return static_cast<iface_type *>(iface);
 //}
@@ -112,7 +114,7 @@ protected:
 //        interfaces of this port!
 //iface_type const *operator -> () const {
 //  const smoc::Detail::PortBaseIf *iface = this->get_interface();
-//  if (iface == NULL)
+//  if (iface == nullptr)
 //    this->report_error(SC_ID_GET_IF_, "port is not bound");
 //  return static_cast<iface_type const *>(iface);
 //}
