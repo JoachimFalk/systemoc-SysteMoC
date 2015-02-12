@@ -46,6 +46,8 @@
 #include <smoc/smoc_expr.hpp>
 
 #include <sgx.hpp>
+#include <CoSupport/compatibility-glue/nullptr.h>
+
 #include <CoSupport/String/Concat.hpp>
 
 #include <smoc/detail/DumpingInterfaces.hpp>
@@ -82,7 +84,7 @@ public:
 
 SGX::Action::Ptr ActionNGXVisitor::operator()(smoc_func_call_list &f) const {
   if (f.empty())
-    return NULL;
+    return nullptr;
   
   bool single = (++f.begin() == f.end());
   SGX::CompoundAction top;
@@ -109,11 +111,11 @@ SGX::Action::Ptr ActionNGXVisitor::operator()(smoc_func_call_list &f) const {
 }
 
 SGX::Action::Ptr ActionNGXVisitor::operator()(smoc_func_diverge &f) const {
-  return NULL;
+  return nullptr;
 }
 
 SGX::Action::Ptr ActionNGXVisitor::operator()(smoc_sr_func_pair &f) const {
-  return NULL;
+  return nullptr;
 }
 
 class ExprNGXVisitor: public ExprVisitor<SGX::ASTNode> {
@@ -457,7 +459,7 @@ public:
     std::cerr << "DumpPort::operator ()(sc_port_base &) [BEGIN]" << std::endl;
 #endif
     ChanAdapterBase *chanAdapterBase = dynamic_cast<ChanAdapterBase *>(p.get_interface());
-    if (chanAdapterBase != NULL) {
+    if (chanAdapterBase != nullptr) {
       SGX::Port port(p.name());
       sassert(psv.ports.insert(std::make_pair(&p, &port)).second);
       psv.proc.ports().push_back(port);

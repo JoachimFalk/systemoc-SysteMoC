@@ -41,6 +41,8 @@
 #include <boost/program_options/parsers.hpp>
 #include <boost/program_options/positional_options.hpp>
 
+#include <CoSupport/compatibility-glue/nullptr.h>
+
 #include <CoSupport/Streams/AlternateStream.hpp>
 
 #include <systemoc/smoc_config.h>
@@ -60,7 +62,7 @@ namespace po = boost::program_options;
 namespace smoc {
 
 namespace Detail {
-  smoc_simulation_ctx *currentSimCTX = NULL;
+  smoc_simulation_ctx *currentSimCTX = nullptr;
 } // namespace Detail
 
 smoc_simulation_ctx::smoc_simulation_ctx(int _argc, char *_argv[])
@@ -68,14 +70,14 @@ smoc_simulation_ctx::smoc_simulation_ctx(int _argc, char *_argv[])
 #ifdef SYSTEMOC_ENABLE_SGX
     dumpPreSimSMXKeepGoing(false),
     dumpSMXAST(true),
-    dumpPreSimSMXFile(NULL),
-    dumpPostSimSMXFile(NULL),
+    dumpPreSimSMXFile(nullptr),
+    dumpPostSimSMXFile(nullptr),
 #endif // SYSTEMOC_ENABLE_SGX
 #ifdef SYSTEMOC_ENABLE_TRANSITION_TRACE
-    dumpTraceFile(NULL),
+    dumpTraceFile(nullptr),
 #endif // SYSTEMOC_ENABLE_TRANSITION_TRACE
 #ifdef SYSTEMOC_ENABLE_DATAFLOW_TRACE
-    dataflowTraceLog(NULL),
+    dataflowTraceLog(nullptr),
 #endif // SYSTEMOC_ENABLE_DATAFLOW_TRACE
     dummy(false),
     vpcScheduling(false)
@@ -276,7 +278,7 @@ smoc_simulation_ctx::smoc_simulation_ctx(int _argc, char *_argv[])
       assert(!"WTF?! UNHANDLED OPTION!");
     }
   }
-  if (getenv("VPCCONFIGURATION") != NULL) {
+  if (getenv("VPCCONFIGURATION") != nullptr) {
 #ifndef SYSTEMOC_ENABLE_VPC
     std::ostringstream str;
     str << "SysteMoC configured without vpc support: Support for VPCCONFIGURATION env variable not provided!";
@@ -284,24 +286,24 @@ smoc_simulation_ctx::smoc_simulation_ctx(int _argc, char *_argv[])
 #endif // !SYSTEMOC_ENABLE_VPC
   }
   
-  argv.push_back(NULL);
+  argv.push_back(nullptr);
   
 #ifdef SYSTEMOC_ENABLE_VPC
   SystemC_VPC::Director::getInstance();
 #endif
   
-  if (Detail::currentSimCTX == NULL)
+  if (Detail::currentSimCTX == nullptr)
     defCurrentCTX();
 }
 
 void smoc_simulation_ctx::defCurrentCTX() {
-  assert(Detail::currentSimCTX == NULL);
+  assert(Detail::currentSimCTX == nullptr);
   Detail::currentSimCTX = this;
 }
 
 void smoc_simulation_ctx::undefCurrentCTX() {
   assert(Detail::currentSimCTX == this);
-  Detail::currentSimCTX = NULL;
+  Detail::currentSimCTX = nullptr;
 }
 
 smoc_simulation_ctx::~smoc_simulation_ctx() {
@@ -309,7 +311,7 @@ smoc_simulation_ctx::~smoc_simulation_ctx() {
        iter != argv.end();
        ++iter)
     // null pointer free might not be supported!
-    if (*iter != NULL)
+    if (*iter != nullptr)
       free(*iter);
   
   // delete null pointer is allowed...

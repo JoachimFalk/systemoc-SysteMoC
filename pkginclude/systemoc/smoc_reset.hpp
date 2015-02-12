@@ -25,6 +25,8 @@
 
 #include <systemc>
 
+#include <CoSupport/compatibility-glue/nullptr.h>
+
 #include <CoSupport/commondefs.h>
 
 #include <systemoc/smoc_config.h>
@@ -255,16 +257,16 @@ private:
   chan_type *chan;
 public:
   smoc_reset_net()
-    : base_type(""), chan(NULL)
+    : base_type(""), chan(nullptr)
   {}
 
   explicit smoc_reset_net( const std::string& name )
-    : base_type(name), chan(NULL)
+    : base_type(name), chan(nullptr)
   {}
 
   /// @brief Constructor
   smoc_reset_net(const this_type &x)
-    : base_type(x), chan(NULL)
+    : base_type(x), chan(nullptr)
   {
     if(x.chan)
       assert(!"Can't copy initializer: Channel already created!");
@@ -321,7 +323,7 @@ public:
 
 private:
   chan_type *getChan() {
-    if (chan == NULL)
+    if (chan == nullptr)
       chan = new chan_type(*this);
     return chan;
   }

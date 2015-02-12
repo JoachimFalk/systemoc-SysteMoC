@@ -37,6 +37,8 @@
 #define _INCLUDED_SMOC_DETAIL_FIRING_RULES_IMPL_HPP
 
 #ifdef _MSC_VER
+#include <CoSupport/compatibility-glue/nullptr.h>
+
 #include <CoSupport/compatibility-glue/integertypes.h>
 #else
 #include <stdint.h>
@@ -228,7 +230,7 @@ public:
   const MultiState& getDestStates() const;
 
   boost::shared_ptr<TransitionImpl> getCachedTransitionImpl() const {
-    if (cachedTransition == NULL)
+    if (cachedTransition == nullptr)
       cachedTransition.reset(new TransitionImpl(*this));
     return cachedTransition;
   }
@@ -275,7 +277,7 @@ public:
       #ifdef SYSTEMOC_ENABLE_MAESTROMM
         MetaMap::Actor& parentActor,
       #endif
-      RuntimeState *dest = NULL);
+      RuntimeState *dest = nullptr);
 
   /// @brief Returns the target state
   RuntimeState* getDestState() const;

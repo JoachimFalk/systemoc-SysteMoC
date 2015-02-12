@@ -36,6 +36,8 @@
 #ifndef _INCLUDED_SMOC_DETAIL_EVENTQUEUE_HPP
 #define _INCLUDED_SMOC_DETAIL_EVENTQUEUE_HPP
 
+#include <CoSupport/compatibility-glue/nullptr.h>
+
 #include <list>
 
 #include <boost/function.hpp>
@@ -118,7 +120,7 @@ public:
   void addEntry(T t, const smoc_vpc_event_p& le) {
     bool queueEmpty = queue.empty();
     
-    assert(NULL != le); //if(queueEmpty && (!le || *le)) {
+    assert(nullptr != le); //if(queueEmpty && (!le || *le)) {
     if(queueEmpty && *le) {
       // shortcut processing
       process(t);

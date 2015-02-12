@@ -41,6 +41,8 @@
 #include <queue>
 #include <map>
 
+#include <CoSupport/compatibility-glue/nullptr.h>
+
 #include <CoSupport/commondefs.h>
 
 #include <systemoc/smoc_config.h>
@@ -401,17 +403,17 @@ private:
 public:
   /// @brief Constructor
   smoc_fifo(size_t n = 1)
-    : base_type("", n), chan(NULL)
+    : base_type("", n), chan(nullptr)
   {}
 
   /// @brief Constructor
   explicit smoc_fifo(const std::string& name, size_t n = 1)
-    : base_type(name, n), chan(NULL)
+    : base_type(name, n), chan(nullptr)
   {}
 
   /// @brief Constructor
   smoc_fifo(const this_type &x)
-    : base_type(x), chan(NULL)
+    : base_type(x), chan(nullptr)
   {
     if(x.chan)
       assert(!"Can't copy initializer: Channel already created!");
@@ -429,7 +431,7 @@ public:
 
 private:
   chan_type *getChan() {
-    if (chan == NULL)
+    if (chan == nullptr)
       chan = new chan_type(*this);
     return chan;
   }

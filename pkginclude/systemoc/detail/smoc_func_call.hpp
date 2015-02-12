@@ -37,6 +37,8 @@
 
 #include <list>
 
+#include <CoSupport/compatibility-glue/nullptr.h>
+
 #include <CoSupport/Lambda/functor.hpp>
 
 #include <boost/variant.hpp>
@@ -326,35 +328,35 @@ public:
     functionNames(names){}
 
   result_type visitVar(const std::string &name, const std::string &type){
-    return NULL;
+    return nullptr;
   }
   result_type visitLiteral(const std::string &type,
       const std::string &value){
-    return NULL;
+    return nullptr;
   }
   result_type visitMemGuard(
       const std::string &name, const std::string& cxxType,
       const std::string &reType, const ParamInfoList &params){
     functionNames.push_back(name);
-    return NULL;
+    return nullptr;
   }
   result_type visitEvent(const std::string &name){
-    return NULL;
+    return nullptr;
   }
   result_type visitPortTokens(smoc_sysc_port &p){
-    return NULL;
+    return nullptr;
   }
   result_type visitToken(smoc_sysc_port &p, size_t n){
-    return NULL;
+    return nullptr;
   }
   result_type visitComm(smoc_sysc_port &p,
       boost::function<result_type (base_type &)> e){
-    return NULL;
+    return nullptr;
   }
   result_type visitUnOp(OpUnT op,
       boost::function<result_type (base_type &)> e){
     e(*this);
-    return NULL;
+    return nullptr;
   }
   result_type visitBinOp(OpBinT op,
       boost::function<result_type (base_type &)> a,
@@ -362,7 +364,7 @@ public:
     a(*this);
     b(*this);
 
-    return NULL;
+    return nullptr;
   }
 private:
   FunctionNames &functionNames;
@@ -425,35 +427,35 @@ public:
     functionNames(names){}
 
   result_type visitVar(const std::string &name, const std::string &type){
-    return NULL;
+    return nullptr;
   }
   result_type visitLiteral(const std::string &type,
       const std::string &value){
-    return NULL;
+    return nullptr;
   }
   result_type visitMemGuard(
       const std::string &name, const std::string& cxxType,
       const std::string &reType, const ParamInfoList &params){
     functionNames.push_back(name);
-    return NULL;
+    return nullptr;
   }
   result_type visitEvent(const std::string &name){
-    return NULL;
+    return nullptr;
   }
   result_type visitPortTokens(smoc_sysc_port &p){
-    return NULL;
+    return nullptr;
   }
   result_type visitToken(smoc_sysc_port &p, size_t n){
-    return NULL;
+    return nullptr;
   }
   result_type visitComm(smoc_sysc_port &p,
       boost::function<result_type (base_type &)> e){
-    return NULL;
+    return nullptr;
   }
   result_type visitUnOp(OpUnT op,
       boost::function<result_type (base_type &)> e){
     e(*this);
-    return NULL;
+    return nullptr;
   }
   result_type visitBinOp(OpBinT op,
       boost::function<result_type (base_type &)> a,
@@ -461,7 +463,7 @@ public:
     a(*this);
     b(*this);
 
-    return NULL;
+    return nullptr;
   }
 private:
   list<string> &functionNames;

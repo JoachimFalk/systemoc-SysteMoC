@@ -32,6 +32,8 @@
  * ENHANCEMENTS, OR MODIFICATIONS.
  */
 
+#include <CoSupport/compatibility-glue/nullptr.h>
+
 #include <systemoc/smoc_config.h>
 
 #include <systemoc/detail/smoc_chan_if.hpp>
@@ -42,6 +44,6 @@ __attribute__((noreturn))
 const sc_event& smoc_default_event_abort() {
   assert(!"smoc_default_event_abort");
 #ifdef _MSC_VER
-  return *((sc_event*)(NULL));
+  return *((sc_event*)(nullptr));
 #endif
 }

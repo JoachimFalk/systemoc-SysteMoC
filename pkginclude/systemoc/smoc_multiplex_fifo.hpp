@@ -42,6 +42,8 @@
 #include <queue>
 #include <map>
 
+#include <CoSupport/compatibility-glue/nullptr.h>
+
 #include <CoSupport/commondefs.h>
 
 #include <systemc>
@@ -997,11 +999,11 @@ public:
   /// @param n size of the shared fifo memory
   /// @param m out of order access, zero is no out of order
   smoc_multiplex_fifo(size_t n = 1, size_t m = 0)
-    : base_type("", n, m), fifoIdCount(0), chan(NULL)
+    : base_type("", n, m), fifoIdCount(0), chan(nullptr)
     {}
 
   smoc_multiplex_fifo(const std::string &name, size_t n = 1, size_t m = 0)
-    : base_type(name, n, m), fifoIdCount(0), chan(NULL)
+    : base_type(name, n, m), fifoIdCount(0), chan(nullptr)
     {}
 
   typename smoc_multiplex_vfifo_chan<T,A>::chan_init getVirtFifo() {
@@ -1011,7 +1013,7 @@ public:
   }
   
   smoc_multiplex_fifo(const this_type &x)
-    : base_type(x), fifoIdCount(0), chan(NULL)
+    : base_type(x), fifoIdCount(0), chan(nullptr)
   {
     if(x.chan)
       assert(!"Can't copy initializer: Channel already created!");
@@ -1033,7 +1035,7 @@ private:
     /*if (!chan)
       chan.reset(new chan_type(*this));
     return chan.get();*/
-    if (chan == NULL)
+    if (chan == nullptr)
       chan = new chan_type(*this);
     return chan;
   }

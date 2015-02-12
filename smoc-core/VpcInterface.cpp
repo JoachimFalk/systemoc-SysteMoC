@@ -33,6 +33,8 @@
  * ENHANCEMENTS, OR MODIFICATIONS.
  */
 
+#include <CoSupport/compatibility-glue/nullptr.h>
+
 #include <systemoc/detail/smoc_debug_stream.hpp>
 #include <smoc/detail/VpcInterface.hpp>
 
@@ -47,7 +49,7 @@ VpcPortInterface::startVpcRead(size_t tokenCount){
 #ifdef SYSTEMOC_DEBUG_VPC_IF
   outDbg << "VpcPortInterface::startVpcRead()" << std::endl;
 #endif // SYSTEMOC_DEBUG_VPC_IF
-  assert(readEventLat != NULL);
+  assert(readEventLat != nullptr);
   readEventLat->reset();
 
   SystemC_VPC::EventPair events(dummyDii, readEventLat);
@@ -60,7 +62,7 @@ smoc_vpc_event_p VpcPortInterface::dummyDii(new smoc_vpc_event(true));
 ///
 SystemC_VPC::EventPair
 VpcInterface::startWrite(size_t tokenCount) {
-  assert(this->portIf!=NULL);
+  assert(this->portIf!=nullptr);
   smoc_vpc_event_p latEvent(new smoc_vpc_event());
   smoc_vpc_event_p diiEvent = dummy;
 # ifdef SYSTEMOC_ENABLE_DATAFLOW_TRACE

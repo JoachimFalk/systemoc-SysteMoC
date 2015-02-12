@@ -42,6 +42,8 @@
 #include <map>
 #include <limits>
 
+#include <CoSupport/compatibility-glue/nullptr.h>
+
 #include <CoSupport/Allocators/IdPool.hpp>
 
 #include "NamedIdedObj.hpp"
@@ -59,7 +61,7 @@ struct IdPoolTypes {
     IdedObj *node;
 
     /// @brief Default constructor
-    IdMapEntry(IdedObj *node = NULL)
+    IdMapEntry(IdedObj *node = nullptr)
       : node(node) {}
   };
 

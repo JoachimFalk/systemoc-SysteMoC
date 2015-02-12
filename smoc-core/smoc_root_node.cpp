@@ -32,6 +32,8 @@
  * ENHANCEMENTS, OR MODIFICATIONS.
  */
 
+#include <CoSupport/compatibility-glue/nullptr.h>
+
 #include <typeinfo>
 
 #include <systemoc/smoc_config.h>
@@ -56,7 +58,7 @@ smoc_root_node::smoc_root_node(sc_module_name name, smoc_hierarchical_state &s)
 #ifdef SYSTEMOC_ENABLE_VPC
     ,diiEvent(new smoc::smoc_vpc_event())
 //# if defined(SYSTEMOC_ENABLE_DEBUG)
-//    vpc_event_lat(NULL),
+//    vpc_event_lat(nullptr),
 //# endif
 #endif // SYSTEMOC_ENABLE_VPC
 {
@@ -73,7 +75,7 @@ smoc_root_node::smoc_root_node(sc_module_name name, smoc_hierarchical_state &s)
 
 #ifdef SYSTEMOC_ENABLE_VPC
 RuntimeState* smoc_root_node::_communicate() {
-  assert(diiEvent != NULL && *diiEvent); // && vpc_event_lat != NULL
+  assert(diiEvent != nullptr && *diiEvent); // && vpc_event_lat != nullptr
   //diiEvent->reset();
   return nextState;
 }
@@ -300,7 +302,7 @@ void smoc_root_node::signaled(smoc::smoc_event_waiter *e) {
       RuntimeTransition      *oldct = ct;
 #endif // SYSTEMOC_ENABLE_DEBUG
       
-      ct = NULL;
+      ct = nullptr;
       
       for (RuntimeTransitionList::iterator t = tl.begin();
            t != tl.end();
@@ -312,7 +314,7 @@ void smoc_root_node::signaled(smoc::smoc_event_waiter *e) {
       }
       
 #ifdef SYSTEMOC_ENABLE_DEBUG
-      assert(!(oldct != NULL && ct == NULL) && "WTF?! Event was enabled but transition vanished!");
+      assert(!(oldct != nullptr && ct == nullptr) && "WTF?! Event was enabled but transition vanished!");
 #endif // SYSTEMOC_ENABLE_DEBUG
       
       if (ct) {
@@ -321,8 +323,8 @@ void smoc_root_node::signaled(smoc::smoc_event_waiter *e) {
           #endif
         setActivation(true);
       }
-    } else if (!e->isActive() && ct != NULL && !ct->evaluateIOP()) {
-      ct = NULL;
+    } else if (!e->isActive() && ct != nullptr && !ct->evaluateIOP()) {
+      ct = nullptr;
     }
   }
   
@@ -380,12 +382,12 @@ void smoc_root_node::schedule() {
   
   executing = true;
   
-  if (ct == NULL)
+  if (ct == nullptr)
     setCurrentState(currentState);
 
-  // ct may be NULL if
+  // ct may be nullptr if
   // t->evaluateIOP() holds and t->evaluateGuard() fails for all transitions t
-  if (ct != NULL) {
+  if (ct != nullptr) {
 #ifndef SYSTEMOC_ENABLE_MAESTROMM
     assert(ct->evaluateIOP());
     assert(ct->evaluateGuard());
@@ -425,13 +427,13 @@ void smoc_root_node::schedule() {
 }
 
 bool smoc_root_node::canFire() {
-  if (ct == NULL)
+  if (ct == nullptr)
     setCurrentState(currentState);
 
 #ifndef SYSTEMOC_ENABLE_MAESTROMM
-  return (ct != NULL) && ct->evaluateIOP() && ct->evaluateGuard();
+  return (ct != nullptr) && ct->evaluateIOP() && ct->evaluateGuard();
 #else
-  return (ct != NULL);
+  return (ct != nullptr);
 #endif
 
 }

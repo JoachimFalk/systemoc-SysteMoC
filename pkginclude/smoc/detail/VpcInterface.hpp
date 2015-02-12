@@ -36,6 +36,8 @@
 #ifndef _INCLUDED_VPC_INTERFACE_HPP
 #define _INCLUDED_VPC_INTERFACE_HPP
 
+#include <CoSupport/compatibility-glue/nullptr.h>
+
 #include <CoSupport/SystemC/systemc_support.hpp>
 
 #include <systemoc/smoc_config.h>
@@ -80,7 +82,7 @@ public:
 #endif // SYSTEMOC_DEBUG_VPC_IF
     vpcTask(),
     dynamicReadEvents(),
-    diiEvent(NULL),
+    diiEvent(nullptr),
     latEvent(new smoc_vpc_event())
   {}
 
@@ -90,7 +92,7 @@ public:
   }
 
   SystemC_VPC::EventPair startCompute(){
-    assert(diiEvent != NULL);
+    assert(diiEvent != nullptr);
 
     SystemC_VPC::EventPair ep(diiEvent, latEvent);
     // TODO (ms): care about function lists (func_call_list and sr_func_pair)
@@ -134,9 +136,9 @@ public:
 }
 
   smoc_vpc_event_p getLatEvent() const
-    { assert(latEvent != NULL); return latEvent; }
+    { assert(latEvent != nullptr); return latEvent; }
   smoc_vpc_event_p getDiiEvent() const
-    { assert(diiEvent != NULL); return diiEvent; }
+    { assert(diiEvent != nullptr); return diiEvent; }
 
 #ifdef SYSTEMOC_DEBUG_VPC_IF
   std::string actor;
@@ -185,19 +187,19 @@ public:
 
   ///
   const smoc_vpc_event_p getTaskLatEvent() const
-    { assert(this->taskIf!=NULL); return this->taskIf->getLatEvent(); }
+    { assert(this->taskIf!=nullptr); return this->taskIf->getLatEvent(); }
 
   ///
   const smoc_vpc_event_p getTaskDiiEvent() const
-    { assert(this->taskIf!=NULL); return this->taskIf->getDiiEvent(); }
+    { assert(this->taskIf!=nullptr); return this->taskIf->getDiiEvent(); }
 
   ///
   SystemC_VPC::EventPair startWrite(size_t tokenCount);
 
   ///
   void startVpcRead(size_t tokenCount) {
-    assert(this->taskIf!=NULL);
-    assert(this->portIf!=NULL);
+    assert(this->taskIf!=nullptr);
+    assert(this->portIf!=nullptr);
     this->taskIf->addReadEvent(
       this->portIf->startVpcRead(tokenCount) );
   }

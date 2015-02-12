@@ -33,6 +33,8 @@
  * ENHANCEMENTS, OR MODIFICATIONS.
  */
 
+#include <CoSupport/compatibility-glue/nullptr.h>
+
 #include <systemoc/smoc_config.h>
 
 #include <systemoc/smoc_moc.hpp>
@@ -52,12 +54,12 @@
 #ifdef SYSTEMOC_ENABLE_VPC
 
 bool smoc::Scheduling::canExecute(SystemC_VPC::ScheduledTask* actor) {
-  assert(dynamic_cast<smoc_actor*>(actor) != NULL);
+  assert(dynamic_cast<smoc_actor*>(actor) != nullptr);
   return static_cast<smoc_actor*>(actor)->canFire();
 }
 void smoc::Scheduling::execute(SystemC_VPC::ScheduledTask* actor) {
   //std::cerr << "smoc::Scheduling::execute" << std::endl;
-  assert(dynamic_cast<smoc_actor*>(actor) != NULL);
+  assert(dynamic_cast<smoc_actor*>(actor) != nullptr);
   static_cast<smoc_actor*>(actor)->schedule();
 }
 #endif //SYSTEMOC_ENABLE_VPC
@@ -187,7 +189,7 @@ void smoc_scheduler_top::schedule() {
             smoc_root_node *node = *iter;
             SystemC_VPC::ScheduledTask * actor =
                 dynamic_cast<SystemC_VPC::ScheduledTask *>(node);
-            assert(actor != NULL);
+            assert(actor != nullptr);
             std::cerr << node->name() << " : " << callCanExecute(actor) << std::endl;
             if (callCanExecute(actor)) {
                 callExecute(actor);

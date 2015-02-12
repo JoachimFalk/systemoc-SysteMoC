@@ -31,4 +31,4 @@ Requires.private: \
   @SYSTEMOC_OPTIONAL_REQUIRES@
 Libs: -L${srctreemode_libdir} ${srctreemode_libdir}/libsystemoc.la
 Libs.private: @SYSTEMC_LDFLAGS@ -lsystemc @BOOST_LDFLAGS@ -lboost_program_options@BOOST_LIBPOSTFIX@
-Cflags: -I${srctreemode_includedir} @SYSTEMC_INCLUDE@ @TLM1_INCLUDE@ @BOOST_INCLUDE@
+Cflags: @AM_CPPFLAGS@ @AM_CXXFLAGS@ -I${srctreemode_includedir} @SYSTEMC_INCLUDE@ @TLM1_INCLUDE@ @BOOST_INCLUDE@

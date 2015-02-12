@@ -32,6 +32,8 @@
  * ENHANCEMENTS, OR MODIFICATIONS.
  */
 
+#include <CoSupport/compatibility-glue/nullptr.h>
+
 #include <systemoc/smoc_config.h>
 
 #ifdef SYSTEMOC_NEED_IDS
@@ -46,7 +48,7 @@ IdedObj *IdPool::getNodeById(const NgId id) const {
   if ((iter = idMap.find(id)) != idMap.end())
     return iter->second.node;
   else
-    return NULL;
+    return nullptr;
 }
 
 // set "id"-attribute to some new id

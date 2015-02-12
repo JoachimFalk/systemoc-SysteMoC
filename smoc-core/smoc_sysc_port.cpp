@@ -32,6 +32,8 @@
  * ENHANCEMENTS, OR MODIFICATIONS.
  */
 
+#include <CoSupport/compatibility-glue/nullptr.h>
+
 #include <systemoc/smoc_config.h>
 
 #include <systemoc/detail/smoc_sysc_port.hpp>
@@ -44,7 +46,7 @@ using namespace smoc::Detail;
 smoc_sysc_port::smoc_sysc_port(const char* name_, sc_port_policy policy)
   : sc_port_base(
       name_, 4096, SC_ONE_OR_MORE_BOUND),
-    parent(NULL), child(NULL) {
+    parent(nullptr), child(nullptr) {
 }
 
 smoc_sysc_port::~smoc_sysc_port() {
@@ -58,12 +60,12 @@ int smoc_sysc_port::interface_count() {
 
 void smoc_sysc_port::add_interface(sc_core::sc_interface *i_) {
   PortBaseIf *i = dynamic_cast<PortBaseIf *>(i_);
-  assert(i != NULL);
+  assert(i != nullptr);
   interfaces.push_back(i);
 }
 
 void smoc_sysc_port::bind(this_type &parent_) {
-  assert(parent == NULL && parent_.child == NULL);
+  assert(parent == nullptr && parent_.child == nullptr);
   parent        = &parent_;
   parent->child = this;
   sc_port_base::bind(parent_);
@@ -109,7 +111,7 @@ void smoc_sysc_port::finaliseVpcLink(std::string actorName){
     if (this->isInput()) {
       PortInBaseIf* port =
           dynamic_cast<PortInBaseIf*>(*iter);
-      assert(port != NULL);
+      assert(port != nullptr);
 
       channelName = port->getChannelName();
       vpi->vpcCommTask =
@@ -118,7 +120,7 @@ void smoc_sysc_port::finaliseVpcLink(std::string actorName){
     } else {
       PortOutBaseIf* port =
           dynamic_cast<PortOutBaseIf*>(*iter);
-      assert(port != NULL);
+      assert(port != nullptr);
 
       channelName = port->getChannelName();
       vpi->vpcCommTask =

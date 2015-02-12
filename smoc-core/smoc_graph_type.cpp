@@ -40,6 +40,8 @@
 #include <systemoc/detail/smoc_sysc_port.hpp>
 #include <systemoc/detail/smoc_debug_stream.hpp>
 
+#include <CoSupport/compatibility-glue/nullptr.h>
+
 #include <CoSupport/String/Concat.hpp>
 
 using namespace smoc::Detail;
@@ -64,12 +66,12 @@ void smoc_graph_base::getNodesRecursive( smoc_node_list & subnodes) const {
     //outDbg << (*iter)->name() << std::endl;
     
     smoc_root_node *node = dynamic_cast<smoc_actor *>(*iter);
-    if (node != NULL){
+    if (node != nullptr){
       //outDbg << "add: " <<  node->name() << std::endl;
       subnodes.push_back(node);
     }
     smoc_graph_base *graph = dynamic_cast<smoc_graph_base *>(*iter);
-    if (graph != NULL){
+    if (graph != nullptr){
       //outDbg << "sub_graph: " <<  graph->name() << std::endl;
       graph->getNodesRecursive(subnodes);
     }
@@ -92,11 +94,11 @@ void smoc_graph_base::getChansRecursive( smoc_chan_list & channels) const {
         ++iter ) {
     smoc_root_chan *chan = dynamic_cast<smoc_root_chan *>(*iter);
     
-    if (chan != NULL )
+    if (chan != nullptr )
       channels.push_back(chan);
 
     smoc_graph_base *graph = dynamic_cast<smoc_graph_base *>(*iter);
-    if (graph != NULL ){
+    if (graph != nullptr ){
       graph->getChansRecursive( channels );
     }
   }

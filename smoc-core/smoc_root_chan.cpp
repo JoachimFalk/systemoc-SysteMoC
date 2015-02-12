@@ -43,6 +43,8 @@
 #include <map>
 #include <sstream>
 
+#include <CoSupport/compatibility-glue/nullptr.h>
+
 #include <CoSupport/String/Concat.hpp>
 
 using namespace smoc::Detail;
@@ -96,7 +98,7 @@ void smoc_root_chan::generateName() {
            iter != entries.end();
            ++iter ) {
         smoc_sysc_port const *p  = dynamic_cast<smoc_sysc_port *>(iter->second);
-        sc_port_base   const *ap = p != NULL ? p->getActorPort() : iter->second;
+        sc_port_base   const *ap = p != nullptr ? p->getActorPort() : iter->second;
         genName
           << (iter == entries.begin() ? "" : "|")
           << ap->get_parent()->name();
@@ -110,7 +112,7 @@ void smoc_root_chan::generateName() {
            iter != outlets.end();
            ++iter ) {
         smoc_sysc_port const *p  = dynamic_cast<smoc_sysc_port *>(iter->second);
-        sc_port_base   const *ap = p != NULL ? p->getActorPort() : iter->second;
+        sc_port_base   const *ap = p != nullptr ? p->getActorPort() : iter->second;
         genName
           << (iter == outlets.begin() ? "" : "|")
           << ap->get_parent()->name();

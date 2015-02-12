@@ -45,6 +45,8 @@
 
 #include <systemc>
 
+#include <CoSupport/compatibility-glue/nullptr.h>
+
 #include <CoSupport/Lambda/functor.hpp>
 
 #include <systemoc/smoc_config.h>
@@ -161,7 +163,7 @@ protected:
 
   template <typename T>
   static
-  typename smoc::Expr::Var<T>::type var(T &x, const char *name = NULL)
+  typename smoc::Expr::Var<T>::type var(T &x, const char *name = nullptr)
     { return smoc::Expr::var(x,name); }
 
   template <typename T>
@@ -171,7 +173,7 @@ protected:
 
   // FIXME: change this to work on plain SystemC events!
   static
-  smoc::Expr::SMOCEvent::type till(smoc::smoc_event_waiter &e, const char *name = NULL)
+  smoc::Expr::SMOCEvent::type till(smoc::smoc_event_waiter &e, const char *name = nullptr)
     { return smoc::Expr::till(e,name); }
 
 public:
