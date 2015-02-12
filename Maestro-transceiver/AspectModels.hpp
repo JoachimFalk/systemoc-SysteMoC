@@ -54,6 +54,8 @@
  *
  * */
 
+#include <CoSupport/compatibility-glue/nullptr.h>
+
 #include <cstdlib>
 #include <stdlib.h>
 #include <helpers.hpp>
@@ -241,7 +243,7 @@ public:
 
             if(cfile){
                 fconffile=fopen(cfile,"r");
-                if( NULL == fconffile ){       // test if file exists
+                if( nullptr == fconffile ){       // test if file exists
                     //std::cout << "=== null : " << cfile <<std::endl;
                     std::cerr << "Warning: could not open '" << cfile << "'" << std::endl;
                     FALLBACKMODE=true;
@@ -343,9 +345,9 @@ public:
                       {
                         DOMNode* annotationTypenode = node->getFirstChild();
 
-                        if(annotationTypenode != NULL){
+                        if(annotationTypenode != nullptr){
                             //loop for all annotationtypes
-                            for(; annotationTypenode != NULL; annotationTypenode = annotationTypenode->getNextSibling()){
+                            for(; annotationTypenode != nullptr; annotationTypenode = annotationTypenode->getNextSibling()){
                                 const XStr annotationTypeNodeName = annotationTypenode->getNodeName();
 
                                 //If Timing Annotations Found
@@ -366,9 +368,9 @@ public:
 
 
                                     DOMNode* resourcenode = annotationTypenode->getFirstChild();
-                                    if(resourcenode != NULL){
+                                    if(resourcenode != nullptr){
                                         //loop for all resources
-                                        for(; resourcenode != NULL; resourcenode = resourcenode->getNextSibling()){
+                                        for(; resourcenode != nullptr; resourcenode = resourcenode->getNextSibling()){
                                             const XStr resourceNodeName = resourcenode->getNodeName();
 
                                             //Check for Resource
@@ -376,7 +378,7 @@ public:
                                               {
                                                 //Check this resource is target
                                                 DOMNode* resourceAtt = resourcenode->getAttributes()->getNamedItem(resourceidtag);
-                                                if(resourceAtt == NULL){throw new std::exception;}//Validate argument was found
+                                                if(resourceAtt == nullptr){throw new std::exception;}//Validate argument was found
                                                 const XStr resourceName = resourceAtt->getNodeValue();
 
                                                 //Get name of Component containing this TimingModel
@@ -395,9 +397,9 @@ public:
 
                                                 DOMNode* timingnode = resourcenode->getFirstChild();
 
-                                                if(timingnode != NULL){
+                                                if(timingnode != nullptr){
                                                     //loop for all timings
-                                                    for(; timingnode != NULL; timingnode = timingnode->getNextSibling()){
+                                                    for(; timingnode != nullptr; timingnode = timingnode->getNextSibling()){
                                                         const XStr timingNodeName = timingnode->getNodeName();
 
                                                         //Check for Timing
@@ -405,17 +407,17 @@ public:
                                                           {
 
                                                             DOMNode* actionAtt = timingnode->getAttributes()->getNamedItem(actionidtag);
-                                                            if(actionAtt == NULL){throw new std::exception;}//Validate argument was found
+                                                            if(actionAtt == nullptr){throw new std::exception;}//Validate argument was found
                                                             const XStr actionName = actionAtt->getNodeValue();
 
                                                             DOMNode* valueAtt = timingnode->getAttributes()->getNamedItem(valueidtag);
-                                                            if(valueAtt == NULL){throw new std::exception;}//Validate argument was found
+                                                            if(valueAtt == nullptr){throw new std::exception;}//Validate argument was found
                                                             const XStr valueName = valueAtt->getNodeValue();
                                                             double val;
                                                             val = XMLString::parseInt(valueName);
 
                                                             DOMNode* unitsAtt = timingnode->getAttributes()->getNamedItem(unitsidtag);
-                                                            if(unitsAtt == NULL){throw new std::exception;}//Validate argument was found
+                                                            if(unitsAtt == nullptr){throw new std::exception;}//Validate argument was found
                                                             const XStr unitsName = unitsAtt->getNodeValue();
                                                             sc_time* scUnit;
                                                             double scale=1;
@@ -622,7 +624,7 @@ public:
 
               if(cfile){
                   fconffile=fopen(cfile,"r");
-                  if( NULL == fconffile ){       // test if file exists
+                  if( nullptr == fconffile ){       // test if file exists
                       //std::cout << "=== null : " << cfile <<std::endl;
                       std::cerr << "Warning: could not open '" << cfile << "'" << std::endl;
                       FALLBACKMODE=true;
@@ -732,9 +734,9 @@ public:
                         {
                           DOMNode* annotationTypenode = node->getFirstChild();
 
-                          if(annotationTypenode != NULL){
+                          if(annotationTypenode != nullptr){
                               //loop for all annotationtypes
-                              for(; annotationTypenode != NULL; annotationTypenode = annotationTypenode->getNextSibling()){
+                              for(; annotationTypenode != nullptr; annotationTypenode = annotationTypenode->getNextSibling()){
                                   const XStr annotationTypeNodeName = annotationTypenode->getNodeName();
 
                                   //If Power Annotations Found
@@ -755,9 +757,9 @@ public:
 
 
                                       DOMNode* resourcenode = annotationTypenode->getFirstChild();
-                                      if(resourcenode != NULL){
+                                      if(resourcenode != nullptr){
                                           //loop for all resources
-                                          for(; resourcenode != NULL; resourcenode = resourcenode->getNextSibling()){
+                                          for(; resourcenode != nullptr; resourcenode = resourcenode->getNextSibling()){
                                               const XStr resourceNodeName = resourcenode->getNodeName();
 
                                               //Check for Resource
@@ -765,7 +767,7 @@ public:
                                                 {
                                                   //Check this resource is target
                                                   DOMNode* resourceAtt = resourcenode->getAttributes()->getNamedItem(resourceidtag);
-                                                  if(resourceAtt == NULL){throw new std::exception;}//Validate argument was found
+                                                  if(resourceAtt == nullptr){throw new std::exception;}//Validate argument was found
                                                   const XStr resourceName = resourceAtt->getNodeValue();
 
                                                   //Get name of Component containing this TimingModel
@@ -784,9 +786,9 @@ public:
 
                                                   DOMNode* powerstate_transnode = resourcenode->getFirstChild();
 
-                                                  if(powerstate_transnode != NULL){
+                                                  if(powerstate_transnode != nullptr){
                                                       //loop for all powerstates and transitions
-                                                      for(; powerstate_transnode != NULL; powerstate_transnode = powerstate_transnode->getNextSibling()){
+                                                      for(; powerstate_transnode != nullptr; powerstate_transnode = powerstate_transnode->getNextSibling()){
                                                           const XStr powerStateNodeName = powerstate_transnode->getNodeName();
 
                                                           //Check for PowerState
@@ -796,11 +798,11 @@ public:
 
 
                                                               DOMNode* powerStateAtt = powerstate_transnode->getAttributes()->getNamedItem(powerstateidtag);
-                                                              if(powerStateAtt == NULL){throw new std::exception;}//Validate argument was found
+                                                              if(powerStateAtt == nullptr){throw new std::exception;}//Validate argument was found
                                                               const XStr powerStateName = powerStateAtt->getNodeValue();
 
                                                               DOMNode* initpowerStateAtt = powerstate_transnode->getAttributes()->getNamedItem(initpowerstateidtag);
-                                                              if(initpowerStateAtt != NULL){//Argument is optional
+                                                              if(initpowerStateAtt != nullptr){//Argument is optional
                                                               const XStr initpowerState = initpowerStateAtt->getNodeValue();
                                                               if(initpowerState == "true")
                                                               {
@@ -809,13 +811,13 @@ public:
                                                               }
 
                                                               DOMNode* statePowerConsumptionAtt = powerstate_transnode->getAttributes()->getNamedItem(spowerconsumptiontag);
-                                                              if(statePowerConsumptionAtt == NULL){throw new std::exception;}//Validate argument was found
+                                                              if(statePowerConsumptionAtt == nullptr){throw new std::exception;}//Validate argument was found
                                                               const XStr valueName = statePowerConsumptionAtt->getNodeValue();
                                                               double val;
                                                               val = XMLString::parseInt(valueName);
 
                                                               DOMNode* statePowerUnitsAtt = powerstate_transnode->getAttributes()->getNamedItem(spowerunitsidtag);
-                                                              if(statePowerUnitsAtt == NULL){throw new std::exception;}//Validate argument was found
+                                                              if(statePowerUnitsAtt == nullptr){throw new std::exception;}//Validate argument was found
                                                               const XStr unitsName = statePowerUnitsAtt->getNodeValue();
 
                                                               double scale=1;
@@ -861,21 +863,21 @@ public:
                                                               {
 
                                                                 DOMNode* sourceAtt = powerstate_transnode->getAttributes()->getNamedItem(transitionsourcetag);
-                                                                if(sourceAtt == NULL){throw new std::exception;}//Validate argument was found
+                                                                if(sourceAtt == nullptr){throw new std::exception;}//Validate argument was found
                                                                 const XStr sourceName = sourceAtt->getNodeValue();
 
                                                                 DOMNode* destAtt = powerstate_transnode->getAttributes()->getNamedItem(transitiondestinationtag);
-                                                                if(destAtt == NULL){throw new std::exception;}//Validate argument was found
+                                                                if(destAtt == nullptr){throw new std::exception;}//Validate argument was found
                                                                 const XStr destName = destAtt->getNodeValue();
 
                                                                 DOMNode* transPowerConsumptionAtt = powerstate_transnode->getAttributes()->getNamedItem(spowerconsumptiontag);
-                                                                if(transPowerConsumptionAtt == NULL){throw new std::exception;}//Validate argument was found
+                                                                if(transPowerConsumptionAtt == nullptr){throw new std::exception;}//Validate argument was found
                                                                 const XStr valueName = transPowerConsumptionAtt->getNodeValue();
                                                                 double val;
                                                                 val = XMLString::parseInt(valueName);
 
                                                                 DOMNode* transPowerUnitsAtt = powerstate_transnode->getAttributes()->getNamedItem(spowerunitsidtag);
-                                                                if(transPowerUnitsAtt == NULL){throw new std::exception;}//Validate argument was found
+                                                                if(transPowerUnitsAtt == nullptr){throw new std::exception;}//Validate argument was found
                                                                 const XStr unitsName = transPowerUnitsAtt->getNodeValue();
                                                                 sc_time* scUnit;
                                                                 double scale=1;

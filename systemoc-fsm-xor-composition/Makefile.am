@@ -1,5 +1,4 @@
 ## Process this file with automake to produce Makefile.in
-# vim: set noet sw=2 ts=8 sts=0:
 #
 # Copyright (C) Joachim Falk <joachim.falk@gmx.de> $Date: 2003/01/15 16:43:20 $
 #
@@ -24,8 +23,11 @@ include $(auxdir)/jfrules.mk
 
 SUBDIRS=
 
-AM_LDFLAGS = @AM_LDFLAGS@  @SYSTEMOC_LDFLAGS@
-AM_CPPFLAGS= @AM_CPPFLAGS@ @SYSTEMOC_INCLUDE@ -Wno-deprecated
+AM_CPPFLAGS= @AM_CPPFLAGS@ \
+	@SYSTEMOC_INCLUDE@
+
+AM_LDFLAGS = @AM_LDFLAGS@ \
+	@SYSTEMOC_LDFLAGS@
 
 noinst_PROGRAMS= simulation-xor-comp
 

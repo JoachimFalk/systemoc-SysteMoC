@@ -6,6 +6,8 @@
 #include <vector>
 #include <systemcvpc/Director.hpp>
 #include <systemcvpc/datatypes.hpp>
+#include <CoSupport/compatibility-glue/nullptr.h>
+
 #include <CoSupport/SystemC/ChannelModificationListener.hpp>
 #include <systemoc/smoc_tt.hpp>
 
@@ -63,7 +65,7 @@ public:
     Tester tester("tester");
     graph = smoc_graph;
     char* script = getenv("FAILURE_INJECT");
-    if(script!=NULL){
+    if(script!=nullptr){
     scriptfile=true;
     parseScriptFile(script);
     }else{
