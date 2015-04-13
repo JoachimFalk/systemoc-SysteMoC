@@ -38,13 +38,14 @@ Map sqrroot.a2 Cpu2
 Map sqrroot.a3 Cpu2
 Map sqrroot.a4 Cpu2
 
-Map cf_sqrroot.a1_sqrroot.a2_1 MemShared
-Map cf_sqrroot.a2_sqrroot.a5_1 MemShared
-
-Map cf_sqrroot.a2_sqrroot.a3_1 MemCpu2
-Map cf_sqrroot.a3_sqrroot.a4_1 MemCpu2
-Map cf_sqrroot.a4_sqrroot.a3_1 MemCpu2
-Map cf_sqrroot.a4_sqrroot.a2_1 MemCpu2
+#Mapping of FIFOs (FIXME: This should work! Fix our synthesis!)
+#Map cf_sqrroot.a1_sqrroot.a2_1 MemShared
+#Map cf_sqrroot.a2_sqrroot.a5_1 MemShared
+#
+#Map cf_sqrroot.a2_sqrroot.a3_1 MemCpu2
+#Map cf_sqrroot.a3_sqrroot.a4_1 MemCpu2
+#Map cf_sqrroot.a4_sqrroot.a3_1 MemCpu2
+#Map cf_sqrroot.a4_sqrroot.a2_1 MemCpu2
 
 # Route source "pgid" "agid" (target "agid" "pgid")[1,*] (HOP)[1,*]
 # where HOP is
