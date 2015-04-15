@@ -62,9 +62,9 @@ public:
     : smoc_actor(name, start), i(from)
   {
       SMOC_REGISTER_CPARAM(from);
-      char *init = std::getenv("SRC_ITERS");
+      char *init = getenv("SRC_ITERS");
       if (init)
-        i = NUM_MAX_ITERATIONS - std::atoll(init);
+        i = NUM_MAX_ITERATIONS - atoll(init);
       start =
         (VAR(i) <= NUM_MAX_ITERATIONS) >>
         out(1)                         >>

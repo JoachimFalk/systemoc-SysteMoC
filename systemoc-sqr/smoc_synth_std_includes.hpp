@@ -1,7 +1,9 @@
 #ifndef INCLUDED_SMOC_SYNTH_STD_INCLUDES_HPP
 #define INCLUDED_SMOC_SYNTH_STD_INCLUDES_HPP
 
-#include <cstdlib>
+#include <stdlib.h>
+#include <stdio.h>
+
 #include <cmath>
 #include <cassert>
 
