@@ -34,12 +34,12 @@
  * ENHANCEMENTS, OR MODIFICATIONS.
  */
 
-#include "smoc_synth_std_includes.hpp"
-
 #include <systemoc/smoc_moc.hpp>
 #include <systemoc/smoc_port.hpp>
 #include <systemoc/smoc_fifo.hpp>
 #include <systemoc/smoc_node_types.hpp>
+
+#include "smoc_synth_std_includes.hpp"
 
 using namespace std; 
 
@@ -50,9 +50,9 @@ private:
   int i;
   
   void src() {
-#if defined(SYSTEMC_VERSION) || defined(SQR_LOGGING)
+#ifdef SQR_LOGGING
     std::cout << "src: " << i << std::endl;
-#endif //defined(SYSTEMC_VERSION) || defined(SQR_LOGGING)
+#endif //defined(SQR_LOGGING)
     out[0] = i++;
   }
   
@@ -96,9 +96,9 @@ private:
   // guard  functions used by the
   // FSM declared in the constructor
   bool check() const {
-#if defined(SYSTEMC_VERSION) || defined(SQR_LOGGING)
+#ifdef SQR_LOGGING
     std::cout << "check: " << tmp_i1 << ", " << i2[0] << std::endl;
-#endif //defined(SYSTEMC_VERSION) || defined(SQR_LOGGING)
+#endif //defined(SQR_LOGGING)
     return std::fabs(tmp_i1 - i2[0]*i2[0]) < 0.0001;
   }
   
@@ -179,9 +179,9 @@ private:
   void sink(void) {
     int value = in[0];
     sinkDump = value;
-#if defined(SYSTEMC_VERSION) || defined(SQR_LOGGING)
+#ifdef SQR_LOGGING
     std::cout << "sink: " << value << std::endl;
-#endif //defined(SYSTEMC_VERSION) || defined(SQR_LOGGING)
+#endif //defined(SQR_LOGGING)
   }
   
   smoc_firing_state start;
