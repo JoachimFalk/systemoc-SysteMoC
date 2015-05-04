@@ -60,8 +60,10 @@ else
 simulation_sqr_LDADD += -lsystemoc
 endif
 
-syscsim_sqr_SOURCES= systemc-sqr.cpp
-syscsim_sqr_LDADD = -lsystemc
+syscsim_sqr_SOURCES	= systemc-sqr.cpp
+syscsim_sqr_CPPFLAGS	= $(AM_CPPFLAGS) $(SYSTEMC_INCLUDE)
+syscsim_sqr_LDFLAGS	= $(AM_LDFLAGS) $(SYSTEMC_LDFLAGS)
+syscsim_sqr_LDADD 	= -lsystemc
 
 clean-local:
 	rm -f sqr.cpp sqr.smx sqr.ngx
