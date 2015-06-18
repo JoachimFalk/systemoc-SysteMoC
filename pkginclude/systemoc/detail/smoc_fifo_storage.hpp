@@ -98,18 +98,18 @@ protected:
   /// @brief Constructor
   smoc_fifo_storage(const chan_init &i)
     : BASE(i),
-      storage(new storage_type[this->fSize()]),
+      storage(new storage_type[this->qfSize()]),
       initialTokens(i.marking)
   {}
 
   // overload rpp from QueueRWPtr to implement destructor call on commit read
   void rpp(size_t n) {
     size_t rindex = this->rIndex();
-    size_t o = std::min(n, this->fSize() - rindex);
+    size_t o = min(n, this->qfSize() - rindex);
     size_t p = n-o;
     for (;o > 0; --o, ++rindex)
       storage[rindex].invalidate();
-    assert(p == 0 || rindex == this->fSize()); rindex = 0;
+    assert(p == 0 || rindex == this->qfSize()); rindex = 0;
     for (;p > 0; --p, ++rindex)
       storage[rindex].invalidate();
     base_type::rpp(n);
@@ -142,12 +142,12 @@ protected:
 
   access_in_type_impl  *getReadPortAccess() {
     return new access_in_type_impl(
-        storage, this->fSize(), &this->rIndex());
+        storage, this->qfSize(), &this->rIndex());
   }
   
   access_out_type_impl *getWritePortAccess() {
     return new access_out_type_impl(
-        storage, this->fSize(), &this->wIndex());
+        storage, this->qfSize(), &this->wIndex());
   }
 
   void invalidateTokenInStorage(size_t x){
@@ -155,10 +155,10 @@ protected:
     for(size_t i=0; i<x ; i++){
       size_t toRemove = this->vIndex();
       size_t rindex = this->rIndex();
-      size_t n = (this->fSize() + (toRemove - rindex)) % this->fSize(); //number of tokens to be moved
-      toRemove += this->fSize();
+      size_t n = (this->qfSize() + (toRemove - rindex)) % this->qfSize(); //number of tokens to be moved
+      toRemove += this->qfSize();
       for(int i=n; i>=0 ;i--){
-        this->storage[toRemove % this->fSize()]=this->storage[(toRemove-1) % this->fSize()];
+        this->storage[toRemove % this->qfSize()]=this->storage[(toRemove-1) % this->qfSize()];
         toRemove--;
       }
     }

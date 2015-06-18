@@ -56,6 +56,10 @@
 
 #include <boost/static_assert.hpp>
 
+#ifdef SYSTEMOC_ENABLE_MAESTROMM
+#include <MetaMap/SMoCActor.h>
+#endif //SYSTEMOC_ENABLE_MAESTROMM
+
 typedef Expr::Ex<bool>::type Guard;
 
 // FIXME: this should be in Detail but conflicts with other
@@ -125,9 +129,13 @@ protected:
   smoc_hierarchical_state(const SmartPtr &p);
   
   smoc_hierarchical_state(const this_type &);
+
   this_type& operator=(const this_type &);
 
 public:
+
+  this_type& clone(const this_type &);
+
   ImplType *getImpl() const;
   using smoc_firing_state_base::operator=;
 

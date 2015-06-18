@@ -62,6 +62,9 @@ void SysteMoC::Scheduling::execute(SystemC_VPC::ScheduledTask* actor) {
 }
 #endif //SYSTEMOC_ENABLE_VPC
 
+
+
+
 smoc_scheduler_top::smoc_scheduler_top(smoc_graph_base* g) :
   sc_module(sc_module_name("smoc_scheduler_top")),
   g(g),
@@ -99,8 +102,8 @@ void smoc_scheduler_top::end_of_simulation() {
 
 void smoc_scheduler_top::before_end_of_elaboration() {
 #ifdef SYSTEMOC_ENABLE_MAESTROMM
-  MM::MMAPI api = MM::MMAPI::getInstance();
-  api.beforeEndOfElaboration();
+  MM::MMAPI* api = MM::MMAPI::getInstance();
+  api->beforeEndOfElaboration();
 #endif
 }
 
@@ -122,8 +125,8 @@ void smoc_scheduler_top::end_of_elaboration() {
   g->finalise();
 
 #ifdef SYSTEMOC_ENABLE_MAESTROMM
-  MM::MMAPI api = MM::MMAPI::getInstance();
-  api.endOfElaboration();
+  MM::MMAPI* api = MM::MMAPI::getInstance();
+  api->endOfElaboration();
 #endif
 
 #ifdef SYSTEMOC_ENABLE_VPC

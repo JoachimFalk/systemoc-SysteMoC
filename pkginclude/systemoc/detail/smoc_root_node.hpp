@@ -64,6 +64,10 @@
 
 #define CALL(func)    call(&func, #func)
 #define GUARD(func)   guard(&func, #func)
+#ifdef SYSTEMOC_ENABLE_MAESTROMM
+#define CALLI(ins,func)    calli(ins, &func, #func)
+#define GUARDI(ins,func)   guardi(ins, &func, #func)
+#endif
 #define VAR(variable) var(variable, #variable)
 #define TILL(event)   till(event, #event)
 #define SR_TICK(func) call(&func, #func)
@@ -96,10 +100,18 @@ class smoc_root_node
 {
   typedef smoc_root_node this_type;
   friend class RuntimeTransition;
-private:
+public:
   /// @brief Initial firing state
   smoc_hierarchical_state &initialState;
 
+#ifdef SYSTEMOC_ENABLE_MAESTROMM
+  /// RRR:
+  /// Function to determine if the current node is an actor or a graph
+  /// to avoid expensive RTTI dynamic_cast calls
+  virtual bool isActor();
+#endif
+
+private:
   /// @brief Current firing state
   RuntimeState *currentState;
 
@@ -152,7 +164,7 @@ protected:
 
   /// @brief User reset method (do not put functionality in there)
   virtual void reset() {};
-
+public:
   template<typename F>
   typename CoSupport::Lambda::ParamAccumulator<smoc_member_func, CoSupport::Lambda::Functor<void, F> >::accumulated_type
   call(const F &f, const char *name = "") {
@@ -160,10 +172,33 @@ protected:
       (CoSupport::Lambda::Functor<void, F>(this, f, name));
   }
 
+#ifdef SYSTEMOC_ENABLE_MAESTROMM
+  template<typename F, typename X>
+  typename CoSupport::Lambda::ParamAccumulator<smoc_member_func, CoSupport::Lambda::Functor<void, F> >::accumulated_type
+	  calli(X* ins, const F &f, const char *name = "") {
+    return typename CoSupport::Lambda::ParamAccumulator<smoc_member_func, CoSupport::Lambda::Functor<void, F> >::accumulated_type
+      (CoSupport::Lambda::Functor<void, F>(ins, f, name));
+  }
+#endif
+
+protected:
+
   template<typename F>
   typename Expr::MemGuard<F>::type guard(const F &f, const char *name = "") const {
     return Expr::guard(this, f, name);
   }
+
+public:
+	
+#ifdef SYSTEMOC_ENABLE_MAESTROMM
+  template<typename F, typename X>
+  typename Expr::MemGuard<F>::type guardi(const X* ins, const F &f, const char *name = "") const {
+	  return Expr::guard(ins, f, name);
+  }
+#endif
+  
+
+protected:
 
   template <typename T>
   static
