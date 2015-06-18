@@ -104,6 +104,14 @@ void smoc_graph_base::getChansRecursive( smoc_chan_list & channels) const {
   }
 }
 
+#ifdef SYSTEMOC_ENABLE_MAESTROMM
+bool smoc_graph_base::isActor()
+{
+	return false;
+}
+
+#endif
+
 void smoc_graph_base::finalise() {
 #ifdef SYSTEMOC_DEBUG
   outDbg << "<smoc_graph_base::finalise name=\"" << name() << "\">"
@@ -220,7 +228,14 @@ void smoc_graph_base::doReset() {
 smoc_graph::smoc_graph(const sc_module_name& name) :
   smoc_graph_base(name, run),
   run("run")
+#ifdef SYSTEMOC_ENABLE_MAESTROMM
+  , SMoCGraph(name)
+#endif
 {
+#ifdef SYSTEMOC_ENABLE_MAESTROMM
+	this->setName(this->name());
+#endif
+
   constructor();
 }
 
@@ -229,6 +244,10 @@ smoc_graph::smoc_graph() :
   run("run")
 {
   constructor();
+
+#ifdef SYSTEMOC_ENABLE_MAESTROMM
+  this->setName(this->name());
+#endif
 }
   
 void smoc_graph::finalise() {

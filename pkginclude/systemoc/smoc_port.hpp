@@ -50,10 +50,17 @@
 #include "detail/smoc_sysc_port.hpp"
 #include "detail/smoc_chan_if.hpp"
 
+#ifdef SYSTEMOC_ENABLE_MAESTROMM
+#include  "Port.h"
+#endif
+
 /// IFACE: interface type (this is basically sc_port_b<IFACE>)
 template <typename IFACE>
 class smoc_port_base
 : public smoc_sysc_port,
+#ifdef SYSTEMOC_ENABLE_MAESTROMM
+  public Bruckner::Model::Port,
+#endif
   public IFACE::template PortMixin<smoc_port_base<IFACE>,IFACE> {
 private:
   typedef smoc_port_base<IFACE> this_type;
@@ -92,7 +99,13 @@ private:
   }
 protected:
   smoc_port_base(const char *name_, sc_port_policy policy)
-    : smoc_sysc_port(name_, policy) {}
+    : smoc_sysc_port(name_, policy) 
+  {
+		#ifdef SYSTEMOC_ENABLE_MAESTROMM
+			this->memberName = name_;
+			this->instanceName = name_;
+		#endif
+  }
 
   virtual void finalise() {
     base_type::finalise();

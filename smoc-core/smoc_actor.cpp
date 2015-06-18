@@ -36,33 +36,51 @@
 #include <systemoc/smoc_actor.hpp>
 #include <systemoc/smoc_graph_type.hpp>
 
-smoc_actor::smoc_actor(sc_module_name name, smoc_hierarchical_state &s)
-  : smoc_root_node(name, s)
-{
 #ifdef SYSTEMOC_ENABLE_MAESTROMM
+smoc_actor::smoc_actor(sc_module_name name, smoc_hierarchical_state &s, unsigned int thread_stack_size, bool useLogFile)
+  : smoc_root_node(name, s),
+  SMoCActor(thread_stack_size)
+{
   this->setName(this->name());
+  this->instanceLogger(this->name(), useLogFile);
   initMMactor();
-#endif //defined(SYSTEMOC_ENABLE_MAESTROMM)
+}
+
+smoc_actor::smoc_actor(smoc_hierarchical_state &s, unsigned int thread_stack_size, bool useLogFile)
+  : smoc_root_node(sc_gen_unique_name("smoc_actor"), s),
+  SMoCActor(thread_stack_size)
+{
+  this->setName(this->name());
+  this->instanceLogger(this->name(), useLogFile);
+  initMMactor();
+}
+#else
+smoc_actor::smoc_actor(sc_module_name name, smoc_hierarchical_state &s)
+	: smoc_root_node(name, s)
+{
 }
 
 smoc_actor::smoc_actor(smoc_hierarchical_state &s)
-  : smoc_root_node(sc_gen_unique_name("smoc_actor"), s)
+	: smoc_root_node(sc_gen_unique_name("smoc_actor"), s)
 {
-#ifdef SYSTEMOC_ENABLE_MAESTROMM
-  this->setName(this->name());
-  initMMactor();
-#endif //defined(SYSTEMOC_ENABLE_MAESTROMM)
 }
+#endif
+
+
+
 
 #ifdef SYSTEMOC_ENABLE_MAESTROMM
+
+bool smoc_actor::isActor()
+{
+	return true;
+}
+
 void smoc_actor::initMMactor()
 {
-  /////////////////
-  //rrr
-  MM::MMAPI api = MM::MMAPI::getInstance();
-  MetaMap::Actor* a = static_cast<MetaMap::Actor*>(this);
-  api.addActor(*a);
-  ////////////////
+  MM::MMAPI* api = MM::MMAPI::getInstance();
+  MetaMap::SMoCActor* a = static_cast<MetaMap::SMoCActor*>(this);
+  api->addActor(*a);
 }
 
 bool smoc_actor::canExecute()
@@ -103,55 +121,35 @@ void smoc_actor::registerTransitionReadyListener(MetaMap::TransitionReadyListene
 
 }
 
-void smoc_actor::registerSleepingListener(MetaMap::SleepingListener& sListener){
-      //smoc Actor
-      smoc_actor* sActor =dynamic_cast<smoc_actor*>(this);
-
-      sActor->sleepingListener = &sListener;
-}
-
 void smoc_actor::execute()
 {
     //std::cerr << "smoc::Scheduling::execute" << std::endl;
     //assert(dynamic_cast<smoc_actor*>(actor) != nullptr);
-    MetaMap::Actor::execute();
+    MetaMap::SMoCActor::execute();
     dynamic_cast<smoc_actor*>(this)->schedule();
 }
 
-void smoc_actor::wait( double v, sc_time_unit tu ){
-
-  //this->sleepingListener->notifySleeping(*this);
-  this->sleepingListener->notifyWillWakeUp(this->getName(),v);
+void smoc_actor::wait( double v, sc_time_unit tu )
+{
   sc_module::wait(v,tu);
-
-  this->sleepingListener->notifyAwaken(*this);
 }
 
 void smoc_actor::wait( sc_time sct )
 {
-  //this->sleepingListener->notifySleeping(*this);
-    this->sleepingListener->notifyWillWakeUp(this->getName(),sct.to_double());
     sc_module::wait(sct);
-
-    this->sleepingListener->notifyAwaken(*this);
 }
 
-void smoc_actor::wait(){
-
-  this->sleepingListener->notifySleeping(*this);
-
+void smoc_actor::wait()
+{
   sc_module::wait();
-
-  this->sleepingListener->notifyAwaken(*this);
 }
 
-void smoc_actor::sleep(){
-
-//  this->sleepingListener->notifySleeping(*this);
+void smoc_actor::sleep()
+{
   wait();
 }
 
-#endif
+#endif //defined(SYSTEMOC_ENABLE_MAESTROMM)
 
 #ifdef SYSTEMOC_ENABLE_VPC
 void smoc_actor::finaliseVpcLink() {

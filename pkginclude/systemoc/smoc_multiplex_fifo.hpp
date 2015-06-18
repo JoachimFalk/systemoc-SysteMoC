@@ -315,14 +315,14 @@ protected:
        *
        */
       
-      size_t fsize  = this->fSize();
+      size_t fsize  = this->qfSize();//RRR
       size_t rindex = this->rIndex();
       // Calculate xindex to point to the first token inside or one outside the
       // OOO area for which the latency has expired.
-      size_t xindex = (rindex + std::min(this->fifoOutOfOrder + 1, vcount - n)) % fsize;
+      size_t xindex = (rindex + (std::min)(this->fifoOutOfOrder + 1, vcount - n)) % fsize;//RRR
       // Calculate oindex to point to the first token either outside
       // the OOO area or outside the visible area.
-      size_t oindex = (rindex + std::min(this->fifoOutOfOrder + 1, vcount)) % fsize;
+      size_t oindex = (rindex + (std::min)(this->fifoOutOfOrder + 1, vcount)) % fsize;//RRR
       
       for (; xindex != oindex; xindex = (xindex + 1) % fsize) {
         FifoId fId = A::get(this->storage[xindex].get());
@@ -375,18 +375,18 @@ protected:
      */
     
     if (n > 0) {
-      MG dindex(this->rIndex(), typename MG::M(this->fSize()));
+      MG dindex(this->rIndex(), typename MG::M(this->qfSize()));//RRR
       
       // Find n'th fifoId == from element in storage
       for (size_t mc = n; mc > 1; ++dindex) {
         // rindex <= dindex < vindex in modulo fsize arith
-        assert(dindex.between(this->rIndex(), MG(this->vIndex(), typename MG::M(this->fSize())) - 1));
+        assert(dindex.between(this->rIndex(), MG(this->vIndex(), typename MG::M(this->qfSize())) - 1));//RRR
         if (A::get(this->storage[dindex.getValue()].get()) == from)
           --mc;
       }
       for (; A::get(this->storage[dindex.getValue()].get()) != from; ++dindex) {
         // rindex <= dindex < vindex in modulo fsize arith
-        assert(dindex.between(this->rIndex(), MG(this->vIndex(), typename MG::M(this->fSize())) - 1));
+        assert(dindex.between(this->rIndex(), MG(this->vIndex(), typename MG::M(this->qfSize())) - 1));//RRR
       }
       // The found fifoId == from element and all previous elements must be
       // consumed
@@ -452,13 +452,13 @@ protected:
      */
     
     size_t vcount = this->visibleCount();
-    size_t fsize  = this->fSize();
+    size_t fsize  = this->qfSize();//RRR
     size_t rindex = this->rIndex();
     // Calculate xindex to point to the first token for entering the OOO area.
-    size_t xindex = (rindex + std::min(this->fifoOutOfOrder + 1 - n, vcount)) % fsize;
+    size_t xindex = (rindex + (std::min)(this->fifoOutOfOrder + 1 - n, vcount)) % fsize;//RRR
     // Calculate oindex to point to the first token either outside
     // the OOO area or outside the visible area.
-    size_t oindex = (rindex + std::min(this->fifoOutOfOrder + 1, vcount)) % fsize;
+    size_t oindex = (rindex + (std::min)(this->fifoOutOfOrder + 1, vcount)) % fsize;//RRR
     
     for (; xindex != oindex; xindex = (xindex + 1) % fsize) {
       FifoId fId = A::get(this->storage[xindex].get());
@@ -659,7 +659,7 @@ public:
       
       for (rindex = chan.rIndex();
            n >= 1 || A::get(chan.storage[rindex].get()) != chanIfImpl.fifoId;
-           rindex = rindex < chan.fSize() - 1 ? rindex + 1 : 0)
+           rindex = rindex < chan.qfSize() - 1 ? rindex + 1 : 0)//RRR
         if (A::get(chan.storage[rindex].get()) == chanIfImpl.fifoId)
           --n;
       assert(A::get(chan.storage[rindex].get()) == chanIfImpl.fifoId);
@@ -789,8 +789,8 @@ private:
 #endif
       MultiplexChannel &chan = *chanIfImpl.chan/*.get()*/;
       size_t windex = chan.wIndex() + n;
-      if (windex >= chan.fSize())
-        windex -= chan.fSize();
+      if (windex >= chan.qfSize())//RRR
+        windex -= chan.qfSize();//RRR
       //std::cerr << "smoc_multiplex_vfifo_entry<T,A>::AccessImpl::operator[](size_t) END" << std::endl;
       return chan.storage[windex];
     }
@@ -824,7 +824,7 @@ protected:
 #endif
   {
     size_t windex = chan->wIndex();
-    size_t fsize  = chan->fSize();
+    size_t fsize  = chan->qfSize();//RRR
     
     for (size_t i = 0; i < n; ++i) {
       A::put(chan->storage[windex].get(), fifoId);

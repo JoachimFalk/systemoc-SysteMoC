@@ -70,7 +70,7 @@ void smoc_multireader_fifo_chan_base::consume(smoc::Detail::PortInBaseIf *who, s
 #endif
 #ifdef SYSTEMOC_DEBUG
   outDbg << "n: " << n << "; #avail: " << visibleCount()
-         << "; #free: " << freeCount() << "; size: " << (fSize()-1) << std::endl;
+         << "; #free: " << freeCount() << "; size: " << (qfSize()-1) << std::endl;
 #endif // SYSTEMOC_DEBUG
   rpp(n);
   // FIXME: Make sure consumers are notified
@@ -105,7 +105,7 @@ void smoc_multireader_fifo_chan_base::produce(size_t n)
 #endif
 #ifdef SYSTEMOC_DEBUG
   outDbg << "n: " << n << "; #avail: " << visibleCount()
-         << "; #free: " << freeCount() << "; size: " << (fSize()-1) << std::endl;
+         << "; #free: " << freeCount() << "; size: " << (qfSize()-1) << std::endl;
 #endif // SYSTEMOC_DEBUG
   tokenId += n;
   wpp(n);
@@ -204,7 +204,7 @@ void smoc_multireader_fifo_chan_base::doReset() {
 
 #ifdef SYSTEMOC_DEBUG
   outDbg << "#avail: " << visibleCount() << "; #free: " << freeCount()
-         << "; size: " << (fSize()-1) << std::endl;
+         << "; size: " << (qfSize()-1) << std::endl;
 #endif // SYSTEMOC_DEBUG
 
 #ifdef SYSTEMOC_DEBUG

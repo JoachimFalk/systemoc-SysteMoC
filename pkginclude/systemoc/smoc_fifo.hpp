@@ -68,6 +68,9 @@
 #else
 # include <smoc/detail/QueueRWPtr.hpp>
 #endif
+#ifdef SYSTEMOC_ENABLE_MAESTROMM
+#include "Channel.h"
+#endif
 
 #include <smoc/detail/DumpingInterfaces.hpp>
 
@@ -163,7 +166,7 @@ private:
 #ifdef SYSTEMOC_DEBUG
     std::cerr << this->name() << "\t"
               << this->visibleCount() << "\t"
-              << this->fSize() << "\t"
+              << this->qfSize() << "\t"
               << this->freeCount() << "\t"
               << this->usedCount() << std::endl;
 #ifdef SYSTEMOC_ENABLE_VPC
@@ -383,6 +386,9 @@ private:
 template <typename T>
 class smoc_fifo
 : public smoc_fifo_chan<T>::chan_init,
+#ifdef SYSTEMOC_ENABLE_MAESTROMM
+  public Bruckner::Model::Channel,
+#endif
   public smoc::Detail::ConnectProvider<
     smoc_fifo<T>,
     smoc_fifo_chan<T> >
@@ -429,7 +435,7 @@ public:
   //using this_type::con_type::operator<<;
   using smoc::Detail::ConnectProvider<smoc_fifo<T>, smoc_fifo_chan<T> >::operator<<;
 
-private:
+//private:
   chan_type *getChan() {
     if (chan == nullptr)
       chan = new chan_type(*this);

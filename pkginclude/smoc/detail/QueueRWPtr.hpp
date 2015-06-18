@@ -90,7 +90,7 @@ namespace smoc { namespace Detail {
       return (MG(rindex, fsize) - windex - 1).getValue();
     }
 
-    size_t fSize() const {
+    size_t qfSize() const {
       return fsize.m();
     }
     const size_t &rIndex() const {

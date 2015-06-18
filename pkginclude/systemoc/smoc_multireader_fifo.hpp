@@ -187,7 +187,7 @@ public:
 #ifdef SYSTEMOC_DEBUG
     std::cerr << this->name() << "\t"
               << this->visibleCount() << "\t"
-              << this->fSize() << "\t"
+              << this->qfSize() << "\t"
               << this->freeCount() << "\t"
               << this->usedCount() << std::endl;
 #ifdef SYSTEMOC_ENABLE_VPC
