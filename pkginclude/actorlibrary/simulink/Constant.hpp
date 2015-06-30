@@ -1,15 +1,15 @@
 /*  Library : Math Operations
+
     Block : Sum, Add, Subtract
     Despcription : Add or subtract inputs
 */
-
 
 #ifndef __INCLUDED__CONSTANT_HPP__
 #define __INCLUDED__CONSTANT_HPP__
 
 #include <cstdlib>
 #include <iostream>
-
+#include <systemoc/smoc_moc.hpp>
 
 /*
 You specify the operations of the block with the List of signs parameter. 
@@ -20,9 +20,10 @@ from the first (top) input, and then add the third (bottom) input.
 */
 
 template<typename DATA_TYPE>
- class Constant: public smoc_actor {
+class Constant: public smoc_actor {
 public:
   smoc_port_out<DATA_TYPE>  out;
+  //smoc_port_out<std::vector<double> > out[];
 
   Constant( sc_module_name name, DATA_TYPE constValue )
     : smoc_actor(name, start), constValue(constValue)

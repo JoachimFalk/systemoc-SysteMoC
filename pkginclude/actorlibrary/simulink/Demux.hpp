@@ -7,6 +7,10 @@
 #define __INCLUDED__DEMUX__HPP__
 
 #include <systemoc/smoc_expr.hpp>
+#include <iostream>
+#include <systemoc/smoc_moc.hpp>
+#include <systemoc/smoc_expr.hpp>
+#include "SimulinkDataType.hpp"
 
 template<typename DATA_TYPE, int PORTS = 1>
 class Demux: public smoc_actor {

@@ -12,7 +12,9 @@
 #ifndef __INCLUDED__LOGIC__HPP__
 #define __INCLUDED__LOGIC__HPP__
 
-
+#include <cstdlib>
+#include <iostream>
+#include <systemoc/smoc_moc.hpp>
 /* 
  * Integer logicOperator = 0 means operator = AND
  * Integer logicOperator = 1 means operator = OR 

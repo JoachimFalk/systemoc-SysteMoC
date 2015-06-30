@@ -9,6 +9,11 @@
 
 
 
+#include <iostream>
+#include <systemoc/smoc_moc.hpp>
+#include <systemoc/smoc_expr.hpp>
+#include "SimulinkDataType.hpp"
+
 template<typename T>
  class IOAdapter: public smoc_actor {
 public:
@@ -32,9 +37,7 @@ protected:
 #ifdef _DEBUG
 	 cout << name() ;
 #endif
-	 T tmp = 0.0;
-	 tmp = in[0];
-	 out[0] = tmp;
+	 out[0] = in[0];
 	 
 	 //cout << name() << " " << tmp << endl;
 	 

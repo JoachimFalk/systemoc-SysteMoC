@@ -12,13 +12,13 @@
 #include <systemoc/smoc_expr.hpp>
 
 template<typename DATA_TYPE, typename S, int PORTS=1>
- class Scope: public smoc_actor {
+ class Display: public smoc_actor {
 public:
   smoc_port_in<DATA_TYPE>   in[PORTS];
   
 
   
-  Scope( sc_module_name name, S message )
+  Display( sc_module_name name, S message )
     : smoc_actor(name, start), message(message){
 
     Expr::Ex<bool >::type eIn(in[0](1) );
@@ -28,7 +28,7 @@ public:
     }
 
     start = eIn                    >> 
-      CALL(Scope::process) >> start
+      CALL(Display::process) >> start
       ;
   }
 protected:

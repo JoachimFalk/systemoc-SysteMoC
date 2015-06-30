@@ -1,4 +1,5 @@
 /*  Library : Math Operations
+
     Block : Sum, Add, Subtract
     Despcription : Add or subtract inputs
 */
@@ -37,7 +38,7 @@ public:
       eIn = eIn && in[i](1);
     }
 
-    start = eIn  >> out(1)                  >> 
+    start = eIn  >> out(1)      >>
       CALL(Sum::sum) >> start
       ;
   }

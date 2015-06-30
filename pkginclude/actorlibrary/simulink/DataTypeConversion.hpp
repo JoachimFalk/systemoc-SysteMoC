@@ -15,7 +15,9 @@
 
 #include <stdlib.h>
 
-
+#include <cstdlib>
+#include <iostream>
+#include <systemoc/smoc_moc.hpp>
 template<typename T, typename S>
  class DataTypeConversion: public smoc_actor {
 public:

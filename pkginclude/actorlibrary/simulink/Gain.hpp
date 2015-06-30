@@ -1,4 +1,5 @@
 /*  Library : Math Operations
+
     Block : Gain
     Despcription : Multiply input by constant
 		   
