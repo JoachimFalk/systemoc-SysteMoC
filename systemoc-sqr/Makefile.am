@@ -35,7 +35,7 @@ if SYNTH_PTHREAD
   include $(pkg_synthesis_pthread_builddir)/mk/Rules-Synth-II.mk
 endif
 if SYNTH_CYN
-  CYN_SYNTH_INST_FLAGS = --no-preprocess-macros -I$(srcdir)
+  CYN_SYNTH_INST_FLAGS = --no-preprocess-macros -I$(srcdir) --target-include-dir=$(srcdir)/.
   CYN_SYNTH_CPPFLAGS   = -I$(srcdir)
   include $(pkg_synthesis_cynthesizer_builddir)/mk/Rules-Synth-II.mk
 endif
