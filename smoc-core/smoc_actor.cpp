@@ -38,8 +38,8 @@
 
 #ifdef SYSTEMOC_ENABLE_MAESTROMM
 smoc_actor::smoc_actor(sc_module_name name, smoc_hierarchical_state &s, unsigned int thread_stack_size, bool useLogFile)
-  : smoc_root_node(name, s),
-  SMoCActor(thread_stack_size)
+  : smoc_root_node(name, smoc_root_node::NODE_TYPE_ACTOR, s),
+    SMoCActor(thread_stack_size)
 {
   this->setName(this->name());
   this->instanceLogger(this->name(), useLogFile);
@@ -47,35 +47,26 @@ smoc_actor::smoc_actor(sc_module_name name, smoc_hierarchical_state &s, unsigned
 }
 
 smoc_actor::smoc_actor(smoc_hierarchical_state &s, unsigned int thread_stack_size, bool useLogFile)
-  : smoc_root_node(sc_gen_unique_name("smoc_actor"), s),
-  SMoCActor(thread_stack_size)
+  : smoc_root_node(sc_gen_unique_name("smoc_actor"), smoc_root_node::NODE_TYPE_ACTOR, s),
+SMoCActor(thread_stack_size)
 {
   this->setName(this->name());
   this->instanceLogger(this->name(), useLogFile);
   initMMactor();
 }
-#else
+#else //!defined(SYSTEMOC_ENABLE_MAESTROMM)
 smoc_actor::smoc_actor(sc_module_name name, smoc_hierarchical_state &s)
-	: smoc_root_node(name, s)
+	: smoc_root_node(name, smoc_root_node::NODE_TYPE_ACTOR, s)
 {
 }
 
 smoc_actor::smoc_actor(smoc_hierarchical_state &s)
-	: smoc_root_node(sc_gen_unique_name("smoc_actor"), s)
+	: smoc_root_node(sc_gen_unique_name("smoc_actor"), smoc_root_node::NODE_TYPE_ACTOR, s)
 {
 }
-#endif
-
-
-
+#endif //!defined(SYSTEMOC_ENABLE_MAESTROMM)
 
 #ifdef SYSTEMOC_ENABLE_MAESTROMM
-
-bool smoc_actor::isActor()
-{
-	return true;
-}
-
 void smoc_actor::initMMactor()
 {
   MM::MMAPI* api = MM::MMAPI::getInstance();
@@ -127,21 +118,6 @@ void smoc_actor::execute()
     //assert(dynamic_cast<smoc_actor*>(actor) != nullptr);
     MetaMap::SMoCActor::execute();
     dynamic_cast<smoc_actor*>(this)->schedule();
-}
-
-void smoc_actor::wait( double v, sc_time_unit tu )
-{
-  sc_module::wait(v,tu);
-}
-
-void smoc_actor::wait( sc_time sct )
-{
-    sc_module::wait(sct);
-}
-
-void smoc_actor::wait()
-{
-  sc_module::wait();
 }
 
 void smoc_actor::sleep()

@@ -68,22 +68,17 @@ protected:
 #ifdef SYSTEMOC_ENABLE_VPC
   void finaliseVpcLink();
 #endif //SYSTEMOC_ENABLE_VPC
+  virtual void setActivation(bool activation);
 #ifdef SYSTEMOC_ENABLE_MAESTROMM
   void initMMactor();
-
+#endif//SYSTEMOC_ENABLE_MAESTROMM
 public:
-
-  bool isActor();
-
-  void wait();
-  void wait( double v, sc_time_unit tu );
-  void wait( sc_time sct );
+#ifdef SYSTEMOC_ENABLE_MAESTROMM
   virtual bool canExecute();
   virtual void getCurrentTransition(MetaMap::Transition & activeTransition);
   virtual void registerTransitionReadyListener(MetaMap::TransitionReadyListener& trListener);
   virtual void sleep();
   virtual void execute();
 #endif//SYSTEMOC_ENABLE_MAESTROMM
-  virtual void setActivation(bool activation);
 };
 #endif // _INCLUDED_SMOC_ACTOR_HPP

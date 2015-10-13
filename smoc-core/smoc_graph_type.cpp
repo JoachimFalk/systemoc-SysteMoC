@@ -48,8 +48,8 @@ using namespace smoc::Detail;
 using CoSupport::String::Concat;
 
 smoc_graph_base::smoc_graph_base(
-    const sc_module_name &name, smoc_firing_state &init)
-  : smoc_root_node(name, init) {}
+  const sc_module_name &name, smoc_firing_state &init)
+: smoc_root_node(name, smoc_root_node::NODE_TYPE_GRAPH, init) {}
   
 const smoc_node_list& smoc_graph_base::getNodes() const
   { return nodes; } 
@@ -103,14 +103,6 @@ void smoc_graph_base::getChansRecursive( smoc_chan_list & channels) const {
     }
   }
 }
-
-#ifdef SYSTEMOC_ENABLE_MAESTROMM
-bool smoc_graph_base::isActor()
-{
-	return false;
-}
-
-#endif
 
 void smoc_graph_base::finalise() {
 #ifdef SYSTEMOC_DEBUG

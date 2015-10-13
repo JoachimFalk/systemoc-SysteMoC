@@ -238,8 +238,8 @@ void RuntimeTransition::execute(smoc_root_node *actor, int mode) {
     MODE_GRAPH
   } execMode;
   
-  //if(dynamic_cast<smoc_graph_base*>(actor) == nullptr) {
-  if (!actor->isActor()) { //RRR improve performance removing RTTI
+  // Don't use RTTI due to performance reasons!
+  if (!actor->isActor()) { 
     execMode =
 #ifdef SYSTEMOC_ENABLE_VPC
       actor->getCurrentState() != actor->getCommState()

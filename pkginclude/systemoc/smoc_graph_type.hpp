@@ -155,18 +155,6 @@ public:
       >::result_type
     >(s));
   }
-
-#ifdef SYSTEMOC_ENABLE_WSDF 
-
-  /// FIXME: this should probably be generalized as well
-  template<class EdgeInit, class PortA, class PortB>
-  void indConnectNodePorts(PortA& a, PortB& b, const EdgeInit& e) {
-    typedef typename EdgeInit::chan_init_type ChanInit;
-    connectNodePorts(a, b, ChanInit(e, a.params(), b.params()));
-  }
-
-#endif
-
 public:
 
   template<typename T>
@@ -203,15 +191,6 @@ private:
 
   // channel child objects
   smoc_chan_list channels;
-
-#ifdef SYSTEMOC_ENABLE_MAESTROMM
-public:
-
-	bool isActor();
-
-#endif
-  
-
 };
   
 #undef T_chan_init_default
