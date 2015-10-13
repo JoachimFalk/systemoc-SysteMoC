@@ -44,10 +44,6 @@
 #include <systemoc/smoc_config.h>
 
 #include "smoc_port.hpp"
-#ifdef SYSTEMOC_ENABLE_WSDF 
-# include "smoc_md_port.hpp"
-# include "smoc_md_fifo.hpp"
-#endif
 #include "smoc_fifo.hpp"
 #include "smoc_multicast_sr_signal.hpp"
 #include "smoc_node_types.hpp"
@@ -101,26 +97,6 @@ public:
     static const bool isSpecialized = true;
     typedef T data_type;
   };
-
-#ifdef SYSTEMOC_ENABLE_WSDF 
-  /**
-   * Specialization of PortTraits for smoc_md_port_in
-   */
-  template<class T,unsigned N,template <typename, typename> class B>
-  struct PortTraits< smoc_md_port_in<T,N,B> > { 
-    static const bool isSpecialized = true;
-    typedef T data_type;
-  };
-
-  /**
-   * Specialization of PortTraits for smoc_md_port_out
-   */
-  template<class T,unsigned N,template <typename> class S>
-  struct PortTraits< smoc_md_port_out<T,N,S> > {
-    static const bool isSpecialized = true;
-    typedef T data_type;
-  };
-#endif
 
   /// connect ports using the specified channel initializer
   template<class Init>

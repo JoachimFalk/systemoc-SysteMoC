@@ -116,11 +116,7 @@ protected:
 
   /// @brief Virtual destructor
   virtual ~smoc_port_registry() {
-    
-    // FIXME: WSDF currently registers "this"...
-    // FIXME: WSDF should use entries / outlets
-
-    /*for(PortMap::const_iterator i = entries.begin();
+    for(PortMap::const_iterator i = entries.begin();
         i != entries.end();
         ++i)
     {
@@ -131,7 +127,7 @@ protected:
         ++i)
     {
       delete i->first;
-    }*/
+    }
   }
 
 private:

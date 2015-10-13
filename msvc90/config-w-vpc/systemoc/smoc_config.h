@@ -30,9 +30,6 @@
 /* Define if you want Meastro Support */
 #define SYSTEMOC_ENABLE_MAESTROMM
 
-/* Define if you want WSDF Support */
-#undef SYSTEMOC_ENABLE_WSDF
-
 #if defined(SYSTEMOC_ENABLE_DATAFLOW_TRACE) || defined(SYSTEMOC_ENABLE_TRANSITION_TRACE) || defined(SYSTEMOC_ENABLE_SGX)
 # define SYSTEMOC_NEED_IDS
 #endif
