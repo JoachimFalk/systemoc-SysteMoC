@@ -28,7 +28,7 @@
 #undef SYSTEMOC_ENABLE_VPC
 
 /* Defined if Maestro library support is enabled */
-#define SYSTEMOC_ENABLE_MAESTROMM
+#undef SYSTEMOC_ENABLE_MAESTROMM
 
 /* Defined if WSDF support is enabled */
 #undef SYSTEMOC_ENABLE_WSDF
