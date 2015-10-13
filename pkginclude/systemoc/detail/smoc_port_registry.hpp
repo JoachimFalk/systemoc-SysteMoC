@@ -116,13 +116,13 @@ protected:
 
   /// @brief Virtual destructor
   virtual ~smoc_port_registry() {
-    for(PortMap::const_iterator i = entries.begin();
+    for(EntryMap::const_iterator i = entries.begin();
         i != entries.end();
         ++i)
     {
       delete i->first;
     }
-    for(PortMap::const_iterator i = outlets.begin();
+    for(OutletMap::const_iterator i = outlets.begin();
         i != outlets.end();
         ++i)
     {
