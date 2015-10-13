@@ -106,8 +106,8 @@ protected:
   /// @brief Constructor
   smoc_fifo_storage(const chan_init &i)
     : base_type(i),
-      access_in_type_impl(this->storage, this->fSize(), &this->rIndex()),
-      access_out_type_impl(this->storage, this->fSize(), &this->wIndex()),
+      access_in_type_impl(this->storage, this->qfSize(), &this->rIndex()),
+      access_out_type_impl(this->storage, this->qfSize(), &this->wIndex()),
       initialTokens(i.marking)
   {}
 
@@ -138,10 +138,10 @@ protected:
     for(size_t i=0; i<x ; i++){
       size_t toRemove = this->vIndex();
       size_t rindex = this->rIndex();
-      size_t n = (this->fSize() + (toRemove - rindex)) % this->fSize(); //number of tokens to be moved
-      toRemove += this->fSize();
+      size_t n = (this->qfSize() + (toRemove - rindex)) % this->qfSize(); //number of tokens to be moved
+      toRemove += this->qfSize();
       for(int i=n; i>=0 ;i--){
-        this->storage[toRemove % this->fSize()]=this->storage[(toRemove-1) % this->fSize()];
+        this->storage[toRemove % this->qfSize()]=this->storage[(toRemove-1) % this->qfSize()];
         toRemove--;
       }
     }

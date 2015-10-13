@@ -56,6 +56,10 @@
 
 #include "smoc_chan_adapter.hpp"
 
+#ifdef SYSTEMOC_ENABLE_MAESTROMM
+#include <MetaMap/SMoCGraph.hpp>
+#endif //SYSTEMOC_ENABLE_MAESTROMM
+
 #define T_chan_init_default smoc_fifo
 
 /**
@@ -68,7 +72,7 @@ public:
   friend class smoc_scheduler_top; // finalise
   typedef smoc_graph_base this_type;
 
-protected:
+//protected:
  
   /**
    * Helper class for determining the data type from ports
@@ -199,6 +203,13 @@ private:
 
   // channel child objects
   smoc_chan_list channels;
+
+#ifdef SYSTEMOC_ENABLE_MAESTROMM
+public:
+
+	bool isActor();
+
+#endif
   
 
 };
@@ -209,7 +220,11 @@ private:
  * graph with FSM which schedules children by selecting
  * any executable transition
  */
-class smoc_graph : public smoc_graph_base {
+class smoc_graph : public smoc_graph_base
+#ifdef SYSTEMOC_ENABLE_MAESTROMM
+, public MetaMap::SMoCGraph
+#endif //SYSTEMOC_ENABLE_MAESTROMM
+{
 public:
   // construct graph with name
   explicit smoc_graph(const sc_module_name& name);

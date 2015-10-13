@@ -45,6 +45,9 @@
 #include <smoc/smoc_event.hpp>
 #include <systemoc/smoc_graph_type.hpp>
 #include <systemoc/detail/smoc_debug_stream.hpp>
+#ifdef SYSTEMOC_ENABLE_MAESTROMM
+#include <MetaMap/MAESTRORuntimeException.h>
+#endif
 
 using namespace smoc::Detail;
 
@@ -218,6 +221,14 @@ smoc_root_node::~smoc_root_node() {
 #endif // SYSTEMOC_ENABLE_VPC
 }
 
+#ifdef SYSTEMOC_ENABLE_MAESTROMM
+
+bool smoc_root_node::isActor()
+{
+	return false;
+}
+#endif
+
 void smoc_root_node::doReset() {
 #ifdef SYSTEMOC_DEBUG
   outDbg << "<smoc_root_node::doReset name=\"" << name() << "\">"
@@ -340,12 +351,23 @@ void smoc_root_node::eventDestroyed(smoc::smoc_event_waiter *e) {
 
 void smoc_root_node::setCurrentState(RuntimeState *s) {
 #ifdef SYSTEMOC_DEBUG
-  outDbg << "<smoc_root_node::setCurrentState name=\"" << name() << "\">"
-         << std::endl << Indent::Up;
+	outDbg << "<smoc_root_node::setCurrentState name=\"" << name() << "\">"
+		<< std::endl << Indent::Up;
 #endif // SYSTEMOC_DEBUG
 
-  //assert(executing);
+	//assert(executing);
+
+  #ifdef SYSTEMOC_ENABLE_MAESTROMM
+  if (s == NULL)
+  {
+		throw new MAESTRORuntimeException((string)"Error while trying to set the new state to NULL on actor: " + this->name());
+  }
+  #else
   assert(s);
+  #endif
+  
+
+  
 
   currentState = s;
 

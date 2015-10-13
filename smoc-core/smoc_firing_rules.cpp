@@ -167,7 +167,7 @@ IOPattern *getCachedIOPattern(const IOPattern &iop) {
 RuntimeTransition::RuntimeTransition(
     const boost::shared_ptr<TransitionImpl> &tip,
     #ifdef SYSTEMOC_ENABLE_MAESTROMM
-      Actor& pActor,
+	SMoCActor& pActor,
     #endif
     RuntimeState *dest)
   : transitionImpl(tip),
@@ -180,6 +180,11 @@ RuntimeTransition::RuntimeTransition(
   tmp.finalise();
   IOPattern* iop = getCachedIOPattern(tmp);
   transitionImpl->setIOPattern(iop);
+
+#ifdef SYSTEMOC_ENABLE_MAESTROMM
+  //FSMTransition
+  this->parent = dynamic_cast<Bruckner::Model::Hierarchical*>(this->parentActor);
+#endif
 
 }
 
@@ -233,7 +238,8 @@ void RuntimeTransition::execute(smoc_root_node *actor, int mode) {
     MODE_GRAPH
   } execMode;
   
-  if(dynamic_cast<smoc_graph_base*>(actor) == nullptr) {
+  //if(dynamic_cast<smoc_graph_base*>(actor) == nullptr) {
+  if (!actor->isActor()) { //RRR improve performance removing RTTI
     execMode =
 #ifdef SYSTEMOC_ENABLE_VPC
       actor->getCurrentState() != actor->getCommState()
@@ -301,6 +307,24 @@ void RuntimeTransition::execute(smoc_root_node *actor, int mode) {
   // different than dest here...
   RuntimeState *nextState =
     boost::apply_visitor(ActionVisitor(dest, mode), getAction());
+
+#ifdef SYSTEMOC_ENABLE_MAESTROMM
+
+  if (this->parentActor->logEnabled)
+  {
+	  Bruckner::Model::FSMTransition* fsmTransition = (Bruckner::Model::FSMTransition*)(this);
+	  fsmTransition->logMessage("Ex:", 0, 0, true, true, false);
+	  //Log Transition actions
+	  for (string actionName : *(this->actionNames))
+	  {
+		  fsmTransition->logMessage(actionName + ",", 0, 0, false, false, false);
+	  }
+
+	  //Log New State
+	  Bruckner::Model::State* destState = (Bruckner::Model::State*)(dest);
+	  destState->logMessage("=", 0, 0, false, false, true);
+  }
+#endif
 
 #ifdef SYSTEMOC_ENABLE_HOOKING
   if (execMode == MODE_DIISTART) {
@@ -492,6 +516,19 @@ RuntimeState::RuntimeState(const std::string name)
 //idPool.regObj(this);
   finalise();
 }
+
+#ifdef SYSTEMOC_ENABLE_MAESTROMM
+RuntimeState::RuntimeState(const std::string name, Bruckner::Model::Hierarchical* sParent)
+	: 
+	State(name),
+	_name(name.empty() ? Concat("smoc_firing_state_")(UnnamedStateCount++) : name) 
+{
+	//idPool.regObj(this);
+	dynamic_cast<Bruckner::Model::Hierarchical*>(this)->parent = sParent;
+	finalise();
+}
+
+#endif
 
 RuntimeState::~RuntimeState() {
 //idPool.unregObj(this);
@@ -700,8 +737,13 @@ void FiringFSMImpl::finalise(
     ProdState psinit;
     top->getInitialState(psinit, Marking());
 
-    init = *rts.insert(new RuntimeState
-      (Concat(actor->name())(":")(psinit))).first;
+#ifdef SYSTEMOC_ENABLE_MAESTROMM
+	  //init = *rts.insert(new RuntimeState (Concat(actor->name())(":")(psinit), dynamic_cast<Bruckner::Model::Hierarchical*>(actor) )).first;
+	init = *rts.insert(new RuntimeState (Concat("")(psinit), dynamic_cast<Bruckner::Model::Hierarchical*>(actor) )).first;
+#else
+	  init = *rts.insert(new RuntimeState(Concat(actor->name())(":")(psinit))).first;
+#endif
+	  
     ns.push_back(
         st.insert(STEntry(psinit, init)).first);
 #ifdef FSM_FINALIZE_BENCHMARK
@@ -748,16 +790,19 @@ void FiringFSMImpl::finalise(
           }
 
           std::pair<StateTable::iterator,bool> ins =
-            st.insert(STEntry(d, 0));
+            st.insert(STEntry(d, nullptr));
                 
           if(ins.second) {
             // FIXME: construct state name and pass to RuntimeState
               ProdState f = ins.first->first;
+#ifdef SYSTEMOC_ENABLE_MAESTROMM
+            //ins.first->second = *rts.insert(new RuntimeState(Concat(actor->name())(":")(f), dynamic_cast<Bruckner::Model::Hierarchical*>(actor)	)).first;
+			  ins.first->second = *rts.insert(new RuntimeState(Concat("")(f), dynamic_cast<Bruckner::Model::Hierarchical*>(actor)	)).first;
+#else
+			ins.first->second = *rts.insert(new RuntimeState(Concat(actor->name())(":")(f) )).first;
+#endif
 
-            ins.first->second =
-              *rts.insert(new RuntimeState
-                (Concat(actor->name())(":")(f))).first;
-            ns.push_back(ins.first);
+			ns.push_back(ins.first);
 #ifdef FSM_FINALIZE_BENCHMARK
             nRunStates++;
 #endif // FSM_FINALIZE_BENCHMARK
@@ -770,7 +815,7 @@ void FiringFSMImpl::finalise(
 //          outDbg << "creating runtime transition " << rs << " -> " << rd << std::endl;
 
 #ifdef SYSTEMOC_ENABLE_MAESTROMM
-          Actor* a = dynamic_cast<MetaMap::Actor*>(actor);
+		  SMoCActor* a = dynamic_cast<MetaMap::SMoCActor*>(actor);
 #endif
           rs->addTransition(
               RuntimeTransition(
@@ -1457,6 +1502,27 @@ const std::string& smoc_hierarchical_state::getName() const
 std::string smoc_hierarchical_state::getHierarchicalName() const
   { return getImpl()->getHierarchicalName(); }
 
+/**
+* @rosales: Clone method to enable the reassigment of the initial state
+*			Rationale: States have a overloaded assignment operator
+*/
+smoc_hierarchical_state& smoc_hierarchical_state::clone(const smoc_hierarchical_state &st) {
+	
+	HierarchicalStateImpl* copyImp = st.getImpl();
+	HierarchicalStateImpl* thisImp = this->getImpl();
+
+	*thisImp = *copyImp;
+	this->pImpl = st.pImpl;
+
+	
+	return *this;
+}
+
+// @rosales added constructor not needed (yet)
+/*
+smoc_hierarchical_state::smoc_hierarchical_state(const smoc_hierarchical_state &st)
+: FFType(new FiringStateImpl(st.getName())) {}
+*/
 
 
 

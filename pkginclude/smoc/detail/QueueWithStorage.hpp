@@ -55,25 +55,25 @@ protected:
   /// @brief Constructors
   QueueWithStorageHelper()
     : BASE(),
-      storage(new storage_type[this->fSize()])
+      storage(new storage_type[this->qfSize()])
     {}
   /// @brief Constructors
   template <class P1>
   QueueWithStorageHelper(const P1 &p1)
     : BASE(p1),
-      storage(new storage_type[this->fSize()])
+      storage(new storage_type[this->qfSize()])
     {}
   /// @brief Constructors
   template <class P1, class P2>
   QueueWithStorageHelper(const P1 &p1, const P2 &p2)
     : BASE(p1, p2),
-      storage(new storage_type[this->fSize()])
+      storage(new storage_type[this->qfSize()])
     {}
   /// @brief Constructors
   template <class P1, class P2, class P3>
   QueueWithStorageHelper(const P1 &p1, const P2 &p2, const P3 &p3)
     : BASE(p1, p2, p3),
-      storage(new storage_type[this->fSize()])
+      storage(new storage_type[this->qfSize()])
     {}
 
   /// Remove tokens given by generator g. Move remaining tokens to the right.
@@ -84,11 +84,11 @@ protected:
     int srcPos = g.popMax();
     int dstPos = srcPos;
     while (srcPos != -1) {
-      storage[(srcPos + this->rIndex()) % this->fSize()].invalidate();
+      storage[(srcPos + this->rIndex()) % this->qfSize()].invalidate();
       for (npos = g.popMax(), --srcPos; srcPos > npos; --srcPos, --dstPos) {
-        storage[(dstPos + this->rIndex()) % this->fSize()].put
-          (storage[(srcPos + this->rIndex()) % this->fSize()].get());
-        storage[(srcPos + this->rIndex()) % this->fSize()].invalidate();
+        storage[(dstPos + this->rIndex()) % this->qfSize()].put
+          (storage[(srcPos + this->rIndex()) % this->qfSize()].get());
+        storage[(srcPos + this->rIndex()) % this->qfSize()].invalidate();
       }
     }
     return dstPos+1;
@@ -98,11 +98,11 @@ protected:
   /// tokens
   void rpp(size_t n) {
     size_t rindex = this->rIndex();
-    size_t o = std::min(n, this->fSize() - rindex);
+    size_t o = std::min(n, this->qfSize() - rindex);
     size_t p = n-o; o += rindex;
     for (;rindex < o; ++rindex)
       storage[rindex].invalidate();
-    assert(p == 0 || rindex == this->fSize());
+    assert(p == 0 || rindex == this->qfSize());
     for (rindex = 0; rindex < p; ++rindex)
       storage[rindex].invalidate();
     base_type::rpp(n);
@@ -124,12 +124,12 @@ protected:
   void resetQueue() {
     size_t rindex = this->rIndex();
     size_t o = this->rIndex() <= this->wIndex()
-      ? this->wIndex() : this->fSize();
+      ? this->wIndex() : this->qfSize();
     size_t p = this->rIndex() <= this->wIndex()
       ? 0 : this->wIndex();
     for (;rindex < o; ++rindex)
       storage[rindex].invalidate();
-    assert(p == 0 || rindex == this->fSize());
+    assert(p == 0 || rindex == this->qfSize());
     for (rindex = 0; rindex < p; ++rindex)
       storage[rindex].invalidate();
     base_type::resetQueue();
