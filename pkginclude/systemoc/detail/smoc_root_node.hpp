@@ -97,17 +97,18 @@ class smoc_root_node
   typedef smoc_root_node this_type;
   friend class RuntimeTransition;
 public:
+  enum NodeType {
+    NODE_TYPE_UNKNOWN = 0,
+    NODE_TYPE_ACTOR   = 1,
+    NODE_TYPE_GRAPH   = 2
+  };
+
+private:
+  NodeType nodeType;
+
   /// @brief Initial firing state
   smoc_hierarchical_state &initialState;
 
-#ifdef SYSTEMOC_ENABLE_MAESTROMM
-  /// RRR:
-  /// Function to determine if the current node is an actor or a graph
-  /// to avoid expensive RTTI dynamic_cast calls
-  virtual bool isActor();
-#endif
-
-private:
   /// @brief Current firing state
   RuntimeState *currentState;
 
@@ -147,7 +148,7 @@ private:
 
 protected:
   //smoc_root_node(const smoc_firing_state &s);
-  smoc_root_node(sc_module_name, smoc_hierarchical_state &s/*, bool regObj = true*/);
+  smoc_root_node(sc_module_name, NodeType nodeType, smoc_hierarchical_state &s);
   
   friend class smoc_graph_base;
 
@@ -223,6 +224,11 @@ protected:
   }
 
 public:
+  /// Function to determine if the current node is an actor or a graph
+  /// to avoid expensive RTTI dynamic_cast calls
+  bool isActor() const
+    { return nodeType == NODE_TYPE_ACTOR; }
+
   const char *name() const
     { return sc_module::name(); }
 
@@ -250,7 +256,7 @@ public:
   void setLastTransition(RuntimeTransition* t)
     { lastTransition = t; }
 #endif // SYSTEMOC_ENABLE_VPC
-  
+
   RuntimeState *getLastState() const
     { return lastState; }
 

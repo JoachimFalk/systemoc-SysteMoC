@@ -51,8 +51,8 @@
 
 using namespace smoc::Detail;
 
-smoc_root_node::smoc_root_node(sc_module_name name, smoc_hierarchical_state &s)
-  : sc_module(name),
+smoc_root_node::smoc_root_node(sc_module_name name, NodeType nodeType, smoc_hierarchical_state &s)
+  : sc_module(name), nodeType(nodeType),
 #if defined(SYSTEMOC_ENABLE_DEBUG)
 //  _finalizeCalled(false),
 #endif
@@ -220,14 +220,6 @@ smoc_root_node::~smoc_root_node() {
   delete commstate;
 #endif // SYSTEMOC_ENABLE_VPC
 }
-
-#ifdef SYSTEMOC_ENABLE_MAESTROMM
-
-bool smoc_root_node::isActor()
-{
-	return false;
-}
-#endif
 
 void smoc_root_node::doReset() {
 #ifdef SYSTEMOC_DEBUG
