@@ -36,28 +36,54 @@
 							</tool>
 							<tool id="org.eclipse.linuxtools.cdt.autotools.core.toolchain.tool.autogen.371165766" name="autogen.sh" superClass="org.eclipse.linuxtools.cdt.autotools.core.toolchain.tool.autogen"/>
 							<tool id="org.eclipse.linuxtools.cdt.autotools.core.toolchain.tool.gcc.1247508200" name="GCC C Compiler" superClass="org.eclipse.linuxtools.cdt.autotools.core.toolchain.tool.gcc">
-								<option id="gnu.c.compiler.option.include.paths.1305063895" superClass="gnu.c.compiler.option.include.paths" valueType="includePath">
+								<option id="gnu.c.compiler.option.include.paths.1305063895" name="Include paths (-I)" superClass="gnu.c.compiler.option.include.paths" valueType="includePath">
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/Support/obj/pkginclude}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/Support/pkginclude}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/Support/obj/src/cosupport-base/headers}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/Support/src/cosupport-allocators/headers}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/Support/src/cosupport-base/headers}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/Support/src/cosupport-initializer/headers}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/Support/src/cosupport-math/headers}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/Support/src/cosupport-path/headers}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/Support/src/cosupport-random/headers}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/Support/src/cosupport-smartptr/headers}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/Support/src/cosupport-streams/headers}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/Support/src/cosupport-string/headers}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/Support/src/cosupport-systemc/headers}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/Support/src/cosupport-tracing/headers}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/Support/src/cosupport-xerces/headers}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/LibSGX/obj/pkginclude}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/LibSGX/pkginclude}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/SysteMoC/obj}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/SysteMoC/obj/pkginclude}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/SysteMoC/pkginclude}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/SysteMoC/smoc-core}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/Support/obj/pkginclude}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/Support/pkginclude}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/LibSGX/obj/pkginclude}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/LibSGX/pkginclude}&quot;"/>
 								</option>
 								<inputType id="cdt.managedbuild.tool.gnu.c.compiler.input.1996450220" superClass="cdt.managedbuild.tool.gnu.c.compiler.input"/>
 							</tool>
 							<tool id="org.eclipse.linuxtools.cdt.autotools.core.toolchain.tool.gpp.674389529" name="GCC C++ Compiler" superClass="org.eclipse.linuxtools.cdt.autotools.core.toolchain.tool.gpp">
-								<option id="gnu.cpp.compiler.option.include.paths.576002964" superClass="gnu.cpp.compiler.option.include.paths" valueType="includePath">
+								<option id="gnu.cpp.compiler.option.include.paths.576002964" name="Include paths (-I)" superClass="gnu.cpp.compiler.option.include.paths" valueType="includePath">
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/Support/obj/pkginclude}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/Support/pkginclude}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/Support/obj/src/cosupport-base/headers}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/Support/src/cosupport-allocators/headers}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/Support/src/cosupport-base/headers}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/Support/src/cosupport-initializer/headers}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/Support/src/cosupport-math/headers}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/Support/src/cosupport-path/headers}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/Support/src/cosupport-random/headers}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/Support/src/cosupport-smartptr/headers}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/Support/src/cosupport-streams/headers}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/Support/src/cosupport-string/headers}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/Support/src/cosupport-systemc/headers}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/Support/src/cosupport-tracing/headers}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/Support/src/cosupport-xerces/headers}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/LibSGX/obj/pkginclude}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/LibSGX/pkginclude}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/SysteMoC/obj}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/SysteMoC/obj/pkginclude}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/SysteMoC/pkginclude}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/SysteMoC/smoc-core}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/Support/obj/pkginclude}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/Support/pkginclude}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/LibSGX/obj/pkginclude}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/LibSGX/pkginclude}&quot;"/>
 								</option>
 								<inputType id="cdt.managedbuild.tool.gnu.cpp.compiler.input.2024020195" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.input"/>
 							</tool>
@@ -76,6 +102,19 @@
 					<externalSetting>
 						<entry flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="includePath" name="/Support/obj/pkginclude"/>
 						<entry flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="includePath" name="/Support/pkginclude"/>
+						<entry flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="includePath" name="/Support/obj/src/cosupport-base/headers"/>
+						<entry flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="includePath" name="/Support/src/cosupport-allocators/headers"/>
+						<entry flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="includePath" name="/Support/src/cosupport-base/headers"/>
+						<entry flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="includePath" name="/Support/src/cosupport-initializer/headers"/>
+						<entry flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="includePath" name="/Support/src/cosupport-math/headers"/>
+						<entry flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="includePath" name="/Support/src/cosupport-path/headers"/>
+						<entry flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="includePath" name="/Support/src/cosupport-random/headers"/>
+						<entry flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="includePath" name="/Support/src/cosupport-smartptr/headers"/>
+						<entry flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="includePath" name="/Support/src/cosupport-streams/headers"/>
+						<entry flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="includePath" name="/Support/src/cosupport-string/headers"/>
+						<entry flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="includePath" name="/Support/src/cosupport-systemc/headers"/>
+						<entry flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="includePath" name="/Support/src/cosupport-tracing/headers"/>
+						<entry flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="includePath" name="/Support/src/cosupport-xerces/headers"/>
 					</externalSetting>
 				</externalSettings>
 			</storageModule>
