@@ -42,7 +42,12 @@
 #endif //SYSTEMOC_ENABLE_VPC
 
 smoc_multiplex_fifo_chan_base::smoc_multiplex_fifo_chan_base(const chan_init &i)
-  : smoc_root_chan(i.name),
+#ifdef SYSTEMOC_ENABLE_MAESTROMM_SPEEDUP
+	: smoc_root_chan(),
+#else
+	: smoc_root_chan(i.name),
+#endif
+	
 #ifdef SYSTEMOC_ENABLE_VPC
     smoc::Detail::QueueFRVWPtr(i.n),
 #else

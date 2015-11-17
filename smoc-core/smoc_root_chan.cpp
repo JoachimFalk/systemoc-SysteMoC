@@ -53,6 +53,7 @@ using CoSupport::String::Concat;
 // value_type will be constructed as T(), which initializes primite types to 0!
 static std::map<std::string, size_t> _smoc_channel_name_map;
 
+#ifndef SYSTEMOC_ENABLE_MAESTROMM_SPEEDUP
 smoc_root_chan::smoc_root_chan(const std::string& name)
   : sc_prim_channel(name.empty() ? sc_gen_unique_name( "smoc_unnamed_channel" ) : name.c_str()),
     myName(name),
@@ -60,6 +61,7 @@ smoc_root_chan::smoc_root_chan(const std::string& name)
 {
 //idPool.regObj(this);
 }
+#endif
   
 smoc_root_chan::~smoc_root_chan() {
 //idPool.unregObj(this);
@@ -72,7 +74,10 @@ void smoc_root_chan::finalise() {
 #endif // SYSTEMOC_DEBUG
 
   // will do no harm if already generated
+
+#ifndef SYSTEMOC_ENABLE_MAESTROMM_SPEEDUP
   generateName();
+#endif
 
 #ifdef SYSTEMOC_NEED_IDS  
   // Allocate Id for myself.
@@ -84,6 +89,7 @@ void smoc_root_chan::finalise() {
 #endif // SYSTEMOC_DEBUG
 }
 
+#ifndef SYSTEMOC_ENABLE_MAESTROMM_SPEEDUP
 void smoc_root_chan::generateName() {
   if (myName == "") {
     //Only overwrite if not specified by user
@@ -123,3 +129,4 @@ void smoc_root_chan::generateName() {
     myName = genName.str();
   }
 }
+#endif

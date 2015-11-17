@@ -41,7 +41,11 @@
 size_t fsizeMapper(sc_object* instance, size_t n);
 
 smoc_fifo_chan_base::smoc_fifo_chan_base(const chan_init& i)
-  : smoc_root_chan(i.name),
+: smoc_root_chan(
+#ifndef SYSTEMOC_ENABLE_MAESTROMM_SPEEDUP
+    i.name
+#endif //!defined(SYSTEMOC_ENABLE_MAESTROMM_SPEEDUP)
+  ),
 #ifdef SYSTEMOC_ENABLE_VPC
   QueueFRVWPtr(fsizeMapper(this, i.n)),
   latencyQueue(std::bind1st(std::mem_fun(&this_type::latencyExpired), this), this, std::bind1st(std::mem_fun(&this_type::latencyExpired_dropped), this)),

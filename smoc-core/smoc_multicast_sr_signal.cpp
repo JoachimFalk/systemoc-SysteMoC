@@ -51,10 +51,14 @@ void smoc_multicast_sr_signal_chan_base::setSignalState(SignalState s) {
 
 smoc_multicast_sr_signal_chan_base::smoc_multicast_sr_signal_chan_base(
     const chan_init &i)
-  : smoc_root_chan(i.name),
-    signalState(undefined),
-    tokenId(0){
-}
+: smoc_root_chan(
+#ifndef SYSTEMOC_ENABLE_MAESTROMM_SPEEDUP
+    i.name
+#endif //!defined(SYSTEMOC_ENABLE_MAESTROMM_SPEEDUP)
+  ),
+  signalState(undefined),
+  tokenId(0)
+{}
 
 void smoc_multicast_sr_signal_chan_base::wpp(size_t n) {
   // factored out from smoc_multicast_entry_base::commitWrite 

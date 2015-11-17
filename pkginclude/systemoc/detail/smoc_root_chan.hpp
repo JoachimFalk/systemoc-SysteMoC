@@ -74,7 +74,9 @@ class smoc_root_chan
   friend class smoc_graph_base; // reset
   friend class smoc_reset_chan; // reset
 private:
+#ifndef SYSTEMOC_ENABLE_MAESTROMM_SPEEDUP
   std::string myName; // patched in finalise
+#endif
   bool resetCalled;
 protected:
 
@@ -83,10 +85,13 @@ protected:
 #endif //SYSTEMOC_ENABLE_VPC
 
 protected:
+
+#ifndef SYSTEMOC_ENABLE_MAESTROMM_SPEEDUP
   // constructor
   smoc_root_chan(const std::string& name);
 
   void generateName();
+#endif
 
   virtual void setChannelID( std::string sourceActor,
                              CoSupport::SystemC::ChannelId id,
@@ -102,8 +107,11 @@ protected:
   virtual void doReset()
     { resetCalled = true; }
 public:
+
+#ifndef SYSTEMOC_ENABLE_MAESTROMM_SPEEDUP
   const char *name() const
     { return myName.c_str(); }
+#endif
  
   virtual ~smoc_root_chan();
 };

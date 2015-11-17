@@ -51,7 +51,9 @@
 #include "detail/smoc_chan_if.hpp"
 
 #ifdef SYSTEMOC_ENABLE_MAESTROMM
+#ifdef ENABLE_BRUCKNER
 #include  "Port.h"
+#endif
 #endif
 
 /// IFACE: interface type (this is basically sc_port_b<IFACE>)
@@ -59,7 +61,9 @@ template <typename IFACE>
 class smoc_port_base
 : public smoc_sysc_port,
 #ifdef SYSTEMOC_ENABLE_MAESTROMM
+#ifdef ENABLE_BRUCKNER
   public Bruckner::Model::Port,
+#endif
 #endif
   public IFACE::template PortMixin<smoc_port_base<IFACE>,IFACE> {
 private:
@@ -102,8 +106,10 @@ protected:
     : smoc_sysc_port(name_, policy) 
   {
 		#ifdef SYSTEMOC_ENABLE_MAESTROMM
+#ifdef ENABLE_BRUCKNER
 			this->memberName = name_;
 			this->instanceName = name_;
+#endif
 		#endif
   }
 
