@@ -74,7 +74,9 @@ class smoc_root_chan
   friend class smoc_graph_base; // reset
   friend class smoc_reset_chan; // reset
 private:
+#ifndef SYSTEMOC_ENABLE_MAESTROMM_SPEEDUP
   std::string myName; // patched in finalise
+#endif
   bool resetCalled;
 protected:
 
@@ -83,10 +85,13 @@ protected:
 #endif //SYSTEMOC_ENABLE_VPC
 
 protected:
+
+#ifndef SYSTEMOC_ENABLE_MAESTROMM_SPEEDUP
   // constructor
   smoc_root_chan(const std::string& name);
 
   void generateName();
+#endif
 
   virtual void setChannelID( std::string sourceActor,
                              CoSupport::SystemC::ChannelId id,
@@ -102,8 +107,11 @@ protected:
   virtual void doReset()
     { resetCalled = true; }
 public:
+
+#ifndef SYSTEMOC_ENABLE_MAESTROMM_SPEEDUP
   const char *name() const
     { return myName.c_str(); }
+#endif
  
   virtual ~smoc_root_chan();
 };
@@ -114,9 +122,16 @@ class smoc_nonconflicting_chan : public smoc_root_chan {
 public:
   typedef smoc_nonconflicting_chan this_type;
 protected:
+
+#ifdef SYSTEMOC_ENABLE_MAESTROMM_SPEEDUP
   // constructor
-  smoc_nonconflicting_chan(const std::string& name)
-    : smoc_root_chan(name) {}
+  smoc_nonconflicting_chan()
+    : smoc_root_chan() {}
+#else
+	// constructor
+	smoc_nonconflicting_chan(const std::string& name)
+		: smoc_root_chan(name) {}
+#endif
 
   virtual void finalise();
 
@@ -128,9 +143,16 @@ class smoc_multicast_chan : public smoc_root_chan {
 public:
   typedef smoc_multicast_chan this_type;
 protected:
+
+#ifdef SYSTEMOC_ENABLE_MAESTROMM_SPEEDUP
   // constructor
-  smoc_multicast_chan(const std::string& name)
-    : smoc_root_chan(name) {}
+  smoc_multicast_chan()
+    : smoc_root_chan() {}
+#else
+	// constructor
+	smoc_multicast_chan(const std::string& name)
+		: smoc_root_chan(name) {}
+#endif
 
   virtual void finalise();
 };

@@ -29,7 +29,7 @@
 
 /* Define if you want MAESTRO Support */
 #define SYSTEMOC_ENABLE_MAESTROMM
-
+#define _WIN32_WINNT 0x0600
 
 /* Define if you want WSDF Support */
 #undef SYSTEMOC_ENABLE_WSDF

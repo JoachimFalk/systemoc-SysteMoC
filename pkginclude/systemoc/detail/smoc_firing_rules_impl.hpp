@@ -69,7 +69,8 @@
 
 #ifdef SYSTEMOC_ENABLE_MAESTROMM
 //# include <MetaMap/Elements.hpp>
-# include <MetaMap/SMoCActor.h>
+#include <MetaMap/SMoCActor.h>
+#include <MetaMap/Transition.h>
 #endif
 
 class smoc_root_node;
@@ -310,7 +311,9 @@ typedef std::set<smoc_event_waiter*> EventWaiterSet;
 class RuntimeState
 :
 #ifdef SYSTEMOC_ENABLE_MAESTROMM
+#ifdef ENABLE_BRUCKNER
 public Bruckner::Model::State,
+#endif
 #endif
 #ifdef SYSTEMOC_NEED_IDS
   public SysteMoC::Detail::NamedIdedObj,
@@ -325,7 +328,9 @@ private:
 public:
   RuntimeState(const std::string name = "");
 #ifdef SYSTEMOC_ENABLE_MAESTROMM
+#ifdef ENABLE_BRUCKNER
   RuntimeState(const std::string name = "", Bruckner::Model::Hierarchical* sParent = nullptr);
+#endif
 #endif
 
   const RuntimeTransitionList& getTransitions() const;

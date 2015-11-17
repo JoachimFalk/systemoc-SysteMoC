@@ -33,7 +33,12 @@ smoc_reset_chan::chan_init::chan_init(
 
 smoc_reset_chan::smoc_reset_chan(
     const chan_init &i)
-  : smoc_multicast_chan(i.name),
+#ifdef SYSTEMOC_ENABLE_MAESTROMM_SPEEDUP
+	: smoc_multicast_chan(),
+#else
+	: smoc_multicast_chan(i.name),
+#endif
+  
     tokenId(1)
 {}
   

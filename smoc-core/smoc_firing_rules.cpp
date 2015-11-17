@@ -180,8 +180,10 @@ RuntimeTransition::RuntimeTransition(
   transitionImpl->setIOPattern(iop);
 
 #ifdef SYSTEMOC_ENABLE_MAESTROMM
+#ifdef ENABLE_BRUCKNER
   //FSMTransition
   this->parent = dynamic_cast<Bruckner::Model::Hierarchical*>(this->parentActor);
+#endif
 #endif
 
 }
@@ -236,8 +238,12 @@ void RuntimeTransition::execute(smoc_root_node *actor, int mode) {
     MODE_GRAPH
   } execMode;
   
-  //if(dynamic_cast<smoc_graph_base*>(actor) == NULL) {
+  
+#ifdef SYSTEMOC_ENABLE_MAESTROMM
   if (!actor->isActor()) { //RRR improve performance removing RTTI
+#else
+  if (dynamic_cast<smoc_graph_base*>(actor) == NULL) {
+#endif
     execMode =
 #ifdef SYSTEMOC_ENABLE_VPC
       actor->getCurrentState() != actor->getCommState()
@@ -308,12 +314,13 @@ void RuntimeTransition::execute(smoc_root_node *actor, int mode) {
 
 #ifdef SYSTEMOC_ENABLE_MAESTROMM
 
+#ifdef ENABLE_BRUCKNER
   if (this->parentActor->logEnabled)
   {
 	  Bruckner::Model::FSMTransition* fsmTransition = (Bruckner::Model::FSMTransition*)(this);
 	  fsmTransition->logMessage("Ex:", 0, 0, true, true, false);
 	  //Log Transition actions
-	  for (string actionName : *(this->actionNames))
+	  for (string actionName : this->actionNames)
 	  {
 		  fsmTransition->logMessage(actionName + ",", 0, 0, false, false, false);
 	  }
@@ -322,6 +329,7 @@ void RuntimeTransition::execute(smoc_root_node *actor, int mode) {
 	  Bruckner::Model::State* destState = (Bruckner::Model::State*)(dest);
 	  destState->logMessage("=", 0, 0, false, false, true);
   }
+#endif
 #endif
 
 #ifdef SYSTEMOC_ENABLE_HOOKING
@@ -492,12 +500,11 @@ void RuntimeTransition::finaliseRuntimeTransition(smoc_root_node *node) {
 
 #ifdef SYSTEMOC_ENABLE_MAESTROMM
   //Fill guardNames
-  SysteMoC::dMM::MMGuardNameVisitor gVisitor((*this->guardNames));
+  SysteMoC::dMM::MMGuardNameVisitor gVisitor((this->guardNames));
   Expr::evalTo(gVisitor, getExpr());
 
   //Fill actionNames
-  boost::apply_visitor(
-  SysteMoC::dMM::MMActionNameVisitor((*this->actionNames)), getAction());
+  boost::apply_visitor(SysteMoC::dMM::MMActionNameVisitor((this->actionNames)), getAction());
 
 #endif //SYSTEMOC_ENABLE_MAESTROMM
 
@@ -516,6 +523,7 @@ RuntimeState::RuntimeState(const std::string name)
 }
 
 #ifdef SYSTEMOC_ENABLE_MAESTROMM
+#ifdef ENABLE_BRUCKNER
 RuntimeState::RuntimeState(const std::string name, Bruckner::Model::Hierarchical* sParent)
 	: 
 	State(name),
@@ -525,7 +533,7 @@ RuntimeState::RuntimeState(const std::string name, Bruckner::Model::Hierarchical
 	dynamic_cast<Bruckner::Model::Hierarchical*>(this)->parent = sParent;
 	finalise();
 }
-
+#endif
 #endif
 
 RuntimeState::~RuntimeState() {
@@ -631,16 +639,16 @@ bool isImplied(const CondMultiState& c, const ProdState& p) {
 }
 
 void FiringFSMImpl::finalise(
-    smoc_root_node* actor,
+    smoc_root_node* actorOrGraphNode,
     HierarchicalStateImpl* hsinit)
 {
 //  outDbg << "FiringFSMImpl::finalise(...) this == " << this << std::endl;
 //  ScopedIndent s0(outDbg);
 
-  assert(actor);
-  //actor = _actor;
+  assert(actorOrGraphNode);
+  //actorOrGraphNode = _actor;
 
-//  outDbg << "Actor: " << actor->name() << std::endl;
+//  outDbg << "Actor or Graph: " << actorOrGraphNode->name() << std::endl;
 
 #ifdef FSM_FINALIZE_BENCHMARK  
   uint64_t finStart;
@@ -736,10 +744,16 @@ void FiringFSMImpl::finalise(
     top->getInitialState(psinit, Marking());
 
 #ifdef SYSTEMOC_ENABLE_MAESTROMM
-	  //init = *rts.insert(new RuntimeState (Concat(actor->name())(":")(psinit), dynamic_cast<Bruckner::Model::Hierarchical*>(actor) )).first;
-	init = *rts.insert(new RuntimeState (Concat("")(psinit), dynamic_cast<Bruckner::Model::Hierarchical*>(actor) )).first;
+#ifdef ENABLE_BRUCKNER
+	  //init = *rts.insert(new RuntimeState (Concat(actorOrGraphNode->name())(":")(psinit), dynamic_cast<Bruckner::Model::Hierarchical*>(actorOrGraphNode) )).first;
+	init = *rts.insert(new RuntimeState (Concat("")(psinit), dynamic_cast<Bruckner::Model::Hierarchical*>(actorOrGraphNode) )).first;
 #else
-	  init = *rts.insert(new RuntimeState(Concat(actor->name())(":")(psinit))).first;
+	init = *rts.insert(new RuntimeState(Concat(actorOrGraphNode->name())(":")(psinit))).first;
+#endif
+#endif
+
+#ifndef SYSTEMOC_ENABLE_MAESTROMM
+	  init = *rts.insert(new RuntimeState(Concat(actorOrGraphNode->name())(":")(psinit))).first;
 #endif
 	  
     ns.push_back(
@@ -794,10 +808,15 @@ void FiringFSMImpl::finalise(
             // FIXME: construct state name and pass to RuntimeState
               ProdState f = ins.first->first;
 #ifdef SYSTEMOC_ENABLE_MAESTROMM
-            //ins.first->second = *rts.insert(new RuntimeState(Concat(actor->name())(":")(f), dynamic_cast<Bruckner::Model::Hierarchical*>(actor)	)).first;
-			  ins.first->second = *rts.insert(new RuntimeState(Concat("")(f), dynamic_cast<Bruckner::Model::Hierarchical*>(actor)	)).first;
+#ifdef ENABLE_BRUCKNER
+            //ins.first->second = *rts.insert(new RuntimeState(Concat(actorOrGraphNode->name())(":")(f), dynamic_cast<Bruckner::Model::Hierarchical*>(actorOrGraphNode)	)).first;
+			  ins.first->second = *rts.insert(new RuntimeState(Concat("")(f), dynamic_cast<Bruckner::Model::Hierarchical*>(actorOrGraphNode)	)).first;
 #else
-			ins.first->second = *rts.insert(new RuntimeState(Concat(actor->name())(":")(f) )).first;
+			  ins.first->second = *rts.insert(new RuntimeState(Concat(actorOrGraphNode->name())(":")(f))).first;
+#endif
+
+#else
+			ins.first->second = *rts.insert(new RuntimeState(Concat(actorOrGraphNode->name())(":")(f) )).first;
 #endif
 
 			ns.push_back(ins.first);
@@ -813,7 +832,13 @@ void FiringFSMImpl::finalise(
 //          outDbg << "creating runtime transition " << rs << " -> " << rd << std::endl;
 
 #ifdef SYSTEMOC_ENABLE_MAESTROMM
-		  SMoCActor* a = dynamic_cast<MetaMap::SMoCActor*>(actor);
+
+		  SMoCActor* a = nullptr;
+
+		  if (actorOrGraphNode->isActor())
+		  {
+			  a = dynamic_cast<MetaMap::SMoCActor*>(actorOrGraphNode);
+		  }
 #endif
           rs->addTransition(
               RuntimeTransition(
@@ -822,7 +847,7 @@ void FiringFSMImpl::finalise(
                 *a,
                 #endif
                 rd),
-              actor);
+			  actorOrGraphNode);
 #ifdef FSM_FINALIZE_BENCHMARK
           nRunTrans++;
 #endif // FSM_FINALIZE_BENCHMARK
@@ -845,7 +870,7 @@ void FiringFSMImpl::finalise(
   clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &ts);
   uint64_t finEnd = ts.tv_sec*1000000000ull + ts.tv_nsec;
 
-  std::cerr << "Finalised FSM of actor '" << actor->name() << "' in "
+  std::cerr << "Finalised FSM of actor/graph '" << actorOrGraphNode->name() << "' in "
             << ((finEnd - finStart) / 1e9) << "s"
             << "; #states: " << nRunStates << "; #trans: " << nRunTrans
             << std::endl;

@@ -53,7 +53,7 @@ class smoc_actor :
   public SystemC_VPC::ScheduledTask,
 #endif //SYSTEMOC_ENABLE_VPC
 #ifdef SYSTEMOC_ENABLE_MAESTROMM
-  public MetaMap::SMoCActor,//rrr
+  public MetaMap::SMoCActor,
 #endif //SYSTEMOC_ENABLE_MAESTROMM
   public smoc_root_node {
 protected:
@@ -71,6 +71,8 @@ protected:
 #ifdef SYSTEMOC_ENABLE_MAESTROMM
   void initMMactor();
 
+  double getLocalTimeDiff();
+
 public:
 
   bool isActor();
@@ -78,6 +80,11 @@ public:
   void wait();
   void wait( double v, sc_time_unit tu );
   void wait( sc_time sct );
+
+  void smoc_actor::localClockWait(sc_time sct);
+  void smoc_actor::localClockWait(double v, sc_time_unit tu);
+  
+
   virtual bool canExecute();
   virtual void getCurrentTransition(MetaMap::Transition & activeTransition);
   virtual void registerTransitionReadyListener(MetaMap::TransitionReadyListener& trListener);

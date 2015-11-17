@@ -39,7 +39,11 @@
 #include <systemoc/smoc_graph_type.hpp>
 
 smoc_fifo_chan_base::smoc_fifo_chan_base(const chan_init& i)
-  : smoc_nonconflicting_chan(i.name),
+#ifdef SYSTEMOC_ENABLE_MAESTROMM_SPEEDUP
+  : smoc_nonconflicting_chan(),
+#else
+	: smoc_nonconflicting_chan(i.name),
+#endif
 #ifdef SYSTEMOC_ENABLE_VPC
   QueueFRVWPtr(fsizeMapper(this, i.n)),
   latencyQueue(std::bind1st(std::mem_fun(&this_type::latencyExpired), this), this, std::bind1st(std::mem_fun(&this_type::latencyExpired_dropped), this)),

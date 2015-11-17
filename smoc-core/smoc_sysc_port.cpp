@@ -58,10 +58,22 @@ int smoc_sysc_port::interface_count() {
 }
 
 void smoc_sysc_port::add_interface(sc_core::sc_interface *i) {
+#ifdef SYSTEMOC_ENABLE_MAESTROMM
+	if (interfacePtr != NULL)
+		throw std::exception("Interface pointer != null before adding sc_interface to port");
+#else
   assert(interfacePtr == NULL);
+#endif
 //interfacePtr = dynamic_cast<smoc_port_base_if *>(i);
   interfacePtr = static_cast<smoc_port_base_if *>(i); // FIXME: RTX hack!!!
+  
+#ifdef SYSTEMOC_ENABLE_MAESTROMM
+  if (interfacePtr == NULL)
+	  throw std::exception("Interface pointer == null after adding sc_interface to port");
+#else
   assert(interfacePtr != NULL);
+#endif
+  
 }
 
 void smoc_sysc_port::bind(this_type &parent_) {
