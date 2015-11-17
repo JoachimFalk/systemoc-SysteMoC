@@ -9,3 +9,7 @@ Release
 Release-VPC
 Release-VPC-noVCD
 *.user
+*.obj
+*.log
+*.tlog
+*.cache
