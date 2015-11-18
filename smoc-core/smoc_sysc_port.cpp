@@ -60,10 +60,10 @@ int smoc_sysc_port::interface_count() {
 
 void smoc_sysc_port::add_interface(sc_core::sc_interface *i_) {
   if (i_ == NULL)
-    throw std::exception("Tried to add null channel interfact to port!");
+    throw std::runtime_error("Tried to add null channel interfact to port!");
   PortBaseIf *i = dynamic_cast<PortBaseIf *>(i_);
   if (i == NULL)
-    throw std::exception("Tried to add wrong channel interfact to port!");
+    throw std::runtime_error("Tried to add wrong channel interfact to port!");
   interfaces.push_back(i);
 }
 
