@@ -352,7 +352,7 @@ void smoc_root_node::setCurrentState(RuntimeState *s) {
   #ifdef SYSTEMOC_ENABLE_MAESTROMM
   if (s == NULL)
   {
-		throw new MAESTRORuntimeException((string)"Error while trying to set the new state to NULL on actor: " + this->name());
+		throw MAESTRORuntimeException((string)"Error while trying to set the new state to NULL on actor: " + this->name());
   }
   #else
   assert(s);

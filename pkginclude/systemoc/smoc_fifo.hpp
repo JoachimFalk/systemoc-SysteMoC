@@ -69,7 +69,9 @@
 # include <smoc/detail/QueueRWPtr.hpp>
 #endif
 #ifdef SYSTEMOC_ENABLE_MAESTROMM
+#ifdef ENABLE_BRUCKNER
 #include "Channel.h"
+#endif
 #endif
 
 #include <smoc/detail/DumpingInterfaces.hpp>
@@ -387,7 +389,9 @@ template <typename T>
 class smoc_fifo
 : public smoc_fifo_chan<T>::chan_init,
 #ifdef SYSTEMOC_ENABLE_MAESTROMM
+#ifdef ENABLE_BRUCKNER
   public Bruckner::Model::Channel,
+#endif
 #endif
   public smoc::Detail::ConnectProvider<
     smoc_fifo<T>,

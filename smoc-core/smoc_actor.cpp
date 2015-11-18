@@ -35,6 +35,10 @@
 
 #include <systemoc/smoc_actor.hpp>
 #include <systemoc/smoc_graph_type.hpp>
+#ifdef SYSTEMOC_ENABLE_MAESTROMM
+#include <MetaMap\ClockI.h>
+#endif
+
 
 #ifdef SYSTEMOC_ENABLE_MAESTROMM
 smoc_actor::smoc_actor(sc_module_name name, smoc_hierarchical_state &s, unsigned int thread_stack_size, bool useLogFile)
@@ -123,6 +127,39 @@ void smoc_actor::execute()
 void smoc_actor::sleep()
 {
   wait();
+}
+
+double smoc_actor::getLocalTimeDiff()
+{
+	sc_time localTime = localClock->computeTimeStamp();
+	sc_time globalTime = sc_time_stamp();
+
+	return globalTime.to_double() - localTime.to_double();
+
+}
+
+void smoc_actor::localClockWait(sc_time sct)
+{
+	sc_time totalTimeToWait;
+
+	//ClockI* clock = SMoCActor::trace->getClock();
+
+	//double localTime = clock->computeTimeStamp().to_double();
+
+	double freqFactor = localClock->getFreqFactor();
+
+	//double offset = clock->getOffset().to_double() * clock->getOffsetSign();
+
+	//double shift = clock->getShift().to_double() * clock->getShiftSign();
+
+	double totalTime = (sct.to_double() /*- shift - offset*/)*freqFactor;
+
+	sc_module::wait(totalTime,SC_PS);
+}
+
+void smoc_actor::localClockWait(double v, sc_time_unit tu)
+{
+	localClockWait(sc_time(v, tu));
 }
 
 #endif //defined(SYSTEMOC_ENABLE_MAESTROMM)

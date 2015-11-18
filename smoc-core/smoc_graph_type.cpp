@@ -221,7 +221,7 @@ smoc_graph::smoc_graph(const sc_module_name& name) :
   smoc_graph_base(name, run),
   run("run")
 #ifdef SYSTEMOC_ENABLE_MAESTROMM
-  , SMoCGraph(name)
+  , SMoCGraph(name.operator const char *())
 #endif
 {
 #ifdef SYSTEMOC_ENABLE_MAESTROMM

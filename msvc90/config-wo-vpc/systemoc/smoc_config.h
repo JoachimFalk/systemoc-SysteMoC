@@ -4,9 +4,9 @@
 #define _INCLUDED_SMOC_CONFIG_H
 
 /* Defined to SysteMoC version */
-#define SYSTEMOC_VERSION "0.9"
-#define SYSTEMOC_MAJOR_VERSION "0"
-#define SYSTEMOC_MINOR_VERSION "9"
+#define SYSTEMOC_VERSION "1.0"
+#define SYSTEMOC_MAJOR_VERSION "1"
+#define SYSTEMOC_MINOR_VERSION "0"
 #define SYSTEMOC_MICRO_VERSION "0"
 
 /* Defined if debug support is enabled */
@@ -29,6 +29,8 @@
 
 /* Define if you want MAESTRO Support */
 #define SYSTEMOC_ENABLE_MAESTROMM
+
+#define _WIN32_WINNT 0x0600
 
 #if defined(SYSTEMOC_ENABLE_DATAFLOW_TRACE) || defined(SYSTEMOC_ENABLE_TRANSITION_TRACE) || defined(SYSTEMOC_ENABLE_SGX)
 # define SYSTEMOC_NEED_IDS
