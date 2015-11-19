@@ -90,25 +90,21 @@ bool smoc_actor::canExecute()
     return canFire;
 }
 
-void smoc_actor::getCurrentTransition(MetaMap::Transition & activeTransition)
+void smoc_actor::getCurrentTransition(MetaMap::Transition*& activeTransition)
 {
     smoc_actor* sActor =static_cast<smoc_actor*>(this);
-    MetaMap::Transition* transition = (MetaMap::Transition*) sActor->ct;
-    activeTransition = *transition;
+    activeTransition = (MetaMap::Transition*) sActor->ct;
 }
 
 void smoc_actor::registerTransitionReadyListener(MetaMap::TransitionReadyListener& listener)
 {
-    //smoc Actor
-    smoc_actor* sActor =dynamic_cast<smoc_actor*>(this);
-    //cout << "R: " << sActor->getName() << " this: " <<  listener.tname << endl;
     //For all states
-    RuntimeStateSet states = sActor->getFiringFSM()->getStates();
+    RuntimeStateSet states = this->getFiringFSM()->getStates();
+
     for(RuntimeStateSet::iterator si= states.begin(); si != states.end(); si++)
       {
         //For all state transitions
-        list<RuntimeTransition> transitions = (*si)->getTransitions();
-        for(list<RuntimeTransition>::iterator ti= transitions.begin(); ti != transitions.end(); ti++)
+        for(list<RuntimeTransition>::iterator ti= (*si)->getTransitions().begin(); ti != (*si)->getTransitions().end(); ti++)
           {
             (*ti).registerTransitionReadyListener(listener);
           }

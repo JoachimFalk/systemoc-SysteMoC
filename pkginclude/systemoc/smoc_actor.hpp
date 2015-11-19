@@ -81,7 +81,7 @@ public:
   void smoc_actor::localClockWait(double v, sc_time_unit tu);
 
   virtual bool canExecute();
-  virtual void getCurrentTransition(MetaMap::Transition & activeTransition);
+  virtual void getCurrentTransition(MetaMap::Transition*& activeTransition);
   virtual void registerTransitionReadyListener(MetaMap::TransitionReadyListener& trListener);
   virtual void sleep();
   virtual void execute();
