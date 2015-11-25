@@ -51,6 +51,10 @@
 # include <vpc.hpp>
 #endif //SYSTEMOC_ENABLE_VPC
 
+#ifdef SYSTEMOC_ENABLE_MAESTROMM
+#include <PolyphoniC/polyphonic_smoc_func_call.h>
+#endif
+
 /**
  * TODO: deprecate smoc_func_diverge and smoc_func_branch
  * TODO: replace smoc_member_func_interface, smoc_member_func,
@@ -132,8 +136,16 @@ protected:
   F  f;
   PL pl;
 public:
+#ifdef SYSTEMOC_ENABLE_POLYPHONIC
+	bool canRunInParallel;
+#endif
   smoc_member_func(const F &_f, const PL &_pl = PL() )
-    : f(_f), pl(_pl) {}
+    : f(_f), pl(_pl)
+#ifdef SYSTEMOC_ENABLE_POLYPHONIC
+	  , canRunInParallel(_f.canRunInParallel)
+#endif
+
+  {}
 
   typename F::return_type call() const
     { return f.call(pl); }
@@ -153,7 +165,12 @@ public:
  * smoc_func_call
  */
 
-class smoc_func_call : public SysteMoC::Detail::SimCTXBase{
+class smoc_func_call 
+	: public SysteMoC::Detail::SimCTXBase
+#ifdef SYSTEMOC_ENABLE_POLYPHONIC
+	, public MAESTRO::PolyphoniC::polyphonic_smoc_func_call
+#endif
+{
 private:
   typedef void return_type;
   
@@ -168,6 +185,9 @@ public:
   template <class F, class PL>
   smoc_func_call( const smoc_member_func<F, PL> &_k )
     : k(new smoc_member_func<F, PL>(_k))
+#ifdef SYSTEMOC_ENABLE_POLYPHONIC
+	  , polyphonic_smoc_func_call(_k.canRunInParallel)
+#endif
   {
 #ifdef SYSTEMOC_NEED_IDS
     this->getSimCTX()->createId( k.get() );
@@ -375,7 +395,34 @@ using namespace std;
 
 using namespace SysteMoC::Detail;
 
-namespace SysteMoC { namespace dMM {
+namespace MetaMap
+{
+	class Transition;
+}
+	
+class TransitionOnThreadVisitor : public SysteMoC::Detail::SimCTXBase {
+public:
+	typedef RuntimeState* result_type;
+
+public:
+	TransitionOnThreadVisitor(RuntimeState* dest, MetaMap::Transition* transition);
+
+	result_type operator()(const smoc_func_call_list& f) const;
+	result_type operator()(const smoc_func_diverge& f) const;
+	result_type operator()(const smoc_sr_func_pair& f) const;
+
+private:
+	RuntimeState* dest;
+
+	MetaMap::Transition* transition;
+
+	void executeTransition(const smoc_func_call_list& f) const;
+
+};
+	
+namespace SysteMoC {
+	
+namespace dMM {
 
   class MMActionNameVisitor {
 public:

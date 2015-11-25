@@ -60,6 +60,10 @@
 # include <smoc/smoc_hooking.hpp>
 #endif //SYSTEMOC_ENABLE_HOOKING
 
+#ifdef SYSTEMOC_ENABLE_POLYPHONIC
+#include <PolyphoniC/Callip.h>
+#endif
+
 #define SMOC_REGISTER_CPARAM(name) registerParam(#name,name)
 
 #define CALL(func)    call(&func, #func)
@@ -109,6 +113,11 @@ public:
   /// Function to determine if the current node is an actor or a graph
   /// to avoid expensive RTTI dynamic_cast calls
   virtual bool isActor();
+
+  /**
+  * Flag to determine if the actor can be executed if its schedulers enables it
+  */
+  bool scheduled;
 #endif
 
 private:

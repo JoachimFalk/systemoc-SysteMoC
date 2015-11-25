@@ -258,6 +258,14 @@ private:
   /// @brief Target state
   RuntimeState        *dest;
 
+#ifdef SYSTEMOC_ENABLE_MAESTROMM
+  /**
+  * Method to be used by a thread to execute this transition's actions
+  */
+  virtual void executeTransition(smoc_root_node* node);
+  
+#endif
+
 #ifdef SYSTEMOC_ENABLE_HOOKING
   typedef std::vector<const SysteMoC::Hook::PreCallback  *> PreHooks;
   typedef std::vector<const SysteMoC::Hook::PostCallback *> PostHooks;
@@ -301,6 +309,13 @@ public:
   void *getID() const;
 
   void finaliseRuntimeTransition(smoc_root_node* node);
+
+#ifdef SYSTEMOC_ENABLE_MAESTROMM
+  virtual bool hasWaitAction();
+#endif
+
+  //RuntimeTransition& operator=(const RuntimeTransition& other);
+
 };
 
 typedef std::list<RuntimeTransition>   RuntimeTransitionList;
