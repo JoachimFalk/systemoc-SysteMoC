@@ -172,7 +172,13 @@ void smoc_actor::wait(sc_time sct )
 
 void smoc_actor::wait(sc_event& waitEvent)
 {
+#ifdef SYSTEMOC_ENABLE_POLYPHONIC
+	this->sleepingListener->notifySleeping(*this);
+#endif
 	sc_module::wait(waitEvent);
+#ifdef SYSTEMOC_ENABLE_POLYPHONIC
+	this->sleepingListener->notifyAwaken(*this);
+#endif
 }
 
 void smoc_actor::wait()
