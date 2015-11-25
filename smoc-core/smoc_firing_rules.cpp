@@ -63,6 +63,10 @@
 # include <boost/regex.hpp> 
 #endif // SYSTEMOC_ENABLE_HOOKING
 
+#ifdef SYSTEMOC_ENABLE_POLYPHONIC
+#include <PolyphoniC\ActionOnThreadVisitor.h>
+#endif
+
 using namespace CoSupport::DataTypes;
 using namespace smoc::Detail;
 using CoSupport::String::Concat;
@@ -174,7 +178,8 @@ RuntimeTransition::RuntimeTransition(
     #ifdef SYSTEMOC_ENABLE_MAESTROMM
       Transition(pActor),
     #endif
-    dest(dest) {
+    dest(dest)
+{
   IOPattern tmp;
   smoc::Expr::evalTo<smoc::Expr::Sensitivity>(getExpr(), tmp);
   tmp.finalise();
@@ -189,6 +194,38 @@ RuntimeTransition::RuntimeTransition(
 #endif
 
 }
+
+//
+//RuntimeTransition& RuntimeTransition::operator=(const RuntimeTransition& other)
+//{
+//	if (this == &other)  /* the same object in both sides */
+//		return *this;
+//	else {
+//		/* delete local memory assignated
+//		* **in constructor** to object, not elsewhere
+//		*/
+//
+//
+//		/* do the actual assignments onto *this,
+//		* don't create another instance or value.  This
+//		* is an assignment operation, you are supposed to
+//		* change the values of *this
+//		*/
+//		this->transitionImpl = other.transitionImpl;
+//		this->dest = other.dest;
+//#ifdef SYSTEMOC_ENABLE_MAESTROMM
+//#ifdef ENABLE_BRUCKNER
+//		//FSMTransition
+//		this->parent = other.parent;
+//#endif
+//#endif
+//
+//		return *this;
+//		/* **never** return a local copy made by the compiler
+//		* inside the function call, it ceases to exist just
+//		* on returning from it */
+//	}
+//}
 
 const smoc::Expr::Ex<bool>::type &RuntimeTransition::getExpr() const
   { return transitionImpl->getExpr(); }
@@ -232,6 +269,49 @@ public:
   }
 };
 
+class Action_HasWaitVisitor {
+public:
+	typedef bool result_type;
+public:
+	result_type operator()(const smoc_func_call_list &f) const
+	{
+		for (smoc_func_call_list::const_iterator i = f.begin(); i != f.end(); ++i)
+		{
+			string name = i->getFuncName();
+			if ( name.find("simulateTime") != string::npos)
+			{
+				return true;
+			}
+		}
+
+		return false;
+	}
+	result_type operator()(const smoc_func_diverge &f) const
+	{
+		return false;
+	}
+	result_type operator()(const smoc_sr_func_pair &f) const
+	{
+		return false;
+	}
+};
+
+
+#ifdef SYSTEMOC_ENABLE_MAESTROMM
+/**
+* Method to be used by a thread to execute this transition's actions
+*/
+void RuntimeTransition::executeTransition(smoc_root_node* node)
+{
+	this->execute(node);
+}
+
+bool RuntimeTransition::hasWaitAction()
+{
+	return boost::apply_visitor(Action_HasWaitVisitor(), getAction());
+
+}
+#endif
 
 void RuntimeTransition::execute(smoc_root_node *actor, int mode) {
   enum {
@@ -307,8 +387,18 @@ void RuntimeTransition::execute(smoc_root_node *actor, int mode) {
   
   // only smoc_func_diverge may set nextState to something
   // different than dest here...
+
+  //If parallel execution of actors enable, use ActionOnThreadVisitor
+#ifdef SYSTEMOC_ENABLE_POLYPHONIC
+
+  RuntimeState *nextState =
+	  boost::apply_visitor(ActionOnThreadVisitor(dest), getAction());
+  
+#else
   RuntimeState *nextState =
     boost::apply_visitor(ActionVisitor(dest, mode), getAction());
+#endif
+  
 
 #ifdef SYSTEMOC_ENABLE_MAESTROMM
 
@@ -448,6 +538,7 @@ bool RuntimeTransition::evaluateGuard() const {
       assert(0);
   }
 }
+
 
 void RuntimeTransition::finaliseRuntimeTransition(smoc_root_node *node) {
 

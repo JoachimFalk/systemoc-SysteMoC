@@ -74,14 +74,14 @@ smoc_actor::smoc_actor(smoc_hierarchical_state &s)
 void smoc_actor::initMMactor()
 {
   MM::MMAPI* api = MM::MMAPI::getInstance();
-  MetaMap::SMoCActor* a = static_cast<MetaMap::SMoCActor*>(this);
-  api->addActor(*a);
+  
+  api->addActor(*this);
 }
 
 bool smoc_actor::canExecute()
 {
-    smoc_actor* sActor =static_cast<smoc_actor*>(this);
-    bool canFire = sActor->canFire();
+    //smoc_actor* sActor =static_cast<smoc_actor*>(this);
+    bool canFire = this->canFire();
 
 #ifdef SYSTEMOC_ENABLE_VPC
     canFire = canFire && getActive;
@@ -90,10 +90,20 @@ bool smoc_actor::canExecute()
     return canFire;
 }
 
+bool smoc_actor::isScheduled()
+{
+	return this->scheduled;
+}
+
+void smoc_actor::setScheduled(bool set)
+{
+	scheduled = set;
+}
+
 void smoc_actor::getCurrentTransition(MetaMap::Transition*& activeTransition)
 {
-    smoc_actor* sActor =static_cast<smoc_actor*>(this);
-    activeTransition = (MetaMap::Transition*) sActor->ct;
+    //smoc_actor* sActor =static_cast<smoc_actor*>(this);
+    activeTransition = (MetaMap::Transition*) this->ct;
 }
 
 void smoc_actor::registerTransitionReadyListener(MetaMap::TransitionReadyListener& listener)
@@ -112,17 +122,67 @@ void smoc_actor::registerTransitionReadyListener(MetaMap::TransitionReadyListene
 
 }
 
-void smoc_actor::execute()
+void smoc_actor::registerThreadDoneListener(MetaMap::ThreadDoneListener& listener)
 {
-    //std::cerr << "smoc::Scheduling::execute" << std::endl;
-    //assert(dynamic_cast<smoc_actor*>(actor) != nullptr);
-    MetaMap::SMoCActor::execute();
-    dynamic_cast<smoc_actor*>(this)->schedule();
+	//For all states
+	RuntimeStateSet states = this->getFiringFSM()->getStates();
+
+	for (RuntimeStateSet::iterator si = states.begin(); si != states.end(); si++)
+	{
+		//For all state transitions
+		for (list<RuntimeTransition>::iterator ti = (*si)->getTransitions().begin(); ti != (*si)->getTransitions().end(); ti++)
+		{
+			(*ti).registerThreadDoneListener(listener);
+		}
+	}
+
 }
 
-void smoc_actor::sleep()
+
+void smoc_actor::execute()
 {
-  wait();
+  //notify actor activity to runtime manager
+  MetaMap::SMoCActor::execute();
+    
+  //execute and set next transition if there is any transition ready
+  this->schedule();
+}
+
+void smoc_actor::wait(double v, sc_time_unit tu )
+{
+#ifdef SYSTEMOC_ENABLE_POLYPHONIC
+	this->waitListener->notifyWillWaitTime(*this);
+#endif
+  sc_module::wait(v,tu);
+#ifdef SYSTEMOC_ENABLE_POLYPHONIC
+  this->waitListener->notifyTimeEllapsedAndAwaken(*this);
+#endif
+}
+
+void smoc_actor::wait(sc_time sct )
+{
+#ifdef SYSTEMOC_ENABLE_POLYPHONIC
+	this->waitListener->notifyWillWaitTime(*this);
+#endif
+    sc_module::wait(sct);
+#ifdef SYSTEMOC_ENABLE_POLYPHONIC
+	this->waitListener->notifyTimeEllapsedAndAwaken(*this);
+#endif
+}
+
+void smoc_actor::wait(sc_event& waitEvent)
+{
+	sc_module::wait(waitEvent);
+}
+
+void smoc_actor::wait()
+{
+  sc_module::wait();
+}
+
+void smoc_actor::sleep(sc_event& wakeUpevent)
+{
+  wait(wakeUpevent);
 }
 
 double smoc_actor::getLocalTimeDiff()
@@ -150,7 +210,13 @@ void smoc_actor::localClockWait(sc_time sct)
 
 	double totalTime = (sct.to_double() /*- shift - offset*/)*freqFactor;
 
+#ifdef SYSTEMOC_ENABLE_POLYPHONIC
+	this->waitListener->notifyWillWaitTime(*this);
+#endif
 	sc_module::wait(totalTime,SC_PS);
+#ifdef SYSTEMOC_ENABLE_POLYPHONIC
+	this->waitListener->notifyTimeEllapsedAndAwaken(*this);
+#endif
 }
 
 void smoc_actor::localClockWait(double v, sc_time_unit tu)

@@ -75,7 +75,13 @@ protected:
   double getLocalTimeDiff();
 #endif//SYSTEMOC_ENABLE_MAESTROMM
 public:
-#ifdef SYSTEMOC_ENABLE_MAESTROMM
+
+//bool isActor();
+
+  void wait();
+  void wait(double v, sc_time_unit tu );
+  void wait(sc_event& waitEvent);
+  void wait(sc_time sct );
 
   void smoc_actor::localClockWait(sc_time sct);
   void smoc_actor::localClockWait(double v, sc_time_unit tu);
@@ -83,8 +89,14 @@ public:
   virtual bool canExecute();
   virtual void getCurrentTransition(MetaMap::Transition*& activeTransition);
   virtual void registerTransitionReadyListener(MetaMap::TransitionReadyListener& trListener);
-  virtual void sleep();
+  virtual void registerThreadDoneListener(MetaMap::ThreadDoneListener& tdListener);
+  virtual void sleep(sc_event& wakeUpEvent);
   virtual void execute();
 #endif//SYSTEMOC_ENABLE_MAESTROMM
+  virtual void setActivation(bool activation);
+
+  virtual bool isScheduled();
+
+  virtual void setScheduled(bool set);
 };
 #endif // _INCLUDED_SMOC_ACTOR_HPP

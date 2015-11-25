@@ -29,6 +29,9 @@
 
 /* Define if you want MAESTRO Support */
 #define SYSTEMOC_ENABLE_MAESTROMM
+#ifdef SYSTEMOC_ENABLE_MAESTROMM
+# define SYSTEMOC_ENABLE_POLYPHONIC
+#endif
 
 #define _WIN32_WINNT 0x0600
 

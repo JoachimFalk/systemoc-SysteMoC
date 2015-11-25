@@ -131,6 +131,112 @@ RuntimeState* ActionVisitor::operator()(const smoc_sr_func_pair& f) const {
   return dest;
 }
 
+#ifdef SYSTEMOC_ENABLE_MAESTROMM
+
+TransitionOnThreadVisitor::TransitionOnThreadVisitor(RuntimeState* dest, MetaMap::Transition* tr)
+	: dest(dest), transition(tr)
+{
+}
+
+RuntimeState* TransitionOnThreadVisitor::operator()(const smoc_func_call_list& f) const
+{
+	boost::thread privateThread;
+
+	bool hasWaitTime = false;
+
+	for (smoc_func_call_list::const_iterator i = f.begin(); i != f.end(); ++i)
+	{
+		string name = i->getFuncName();
+		
+		if (i->isWaitCall())
+		{
+			hasWaitTime = true;
+		}
+	}
+
+	if (!hasWaitTime)
+	{
+		privateThread = boost::thread(&TransitionOnThreadVisitor::executeTransition, this, f);
+
+		transition->waitThreadDone();
+
+		//privateThread.join();
+	}
+	else
+	{
+		// Function call
+		for (smoc_func_call_list::const_iterator i = f.begin(); i != f.end(); ++i) {
+#ifdef SYSTEMOC_ENABLE_DATAFLOW_TRACE
+			this->getSimCTX()->getDataflowTraceLog()->traceStartFunction(&*i);
+#endif // SYSTEMOC_ENABLE_DATAFLOW_TRACE
+#ifdef SYSTEMOC_DEBUG
+			outDbg << "<action type=\"smoc_func_call\" func=\""
+				<< i->getFuncName() << "\">" << std::endl;
+#endif // SYSTEMOC_DEBUG
+
+			(*i)();
+
+#ifdef SYSTEMOC_DEBUG
+			outDbg << "</action>" << std::endl;
+#endif // SYSTEMOC_DEBUG
+#ifdef SYSTEMOC_ENABLE_DATAFLOW_TRACE
+			getSimCTX()->getDataflowTraceLog()->traceEndFunction(&*i);
+#endif // SYSTEMOC_ENABLE_DATAFLOW_TRACE
+		}
+	}
+	
+	return dest;
+}
+
+void TransitionOnThreadVisitor::executeTransition(const smoc_func_call_list& f) const
+{
+	// Function call
+	for (smoc_func_call_list::const_iterator i = f.begin(); i != f.end(); ++i) {
+#ifdef SYSTEMOC_ENABLE_DATAFLOW_TRACE
+		this->getSimCTX()->getDataflowTraceLog()->traceStartFunction(&*i);
+#endif // SYSTEMOC_ENABLE_DATAFLOW_TRACE
+#ifdef SYSTEMOC_DEBUG
+		outDbg << "<action type=\"smoc_func_call\" func=\""
+			<< i->getFuncName() << "\">" << std::endl;
+#endif // SYSTEMOC_DEBUG
+
+		(*i)();
+
+#ifdef SYSTEMOC_DEBUG
+		outDbg << "</action>" << std::endl;
+#endif // SYSTEMOC_DEBUG
+#ifdef SYSTEMOC_ENABLE_DATAFLOW_TRACE
+		getSimCTX()->getDataflowTraceLog()->traceEndFunction(&*i);
+#endif // SYSTEMOC_ENABLE_DATAFLOW_TRACE
+}
+
+	transition->notifyThreadDone();
+}
+
+RuntimeState* TransitionOnThreadVisitor::operator()(const smoc_func_diverge& f) const {
+	// Function call determines next state (Internal use only)
+#ifdef SYSTEMOC_DEBUG
+	outDbg << "<action type=\"smoc_func_diverge\" func=\"???\">"
+		<< std::endl;
+#endif
+
+	RuntimeState* ret = f();
+
+#ifdef SYSTEMOC_DEBUG
+	outDbg << "</action>" << std::endl;
+#endif
+	return ret;
+}
+
+RuntimeState* TransitionOnThreadVisitor::operator()(const smoc_sr_func_pair& f) const 
+{
+	throw std::exception("Not implemented");
+}
+
+
+
+#endif
+
 #ifdef SYSTEMOC_ENABLE_VPC
 namespace smoc { namespace Detail {
 

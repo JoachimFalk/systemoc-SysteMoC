@@ -74,6 +74,11 @@ smoc_root_node::smoc_root_node(sc_module_name name, NodeType nodeType, smoc_hier
           smoc_func_diverge(this, &smoc_root_node::_communicate)))),
       this);
 #endif // SYSTEMOC_ENABLE_VPC
+
+#ifdef SYSTEMOC_ENABLE_MAESTROMM
+  scheduled = false;
+#endif
+
 }
 
 #ifdef SYSTEMOC_ENABLE_VPC
@@ -402,11 +407,26 @@ void smoc_root_node::schedule() {
   // ct may be nullptr if
   // t->evaluateIOP() holds and t->evaluateGuard() fails for all transitions t
   if (ct != nullptr) {
-#ifndef SYSTEMOC_ENABLE_MAESTROMM
+#ifdef SYSTEMOC_ENABLE_MAESTROMM
+    ct->execute(this);
+    /*
+    if (ct->hasWaitAction())
+    {
+            ct->execute(this);
+    }
+    else
+    {
+            boost::thread thread(ct->startThreadToExecuteTransition(this));
+            //thread.join();
+            //ct->join();
+            //ct->deleteThread();
+    }
+    */
+#else
     assert(ct->evaluateIOP());
     assert(ct->evaluateGuard());
-#endif
     ct->execute(this);
+#endif
   }
   // also del/add me as listener  
   if(currentState != oldState) {
@@ -447,7 +467,7 @@ bool smoc_root_node::canFire() {
 #ifndef SYSTEMOC_ENABLE_MAESTROMM
   return (ct != nullptr) && ct->evaluateIOP() && ct->evaluateGuard();
 #else
-  return (ct != nullptr);
+  return (ct != nullptr) && !executing;
 #endif
 
 }
