@@ -97,6 +97,9 @@ class smoc_root_node
   public  smoc::Detail::SimCTXBase,
   private smoc::smoc_event_listener,
   public  smoc::smoc_event
+#ifdef SYSTEMOC_ENABLE_POLYPHONIC
+, public MAESTRO::PolyphoniC::psmoc_root_node
+#endif
 {
   typedef smoc_root_node this_type;
   friend class RuntimeTransition;
@@ -114,6 +117,8 @@ private:
   smoc_hierarchical_state &initialState;
 
 #ifdef SYSTEMOC_ENABLE_MAESTROMM
+  bool testCanFire();
+  
   /**
   * Flag to determine if the actor can be executed if its schedulers enables it
   */

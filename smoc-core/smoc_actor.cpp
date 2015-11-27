@@ -90,6 +90,14 @@ bool smoc_actor::canExecute()
     return canFire;
 }
 
+bool smoc_actor::testCanExecute()
+{
+	//smoc_actor* sActor =static_cast<smoc_actor*>(this);
+	bool canFire = this->testCanFire();
+
+	return canFire;
+}
+
 bool smoc_actor::isScheduled()
 {
 	return this->scheduled;
@@ -172,13 +180,7 @@ void smoc_actor::wait(sc_time sct )
 
 void smoc_actor::wait(sc_event& waitEvent)
 {
-#ifdef SYSTEMOC_ENABLE_POLYPHONIC
-	this->sleepingListener->notifySleeping(*this);
-#endif
 	sc_module::wait(waitEvent);
-#ifdef SYSTEMOC_ENABLE_POLYPHONIC
-	this->sleepingListener->notifyAwaken(*this);
-#endif
 }
 
 void smoc_actor::wait()

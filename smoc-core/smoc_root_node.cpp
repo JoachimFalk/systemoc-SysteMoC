@@ -472,6 +472,13 @@ bool smoc_root_node::canFire() {
 
 }
 
+#ifdef SYSTEMOC_ENABLE_MAESTROMM
+bool smoc_root_node::testCanFire() 
+{
+	return (ct != NULL && !executing);
+}
+#endif
+
 void smoc_root_node::setActivation(bool activation){
   if(activation) {
 #ifdef SYSTEMOC_DEBUG

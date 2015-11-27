@@ -391,8 +391,10 @@ void RuntimeTransition::execute(smoc_root_node *actor, int mode) {
   //If parallel execution of actors enable, use ActionOnThreadVisitor
 #ifdef SYSTEMOC_ENABLE_POLYPHONIC
 
+  
+
   RuntimeState *nextState =
-	  boost::apply_visitor(ActionOnThreadVisitor(dest), getAction());
+	  boost::apply_visitor(ActionOnThreadVisitor(dest, MM::MMAPI::getInstance()->runtimeManager), getAction());
   
 #else
   RuntimeState *nextState =
