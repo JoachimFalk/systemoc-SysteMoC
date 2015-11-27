@@ -87,6 +87,12 @@ smoc_simulation_ctx::smoc_simulation_ctx(int _argc, char *_argv[])
     dummy(false),
     vpcScheduling(false)
 {
+
+#ifdef SYSTEMOC_ENABLE_POLYPHONIC
+	event_mutex = new boost::mutex();
+	sc_curr_simcontext->event_mutex = event_mutex;
+#endif
+
   po::options_description systemocOptions("SysteMoC options");
   po::options_description backwardCompatibilityCruftOptions;
   

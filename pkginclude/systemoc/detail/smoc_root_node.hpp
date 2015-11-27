@@ -101,6 +101,9 @@ class smoc_root_node
   public SysteMoC::Detail::SimCTXBase,
   private smoc_event_listener,
   public smoc_event
+#ifdef SYSTEMOC_ENABLE_POLYPHONIC
+	, public MAESTRO::PolyphoniC::psmoc_root_node
+#endif
 {
   typedef smoc_root_node this_type;
   friend class RuntimeTransition;
@@ -114,6 +117,8 @@ public:
   /// to avoid expensive RTTI dynamic_cast calls
   virtual bool isActor();
 
+  bool testCanFire();
+  
   /**
   * Flag to determine if the actor can be executed if its schedulers enables it
   */

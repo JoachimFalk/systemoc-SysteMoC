@@ -42,6 +42,10 @@
 
 #include "detail/IdPool.hpp"
 
+#ifdef SYSTEMOC_ENABLE_POLYPHONIC
+#include <boost/thread/mutex.hpp>
+#endif
+
 namespace SysteMoC {
 
 class smoc_simulation_ctx;
@@ -90,6 +94,10 @@ protected:
   bool vpcScheduling;
 public:
   smoc_simulation_ctx(int _argc, char *_argv[]);
+
+#ifdef SYSTEMOC_ENABLE_POLYPHONIC
+  boost::mutex* event_mutex;
+#endif
 
   int    getArgc();
   char **getArgv();
