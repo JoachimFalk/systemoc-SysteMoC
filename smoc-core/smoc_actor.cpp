@@ -133,6 +133,7 @@ void smoc_actor::registerTransitionReadyListener(MetaMap::TransitionReadyListene
 
 }
 
+#ifdef SYSTEMOC_ENABLE_POLYPHONIC
 void smoc_actor::registerThreadDoneListener(MetaMap::ThreadDoneListener& listener)
 {
 	//For all states
@@ -148,6 +149,7 @@ void smoc_actor::registerThreadDoneListener(MetaMap::ThreadDoneListener& listene
 	}
 
 }
+#endif
 
 
 void smoc_actor::execute()

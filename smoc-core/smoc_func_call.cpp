@@ -131,7 +131,7 @@ RuntimeState* ActionVisitor::operator()(const smoc_sr_func_pair& f) const {
   return dest;
 }
 
-#ifdef SYSTEMOC_ENABLE_MAESTROMM
+#ifdef SYSTEMOC_ENABLE_POLYPHONIC
 
 TransitionOnThreadVisitor::TransitionOnThreadVisitor(RuntimeState* dest, MetaMap::Transition* tr)
 	: dest(dest), transition(tr)
