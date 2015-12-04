@@ -91,7 +91,11 @@ public:
   virtual bool canExecute();
   virtual void getCurrentTransition(MetaMap::Transition*& activeTransition);
   virtual void registerTransitionReadyListener(MetaMap::TransitionReadyListener& trListener);
+  
+#ifdef SYSTEMOC_ENABLE_POLYPHONIC
   virtual void registerThreadDoneListener(MetaMap::ThreadDoneListener& tdListener);
+#endif
+  
   virtual void sleep(sc_event& wakeUpEvent);
   virtual void execute();
 #endif//SYSTEMOC_ENABLE_MAESTROMM
