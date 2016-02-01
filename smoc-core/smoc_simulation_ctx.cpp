@@ -53,7 +53,6 @@
 
 #include <smoc/detail/TraceLog.hpp>
 
-#include <smoc/smoc_simulation_ctx.hpp>
 
 namespace po = boost::program_options;
 
@@ -90,8 +89,10 @@ smoc_simulation_ctx::smoc_simulation_ctx(int _argc, char *_argv[])
 
 #ifdef SYSTEMOC_ENABLE_POLYPHONIC
 	event_mutex = new boost::mutex();
-	sc_curr_simcontext->event_mutex = event_mutex;
+	sc_core::sc_get_curr_simcontext();
+	sc_core::sc_curr_simcontext->event_mutex = event_mutex;
 #endif
+
 
   po::options_description systemocOptions("SysteMoC options");
   po::options_description backwardCompatibilityCruftOptions;
