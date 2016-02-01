@@ -55,7 +55,6 @@
 
 #include <smoc/detail/TraceLog.hpp>
 
-#include <smoc/smoc_simulation_ctx.hpp>
 
 namespace po = boost::program_options;
 
