@@ -58,11 +58,11 @@ class smoc_actor :
   public smoc_root_node {
 protected:
 #ifdef SYSTEMOC_ENABLE_MAESTROMM
-	smoc_actor(sc_module_name name, smoc_hierarchical_state &s, unsigned int thread_stack_size = 0x20000, bool useLogFile = false);
-	smoc_actor(smoc_hierarchical_state &s, unsigned int thread_stack_size = 0x20000, bool useLogFile = false);
+  smoc_actor(sc_module_name name, smoc_hierarchical_state &s, unsigned int thread_stack_size = 0x20000, bool useLogFile = false);
+  smoc_actor(smoc_hierarchical_state &s, unsigned int thread_stack_size = 0x20000, bool useLogFile = false);
 #else
-	smoc_actor(sc_module_name name, smoc_hierarchical_state &s);
-	smoc_actor(smoc_hierarchical_state &s);
+  smoc_actor(sc_module_name name, smoc_hierarchical_state &s);
+  smoc_actor(smoc_hierarchical_state &s);
 #endif
 
 #ifdef SYSTEMOC_ENABLE_VPC
@@ -73,11 +73,10 @@ protected:
   void initMMactor();
 
   double getLocalTimeDiff();
-#endif//SYSTEMOC_ENABLE_MAESTROMM
+#endif //SYSTEMOC_ENABLE_MAESTROMM
 public:
 
-//bool isActor();
-
+#ifdef SYSTEMOC_ENABLE_MAESTROMM
   void wait();
   void wait(double v, sc_time_unit tu );
   void wait(sc_event& waitEvent);
@@ -92,17 +91,16 @@ public:
   virtual void getCurrentTransition(MetaMap::Transition*& activeTransition);
   virtual void registerTransitionReadyListener(MetaMap::TransitionReadyListener& trListener);
   
-#ifdef SYSTEMOC_ENABLE_POLYPHONIC
+# ifdef SYSTEMOC_ENABLE_POLYPHONIC
   virtual void registerThreadDoneListener(MetaMap::ThreadDoneListener& tdListener);
-#endif
+# endif
   
   virtual void sleep(sc_event& wakeUpEvent);
   virtual void execute();
-#endif//SYSTEMOC_ENABLE_MAESTROMM
-  virtual void setActivation(bool activation);
 
   virtual bool isScheduled();
 
   virtual void setScheduled(bool set);
+#endif // SYSTEMOC_ENABLE_MAESTROMM
 };
 #endif // _INCLUDED_SMOC_ACTOR_HPP
