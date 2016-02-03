@@ -407,7 +407,7 @@ namespace MetaMap
 	class Transition;
 }
 	
-class TransitionOnThreadVisitor : public SysteMoC::Detail::SimCTXBase {
+class TransitionOnThreadVisitor : public smoc::Detail::SimCTXBase {
 public:
 	typedef RuntimeState* result_type;
 
