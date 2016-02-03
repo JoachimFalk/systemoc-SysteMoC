@@ -62,6 +62,10 @@
 # include <smoc/smoc_hooking.hpp>
 #endif //SYSTEMOC_ENABLE_HOOKING
 
+#ifdef SYSTEMOC_ENABLE_POLYPHONIC
+#include <PolyphoniC/Callip.h>
+#endif
+
 #define SMOC_REGISTER_CPARAM(name) registerParam(#name,name)
 
 #define CALL(func)    call(&func, #func)
@@ -93,6 +97,9 @@ class smoc_root_node
   public  smoc::Detail::SimCTXBase,
   private smoc::smoc_event_listener,
   public  smoc::smoc_event
+#ifdef SYSTEMOC_ENABLE_POLYPHONIC
+, public MAESTRO::PolyphoniC::psmoc_root_node
+#endif
 {
   typedef smoc_root_node this_type;
   friend class RuntimeTransition;
@@ -108,6 +115,15 @@ private:
 
   /// @brief Initial firing state
   smoc_hierarchical_state &initialState;
+
+#ifdef SYSTEMOC_ENABLE_MAESTROMM
+  bool testCanFire();
+  
+  /**
+  * Flag to determine if the actor can be executed if its schedulers enables it
+  */
+  bool scheduled;
+#endif
 
   /// @brief Current firing state
   RuntimeState *currentState;
