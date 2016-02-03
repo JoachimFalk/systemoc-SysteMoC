@@ -117,12 +117,15 @@ private:
   smoc_hierarchical_state &initialState;
 
 #ifdef SYSTEMOC_ENABLE_MAESTROMM
+public:
   bool testCanFire();
   
   /**
   * Flag to determine if the actor can be executed if its schedulers enables it
   */
   bool scheduled;
+
+private:
 #endif
 
   /// @brief Current firing state
@@ -205,8 +208,8 @@ public:
 	
 #ifdef SYSTEMOC_ENABLE_MAESTROMM
   template<typename F, typename X>
-  typename Expr::MemGuard<F>::type guardi(const X* ins, const F &f, const char *name = "") const {
-	  return Expr::guard(ins, f, name);
+  typename smoc::Expr::MemGuard<F>::type guardi(const X* ins, const F &f, const char *name = "") const {
+	  return smoc::Expr::guard(ins, f, name);
   }
 #endif
   
