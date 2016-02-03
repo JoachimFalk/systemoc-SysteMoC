@@ -277,8 +277,8 @@ public:
 	{
 		for (smoc_func_call_list::const_iterator i = f.begin(); i != f.end(); ++i)
 		{
-			string name = i->getFuncName();
-			if ( name.find("simulateTime") != string::npos)
+			std::string name = i->getFuncName();
+			if ( name.find("simulateTime") != std::string::npos)
 			{
 				return true;
 			}
@@ -410,7 +410,7 @@ void RuntimeTransition::execute(smoc_root_node *actor, int mode) {
 	  Bruckner::Model::FSMTransition* fsmTransition = (Bruckner::Model::FSMTransition*)(this);
 	  fsmTransition->logMessage("Ex:", 0, 0, true, true, false);
 	  //Log Transition actions
-	  for (string actionName : this->actionNames)
+	  for (std::string actionName : this->actionNames)
 	  {
 		  fsmTransition->logMessage(actionName + ",", 0, 0, false, false, false);
 	  }
