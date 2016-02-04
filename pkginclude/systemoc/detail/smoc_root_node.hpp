@@ -113,6 +113,9 @@ public:
 private:
   NodeType nodeType;
 
+#ifdef SYSTEMOC_ENABLE_MAESTROMM
+public:
+#endif
   /// @brief Initial firing state
   smoc_hierarchical_state &initialState;
 

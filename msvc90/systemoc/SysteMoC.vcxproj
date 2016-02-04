@@ -114,7 +114,7 @@
     <ClCompile>
       <AdditionalOptions>/MP20  /vmg /Zo %(AdditionalOptions)</AdditionalOptions>
       <Optimization>Disabled</Optimization>
-      <AdditionalIncludeDirectories>..\..\..\Maestro\MetaMap\pkginclude;..\..\..\Maestro\MetaMap\pkginclude\MM;..\..\..\Maestro\MetaMap\pkginclude\MetaMap;..\config-wo-vpc;..\..\pkginclude;..\..\..\Support\pkginclude;..\..\..\Support\msvc90\config;..\..\..\SystemC-VPC\msvc90\config-wo-vcd;..\..\..\SystemC-VPC\pkginclude\systemcvpc;..\..\..\SystemC-VPC\pkginclude;..\..\..\..\libs\include;..\..\..\Bruckner\Model;..\..\..\Maestro\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..\..\Maestro\MetaMap\pkginclude;..\..\..\Maestro\MetaMap\pkginclude\MM;..\..\..\Maestro\MetaMap\pkginclude\MetaMap;..\config-wo-vpc;..\..\pkginclude;..\..\..\CoSupport\pkginclude;..\..\..\CoSupport\msvc90\config;..\..\..\SystemC-VPC\msvc90\config-wo-vcd;..\..\..\SystemC-VPC\pkginclude\systemcvpc;..\..\..\SystemC-VPC\pkginclude;..\..\..\..\libs\include;..\..\..\Bruckner\Model;..\..\..\Maestro\;$(ProjectDir)..\..\..\..\systemoc-top\Maestro;..\..\..\Support\src\cosupport-allocators\headers;..\..\..\Support\src\cosupport-base\headers;..\..\..\Support\src\cosupport-initializer\headers;..\..\..\Support\src\cosupport-math\headers;..\..\..\Support\src\cosupport-path\headers;..\..\..\Support\src\cosupport-random\headers;..\..\..\Support\src\cosupport-smartptr\headers;..\..\..\Support\src\cosupport-streams\headers;..\..\..\Support\src\cosupport-string\headers;..\..\..\Support\src\cosupport-systemc\headers;..\..\..\Support\src\cosupport-tracing\headers;..\..\..\Support\src\cosupport-xerces\headers;..\..\..\Support\src\test_dbgstream\headers;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>ENABLE_BRUCKNER;ENABLE_CRESCENDO;WIN64;_DEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <BasicRuntimeChecks>Default</BasicRuntimeChecks>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
@@ -140,7 +140,7 @@
     <ClCompile>
       <AdditionalOptions>/MP20  /vmg /Zo %(AdditionalOptions)</AdditionalOptions>
       <Optimization>MaxSpeed</Optimization>
-      <AdditionalIncludeDirectories>..\..\..\Maestro\MetaMap\pkginclude;..\..\..\Maestro\MetaMap\pkginclude\MM;..\..\..\Maestro\MetaMap\pkginclude\MetaMap;..\config-wo-vpc;..\..\pkginclude;..\..\..\Support\pkginclude;..\..\..\Support\msvc90\config;..\..\..\SystemC-VPC\msvc90\config-wo-vcd;..\..\..\SystemC-VPC\pkginclude\systemcvpc;..\..\..\SystemC-VPC\pkginclude;..\..\..\..\libs\include;..\..\..\Bruckner\Model;..\..\..\Maestro\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..\..\Maestro\MetaMap\pkginclude;..\..\..\Maestro\MetaMap\pkginclude\MM;..\..\..\Maestro\MetaMap\pkginclude\MetaMap;..\config-wo-vpc;..\..\pkginclude;..\..\..\CoSupport\pkginclude;..\..\..\CoSupport\msvc90\config;..\..\..\SystemC-VPC\msvc90\config-wo-vcd;..\..\..\SystemC-VPC\pkginclude\systemcvpc;..\..\..\SystemC-VPC\pkginclude;..\..\..\..\libs\include;..\..\..\Bruckner\Model;..\..\..\Maestro\;$(ProjectDir)..\..\..\..\systemoc-top\Maestro;..\..\..\Support\src\cosupport-allocators\headers;..\..\..\Support\src\cosupport-base\headers;..\..\..\Support\src\cosupport-initializer\headers;..\..\..\Support\src\cosupport-math\headers;..\..\..\Support\src\cosupport-path\headers;..\..\..\Support\src\cosupport-random\headers;..\..\..\Support\src\cosupport-smartptr\headers;..\..\..\Support\src\cosupport-streams\headers;..\..\..\Support\src\cosupport-string\headers;..\..\..\Support\src\cosupport-systemc\headers;..\..\..\Support\src\cosupport-tracing\headers;..\..\..\Support\src\cosupport-xerces\headers;..\..\..\Support\src\test_dbgstream\headers;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN64;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <BasicRuntimeChecks>Default</BasicRuntimeChecks>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
@@ -163,7 +163,7 @@
     <ClCompile>
       <AdditionalOptions>/MP20  /vmg /Zo %(AdditionalOptions)</AdditionalOptions>
       <Optimization>MaxSpeed</Optimization>
-      <AdditionalIncludeDirectories>..\..\..\Maestro\MetaMap\pkginclude;..\..\..\Maestro\MetaMap\pkginclude\MM;..\..\..\Maestro\MetaMap\pkginclude\MetaMap;..\config-wo-vpc;..\..\pkginclude;..\..\..\Support\pkginclude;..\..\..\Support\msvc90\config;..\..\..\SystemC-VPC\msvc90\config-wo-vcd;..\..\..\SystemC-VPC\pkginclude\systemcvpc;..\..\..\SystemC-VPC\pkginclude;..\..\..\..\libs\include;..\..\..\Bruckner\Model;..\..\..\Maestro\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..\..\Maestro\MetaMap\pkginclude;..\..\..\Maestro\MetaMap\pkginclude\MM;..\..\..\Maestro\MetaMap\pkginclude\MetaMap;..\config-wo-vpc;..\..\pkginclude;..\..\..\CoSupport\pkginclude;..\..\..\CoSupport\msvc90\config;..\..\..\SystemC-VPC\msvc90\config-wo-vcd;..\..\..\SystemC-VPC\pkginclude\systemcvpc;..\..\..\SystemC-VPC\pkginclude;..\..\..\..\libs\include;..\..\..\Bruckner\Model;..\..\..\Maestro\;$(ProjectDir)..\..\..\..\systemoc-top\Maestro;..\..\..\Support\src\cosupport-allocators\headers;..\..\..\Support\src\cosupport-base\headers;..\..\..\Support\src\cosupport-initializer\headers;..\..\..\Support\src\cosupport-math\headers;..\..\..\Support\src\cosupport-path\headers;..\..\..\Support\src\cosupport-random\headers;..\..\..\Support\src\cosupport-smartptr\headers;..\..\..\Support\src\cosupport-streams\headers;..\..\..\Support\src\cosupport-string\headers;..\..\..\Support\src\cosupport-systemc\headers;..\..\..\Support\src\cosupport-tracing\headers;..\..\..\Support\src\cosupport-xerces\headers;..\..\..\Support\src\test_dbgstream\headers;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>ENABLE_BRUCKNER;ENABLE_CRESCENDO;WIN64;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <BasicRuntimeChecks>Default</BasicRuntimeChecks>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
@@ -215,9 +215,13 @@
     <ProjectReference Include="..\..\..\Maestro\msvc90\MaestroRuntimeFramework\MaestroRuntimeFramework.vcxproj">
       <Project>{5dd4db9d-1224-41bd-af8a-e2c8e1ef602b}</Project>
     </ProjectReference>
-    <ProjectReference Include="..\..\..\Support\msvc90\CoSupport\libcosupport\libcosupport.vcxproj">
-      <Project>{3cd80980-0cc9-4830-939a-505f4b92ba09}</Project>
-      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+    <ProjectReference Include="..\..\..\Support\msvc90\CoSupport\libcosupport-math\libcosupport-math.vcxproj">
+      <Project>{91715099-4be0-45a5-8922-8c3285a42b59}</Project>
+      <LinkLibraryDependencies>true</LinkLibraryDependencies>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\Support\msvc90\CoSupport\libcosupport-smartptr\libcosupport-smartptr.vcxproj">
+      <Project>{24f59074-9196-4240-8516-cd88c5b85689}</Project>
+      <LinkLibraryDependencies>true</LinkLibraryDependencies>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
