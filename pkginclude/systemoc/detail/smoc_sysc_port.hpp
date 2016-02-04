@@ -220,11 +220,11 @@ protected:
     }
   }
   size_t      availableCount() const {
-    size_t n = std::numeric_limits<size_t>::max();
+    size_t n = (std::numeric_limits<size_t>::max)();
     for (Interfaces::const_iterator iter = interfaces.begin();
          iter != interfaces.end();
          ++iter)
-      n = std::min(n, (*iter)->availableCount());
+      n = (std::min)(n, (*iter)->availableCount());
     return n;
   }
 #ifdef SYSTEMOC_ENABLE_VPC

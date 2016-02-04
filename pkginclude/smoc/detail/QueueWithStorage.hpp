@@ -98,7 +98,7 @@ protected:
   /// tokens
   void rpp(size_t n) {
     size_t rindex = this->rIndex();
-    size_t o = std::min(n, this->qfSize() - rindex);
+    size_t o = (std::min)(n, this->qfSize() - rindex);
     size_t p = n-o; o += rindex;
     for (;rindex < o; ++rindex)
       storage[rindex].invalidate();
