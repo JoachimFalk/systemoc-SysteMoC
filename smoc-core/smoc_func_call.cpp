@@ -39,6 +39,11 @@
 #include <systemoc/detail/smoc_debug_stream.hpp>
 #include <smoc/detail/TraceLog.hpp>
 
+#ifdef SYSTEMOC_ENABLE_MAESTROMM
+#include <PolyphoniC/polyphonic_smoc_func_call.h>
+#endif
+
+
 smoc_action merge(const smoc_action& a, const smoc_action& b) {
   if(const smoc_func_call_list* _a = boost::get<smoc_func_call_list>(&a)) {
     if(_a->empty()) return b;
@@ -133,12 +138,12 @@ RuntimeState* ActionVisitor::operator()(const smoc_sr_func_pair& f) const {
 
 #ifdef SYSTEMOC_ENABLE_POLYPHONIC
 
-TransitionOnThreadVisitor::TransitionOnThreadVisitor(RuntimeState* dest, MetaMap::Transition* tr)
+smoc::dMM::TransitionOnThreadVisitor::TransitionOnThreadVisitor(RuntimeState* dest, MetaMap::Transition* tr)
 	: dest(dest), transition(tr)
 {
 }
 
-RuntimeState* TransitionOnThreadVisitor::operator()(const smoc_func_call_list& f) const
+RuntimeState* smoc::dMM::TransitionOnThreadVisitor::operator()(const smoc_func_call_list& f) const
 {
 	boost::thread privateThread;
 
@@ -188,7 +193,7 @@ RuntimeState* TransitionOnThreadVisitor::operator()(const smoc_func_call_list& f
 	return dest;
 }
 
-void TransitionOnThreadVisitor::executeTransition(const smoc_func_call_list& f) const
+void smoc::dMM::TransitionOnThreadVisitor::executeTransition(const smoc_func_call_list& f) const
 {
 	// Function call
 	for (smoc_func_call_list::const_iterator i = f.begin(); i != f.end(); ++i) {
@@ -213,7 +218,7 @@ void TransitionOnThreadVisitor::executeTransition(const smoc_func_call_list& f) 
 	transition->notifyThreadDone();
 }
 
-RuntimeState* TransitionOnThreadVisitor::operator()(const smoc_func_diverge& f) const {
+RuntimeState* smoc::dMM::TransitionOnThreadVisitor::operator()(const smoc_func_diverge& f) const {
 	// Function call determines next state (Internal use only)
 #ifdef SYSTEMOC_DEBUG
 	outDbg << "<action type=\"smoc_func_diverge\" func=\"???\">"
@@ -228,7 +233,7 @@ RuntimeState* TransitionOnThreadVisitor::operator()(const smoc_func_diverge& f) 
 	return ret;
 }
 
-RuntimeState* TransitionOnThreadVisitor::operator()(const smoc_sr_func_pair& f) const 
+RuntimeState* smoc::dMM::TransitionOnThreadVisitor::operator()(const smoc_sr_func_pair& f) const
 {
 	throw std::exception("Not implemented");
 }

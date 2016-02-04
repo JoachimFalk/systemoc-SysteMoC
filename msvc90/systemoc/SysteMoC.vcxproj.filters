@@ -11,11 +11,9 @@
     <ClCompile Include="..\..\smoc-core\smoc_fifo.cpp" />
     <ClCompile Include="..\..\smoc-core\smoc_firing_rules.cpp" />
     <ClCompile Include="..\..\smoc-core\smoc_func_call.cpp" />
-    <ClCompile Include="..\..\smoc-core\smoc_graph_synth.cpp" />
     <ClCompile Include="..\..\smoc-core\smoc_graph_tt.cpp" />
     <ClCompile Include="..\..\smoc-core\smoc_graph_type.cpp" />
     <ClCompile Include="..\..\smoc-core\smoc_hooking.cpp" />
-    <ClCompile Include="..\..\smoc-core\smoc_latency_queues.cpp" />
     <ClCompile Include="..\..\smoc-core\smoc_main.cpp" />
     <ClCompile Include="..\..\smoc-core\smoc_moc.cpp" />
     <ClCompile Include="..\..\smoc-core\smoc_multicast_sr_signal.cpp" />
@@ -29,6 +27,7 @@
     <ClCompile Include="..\..\smoc-core\SMXDumper.cpp" />
     <ClCompile Include="..\..\smoc-core\TraceLog.cpp" />
     <ClCompile Include="..\..\smoc-core\VpcInterface.cpp" />
+    <ClCompile Include="..\..\smoc-core\LatencyQueue.cpp" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Headers">

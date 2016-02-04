@@ -88,7 +88,7 @@
     <ClCompile>
       <AdditionalOptions>/MP20  /vmg /Zo %(AdditionalOptions)</AdditionalOptions>
       <Optimization>Disabled</Optimization>
-      <AdditionalIncludeDirectories>..\..\..\Maestro\MetaMap\pkginclude;..\..\..\Maestro\MetaMap\pkginclude\MM;..\..\..\Maestro\MetaMap\pkginclude\MetaMap;..\config-wo-vpc;..\..\pkginclude;..\..\..\CoSupport\pkginclude;..\..\..\CoSupport\msvc90\config;..\..\..\SystemC-VPC\msvc90\config-wo-vcd;..\..\..\SystemC-VPC\pkginclude\systemcvpc;..\..\..\SystemC-VPC\pkginclude;..\..\..\..\libs\include;..\..\..\Bruckner\Model;..\..\..\Maestro\;..\..\..\Support\src\cosupport-allocators\headers;..\..\..\Support\src\cosupport-base\headers;..\..\..\Support\src\cosupport-initializer\headers;..\..\..\Support\src\cosupport-math\headers;..\..\..\Support\src\cosupport-path\headers;..\..\..\Support\src\cosupport-random\headers;..\..\..\Support\src\cosupport-smartptr\headers;..\..\..\Support\src\cosupport-streams\headers;..\..\..\Support\src\cosupport-string\headers;..\..\..\Support\src\cosupport-systemc\headers;..\..\..\Support\src\cosupport-tracing\headers;..\..\..\Support\src\cosupport-xerces\headers;..\..\..\Support\src\test_dbgstream\headers;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..\..\Maestro\MetaMap\pkginclude;..\..\..\Maestro\MetaMap\pkginclude\MM;..\..\..\Maestro\MetaMap\pkginclude\MetaMap;..\config-wo-vpc;..\..\pkginclude;..\..\..\CoSupport\pkginclude;..\..\..\CoSupport\msvc90\config;..\..\..\SystemC-VPC\msvc90\config-wo-vcd;..\..\..\SystemC-VPC\pkginclude\systemcvpc;..\..\..\SystemC-VPC\pkginclude;..\..\..\..\libs\include;..\..\..\Bruckner\Model;..\..\..\Maestro\;$(ProjectDir)..\..\..\..\systemoc-top\Maestro;..\..\..\Support\src\cosupport-allocators\headers;..\..\..\Support\src\cosupport-base\headers;..\..\..\Support\src\cosupport-initializer\headers;..\..\..\Support\src\cosupport-math\headers;..\..\..\Support\src\cosupport-path\headers;..\..\..\Support\src\cosupport-random\headers;..\..\..\Support\src\cosupport-smartptr\headers;..\..\..\Support\src\cosupport-streams\headers;..\..\..\Support\src\cosupport-string\headers;..\..\..\Support\src\cosupport-systemc\headers;..\..\..\Support\src\cosupport-tracing\headers;..\..\..\Support\src\cosupport-xerces\headers;..\..\..\Support\src\test_dbgstream\headers;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN64;_DEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <BasicRuntimeChecks>Default</BasicRuntimeChecks>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
@@ -185,6 +185,7 @@
   <ItemGroup>
     <ClCompile Include="..\..\smoc-core\IdPool.cpp" />
     <ClCompile Include="..\..\smoc-core\IOPattern.cpp" />
+    <ClCompile Include="..\..\smoc-core\LatencyQueue.cpp" />
     <ClCompile Include="..\..\smoc-core\smoc_actor.cpp" />
     <ClCompile Include="..\..\smoc-core\smoc_chan_if.cpp" />
     <ClCompile Include="..\..\smoc-core\smoc_debug_stream.cpp" />
@@ -193,11 +194,9 @@
     <ClCompile Include="..\..\smoc-core\smoc_fifo.cpp" />
     <ClCompile Include="..\..\smoc-core\smoc_firing_rules.cpp" />
     <ClCompile Include="..\..\smoc-core\smoc_func_call.cpp" />
-    <ClCompile Include="..\..\smoc-core\smoc_graph_synth.cpp" />
     <ClCompile Include="..\..\smoc-core\smoc_graph_tt.cpp" />
     <ClCompile Include="..\..\smoc-core\smoc_graph_type.cpp" />
     <ClCompile Include="..\..\smoc-core\smoc_hooking.cpp" />
-    <ClCompile Include="..\..\smoc-core\smoc_latency_queues.cpp" />
     <ClCompile Include="..\..\smoc-core\smoc_main.cpp" />
     <ClCompile Include="..\..\smoc-core\smoc_moc.cpp" />
     <ClCompile Include="..\..\smoc-core\smoc_multicast_sr_signal.cpp" />

@@ -72,9 +72,9 @@ private:
 
 //#if defined(WIN32) || defined(_WIN32) || defined(__WIN32) && !defined(__CYGWIN__)
 //#else
-  template <class X, class Y>
+//  template <class X, class Y>
 //#endif
-  friend class IFACE::PortMixin;
+// friend class IFACE::PortMixin;
 public:
   typedef IFACE                             iface_type;
   typedef typename iface_type::access_type  access_type;

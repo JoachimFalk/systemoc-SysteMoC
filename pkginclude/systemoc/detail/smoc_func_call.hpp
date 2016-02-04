@@ -399,13 +399,14 @@ using namespace std;
 
 using namespace smoc::Detail;
 
-
-namespace smoc { namespace dMM {
-
 namespace MetaMap
 {
 	class Transition;
 }
+
+
+namespace smoc { namespace dMM {
+
 	
 class TransitionOnThreadVisitor : public smoc::Detail::SimCTXBase {
 public:
