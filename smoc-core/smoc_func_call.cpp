@@ -39,7 +39,7 @@
 #include <systemoc/detail/smoc_debug_stream.hpp>
 #include <smoc/detail/TraceLog.hpp>
 
-#ifdef SYSTEMOC_ENABLE_MAESTROMM
+#ifdef SYSTEMOC_ENABLE_MAESTRO_METAMAP
 #include <PolyphoniC/polyphonic_smoc_func_call.h>
 #endif
 
@@ -136,7 +136,7 @@ RuntimeState* ActionVisitor::operator()(const smoc_sr_func_pair& f) const {
   return dest;
 }
 
-#ifdef SYSTEMOC_ENABLE_POLYPHONIC
+#ifdef MAESTRO_ENABLE_POLYPHONIC
 
 smoc::dMM::TransitionOnThreadVisitor::TransitionOnThreadVisitor(RuntimeState* dest, MetaMap::Transition* tr)
 	: dest(dest), transition(tr)

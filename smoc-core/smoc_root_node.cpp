@@ -45,9 +45,9 @@
 #include <smoc/smoc_event.hpp>
 #include <systemoc/smoc_graph_type.hpp>
 #include <systemoc/detail/smoc_debug_stream.hpp>
-#ifdef SYSTEMOC_ENABLE_MAESTROMM
-#include <MetaMap/MAESTRORuntimeException.h>
-#endif
+#ifdef SYSTEMOC_ENABLE_MAESTRO_METAMAP
+# include <Maestro/MetaMap/MAESTRORuntimeException.h>
+#endif //SYSTEMOC_ENABLE_MAESTRO_METAMAP
 
 using namespace smoc::Detail;
 
@@ -75,7 +75,7 @@ smoc_root_node::smoc_root_node(sc_module_name name, NodeType nodeType, smoc_hier
       this);
 #endif // SYSTEMOC_ENABLE_VPC
 
-#ifdef SYSTEMOC_ENABLE_MAESTROMM
+#ifdef SYSTEMOC_ENABLE_MAESTRO_METAMAP
   scheduled = false;
 #endif
 
@@ -326,7 +326,7 @@ void smoc_root_node::signaled(smoc::smoc_event_waiter *e) {
 #endif // SYSTEMOC_ENABLE_DEBUG
       
       if (ct) {
-          #ifdef SYSTEMOC_ENABLE_MAESTROMM
+          #ifdef SYSTEMOC_ENABLE_MAESTRO_METAMAP
           ct->notifyListenersTransitionReady();
           #endif
         setActivation(true);
@@ -354,7 +354,7 @@ void smoc_root_node::setCurrentState(RuntimeState *s) {
 
 	//assert(executing);
 
-  #ifdef SYSTEMOC_ENABLE_MAESTROMM
+  #ifdef SYSTEMOC_ENABLE_MAESTRO_METAMAP
   if (s == NULL)
   {
 		throw MAESTRORuntimeException((string)"Error while trying to set the new state to NULL on actor: " + this->name());
@@ -407,7 +407,7 @@ void smoc_root_node::schedule() {
   // ct may be nullptr if
   // t->evaluateIOP() holds and t->evaluateGuard() fails for all transitions t
   if (ct != nullptr) {
-#ifdef SYSTEMOC_ENABLE_MAESTROMM
+#ifdef SYSTEMOC_ENABLE_MAESTRO_METAMAP
     ct->execute(this);
     /*
     if (ct->hasWaitAction())
@@ -464,7 +464,7 @@ bool smoc_root_node::canFire() {
   if (ct == nullptr)
     setCurrentState(currentState);
 
-#ifndef SYSTEMOC_ENABLE_MAESTROMM
+#ifndef SYSTEMOC_ENABLE_MAESTRO_METAMAP
   return (ct != nullptr) && ct->evaluateIOP() && ct->evaluateGuard();
 #else
   return (ct != nullptr) && !executing;
@@ -472,7 +472,7 @@ bool smoc_root_node::canFire() {
 
 }
 
-#ifdef SYSTEMOC_ENABLE_MAESTROMM
+#ifdef SYSTEMOC_ENABLE_MAESTRO_METAMAP
 bool smoc_root_node::testCanFire() 
 {
 	return (ct != NULL && !executing);

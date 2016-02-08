@@ -41,10 +41,10 @@
 # include <systemcvpc/ScheduledTask.hpp>
 #endif //SYSTEMOC_ENABLE_VPC
 
-#ifdef SYSTEMOC_ENABLE_MAESTROMM
-# include <MetaMap/SMoCActor.h>
-# include <MM/includes.hpp>
-#endif //SYSTEMOC_ENABLE_MAESTROMM
+#ifdef SYSTEMOC_ENABLE_MAESTRO_METAMAP
+# include <Maestro/MetaMap/SMoCActor.hpp>
+# include <Maestro/MetaMap/includes.hpp>
+#endif //SYSTEMOC_ENABLE_MAESTRO_METAMAP
 
 #include "detail/smoc_root_node.hpp"
 
@@ -52,12 +52,12 @@ class smoc_actor :
 #ifdef SYSTEMOC_ENABLE_VPC
   public SystemC_VPC::ScheduledTask,
 #endif //SYSTEMOC_ENABLE_VPC
-#ifdef SYSTEMOC_ENABLE_MAESTROMM
+#ifdef SYSTEMOC_ENABLE_MAESTRO_METAMAP
   public MetaMap::SMoCActor,
-#endif //SYSTEMOC_ENABLE_MAESTROMM
+#endif //SYSTEMOC_ENABLE_MAESTRO_METAMAP
   public smoc_root_node {
 protected:
-#ifdef SYSTEMOC_ENABLE_MAESTROMM
+#ifdef SYSTEMOC_ENABLE_MAESTRO_METAMAP
   smoc_actor(sc_module_name name, smoc_hierarchical_state &s, unsigned int thread_stack_size = 0x20000, bool useLogFile = false);
   smoc_actor(smoc_hierarchical_state &s, unsigned int thread_stack_size = 0x20000, bool useLogFile = false);
 #else
@@ -69,21 +69,21 @@ protected:
   void finaliseVpcLink();
 #endif //SYSTEMOC_ENABLE_VPC
   virtual void setActivation(bool activation);
-#ifdef SYSTEMOC_ENABLE_MAESTROMM
+#ifdef SYSTEMOC_ENABLE_MAESTRO_METAMAP
   void initMMactor();
 
   double getLocalTimeDiff();
-#endif //SYSTEMOC_ENABLE_MAESTROMM
+#endif //SYSTEMOC_ENABLE_MAESTRO_METAMAP
 public:
 
-#ifdef SYSTEMOC_ENABLE_MAESTROMM
+#ifdef SYSTEMOC_ENABLE_MAESTRO_METAMAP
   void wait();
   void wait(double v, sc_time_unit tu );
   void wait(sc_event& waitEvent);
   void wait(sc_time sct );
 
-  void smoc_actor::localClockWait(sc_time sct);
-  void smoc_actor::localClockWait(double v, sc_time_unit tu);
+  void localClockWait(sc_time sct);
+  void localClockWait(double v, sc_time_unit tu);
 
   virtual bool testCanExecute();
 
@@ -91,7 +91,7 @@ public:
   virtual void getCurrentTransition(MetaMap::Transition*& activeTransition);
   virtual void registerTransitionReadyListener(MetaMap::TransitionReadyListener& trListener);
   
-# ifdef SYSTEMOC_ENABLE_POLYPHONIC
+# ifdef MAESTRO_ENABLE_POLYPHONIC
   virtual void registerThreadDoneListener(MetaMap::ThreadDoneListener& tdListener);
 # endif
   
@@ -101,6 +101,6 @@ public:
   virtual bool isScheduled();
 
   virtual void setScheduled(bool set);
-#endif // SYSTEMOC_ENABLE_MAESTROMM
+#endif // SYSTEMOC_ENABLE_MAESTRO_METAMAP
 };
 #endif // _INCLUDED_SMOC_ACTOR_HPP

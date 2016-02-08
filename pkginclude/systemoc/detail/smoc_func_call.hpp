@@ -55,9 +55,9 @@
 # include <vpc.hpp>
 #endif //SYSTEMOC_ENABLE_VPC
 
-#ifdef SYSTEMOC_ENABLE_MAESTROMM
-#include <PolyphoniC/polyphonic_smoc_func_call.h>
-#endif
+#ifdef MAESTRO_ENABLE_POLYPHONIC
+# include <Maestro/PolyphoniC/polyphonic_smoc_func_call.h>
+#endif //MAESTRO_ENABLE_POLYPHONIC
 
 /**
  * TODO: deprecate smoc_func_diverge and smoc_func_branch
@@ -140,12 +140,12 @@ protected:
   F  f;
   PL pl;
 public:
-#ifdef SYSTEMOC_ENABLE_POLYPHONIC
+#ifdef MAESTRO_ENABLE_POLYPHONIC
 	bool canRunInParallel;
 #endif
   smoc_member_func(const F &_f, const PL &_pl = PL() )
     : f(_f), pl(_pl)
-#ifdef SYSTEMOC_ENABLE_POLYPHONIC
+#ifdef MAESTRO_ENABLE_POLYPHONIC
 	  , canRunInParallel(_f.canRunInParallel)
 #endif
 
@@ -171,7 +171,7 @@ public:
 
 class smoc_func_call
   : public smoc::Detail::SimCTXBase
-#ifdef SYSTEMOC_ENABLE_POLYPHONIC
+#ifdef MAESTRO_ENABLE_POLYPHONIC
   , public MAESTRO::PolyphoniC::polyphonic_smoc_func_call
 #endif
 {
@@ -189,7 +189,7 @@ public:
   template <class F, class PL>
   smoc_func_call( const smoc_member_func<F, PL> &_k )
     : k(new smoc_member_func<F, PL>(_k))
-#ifdef SYSTEMOC_ENABLE_POLYPHONIC
+#ifdef MAESTRO_ENABLE_POLYPHONIC
 	  , polyphonic_smoc_func_call(_k.canRunInParallel)
 #endif
   {
@@ -392,7 +392,7 @@ private:
 } } // namespace smoc::Detail
 #endif // SYSTEMOC_ENABLE_VPC
 
-#ifdef SYSTEMOC_ENABLE_MAESTROMM
+#ifdef SYSTEMOC_ENABLE_MAESTRO_METAMAP
 //////////////TODO: REVIEW THIS SECTION CODE (Visitor's)
 
 using namespace std;
@@ -516,6 +516,6 @@ private:
   list<string> &functionNames;
 };
 } } // namespace smoc::Detail
-#endif // SYSTEMOC_ENABLE_MAESTROMM
+#endif // SYSTEMOC_ENABLE_MAESTRO_METAMAP
 
 #endif // _INCLUDED_SMOC_FUNC_CALL_HPP

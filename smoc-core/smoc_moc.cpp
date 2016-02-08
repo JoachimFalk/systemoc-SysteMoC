@@ -105,7 +105,7 @@ void smoc_scheduler_top::end_of_simulation() {
 }
 
 void smoc_scheduler_top::before_end_of_elaboration() {
-#ifdef SYSTEMOC_ENABLE_MAESTROMM
+#ifdef SYSTEMOC_ENABLE_MAESTRO_METAMAP
   MM::MMAPI* api = MM::MMAPI::getInstance();
   api->beforeEndOfElaboration();
 #endif
@@ -128,7 +128,7 @@ void smoc_scheduler_top::end_of_elaboration() {
 
   g->finalise();
 
-#ifdef SYSTEMOC_ENABLE_MAESTROMM
+#ifdef SYSTEMOC_ENABLE_MAESTRO_METAMAP
   MM::MMAPI* api = MM::MMAPI::getInstance();
   api->endOfElaboration();
 #endif
@@ -161,7 +161,7 @@ void smoc_scheduler_top::end_of_elaboration() {
 }
 
 void smoc_scheduler_top::schedule() {
-#if defined SYSTEMOC_ENABLE_MAESTROMM && !defined SYSTEMOC_ENABLE_VPC
+#if defined SYSTEMOC_ENABLE_MAESTRO_METAMAP && !defined SYSTEMOC_ENABLE_VPC
   return;
 #endif
 #ifdef SYSTEMOC_ENABLE_VPC

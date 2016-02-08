@@ -45,7 +45,7 @@
 #include "detail/IdPool.hpp"
 #include "detail/SimCTXBase.hpp"
 
-#ifdef SYSTEMOC_ENABLE_POLYPHONIC
+#ifdef MAESTRO_ENABLE_POLYPHONIC
 #include <boost/thread/mutex.hpp>
 #endif
 
@@ -79,7 +79,7 @@ protected:
 public:
   smoc_simulation_ctx(int _argc, char *_argv[]);
 
-#ifdef SYSTEMOC_ENABLE_POLYPHONIC
+#ifdef MAESTRO_ENABLE_POLYPHONIC
   boost::mutex* event_mutex;
 #endif
 

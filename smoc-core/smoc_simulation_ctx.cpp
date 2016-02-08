@@ -81,7 +81,7 @@ smoc_simulation_ctx::smoc_simulation_ctx(int _argc, char *_argv[])
     dummy(false),
     vpcScheduling(false)
 {
-#ifdef SYSTEMOC_ENABLE_POLYPHONIC
+#ifdef MAESTRO_ENABLE_POLYPHONIC
 	event_mutex = new boost::mutex();
 	sc_core::sc_get_curr_simcontext();
 	sc_core::sc_curr_simcontext->event_mutex = event_mutex;

@@ -50,7 +50,7 @@
 #include "detail/smoc_sysc_port.hpp"
 #include "detail/smoc_chan_if.hpp"
 
-#ifdef SYSTEMOC_ENABLE_MAESTROMM
+#ifdef SYSTEMOC_ENABLE_MAESTRO_METAMAP
 #ifdef ENABLE_BRUCKNER
 #include  "Port.h"
 #endif
@@ -60,7 +60,7 @@
 template <typename IFACE>
 class smoc_port_base
 : public smoc_sysc_port,
-#ifdef SYSTEMOC_ENABLE_MAESTROMM
+#ifdef SYSTEMOC_ENABLE_MAESTRO_METAMAP
 #ifdef ENABLE_BRUCKNER
   public Bruckner::Model::Port,
 #endif
@@ -108,7 +108,7 @@ protected:
   smoc_port_base(const char *name_, sc_port_policy policy)
     : smoc_sysc_port(name_, policy) 
   {
-		#ifdef SYSTEMOC_ENABLE_MAESTROMM
+		#ifdef SYSTEMOC_ENABLE_MAESTRO_METAMAP
 #ifdef ENABLE_BRUCKNER
 			this->memberName = name_;
 			this->instanceName = name_;
