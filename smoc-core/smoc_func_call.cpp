@@ -39,10 +39,9 @@
 #include <systemoc/detail/smoc_debug_stream.hpp>
 #include <smoc/detail/TraceLog.hpp>
 
-#ifdef SYSTEMOC_ENABLE_MAESTRO_METAMAP
-#include <PolyphoniC/polyphonic_smoc_func_call.h>
-#endif
-
+#ifdef MAESTRO_ENABLE_POLYPHONIC
+# include <Maestro/PolyphoniC/polyphonic_smoc_func_call.h>
+#endif //MAESTRO_ENABLE_POLYPHONIC
 
 smoc_action merge(const smoc_action& a, const smoc_action& b) {
   if(const smoc_func_call_list* _a = boost::get<smoc_func_call_list>(&a)) {
@@ -171,22 +170,22 @@ RuntimeState* smoc::dMM::TransitionOnThreadVisitor::operator()(const smoc_func_c
 	{
 		// Function call
 		for (smoc_func_call_list::const_iterator i = f.begin(); i != f.end(); ++i) {
-#ifdef SYSTEMOC_ENABLE_DATAFLOW_TRACE
+# ifdef SYSTEMOC_ENABLE_DATAFLOW_TRACE
 			this->getSimCTX()->getDataflowTraceLog()->traceStartFunction(&*i);
-#endif // SYSTEMOC_ENABLE_DATAFLOW_TRACE
-#ifdef SYSTEMOC_DEBUG
+# endif // SYSTEMOC_ENABLE_DATAFLOW_TRACE
+# ifdef SYSTEMOC_DEBUG
 			outDbg << "<action type=\"smoc_func_call\" func=\""
 				<< i->getFuncName() << "\">" << std::endl;
-#endif // SYSTEMOC_DEBUG
+# endif // SYSTEMOC_DEBUG
 
 			(*i)();
 
-#ifdef SYSTEMOC_DEBUG
+# ifdef SYSTEMOC_DEBUG
 			outDbg << "</action>" << std::endl;
-#endif // SYSTEMOC_DEBUG
-#ifdef SYSTEMOC_ENABLE_DATAFLOW_TRACE
+# endif // SYSTEMOC_DEBUG
+# ifdef SYSTEMOC_ENABLE_DATAFLOW_TRACE
 			getSimCTX()->getDataflowTraceLog()->traceEndFunction(&*i);
-#endif // SYSTEMOC_ENABLE_DATAFLOW_TRACE
+# endif // SYSTEMOC_ENABLE_DATAFLOW_TRACE
 		}
 	}
 	
@@ -197,22 +196,22 @@ void smoc::dMM::TransitionOnThreadVisitor::executeTransition(const smoc_func_cal
 {
 	// Function call
 	for (smoc_func_call_list::const_iterator i = f.begin(); i != f.end(); ++i) {
-#ifdef SYSTEMOC_ENABLE_DATAFLOW_TRACE
+# ifdef SYSTEMOC_ENABLE_DATAFLOW_TRACE
 		this->getSimCTX()->getDataflowTraceLog()->traceStartFunction(&*i);
-#endif // SYSTEMOC_ENABLE_DATAFLOW_TRACE
-#ifdef SYSTEMOC_DEBUG
+# endif // SYSTEMOC_ENABLE_DATAFLOW_TRACE
+# ifdef SYSTEMOC_DEBUG
 		outDbg << "<action type=\"smoc_func_call\" func=\""
 			<< i->getFuncName() << "\">" << std::endl;
-#endif // SYSTEMOC_DEBUG
+# endif // SYSTEMOC_DEBUG
 
 		(*i)();
 
-#ifdef SYSTEMOC_DEBUG
+# ifdef SYSTEMOC_DEBUG
 		outDbg << "</action>" << std::endl;
-#endif // SYSTEMOC_DEBUG
-#ifdef SYSTEMOC_ENABLE_DATAFLOW_TRACE
+# endif // SYSTEMOC_DEBUG
+# ifdef SYSTEMOC_ENABLE_DATAFLOW_TRACE
 		getSimCTX()->getDataflowTraceLog()->traceEndFunction(&*i);
-#endif // SYSTEMOC_ENABLE_DATAFLOW_TRACE
+# endif // SYSTEMOC_ENABLE_DATAFLOW_TRACE
 }
 
 	transition->notifyThreadDone();
@@ -220,16 +219,16 @@ void smoc::dMM::TransitionOnThreadVisitor::executeTransition(const smoc_func_cal
 
 RuntimeState* smoc::dMM::TransitionOnThreadVisitor::operator()(const smoc_func_diverge& f) const {
 	// Function call determines next state (Internal use only)
-#ifdef SYSTEMOC_DEBUG
+# ifdef SYSTEMOC_DEBUG
 	outDbg << "<action type=\"smoc_func_diverge\" func=\"???\">"
 		<< std::endl;
-#endif
+# endif //SYSTEMOC_DEBUG
 
 	RuntimeState* ret = f();
 
-#ifdef SYSTEMOC_DEBUG
+# ifdef SYSTEMOC_DEBUG
 	outDbg << "</action>" << std::endl;
-#endif
+# endif //SYSTEMOC_DEBUG
 	return ret;
 }
 
@@ -238,9 +237,7 @@ RuntimeState* smoc::dMM::TransitionOnThreadVisitor::operator()(const smoc_sr_fun
 	throw std::exception("Not implemented");
 }
 
-
-
-#endif
+#endif //MAESTRO_ENABLE_POLYPHONIC
 
 #ifdef SYSTEMOC_ENABLE_VPC
 namespace smoc { namespace Detail {

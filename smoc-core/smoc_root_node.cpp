@@ -46,7 +46,7 @@
 #include <systemoc/smoc_graph_type.hpp>
 #include <systemoc/detail/smoc_debug_stream.hpp>
 #ifdef SYSTEMOC_ENABLE_MAESTRO_METAMAP
-# include <Maestro/MetaMap/MAESTRORuntimeException.h>
+# include <Maestro/MetaMap/MAESTRORuntimeException.hpp>
 #endif //SYSTEMOC_ENABLE_MAESTRO_METAMAP
 
 using namespace smoc::Detail;
