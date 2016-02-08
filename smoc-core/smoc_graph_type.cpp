@@ -220,11 +220,11 @@ void smoc_graph_base::doReset() {
 smoc_graph::smoc_graph(const sc_module_name& name) :
   smoc_graph_base(name, run),
   run("run")
-#ifdef SYSTEMOC_ENABLE_MAESTROMM
+#ifdef SYSTEMOC_ENABLE_MAESTRO_METAMAP
   , SMoCGraph(name.operator const char *())
 #endif
 {
-#ifdef SYSTEMOC_ENABLE_MAESTROMM
+#ifdef SYSTEMOC_ENABLE_MAESTRO_METAMAP
 	this->setName(this->name());
 #endif
 
@@ -237,7 +237,7 @@ smoc_graph::smoc_graph() :
 {
   constructor();
 
-#ifdef SYSTEMOC_ENABLE_MAESTROMM
+#ifdef SYSTEMOC_ENABLE_MAESTRO_METAMAP
   this->setName(this->name());
 #endif
 }

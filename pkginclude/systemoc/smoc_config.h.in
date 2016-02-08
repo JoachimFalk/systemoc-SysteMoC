@@ -1,7 +1,7 @@
 /* vim: set sw=2 ts=8 syn=c: */
 
-#ifndef _INCLUDED_SMOC_CONFIG_H
-#define _INCLUDED_SMOC_CONFIG_H
+#ifndef _INCLUDED_SYSTEMOC_SMOC_CONFIG_H
+#define _INCLUDED_SYSTEMOC_SMOC_CONFIG_H
 
 /* Defined to SysteMoC version */
 #undef SYSTEMOC_VERSION
@@ -27,26 +27,28 @@
 /* Defined if SystemC-VPC support is enabled */
 #undef SYSTEMOC_ENABLE_VPC
 
-/* Defined if Maestro library support is enabled */
-#undef SYSTEMOC_ENABLE_MAESTROMM
-
-/* Defined if WSDF support is enabled */
-#undef SYSTEMOC_ENABLE_WSDF
+/* Defined if Maestro MetaMap library support is enabled */
+#undef SYSTEMOC_ENABLE_MAESTRO_METAMAP
 
 #if defined(SYSTEMOC_ENABLE_DATAFLOW_TRACE) || defined(SYSTEMOC_ENABLE_TRANSITION_TRACE) || defined(SYSTEMOC_ENABLE_SGX)
 # define SYSTEMOC_NEED_IDS
-#endif
+#endif //defined(SYSTEMOC_ENABLE_DATAFLOW_TRACE) || defined(SYSTEMOC_ENABLE_TRANSITION_TRACE) || defined(SYSTEMOC_ENABLE_SGX)
 
 #if defined(SYSTEMOC_ENABLE_DATAFLOW_TRACE)
 # define SYSTEMOC_ENABLE_DEBUG
-#endif
+#endif //defined(SYSTEMOC_ENABLE_DATAFLOW_TRACE)
 
 #if defined(SYSTEMOC_ENABLE_VPC)
 # define SYSTEMOC_PORT_ACCESS_COUNTER
-#endif
+#endif //defined(SYSTEMOC_ENABLE_VPC)
 
 #if defined(SYSTEMOC_DEBUG) && defined(SYSTEMOC_ENABLE_VPC)
 # define SYSTEMOC_DEBUG_VPC_IF
-#endif
+#endif //defined(SYSTEMOC_DEBUG) && defined(SYSTEMOC_ENABLE_VPC)
 
-#endif /* _INCLUDED_SMOC_CONFIG_H */
+// Pull config of Maestro libraries
+#ifdef SYSTEMOC_ENABLE_MAESTRO_METAMAP
+# include <Maestro/maestro_config.h>
+#endif //SYSTEMOC_ENABLE_MAESTRO_METAMAP
+
+#endif //_INCLUDED_SYSTEMOC_SMOC_CONFIG_H

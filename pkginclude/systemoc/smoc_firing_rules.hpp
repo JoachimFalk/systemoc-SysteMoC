@@ -57,9 +57,9 @@
 
 #include <boost/static_assert.hpp>
 
-#ifdef SYSTEMOC_ENABLE_MAESTROMM
-#include <MetaMap/SMoCActor.h>
-#endif //SYSTEMOC_ENABLE_MAESTROMM
+#ifdef SYSTEMOC_ENABLE_MAESTRO_METAMAP
+# include <Maestro/MetaMap/SMoCActor.hpp>
+#endif //SYSTEMOC_ENABLE_MAESTRO_METAMAP
 
 typedef smoc::Expr::Ex<bool>::type Guard;
 

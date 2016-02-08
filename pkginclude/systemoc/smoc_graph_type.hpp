@@ -52,9 +52,9 @@
 
 #include "smoc_chan_adapter.hpp"
 
-#ifdef SYSTEMOC_ENABLE_MAESTROMM
-#include <MetaMap/SMoCGraph.hpp>
-#endif //SYSTEMOC_ENABLE_MAESTROMM
+#ifdef SYSTEMOC_ENABLE_MAESTRO_METAMAP
+# include <Maestro/MetaMap/SMoCGraph.hpp>
+#endif //SYSTEMOC_ENABLE_MAESTRO_METAMAP
 
 #define T_chan_init_default smoc_fifo
 
@@ -176,9 +176,9 @@ private:
  * any executable transition
  */
 class smoc_graph : public smoc_graph_base
-#ifdef SYSTEMOC_ENABLE_MAESTROMM
+#ifdef SYSTEMOC_ENABLE_MAESTRO_METAMAP
 , public MetaMap::SMoCGraph
-#endif //SYSTEMOC_ENABLE_MAESTROMM
+#endif //SYSTEMOC_ENABLE_MAESTRO_METAMAP
 {
 public:
   // construct graph with name

@@ -35,12 +35,11 @@
 
 #include <systemoc/smoc_actor.hpp>
 #include <systemoc/smoc_graph_type.hpp>
-#ifdef SYSTEMOC_ENABLE_MAESTROMM
-#include <MetaMap\ClockI.h>
-#endif
+#ifdef SYSTEMOC_ENABLE_MAESTRO_METAMAP
+# include <Maestro/MetaMap/ClockI.hpp>
+#endif //SYSTEMOC_ENABLE_MAESTRO_METAMAP
 
-
-#ifdef SYSTEMOC_ENABLE_MAESTROMM
+#ifdef SYSTEMOC_ENABLE_MAESTRO_METAMAP
 smoc_actor::smoc_actor(sc_module_name name, smoc_hierarchical_state &s, unsigned int thread_stack_size, bool useLogFile)
   : smoc_root_node(name, smoc_root_node::NODE_TYPE_ACTOR, s),
     SMoCActor(thread_stack_size)
@@ -58,7 +57,7 @@ SMoCActor(thread_stack_size)
   this->instanceLogger(this->name(), useLogFile);
   initMMactor();
 }
-#else //!defined(SYSTEMOC_ENABLE_MAESTROMM)
+#else //!defined(SYSTEMOC_ENABLE_MAESTRO_METAMAP)
 smoc_actor::smoc_actor(sc_module_name name, smoc_hierarchical_state &s)
 	: smoc_root_node(name, smoc_root_node::NODE_TYPE_ACTOR, s)
 {
@@ -68,9 +67,9 @@ smoc_actor::smoc_actor(smoc_hierarchical_state &s)
 	: smoc_root_node(sc_gen_unique_name("smoc_actor"), smoc_root_node::NODE_TYPE_ACTOR, s)
 {
 }
-#endif //!defined(SYSTEMOC_ENABLE_MAESTROMM)
+#endif //!defined(SYSTEMOC_ENABLE_MAESTRO_METAMAP)
 
-#ifdef SYSTEMOC_ENABLE_MAESTROMM
+#ifdef SYSTEMOC_ENABLE_MAESTRO_METAMAP
 void smoc_actor::initMMactor()
 {
   MM::MMAPI* api = MM::MMAPI::getInstance();
@@ -130,7 +129,7 @@ void smoc_actor::registerTransitionReadyListener(MetaMap::TransitionReadyListene
 
 }
 
-#ifdef SYSTEMOC_ENABLE_POLYPHONIC
+#ifdef MAESTRO_ENABLE_POLYPHONIC
 void smoc_actor::registerThreadDoneListener(MetaMap::ThreadDoneListener& listener)
 {
 	//For all states
@@ -160,22 +159,22 @@ void smoc_actor::execute()
 
 void smoc_actor::wait(double v, sc_time_unit tu )
 {
-#ifdef SYSTEMOC_ENABLE_POLYPHONIC
+#ifdef MAESTRO_ENABLE_POLYPHONIC
 	this->waitListener->notifyWillWaitTime(*this);
 #endif
   sc_module::wait(v,tu);
-#ifdef SYSTEMOC_ENABLE_POLYPHONIC
+#ifdef MAESTRO_ENABLE_POLYPHONIC
   this->waitListener->notifyTimeEllapsedAndAwaken(*this);
 #endif
 }
 
 void smoc_actor::wait(sc_time sct )
 {
-#ifdef SYSTEMOC_ENABLE_POLYPHONIC
+#ifdef MAESTRO_ENABLE_POLYPHONIC
 	this->waitListener->notifyWillWaitTime(*this);
 #endif
     sc_module::wait(sct);
-#ifdef SYSTEMOC_ENABLE_POLYPHONIC
+#ifdef MAESTRO_ENABLE_POLYPHONIC
 	this->waitListener->notifyTimeEllapsedAndAwaken(*this);
 #endif
 }
@@ -220,11 +219,11 @@ void smoc_actor::localClockWait(sc_time sct)
 
 	double totalTime = (sct.to_double() /*- shift - offset*/)*freqFactor;
 
-#ifdef SYSTEMOC_ENABLE_POLYPHONIC
+#ifdef MAESTRO_ENABLE_POLYPHONIC
 	this->waitListener->notifyWillWaitTime(*this);
 #endif
 	sc_module::wait(totalTime,SC_PS);
-#ifdef SYSTEMOC_ENABLE_POLYPHONIC
+#ifdef MAESTRO_ENABLE_POLYPHONIC
 	this->waitListener->notifyTimeEllapsedAndAwaken(*this);
 #endif
 }
@@ -234,7 +233,7 @@ void smoc_actor::localClockWait(double v, sc_time_unit tu)
 	localClockWait(sc_time(v, tu));
 }
 
-#endif //defined(SYSTEMOC_ENABLE_MAESTROMM)
+#endif //defined(SYSTEMOC_ENABLE_MAESTRO_METAMAP)
 
 #ifdef SYSTEMOC_ENABLE_VPC
 void smoc_actor::finaliseVpcLink() {
