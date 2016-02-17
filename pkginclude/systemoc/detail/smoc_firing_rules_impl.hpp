@@ -69,10 +69,10 @@
 #include <smoc/detail/VpcInterface.hpp>
 #endif //SYSTEMOC_ENABLE_VPC
 
-#ifdef SYSTEMOC_ENABLE_MAESTRO_METAMAP
+#ifdef SYSTEMOC_ENABLE_MAESTRO
 # include <Maestro/MetaMap/SMoCActor.hpp>
 # include <Maestro/MetaMap/Transition.hpp>
-#endif //SYSTEMOC_ENABLE_MAESTRO_METAMAP
+#endif //SYSTEMOC_ENABLE_MAESTRO
 
 class smoc_root_node;
 
@@ -246,7 +246,7 @@ class RuntimeTransition
 #ifdef SYSTEMOC_NEED_IDS
   public smoc::Detail::IdedObj,
 #endif // SYSTEMOC_NEED_IDS
-#ifdef SYSTEMOC_ENABLE_MAESTRO_METAMAP
+#ifdef SYSTEMOC_ENABLE_MAESTRO
   public MetaMap::Transition,
 #endif
   public smoc::Detail::SimCTXBase {
@@ -259,7 +259,7 @@ private:
   /// @brief Target state
   RuntimeState        *dest;
 
-#ifdef SYSTEMOC_ENABLE_MAESTRO_METAMAP
+#ifdef SYSTEMOC_ENABLE_MAESTRO
   /**
   * Method to be used by a thread to execute this transition's actions
   */
@@ -283,7 +283,7 @@ public:
   /// @brief Constructor
   RuntimeTransition(
       const boost::shared_ptr<TransitionImpl> &tip,
-      #ifdef SYSTEMOC_ENABLE_MAESTRO_METAMAP
+      #ifdef SYSTEMOC_ENABLE_MAESTRO
 	  MetaMap::SMoCActor& parentActor,
       #endif
       RuntimeState *dest = nullptr);
@@ -311,7 +311,7 @@ public:
 
   void finaliseRuntimeTransition(smoc_root_node* node);
 
-#ifdef SYSTEMOC_ENABLE_MAESTRO_METAMAP
+#ifdef SYSTEMOC_ENABLE_MAESTRO
   virtual bool hasWaitAction();
 #endif
 
@@ -326,7 +326,7 @@ typedef std::set<smoc::smoc_event_waiter*> EventWaiterSet;
 
 class RuntimeState
 :
-#ifdef SYSTEMOC_ENABLE_MAESTRO_METAMAP
+#ifdef SYSTEMOC_ENABLE_MAESTRO
 #ifdef ENABLE_BRUCKNER
 public Bruckner::Model::State,
 #endif
@@ -343,7 +343,7 @@ private:
   void  finalise();
 public:
   RuntimeState(const std::string name = "");
-#ifdef SYSTEMOC_ENABLE_MAESTRO_METAMAP
+#ifdef SYSTEMOC_ENABLE_MAESTRO
 #ifdef ENABLE_BRUCKNER
   RuntimeState(const std::string name = "", Bruckner::Model::Hierarchical* sParent = nullptr);
 #endif

@@ -35,11 +35,11 @@
 
 #include <systemoc/smoc_actor.hpp>
 #include <systemoc/smoc_graph_type.hpp>
-#ifdef SYSTEMOC_ENABLE_MAESTRO_METAMAP
+#ifdef SYSTEMOC_ENABLE_MAESTRO
 # include <Maestro/MetaMap/ClockI.hpp>
-#endif //SYSTEMOC_ENABLE_MAESTRO_METAMAP
+#endif //SYSTEMOC_ENABLE_MAESTRO
 
-#ifdef SYSTEMOC_ENABLE_MAESTRO_METAMAP
+#ifdef SYSTEMOC_ENABLE_MAESTRO
 smoc_actor::smoc_actor(sc_module_name name, smoc_hierarchical_state &s, unsigned int thread_stack_size, bool useLogFile)
   : smoc_root_node(name, smoc_root_node::NODE_TYPE_ACTOR, s),
     SMoCActor(thread_stack_size)
@@ -57,7 +57,7 @@ SMoCActor(thread_stack_size)
   this->instanceLogger(this->name(), useLogFile);
   initMMactor();
 }
-#else //!defined(SYSTEMOC_ENABLE_MAESTRO_METAMAP)
+#else //!defined(SYSTEMOC_ENABLE_MAESTRO)
 smoc_actor::smoc_actor(sc_module_name name, smoc_hierarchical_state &s)
 	: smoc_root_node(name, smoc_root_node::NODE_TYPE_ACTOR, s)
 {
@@ -67,9 +67,9 @@ smoc_actor::smoc_actor(smoc_hierarchical_state &s)
 	: smoc_root_node(sc_gen_unique_name("smoc_actor"), smoc_root_node::NODE_TYPE_ACTOR, s)
 {
 }
-#endif //!defined(SYSTEMOC_ENABLE_MAESTRO_METAMAP)
+#endif //!defined(SYSTEMOC_ENABLE_MAESTRO)
 
-#ifdef SYSTEMOC_ENABLE_MAESTRO_METAMAP
+#ifdef SYSTEMOC_ENABLE_MAESTRO
 void smoc_actor::initMMactor()
 {
   MM::MMAPI* api = MM::MMAPI::getInstance();
@@ -233,7 +233,7 @@ void smoc_actor::localClockWait(double v, sc_time_unit tu)
 	localClockWait(sc_time(v, tu));
 }
 
-#endif //defined(SYSTEMOC_ENABLE_MAESTRO_METAMAP)
+#endif //defined(SYSTEMOC_ENABLE_MAESTRO)
 
 #ifdef SYSTEMOC_ENABLE_VPC
 void smoc_actor::finaliseVpcLink() {

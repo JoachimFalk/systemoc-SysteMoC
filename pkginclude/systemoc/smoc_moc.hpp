@@ -46,10 +46,10 @@
 # include <systemcvpc/ScheduledTask.hpp>
 #endif //SYSTEMOC_ENABLE_VPC
 
-#ifdef SYSTEMOC_ENABLE_MAESTRO_METAMAP
+#ifdef SYSTEMOC_ENABLE_MAESTRO
 # include <Maestro/MetaMap/Elements.hpp>
 # include <Maestro/MetaMap/interface.hpp>
-#endif //SYSTEMOC_ENABLE_MAESTRO_METAMAP
+#endif //SYSTEMOC_ENABLE_MAESTRO
 
 #include <smoc/smoc_simulation_ctx.hpp>
 
@@ -64,7 +64,7 @@ bool canExecute(SystemC_VPC::ScheduledTask* actor);
 void execute(SystemC_VPC::ScheduledTask* actor);
 }} // namespace smoc::Scheduler
 #endif //SYSTEMOC_ENABLE_VPC
-#ifdef SYSTEMOC_ENABLE_MAESTRO_METAMAP
+#ifdef SYSTEMOC_ENABLE_MAESTRO
 /////////////////////////
 //RR
 namespace SysteMoC {
@@ -72,7 +72,7 @@ namespace SysteMoC {
 	void execute(MetaMap::SMoCActor& actor);
 }
 /////////////////////////
-#endif //SYSTEMOC_ENABLE_MAESTRO_METAMAP
+#endif //SYSTEMOC_ENABLE_MAESTRO
 
 
 class smoc_scheduler_top
@@ -142,7 +142,7 @@ public:
 
   static void beforeSimulation()
   {
-#ifdef SYSTEMOC_ENABLE_MAESTRO_METAMAP
+#ifdef SYSTEMOC_ENABLE_MAESTRO
 	  MM::MMAPI::reInit();
 #endif
   }

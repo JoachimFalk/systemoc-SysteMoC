@@ -179,11 +179,11 @@ if test x"$enable_vpc" = x"yes"; then
 fi
 
 ACJF_CHECK_LIB_MAESTRO_METAMAP([enable_maestro_metamap=yes], [enable_maestro_metamap=no])
-AM_CONDITIONAL([SYSTEMOC_ENABLE_MAESTRO_METAMAP], [test x"$enable_maestro_metamap" = x"yes"])
+AM_CONDITIONAL([SYSTEMOC_ENABLE_MAESTRO], [test x"$enable_maestro_metamap" = x"yes"])
 # This is a define for pkginclude/systemoc/smoc_config.h to guarantee
 # consistency for Examples and Testcases
 if test x"$enable_maestro_metamap" = x"yes"; then
-  AC_DEFINE([SYSTEMOC_ENABLE_MAESTRO_METAMAP], [yes], [Defined if Maestro MetaMap library support is enabled])
+  AC_DEFINE([SYSTEMOC_ENABLE_MAESTRO], [yes], [Defined if Maestro MetaMap library support is enabled])
   SYSTEMOC_OPTIONAL_REQUIRES="${SYSTEMOC_OPTIONAL_REQUIRES} libmaestro-metamap >= 0.3"
 fi
 AC_SUBST([SYSTEMOC_OPTIONAL_REQUIRES])

@@ -70,7 +70,7 @@
 
 #define CALL(func)    call(&func, #func)
 #define GUARD(func)   guard(&func, #func)
-#ifdef SYSTEMOC_ENABLE_MAESTRO_METAMAP
+#ifdef SYSTEMOC_ENABLE_MAESTRO
 #define CALLI(ins,func)    calli(ins, &func, #func)
 #define GUARDI(ins,func)   guardi(ins, &func, #func)
 #endif
@@ -113,13 +113,13 @@ public:
 private:
   NodeType nodeType;
 
-#ifdef SYSTEMOC_ENABLE_MAESTRO_METAMAP
+#ifdef SYSTEMOC_ENABLE_MAESTRO
 public:
 #endif
   /// @brief Initial firing state
   smoc_hierarchical_state &initialState;
 
-#ifdef SYSTEMOC_ENABLE_MAESTRO_METAMAP
+#ifdef SYSTEMOC_ENABLE_MAESTRO
 public:
   bool testCanFire();
   
@@ -191,7 +191,7 @@ public:
       (CoSupport::Lambda::Functor<void, F>(this, f, name));
   }
 
-#ifdef SYSTEMOC_ENABLE_MAESTRO_METAMAP
+#ifdef SYSTEMOC_ENABLE_MAESTRO
   template<typename F, typename X>
   typename CoSupport::Lambda::ParamAccumulator<smoc_member_func, CoSupport::Lambda::Functor<void, F> >::accumulated_type
 	  calli(X* ins, const F &f, const char *name = "") {
@@ -209,7 +209,7 @@ protected:
 
 public:
 	
-#ifdef SYSTEMOC_ENABLE_MAESTRO_METAMAP
+#ifdef SYSTEMOC_ENABLE_MAESTRO
   template<typename F, typename X>
   typename smoc::Expr::MemGuard<F>::type guardi(const X* ins, const F &f, const char *name = "") const {
 	  return smoc::Expr::guard(ins, f, name);

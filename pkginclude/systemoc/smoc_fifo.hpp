@@ -68,7 +68,7 @@
 #else
 # include <smoc/detail/QueueRWPtr.hpp>
 #endif
-#ifdef SYSTEMOC_ENABLE_MAESTRO_METAMAP
+#ifdef SYSTEMOC_ENABLE_MAESTRO
 #ifdef ENABLE_BRUCKNER
 #include "Channel.h"
 #endif
@@ -388,7 +388,7 @@ private:
 template <typename T>
 class smoc_fifo
 : public smoc_fifo_chan<T>::chan_init,
-#ifdef SYSTEMOC_ENABLE_MAESTRO_METAMAP
+#ifdef SYSTEMOC_ENABLE_MAESTRO
 #ifdef ENABLE_BRUCKNER
   public Bruckner::Model::Channel,
 #endif
