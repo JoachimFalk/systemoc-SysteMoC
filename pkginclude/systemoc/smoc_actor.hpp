@@ -41,10 +41,10 @@
 # include <systemcvpc/ScheduledTask.hpp>
 #endif //SYSTEMOC_ENABLE_VPC
 
-#ifdef SYSTEMOC_ENABLE_MAESTRO_METAMAP
+#ifdef SYSTEMOC_ENABLE_MAESTRO
 # include <Maestro/MetaMap/SMoCActor.hpp>
 # include <Maestro/MetaMap/includes.hpp>
-#endif //SYSTEMOC_ENABLE_MAESTRO_METAMAP
+#endif //SYSTEMOC_ENABLE_MAESTRO
 
 #include "detail/smoc_root_node.hpp"
 
@@ -52,12 +52,12 @@ class smoc_actor :
 #ifdef SYSTEMOC_ENABLE_VPC
   public SystemC_VPC::ScheduledTask,
 #endif //SYSTEMOC_ENABLE_VPC
-#ifdef SYSTEMOC_ENABLE_MAESTRO_METAMAP
+#ifdef SYSTEMOC_ENABLE_MAESTRO
   public MetaMap::SMoCActor,
-#endif //SYSTEMOC_ENABLE_MAESTRO_METAMAP
+#endif //SYSTEMOC_ENABLE_MAESTRO
   public smoc_root_node {
 protected:
-#ifdef SYSTEMOC_ENABLE_MAESTRO_METAMAP
+#ifdef SYSTEMOC_ENABLE_MAESTRO
   smoc_actor(sc_module_name name, smoc_hierarchical_state &s, unsigned int thread_stack_size = 0x20000, bool useLogFile = false);
   smoc_actor(smoc_hierarchical_state &s, unsigned int thread_stack_size = 0x20000, bool useLogFile = false);
 #else
@@ -69,14 +69,14 @@ protected:
   void finaliseVpcLink();
 #endif //SYSTEMOC_ENABLE_VPC
   virtual void setActivation(bool activation);
-#ifdef SYSTEMOC_ENABLE_MAESTRO_METAMAP
+#ifdef SYSTEMOC_ENABLE_MAESTRO
   void initMMactor();
 
   double getLocalTimeDiff();
-#endif //SYSTEMOC_ENABLE_MAESTRO_METAMAP
+#endif //SYSTEMOC_ENABLE_MAESTRO
 public:
 
-#ifdef SYSTEMOC_ENABLE_MAESTRO_METAMAP
+#ifdef SYSTEMOC_ENABLE_MAESTRO
   void wait();
   void wait(double v, sc_time_unit tu );
   void wait(sc_event& waitEvent);
@@ -101,6 +101,6 @@ public:
   virtual bool isScheduled();
 
   virtual void setScheduled(bool set);
-#endif // SYSTEMOC_ENABLE_MAESTRO_METAMAP
+#endif // SYSTEMOC_ENABLE_MAESTRO
 };
 #endif // _INCLUDED_SMOC_ACTOR_HPP

@@ -170,12 +170,12 @@ IOPattern *getCachedIOPattern(const IOPattern &iop) {
 /// @brief Constructor
 RuntimeTransition::RuntimeTransition(
     const boost::shared_ptr<TransitionImpl> &tip,
-    #ifdef SYSTEMOC_ENABLE_MAESTRO_METAMAP
+    #ifdef SYSTEMOC_ENABLE_MAESTRO
 	SMoCActor& pActor,
     #endif
     RuntimeState *dest)
   : transitionImpl(tip),
-    #ifdef SYSTEMOC_ENABLE_MAESTRO_METAMAP
+    #ifdef SYSTEMOC_ENABLE_MAESTRO
       Transition(pActor),
     #endif
     dest(dest)
@@ -186,7 +186,7 @@ RuntimeTransition::RuntimeTransition(
   IOPattern* iop = getCachedIOPattern(tmp);
   transitionImpl->setIOPattern(iop);
 
-#ifdef SYSTEMOC_ENABLE_MAESTRO_METAMAP
+#ifdef SYSTEMOC_ENABLE_MAESTRO
 #ifdef ENABLE_BRUCKNER
   //FSMTransition
   this->parent = dynamic_cast<Bruckner::Model::Hierarchical*>(this->parentActor);
@@ -213,7 +213,7 @@ RuntimeTransition::RuntimeTransition(
 //		*/
 //		this->transitionImpl = other.transitionImpl;
 //		this->dest = other.dest;
-//#ifdef SYSTEMOC_ENABLE_MAESTRO_METAMAP
+//#ifdef SYSTEMOC_ENABLE_MAESTRO
 //#ifdef ENABLE_BRUCKNER
 //		//FSMTransition
 //		this->parent = other.parent;
@@ -297,7 +297,7 @@ public:
 };
 
 
-#ifdef SYSTEMOC_ENABLE_MAESTRO_METAMAP
+#ifdef SYSTEMOC_ENABLE_MAESTRO
 /**
 * Method to be used by a thread to execute this transition's actions
 */
@@ -402,7 +402,7 @@ void RuntimeTransition::execute(smoc_root_node *actor, int mode) {
 #endif
   
 
-#ifdef SYSTEMOC_ENABLE_MAESTRO_METAMAP
+#ifdef SYSTEMOC_ENABLE_MAESTRO
 
 #ifdef ENABLE_BRUCKNER
   if (this->parentActor->logEnabled)
@@ -445,7 +445,7 @@ void RuntimeTransition::execute(smoc_root_node *actor, int mode) {
 
 #if defined SYSTEMOC_ENABLE_VPC
 
-  #if defined SYSTEMOC_ENABLE_MAESTRO_METAMAP
+  #if defined SYSTEMOC_ENABLE_MAESTRO
 
       MM::Actor* mmActor = dynamic_cast<MM::Actor*>(actor);
       if (!mmActor->isMMScheduled())
@@ -481,7 +481,7 @@ void RuntimeTransition::execute(smoc_root_node *actor, int mode) {
     smoc::Expr::evalTo<smoc::Expr::CommExec>(getExpr(), VpcInterface(nullptr));
   }
 
-  #ifdef SYSTEMOC_ENABLE_MAESTRO_METAMAP
+  #ifdef SYSTEMOC_ENABLE_MAESTRO
 
         }
         else
@@ -490,12 +490,12 @@ void RuntimeTransition::execute(smoc_root_node *actor, int mode) {
             smoc::Expr::evalTo<smoc::Expr::CommExec>(getExpr());
           }
 
-  #endif//SYSTEMOC_ENABLE_MAESTRO_METAMAP
+  #endif//SYSTEMOC_ENABLE_MAESTRO
 
 #endif // SYSTEMOC_ENABLE_VPC
 
 
-//#if !defined SYSTEMOC_ENABLE_VPC || defined SYSTEMOC_ENABLE_MAESTRO_METAMAP
+//#if !defined SYSTEMOC_ENABLE_VPC || defined SYSTEMOC_ENABLE_MAESTRO
 //  smoc::Expr::evalTo<smoc::Expr::CommExec>(getExpr());
 //#endif // SYSTEMOC_ENABLE_VPC
 #ifndef SYSTEMOC_ENABLE_VPC
@@ -589,7 +589,7 @@ void RuntimeTransition::finaliseRuntimeTransition(smoc_root_node *node) {
   }
 #endif //SYSTEMOC_ENABLE_VPC
 
-#ifdef SYSTEMOC_ENABLE_MAESTRO_METAMAP
+#ifdef SYSTEMOC_ENABLE_MAESTRO
   //Fill guardNames
   smoc::dMM::MMGuardNameVisitor gVisitor((this->guardNames));
   smoc::Expr::evalTo(gVisitor, getExpr());
@@ -597,7 +597,7 @@ void RuntimeTransition::finaliseRuntimeTransition(smoc_root_node *node) {
   //Fill actionNames
   boost::apply_visitor(smoc::dMM::MMActionNameVisitor((this->actionNames)), getAction());
 
-#endif //SYSTEMOC_ENABLE_MAESTRO_METAMAP
+#endif //SYSTEMOC_ENABLE_MAESTRO
 
 #ifdef SYSTEMOC_DEBUG_VPC_IF
   this->transitionImpl->actor = node->name();
@@ -613,7 +613,7 @@ RuntimeState::RuntimeState(const std::string name)
   finalise();
 }
 
-#ifdef SYSTEMOC_ENABLE_MAESTRO_METAMAP
+#ifdef SYSTEMOC_ENABLE_MAESTRO
 #ifdef ENABLE_BRUCKNER
 RuntimeState::RuntimeState(const std::string name, Bruckner::Model::Hierarchical* sParent)
 	: 
@@ -834,7 +834,7 @@ void FiringFSMImpl::finalise(
     ProdState psinit;
     top->getInitialState(psinit, Marking());
 
-#ifdef SYSTEMOC_ENABLE_MAESTRO_METAMAP
+#ifdef SYSTEMOC_ENABLE_MAESTRO
 #ifdef ENABLE_BRUCKNER
 	  //init = *rts.insert(new RuntimeState (Concat(actorOrGraphNode->name())(":")(psinit), dynamic_cast<Bruckner::Model::Hierarchical*>(actorOrGraphNode) )).first;
 	init = *rts.insert(new RuntimeState (Concat("")(psinit), dynamic_cast<Bruckner::Model::Hierarchical*>(actorOrGraphNode) )).first;
@@ -843,7 +843,7 @@ void FiringFSMImpl::finalise(
 #endif
 #endif
 
-#ifndef SYSTEMOC_ENABLE_MAESTRO_METAMAP
+#ifndef SYSTEMOC_ENABLE_MAESTRO
 	  init = *rts.insert(new RuntimeState(Concat(actorOrGraphNode->name())(":")(psinit))).first;
 #endif
 	  
@@ -898,7 +898,7 @@ void FiringFSMImpl::finalise(
           if(ins.second) {
             // FIXME: construct state name and pass to RuntimeState
               ProdState f = ins.first->first;
-#ifdef SYSTEMOC_ENABLE_MAESTRO_METAMAP
+#ifdef SYSTEMOC_ENABLE_MAESTRO
 #ifdef ENABLE_BRUCKNER
             //ins.first->second = *rts.insert(new RuntimeState(Concat(actorOrGraphNode->name())(":")(f), dynamic_cast<Bruckner::Model::Hierarchical*>(actorOrGraphNode)	)).first;
 			  ins.first->second = *rts.insert(new RuntimeState(Concat("")(f), dynamic_cast<Bruckner::Model::Hierarchical*>(actorOrGraphNode)	)).first;
@@ -922,7 +922,7 @@ void FiringFSMImpl::finalise(
           // create runtime transition
 //          outDbg << "creating runtime transition " << rs << " -> " << rd << std::endl;
 
-#ifdef SYSTEMOC_ENABLE_MAESTRO_METAMAP
+#ifdef SYSTEMOC_ENABLE_MAESTRO
 
 		  SMoCActor* a = nullptr;
 
@@ -934,7 +934,7 @@ void FiringFSMImpl::finalise(
           rs->addTransition(
               RuntimeTransition(
                 t->getCachedTransitionImpl(),
-                #ifdef SYSTEMOC_ENABLE_MAESTRO_METAMAP
+                #ifdef SYSTEMOC_ENABLE_MAESTRO
                 *a,
                 #endif
                 rd),

@@ -392,7 +392,7 @@ private:
 } } // namespace smoc::Detail
 #endif // SYSTEMOC_ENABLE_VPC
 
-#ifdef SYSTEMOC_ENABLE_MAESTRO_METAMAP
+#ifdef SYSTEMOC_ENABLE_MAESTRO
 //////////////TODO: REVIEW THIS SECTION CODE (Visitor's)
 
 using namespace std;
@@ -516,6 +516,6 @@ private:
   list<string> &functionNames;
 };
 } } // namespace smoc::Detail
-#endif // SYSTEMOC_ENABLE_MAESTRO_METAMAP
+#endif // SYSTEMOC_ENABLE_MAESTRO
 
 #endif // _INCLUDED_SMOC_FUNC_CALL_HPP
