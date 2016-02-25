@@ -52,12 +52,6 @@ dnl AM_CPPFLAGS="$AM_CPPFLAGS $BOOST_INCLUDE"
 dnl AM_LDFLAGS="$AM_LDFLAGS   $BOOST_LDFLAGS"
 ACJF_CHECK_LIB_COSUPPORT
 ACJF_CHECK_LIB_SYSTEMOC
-SYSTEMOC_ENABLE_VPC=$acjf_cv_systemoc_enable_vpc
-AC_SUBST([SYSTEMOC_ENABLE_VPC])
-SYSTEMOC_ENABLE_MAESTROMM=$acjf_cv_systemoc_enable_maestromm
-AC_SUBST([SYSTEMOC_ENABLE_MAESTROMM])
-
-
 
 # Checks for typedefs, structures, and compiler characteristics.
 
@@ -80,13 +74,17 @@ AM_CONDITIONAL(CLUSTERING, test x"$clustering" = x"true")
 AC_CONFIG_HEADER([config.h])
 AC_CONFIG_FILES([Makefile])
 
-if test x"$acjf_cv_systemoc_enable_vpc" = x"yes"; then
+if test x"$SYSTEMOC_ENABLE_VPC" = x"yes"; then
   AC_CONFIG_SUBDIRS([vpc])
 fi
 
-if test x"$acjf_cv_systemoc_enable_maestromm" = x"yes"; then
-m4_sinclude([Maestro-transceiver/configure.in.frag])
+if test x"$SYSTEMOC_ENABLE_MAESTRO" = x"yes"; then
+  AC_CONFIG_SUBDIRS([maestro])
 fi
+
+dnl if test x"$acjf_cv_systemoc_enable_maestro" = x"yes"; then
+dnl m4_sinclude([Maestro-transceiver/configure.in.frag])
+dnl fi
 
 m4_sinclude([systemoc-sqr/configure.in.frag])
 m4_sinclude([systemoc-sqr-int/configure.in.frag])
