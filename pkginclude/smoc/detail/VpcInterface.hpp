@@ -179,7 +179,8 @@ private:
 class VpcInterface{
 public:
   ///
-  VpcInterface(VpcTaskInterface *taskIf) : taskIf(taskIf) {}
+  VpcInterface(VpcTaskInterface *taskIf = nullptr)
+    : taskIf(taskIf), portIf(nullptr) {}
 
   ///
   void setPortIf(VpcPortInterface *pif)
@@ -204,7 +205,7 @@ public:
       this->portIf->startVpcRead(tokenCount) );
   }
 
-  //private:
+private:
   VpcTaskInterface *taskIf;
   VpcPortInterface *portIf;
 

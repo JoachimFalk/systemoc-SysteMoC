@@ -321,20 +321,19 @@ void RuntimeTransition::execute(smoc_root_node *actor, int mode) {
   } execMode;
   
   // Don't use RTTI due to performance reasons!
-  if (!actor->isActor()) { 
+  if (actor->isActor()) { 
     execMode =
 #ifdef SYSTEMOC_ENABLE_VPC
       actor->getCurrentState() != actor->getCommState()
         ? MODE_DIISTART
         : MODE_DIIEND;
-#else
-    MODE_DIISTART;
-#endif
-  }
-  else {
+#else //!SYSTEMOC_ENABLE_VPC
+      MODE_DIISTART;
+#endif //!SYSTEMOC_ENABLE_VPC
+  } else { // !actor->isActor()
 #ifdef SYSTEMOC_ENABLE_VPC
     assert(actor->getCurrentState() != actor->getCommState());
-#endif
+#endif //SYSTEMOC_ENABLE_VPC
     execMode = MODE_GRAPH;
   }
   
@@ -344,7 +343,7 @@ void RuntimeTransition::execute(smoc_root_node *actor, int mode) {
   outDbg << "<transition actor=\"" << actor->name()
          << "\" mode=\"" << execModeName[execMode]
          << "\">" << std::endl << Indent::Up;
-#endif
+#endif //SYSTEMOC_DEBUG
   
 #ifdef SYSTEMOC_ENABLE_DATAFLOW_TRACE
   if(execMode != MODE_GRAPH)
@@ -478,7 +477,7 @@ void RuntimeTransition::execute(smoc_root_node *actor, int mode) {
 # endif
   }
   else {
-    smoc::Expr::evalTo<smoc::Expr::CommExec>(getExpr(), VpcInterface(nullptr));
+    smoc::Expr::evalTo<smoc::Expr::CommExec>(getExpr(), VpcInterface());
   }
 
   #ifdef SYSTEMOC_ENABLE_MAESTRO
