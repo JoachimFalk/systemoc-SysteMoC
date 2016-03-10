@@ -27,6 +27,7 @@ Requires.private: \
   libcosupport-tracing >= 1.0 \
   libcosupport-streams >= 1.0 \
   libcosupport-smartptr >= 1.0 \
+  libcosupport-allocators >= 1.0 \
   libcosupport-math >= 1.0 \
   @SYSTEMOC_OPTIONAL_REQUIRES@
 Libs: -L${srctreemode_libdir} ${srctreemode_libdir}/libsystemoc.la
