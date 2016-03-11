@@ -82,10 +82,6 @@ if test x"$SYSTEMOC_ENABLE_MAESTRO" = x"yes"; then
   AC_CONFIG_SUBDIRS([maestro])
 fi
 
-dnl if test x"$acjf_cv_systemoc_enable_maestro" = x"yes"; then
-dnl m4_sinclude([Maestro-transceiver/configure.in.frag])
-dnl fi
-
 m4_sinclude([systemoc-sqr/configure.in.frag])
 m4_sinclude([systemoc-sqr-int/configure.in.frag])
 m4_sinclude([systemoc-cluster-example/configure.in.frag])
