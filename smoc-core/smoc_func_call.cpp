@@ -234,7 +234,7 @@ RuntimeState* smoc::dMM::TransitionOnThreadVisitor::operator()(const smoc_func_d
 
 RuntimeState* smoc::dMM::TransitionOnThreadVisitor::operator()(const smoc_sr_func_pair& f) const
 {
-	throw std::exception("Not implemented");
+	throw std::runtime_error("Not implemented");
 }
 
 #endif //MAESTRO_ENABLE_POLYPHONIC
