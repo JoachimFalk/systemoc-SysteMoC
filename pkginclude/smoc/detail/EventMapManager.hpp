@@ -40,6 +40,8 @@
 
 #include <systemoc/smoc_config.h>
 
+#include <CoSupport/limits.h>
+
 #include "../smoc_event.hpp"
 
 namespace smoc { namespace Detail {
