@@ -105,7 +105,7 @@ private:
     return 0;
   }
 protected:
-  smoc_port_base(const char *name_, sc_port_policy policy)
+  smoc_port_base(const char *name_, sc_core::sc_port_policy policy)
     : smoc_sysc_port(name_, policy) 
   {
 		#ifdef SYSTEMOC_ENABLE_MAESTRO
@@ -181,8 +181,8 @@ public:
   typedef typename this_type::data_type   data_type;
   typedef typename this_type::return_type return_type;
 protected:
-  smoc_port_in_base(const char* name, sc_port_policy policy)
-    //: smoc_port_base<IFACE>(sc_gen_unique_name("smoc_port_in")) {}
+  smoc_port_in_base(const char* name, sc_core::sc_port_policy policy)
+    //: smoc_port_base<IFACE>(sc_core::sc_gen_unique_name("smoc_port_in")) {}
     : smoc_port_base<IFACE>(name, policy) {}
 
 public:
@@ -206,8 +206,8 @@ public:
   typedef typename this_type::data_type   data_type;
   typedef typename this_type::return_type return_type;
 protected:
-  smoc_port_out_base(const char* name, sc_port_policy policy)
-    //: smoc_port_base<IFACE>(sc_gen_unique_name("smoc_port_out")) {}
+  smoc_port_out_base(const char* name, sc_core::sc_port_policy policy)
+    //: smoc_port_base<IFACE>(sc_core::sc_gen_unique_name("smoc_port_out")) {}
     : smoc_port_base<IFACE>(name, policy) {}
  
 public:
@@ -227,18 +227,18 @@ private:
   typedef smoc_port_in<T>                                               this_type;
   typedef smoc_port_in_base<smoc_port_in_if<T,smoc_1d_port_access_if> > base_type;
 protected:
-  smoc_port_in(sc_port_policy policy)
-    : base_type(sc_gen_unique_name("smoc_port_in"), policy)
+  smoc_port_in(sc_core::sc_port_policy policy)
+    : base_type(sc_core::sc_gen_unique_name("smoc_port_in"), policy)
   {}
-  smoc_port_in(sc_module_name name, sc_port_policy policy)
+  smoc_port_in(sc_core::sc_module_name name, sc_core::sc_port_policy policy)
     : base_type(name, policy)
   {}
 public:
   smoc_port_in()
-    : base_type(sc_gen_unique_name("smoc_port_in"), SC_ONE_OR_MORE_BOUND)
+    : base_type(sc_core::sc_gen_unique_name("smoc_port_in"), sc_core::SC_ONE_OR_MORE_BOUND)
   {}
-  smoc_port_in(sc_module_name name)
-    : base_type(name, SC_ONE_OR_MORE_BOUND)
+  smoc_port_in(sc_core::sc_module_name name)
+    : base_type(name, sc_core::SC_ONE_OR_MORE_BOUND)
   {}
 
 };
@@ -250,18 +250,18 @@ private:
   typedef smoc_port_out<T>                                                this_type;
   typedef smoc_port_out_base<smoc_port_out_if<T,smoc_1d_port_access_if> > base_type;
 protected:
-  smoc_port_out(sc_port_policy policy)
-    : base_type(sc_gen_unique_name("smoc_port_out"), policy)
+  smoc_port_out(sc_core::sc_port_policy policy)
+    : base_type(sc_core::sc_gen_unique_name("smoc_port_out"), policy)
   {}
-  smoc_port_out(sc_module_name name, sc_port_policy policy)
+  smoc_port_out(sc_core::sc_module_name name, sc_core::sc_port_policy policy)
     : base_type(name, policy)
   {}
 public:
   smoc_port_out()
-    : base_type(sc_gen_unique_name("smoc_port_out"), SC_ONE_OR_MORE_BOUND)
+    : base_type(sc_core::sc_gen_unique_name("smoc_port_out"), sc_core::SC_ONE_OR_MORE_BOUND)
   {}
-  smoc_port_out(sc_module_name name)
-    : base_type(name, SC_ONE_OR_MORE_BOUND)
+  smoc_port_out(sc_core::sc_module_name name)
+    : base_type(name, sc_core::SC_ONE_OR_MORE_BOUND)
   {}
 };
 

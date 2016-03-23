@@ -63,7 +63,7 @@ namespace Detail {
 #endif // SYSTEMOC_ENABLE_VPC
 
 class smoc_root_chan
-: public sc_prim_channel,
+: public sc_core::sc_prim_channel,
   public smoc_port_registry,
 #ifdef SYSTEMOC_NEED_IDS
   public smoc::Detail::NamedIdedObj,

@@ -79,9 +79,9 @@ public:
     return *getDerived();
   }
 
-  /// @brief Connect sc_port
+  /// @brief Connect sc_core::sc_port
   template<class IFACE>
-  DERIVED &connect(sc_port<IFACE> &p) {
+  DERIVED &connect(sc_core::sc_port<IFACE> &p) {
     
     using namespace smoc::Detail;
     
@@ -119,7 +119,7 @@ public:
     { return connect(p); }
   
   template<class IFACE>
-  DERIVED &operator <<(sc_port<IFACE> &p)
+  DERIVED &operator <<(sc_core::sc_port<IFACE> &p)
     { return connect(p); }
 };
 

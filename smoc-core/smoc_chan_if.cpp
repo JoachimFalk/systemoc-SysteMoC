@@ -38,12 +38,7 @@
 
 #include <systemoc/detail/smoc_chan_if.hpp>
 
-#ifdef __GNUC__
-__attribute__((noreturn))
-#endif
-const sc_event& smoc_default_event_abort() {
+const sc_core::sc_event &smoc_default_event_abort() {
   assert(!"smoc_default_event_abort");
-#ifdef _MSC_VER
-  return *((sc_event*)(nullptr));
-#endif
+  return *((sc_core::sc_event *)(nullptr));
 }

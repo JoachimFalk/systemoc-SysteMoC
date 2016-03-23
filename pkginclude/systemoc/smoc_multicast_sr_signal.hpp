@@ -455,7 +455,7 @@ public:
   this_type &operator <<(smoc_port_in<T> &p)
     { return this->connect(p); }
   template<class IFACE>
-  this_type &operator <<(sc_port<IFACE> &p)
+  this_type &operator <<(sc_core::sc_port<IFACE> &p)
     { return this->connect(p); }
 private:
   chan_type *getChan() {

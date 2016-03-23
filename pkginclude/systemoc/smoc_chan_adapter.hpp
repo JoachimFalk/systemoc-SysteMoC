@@ -157,7 +157,7 @@ namespace smoc { namespace Detail {
         dataAvailable(in_if.dataAvailableEvent(1)) {}
   protected:
     /// @brief See sc_interface
-    void register_port(sc_port_base &p, const char *if_ty)
+    void register_port(sc_core::sc_port_base &p, const char *if_ty)
       { getIface().register_port(p, typeid(iface_impl_type).name()); }
   };
 
@@ -185,7 +185,7 @@ namespace smoc { namespace Detail {
         spaceAvailable(out_if.spaceAvailableEvent(1)) {}
   protected:
     /// @brief See sc_interface
-    void register_port(sc_port_base &p, const char *if_ty)
+    void register_port(sc_core::sc_port_base &p, const char *if_ty)
       { getIface().register_port(p, typeid(iface_impl_type).name()); }
   };
 
