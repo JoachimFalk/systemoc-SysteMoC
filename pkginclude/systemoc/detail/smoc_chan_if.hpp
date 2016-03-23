@@ -57,7 +57,7 @@
 
 #include <smoc/smoc_simulation_ctx.hpp>
 
-const sc_event& smoc_default_event_abort();
+const sc_core::sc_event &smoc_default_event_abort();
 
 template <
   typename T,                                     // data type
@@ -83,7 +83,7 @@ public:
 
 private:
   // disabled
-  const sc_event& default_event() const
+  const sc_core::sc_event &default_event() const
     { return smoc_default_event_abort(); }
 };
 
@@ -112,7 +112,7 @@ public:
 
 private:
   // disabled
-  const sc_event& default_event() const
+  const sc_core::sc_event &default_event() const
     { return smoc_default_event_abort(); }
 };
 

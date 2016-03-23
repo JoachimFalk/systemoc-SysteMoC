@@ -72,7 +72,7 @@
 
 #include <smoc/detail/DumpingInterfaces.hpp>
 
-size_t fsizeMapper(sc_object* instance, size_t n);
+size_t fsizeMapper(sc_core::sc_object* instance, size_t n);
 
 class smoc_multireader_scheduler {
 public:

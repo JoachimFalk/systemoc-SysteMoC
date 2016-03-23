@@ -54,8 +54,8 @@ namespace smoc { namespace Detail {
 class smoc_port_registry {
   template <typename, typename> friend class smoc::Detail::ConnectProvider;
 public:
-  typedef std::map<smoc::Detail::PortOutBaseIf*,sc_port_base*>  EntryMap;
-  typedef std::map<smoc::Detail::PortInBaseIf*,sc_port_base*>   OutletMap;
+  typedef std::map<smoc::Detail::PortOutBaseIf*,sc_core::sc_port_base*>  EntryMap;
+  typedef std::map<smoc::Detail::PortInBaseIf*,sc_core::sc_port_base*>   OutletMap;
 
   /// FIXME: This methods should all be protected for SysteMoC
   /// users but should be accessible for SysteMoC visitors.
@@ -69,19 +69,19 @@ public:
     { return outlets; }
 
   /// @brief Find / create entry for port
-  smoc::Detail::PortOutBaseIf *getEntry(sc_port_base *p) {
+  smoc::Detail::PortOutBaseIf *getEntry(sc_core::sc_port_base *p) {
     assert(p);
     return getByVal(entries, p);
   }
 
   /// @brief Find / create outlet for port
-  smoc::Detail::PortInBaseIf *getOutlet(sc_port_base *p) {
+  smoc::Detail::PortInBaseIf *getOutlet(sc_core::sc_port_base *p) {
     assert(p);
     return getByVal(outlets, p);
   }
 
   /// @brief Find port for entry
-  sc_port_base *getPort(const smoc::Detail::PortOutBaseIf *e) const {
+  sc_core::sc_port_base *getPort(const smoc::Detail::PortOutBaseIf *e) const {
     assert(e);
     // this is allowed: we are only comparing pointers,
     // we do not modify e!!!
@@ -89,7 +89,7 @@ public:
   }
 
   /// @brief Find port for outlet
-  sc_port_base *getPort(const smoc::Detail::PortInBaseIf *o) const {
+  sc_core::sc_port_base *getPort(const smoc::Detail::PortInBaseIf *o) const {
     assert(o);
     // this is allowed: we are only comparing pointers,
     // we do not modify o!!!
@@ -112,7 +112,7 @@ protected:
 
   /// @brief Select entry / outlet based on tag
   template<class Tag>
-  sc_interface* getIF(sc_port_base* p);
+  sc_core::sc_interface* getIF(sc_core::sc_port_base* p);
 
   /// @brief Virtual destructor
   virtual ~smoc_port_registry() {
@@ -166,11 +166,11 @@ private:
 };
   
 template<> inline
-sc_interface* smoc_port_registry::getIF<smoc_port_registry::EntryTag>(sc_port_base* p)
+sc_core::sc_interface* smoc_port_registry::getIF<smoc_port_registry::EntryTag>(sc_core::sc_port_base* p)
 { return getEntry(p); }
 
 template<> inline
-sc_interface* smoc_port_registry::getIF<smoc_port_registry::OutletTag>(sc_port_base* p)
+sc_core::sc_interface* smoc_port_registry::getIF<smoc_port_registry::OutletTag>(sc_core::sc_port_base* p)
 { return getOutlet(p); }
   
 template<> inline
