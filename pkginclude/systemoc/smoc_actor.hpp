@@ -77,13 +77,40 @@ protected:
 public:
 
 #ifdef SYSTEMOC_ENABLE_MAESTRO
-  void wait();
-  void wait(double v, sc_time_unit tu );
-  void wait(sc_event& waitEvent);
-  void wait(sc_time sct );
+	/**
+	* Delta cycle wait
+	*/
+	void wait();
 
-  void localClockWait(sc_time sct);
-  void localClockWait(double v, sc_time_unit tu);
+	/**
+	* Timespan wait
+	*/
+	void wait(double v, sc_time_unit tu);
+
+	/**
+	* Wait for event
+	*/
+	void wait(sc_event& waitEvent);
+
+	/**
+	* Timespan wait
+	*/
+	void wait(sc_time sct);
+
+	/**
+	* Timespan wait according to actor-local time (as oppossed to simulation global time)
+	*/
+	void smoc_actor::localClockWait(sc_time sct);
+
+	/**
+	* Timespan wait according to actor-local time (as oppossed to simulation global time)
+	*/
+	void smoc_actor::localClockWait(double v, sc_time_unit tu);
+
+	/**
+	* Wait for timespan or event
+	*/
+	void wait(sc_time sct, sc_event& waitEvent);
 
   virtual bool testCanExecute();
 
