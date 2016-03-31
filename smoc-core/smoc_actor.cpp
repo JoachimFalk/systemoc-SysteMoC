@@ -179,6 +179,12 @@ void smoc_actor::wait(sc_time sct )
 #endif
 }
 
+void smoc_actor::wait(sc_time sct, sc_event& waitEvent)
+{
+	sc_module::wait(sct, waitEvent);
+}
+
+
 void smoc_actor::wait(sc_event& waitEvent)
 {
 	sc_module::wait(waitEvent);

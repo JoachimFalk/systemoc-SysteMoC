@@ -30,7 +30,7 @@
 /* Define if you want MAESTRO Support */
 #define SYSTEMOC_ENABLE_MAESTRO
 #ifdef SYSTEMOC_ENABLE_MAESTRO
-# define SYSTEMOC_ENABLE_POLYPHONIC
+//# define SYSTEMOC_ENABLE_POLYPHONIC
 #endif
 
 #define _WIN32_WINNT 0x0600
