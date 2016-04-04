@@ -100,12 +100,12 @@ public:
 	/**
 	* Timespan wait according to actor-local time (as oppossed to simulation global time)
 	*/
-	void smoc_actor::localClockWait(sc_time sct);
+	void localClockWait(sc_time sct);
 
 	/**
 	* Timespan wait according to actor-local time (as oppossed to simulation global time)
 	*/
-	void smoc_actor::localClockWait(double v, sc_time_unit tu);
+	void localClockWait(double v, sc_time_unit tu);
 
 	/**
 	* Wait for timespan or event
