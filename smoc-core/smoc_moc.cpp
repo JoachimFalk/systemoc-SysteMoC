@@ -69,7 +69,7 @@ void smoc::Scheduling::execute(SystemC_VPC::ScheduledTask* actor) {
 
 smoc_scheduler_top::smoc_scheduler_top(smoc_graph_base* g) :
   // Prefix all SysteMoC internal modules with __smoc_ to enable filtering out the module on smx dump!
-  sc_module(sc_module_name("__smoc_scheduler_top")),
+  sc_core::sc_module(sc_core::sc_module_name("__smoc_scheduler_top")),
   g(g),
   validVpcConfiguration(false),
   simulation_running(false)
@@ -79,7 +79,7 @@ smoc_scheduler_top::smoc_scheduler_top(smoc_graph_base* g) :
 
 smoc_scheduler_top::smoc_scheduler_top(smoc_graph_base& g) :
   // Prefix all SysteMoC internal modules with __smoc_ to enable filtering out the module on smx dump!
-  sc_module(sc_module_name("__smoc_smoc_scheduler_top")),
+  sc_core::sc_module(sc_core::sc_module_name("__smoc_smoc_scheduler_top")),
   g(&g),
   simulation_running(false)
 {

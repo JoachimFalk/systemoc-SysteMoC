@@ -51,8 +51,8 @@
 
 using namespace smoc::Detail;
 
-smoc_root_node::smoc_root_node(sc_module_name name, NodeType nodeType, smoc_hierarchical_state &s)
-  : sc_module(name), nodeType(nodeType),
+smoc_root_node::smoc_root_node(sc_core::sc_module_name name, NodeType nodeType, smoc_hierarchical_state &s)
+  : sc_core::sc_module(name), nodeType(nodeType),
 #if defined(SYSTEMOC_ENABLE_DEBUG)
 //  _finalizeCalled(false),
 #endif
@@ -155,9 +155,9 @@ smoc_sysc_port_list smoc_root_node::getPorts() const {
   
   for( 
 #if SYSTEMC_VERSION < 20050714
-    sc_pvector<sc_object*>::const_iterator iter =
+    sc_core::sc_pvector<sc_core::sc_object*>::const_iterator iter =
 #else
-    std::vector<sc_object*>::const_iterator iter =
+    std::vector<sc_core::sc_object*>::const_iterator iter =
 #endif
       get_child_objects().begin();
     iter != get_child_objects().end(); ++iter)

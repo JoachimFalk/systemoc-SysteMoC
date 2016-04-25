@@ -13,10 +13,10 @@ class smoc_periodic_actor: public smoc_actor{
 	
 public:
   //constructor sets the period, offset and EventQueue
-  smoc_periodic_actor(sc_module_name name,
+  smoc_periodic_actor(sc_core::sc_module_name name,
                 smoc_firing_state & start_state,
-                sc_time per,
-                sc_time off,
+                sc_core::sc_time per,
+                sc_core::sc_time off,
                 float jitter=0.0) :
     smoc_actor(name, start_state),
     period_counter(0),
@@ -31,17 +31,17 @@ public:
     //nextReleaseTime_ += calculateMobility();
   }
 
-  sc_time calculateMobility() const{
-    sc_time mobility = SC_ZERO_TIME;
+  sc_core::sc_time calculateMobility() const{
+    sc_core::sc_time mobility = sc_core::SC_ZERO_TIME;
     if(jitter != 0.0){
       mobility = jitter * ((rand()/(float(RAND_MAX)+1)*2 )- 1) * period;
     }
     return mobility;
   }
 
-  sc_time updateReleaseTime()
+  sc_core::sc_time updateReleaseTime()
   {
-    while(nextReleaseTime_ <= sc_time_stamp()){
+    while(nextReleaseTime_ <= sc_core::sc_time_stamp()){
       period_counter++; // increment first, initial execution is scheduled @ offset
       nextReleaseTime_ = period_counter * period + offset + calculateMobility();
     }
@@ -49,24 +49,24 @@ public:
   }
 
   // override getNextReleaseTime from ScheduledTask
-  sc_time getNextReleaseTime(){
+  sc_core::sc_time getNextReleaseTime(){
     if(reexecute){
         reexecute = false;
-        return sc_time_stamp();
+        return sc_core::sc_time_stamp();
     }else{
     	if(periodicActorActive){
     		return updateReleaseTime();
     	}else{
     		periodicActorActive=true;
-    		return SC_ZERO_TIME;
+    		return sc_core::SC_ZERO_TIME;
     	}
     }
   }
 
 
-sc_time getPeriod(){ return period; }
+  sc_core::sc_time getPeriod(){ return period; }
 
-sc_time getOffset(){ return offset; }
+  sc_core::sc_time getOffset(){ return offset; }
 
 protected:
   void forceReexecution(){
@@ -83,9 +83,9 @@ protected:
 
 private:
   int period_counter;
-  sc_time period;
-  sc_time offset;
-  sc_time nextReleaseTime_;
+  sc_core::sc_time period;
+  sc_core::sc_time offset;
+  sc_core::sc_time nextReleaseTime_;
   float jitter;
   bool reexecute;
   bool periodicActorActive;

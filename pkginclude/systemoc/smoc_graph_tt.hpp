@@ -7,14 +7,14 @@
 #include <systemoc/smoc_graph_type.hpp>
 #include <boost/smart_ptr.hpp>
 
-class NodeQueue: public sc_module, public smoc::smoc_event{
+class NodeQueue: public sc_core::sc_module, public smoc::smoc_event{
   SC_HAS_PROCESS(NodeQueue);	
 
 /* struct used to store an event with a certain release-time */
 struct TimeNodePair{
-  TimeNodePair(sc_time time,  smoc_root_node *node)
+  TimeNodePair(sc_core::sc_time time,  smoc_root_node *node)
     : time(time), node(node) {}
-  sc_time time;
+  sc_core::sc_time time;
   smoc_root_node *node;
 };
 
@@ -24,8 +24,8 @@ struct nodeCompare{
   bool operator()(const TimeNodePair& tnp1,
                   const TimeNodePair& tnp2) const
   {
-    sc_time p1=tnp1.time;
-    sc_time p2=tnp2.time;
+    sc_core::sc_time p1=tnp1.time;
+    sc_core::sc_time p2=tnp2.time;
     if (p1 > p2)
       return true;
     else
@@ -34,15 +34,15 @@ struct nodeCompare{
 };
 
 public:
-  NodeQueue(sc_module_name name): sc_module(name), smoc::smoc_event() {
+  NodeQueue(sc_core::sc_module_name name): sc_core::sc_module(name), smoc::smoc_event() {
     SC_THREAD(waiter);
   };
 
   // register an event with its next releasetime in the EventQueue
-  void registerNode(smoc_root_node* node, sc_time time){
-    if(time < sc_time_stamp()){
+  void registerNode(smoc_root_node* node, sc_core::sc_time time){
+    if(time < sc_core::sc_time_stamp()){
       std::cerr << "Warning: re-activation of a time-triggered Node with a release-time in the past! ("
-                << node->name() << ") "<< time << " < " << sc_time_stamp() << std::endl
+                << node->name() << ") "<< time << " < " << sc_core::sc_time_stamp() << std::endl
 		<< "         Maybe the real execution-time was larger then the period or exceeds the deadline?" << std::endl
 		<< "         time-triggered activation will be moved to the next periodic point of time in the future" << std::endl;
       smoc_periodic_actor *p_actor = dynamic_cast<smoc_periodic_actor *>( node );
@@ -64,7 +64,7 @@ public:
     smoc_root_node* top_node = pair.node;
     pqueue.pop();
 
-    if( pqueue.empty() || pqueue.top().time > sc_time_stamp()){
+    if( pqueue.empty() || pqueue.top().time > sc_core::sc_time_stamp()){
       smoc::smoc_reset(*this);
       nodes_processed.notify();
     }
@@ -78,12 +78,12 @@ private:
    while(true){
     if(!pqueue.empty()){
       current=boost::shared_ptr<TimeNodePair>(new TimeNodePair(pqueue.top()));
-      sc_time toWait=current->time-sc_time_stamp();
+      sc_core::sc_time toWait=current->time-sc_core::sc_time_stamp();
       // if not, something very strange happened
-      assert(toWait >= sc_time(0,SC_NS));
+      assert(toWait >= sc_core::sc_time(0,sc_core::SC_NS));
       wait(toWait, node_added);
       //node_added.cancel();
-      if(current->time == sc_time_stamp()){
+      if(current->time == sc_core::sc_time_stamp()){
 	//NodeQueue is an Event, so let's notify itself. After that, the graph-scheduler knows that some periodic tasks could be executed
 	this->notify();
 	//wait until all nodes of this step of time are activated
@@ -100,8 +100,8 @@ private:
   }
 
   boost::shared_ptr<TimeNodePair> current;
-  sc_event node_added;
-  sc_event nodes_processed;
+  sc_core::sc_event node_added;
+  sc_core::sc_event nodes_processed;
   typedef std::priority_queue <TimeNodePair,
                                std::vector<TimeNodePair>,
                                nodeCompare>  TimedQueue;
@@ -117,7 +117,7 @@ private:
 class smoc_graph_tt : public smoc_graph_base {
 public:
   // construct graph with name
-  explicit smoc_graph_tt(const sc_module_name& name);
+  explicit smoc_graph_tt(const sc_core::sc_module_name& name);
 
   // construct graph with generated name
   smoc_graph_tt();

@@ -55,7 +55,9 @@ static std::map<std::string, size_t> _smoc_channel_name_map;
 
 #ifndef SYSTEMOC_ENABLE_MAESTROMM_SPEEDUP
 smoc_root_chan::smoc_root_chan(const std::string& name)
-  : sc_prim_channel(name.empty() ? sc_gen_unique_name( "smoc_unnamed_channel" ) : name.c_str()),
+  : sc_core::sc_prim_channel(name.empty()
+      ? sc_core::sc_gen_unique_name("smoc_unnamed_channel")
+      : name.c_str()),
     myName(name),
     resetCalled(false)
 {
@@ -103,8 +105,8 @@ void smoc_root_chan::generateName() {
       for (EntryMap::const_iterator iter = entries.begin();
            iter != entries.end();
            ++iter ) {
-        smoc_sysc_port const *p  = dynamic_cast<smoc_sysc_port *>(iter->second);
-        sc_port_base   const *ap = p != nullptr ? p->getActorPort() : iter->second;
+        smoc_sysc_port        const *p  = dynamic_cast<smoc_sysc_port *>(iter->second);
+        sc_core::sc_port_base const *ap = p != nullptr ? p->getActorPort() : iter->second;
         genName
           << (iter == entries.begin() ? "" : "|")
           << ap->get_parent()->name();
@@ -117,8 +119,8 @@ void smoc_root_chan::generateName() {
       for (OutletMap::const_iterator iter = outlets.begin();
            iter != outlets.end();
            ++iter ) {
-        smoc_sysc_port const *p  = dynamic_cast<smoc_sysc_port *>(iter->second);
-        sc_port_base   const *ap = p != nullptr ? p->getActorPort() : iter->second;
+        smoc_sysc_port        const *p  = dynamic_cast<smoc_sysc_port *>(iter->second);
+        sc_core::sc_port_base const *ap = p != nullptr ? p->getActorPort() : iter->second;
         genName
           << (iter == outlets.begin() ? "" : "|")
           << ap->get_parent()->name();

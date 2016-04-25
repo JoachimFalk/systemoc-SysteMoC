@@ -48,7 +48,7 @@ using namespace smoc::Detail;
 using CoSupport::String::Concat;
 
 smoc_graph_base::smoc_graph_base(
-  const sc_module_name &name, smoc_firing_state &init)
+  const sc_core::sc_module_name &name, smoc_firing_state &init)
 : smoc_root_node(name, smoc_root_node::NODE_TYPE_GRAPH, init) {}
   
 const smoc_node_list& smoc_graph_base::getNodes() const
@@ -57,9 +57,9 @@ const smoc_node_list& smoc_graph_base::getNodes() const
 void smoc_graph_base::getNodesRecursive( smoc_node_list & subnodes) const {
   for (
 #if SYSTEMC_VERSION < 20050714
-        sc_pvector<sc_object*>::const_iterator iter = get_child_objects().begin();
+        sc_core::sc_pvector<sc_core::sc_object*>::const_iterator iter = get_child_objects().begin();
 #else
-        std::vector<sc_object*>::const_iterator iter = get_child_objects().begin();
+        std::vector<sc_core::sc_object*>::const_iterator iter = get_child_objects().begin();
 #endif
         iter != get_child_objects().end();
         ++iter ) {
@@ -86,9 +86,9 @@ void smoc_graph_base::getChansRecursive( smoc_chan_list & channels) const {
 
   for (
 #if SYSTEMC_VERSION < 20050714
-        sc_pvector<sc_object*>::const_iterator iter = get_child_objects().begin();
+        sc_core::sc_pvector<sc_core::sc_object*>::const_iterator iter = get_child_objects().begin();
 #else
-        std::vector<sc_object*>::const_iterator iter = get_child_objects().begin();
+        std::vector<sc_core::sc_object*>::const_iterator iter = get_child_objects().begin();
 #endif
         iter != get_child_objects().end();
         ++iter ) {
@@ -115,7 +115,7 @@ void smoc_graph_base::finalise() {
   // FIXME: Sync. WILL have to be different than now
   
   // SystemC --> SGX
-  for (std::vector<sc_object*>::const_iterator iter = get_child_objects().begin();
+  for (std::vector<sc_core::sc_object*>::const_iterator iter = get_child_objects().begin();
        iter != get_child_objects().end();
        ++iter)
   {
@@ -136,7 +136,7 @@ void smoc_graph_base::finalise() {
     nodes.push_back(node);
   }
   
-  for(std::vector<sc_object*>::const_iterator iter = get_child_objects().begin();
+  for(std::vector<sc_core::sc_object*>::const_iterator iter = get_child_objects().begin();
       iter != get_child_objects().end();
       ++iter)
   {
@@ -217,7 +217,7 @@ void smoc_graph_base::doReset() {
 #endif //SYSTEMOC_DEBUG
 }
   
-smoc_graph::smoc_graph(const sc_module_name& name) :
+smoc_graph::smoc_graph(const sc_core::sc_module_name& name) :
   smoc_graph_base(name, run),
   run("run")
 #ifdef SYSTEMOC_ENABLE_MAESTRO
@@ -232,7 +232,7 @@ smoc_graph::smoc_graph(const sc_module_name& name) :
 }
 
 smoc_graph::smoc_graph() :
-  smoc_graph_base(sc_gen_unique_name("smoc_graph"), run),
+  smoc_graph_base(sc_core::sc_gen_unique_name("smoc_graph"), run),
   run("run")
 {
   constructor();

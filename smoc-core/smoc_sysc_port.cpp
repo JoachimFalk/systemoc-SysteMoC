@@ -43,9 +43,9 @@
 using namespace CoSupport;
 using namespace smoc::Detail;
 
-smoc_sysc_port::smoc_sysc_port(const char* name_, sc_port_policy policy)
-  : sc_port_base(
-      name_, 4096, SC_ONE_OR_MORE_BOUND),
+smoc_sysc_port::smoc_sysc_port(const char* name_, sc_core::sc_port_policy policy)
+  : sc_core::sc_port_base(
+      name_, 4096, sc_core::SC_ONE_OR_MORE_BOUND),
     parent(nullptr), child(nullptr) {
 }
 
@@ -71,7 +71,7 @@ void smoc_sysc_port::bind(this_type &parent_) {
   assert(parent == nullptr && parent_.child == nullptr);
   parent        = &parent_;
   parent->child = this;
-  sc_port_base::bind(parent_);
+  sc_core::sc_port_base::bind(parent_);
 }
 
 void smoc_sysc_port::finalise() {
@@ -140,6 +140,7 @@ void smoc_sysc_port::finaliseVpcLink(std::string actorName){
 
 // disable get_interface() from sc_core::sc_port_base
 sc_core::sc_interface       *smoc_sysc_port::get_interface()
-{ assert(!"WTF?! The method smoc_sysc_port::get_interface() is disabled and should have never been called!"); return nullptr;}
+  { assert(!"WTF?! The method smoc_sysc_port::get_interface() is disabled and should have never been called!"); return nullptr;}
+
 sc_core::sc_interface const *smoc_sysc_port::get_interface() const
- { assert(!"WTF?! The method smoc_sysc_port::get_interface() const is disabled and should have never been called!");  return nullptr;}
+  { assert(!"WTF?! The method smoc_sysc_port::get_interface() const is disabled and should have never been called!");  return nullptr;}

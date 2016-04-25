@@ -38,7 +38,7 @@
 #include <systemoc/smoc_fifo.hpp>
 #include <systemoc/smoc_graph_type.hpp>
 
-size_t fsizeMapper(sc_object* instance, size_t n);
+size_t fsizeMapper(sc_core::sc_object* instance, size_t n);
 
 smoc_fifo_chan_base::smoc_fifo_chan_base(const chan_init& i)
 : smoc_root_chan(
@@ -62,7 +62,7 @@ void smoc_fifo_chan_base::finalise() {
   assert(getOutlets().size() == 1);
 }
 
-size_t fsizeMapper(sc_object* instance, size_t n) {
+size_t fsizeMapper(sc_core::sc_object* instance, size_t n) {
 //FIXME: Reimplememt this!
 /*// SGX --> SystemC
   if (smoc::Detail::NGXConfig::getInstance().hasNGX()) {

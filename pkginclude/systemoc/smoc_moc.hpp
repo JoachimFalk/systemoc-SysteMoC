@@ -76,7 +76,7 @@ namespace SysteMoC {
 
 
 class smoc_scheduler_top
-: public sc_module,
+: public sc_core::sc_module,
   public smoc::Detail::SimCTXBase {
 public:
   smoc_scheduler_top(smoc_graph_base* g);
@@ -122,22 +122,22 @@ public:
 
   smoc_top_moc()
     : Graph(), s(this) {}
-  explicit smoc_top_moc(sc_module_name name)
+  explicit smoc_top_moc(sc_core::sc_module_name name)
     : Graph(name), s(this) {}
   template <typename T1>
-  explicit smoc_top_moc(sc_module_name name, T1 p1)
+  explicit smoc_top_moc(sc_core::sc_module_name name, T1 p1)
     : Graph(name, p1), s(this) {}
   template <typename T1, typename T2>
-  explicit smoc_top_moc(sc_module_name name, T1 p1, T2 p2)
+  explicit smoc_top_moc(sc_core::sc_module_name name, T1 p1, T2 p2)
     : Graph(name, p1, p2), s(this) {}
   template <typename T1, typename T2, typename T3>
-  explicit smoc_top_moc(sc_module_name name, T1 p1, T2 p2, T3 p3)
+  explicit smoc_top_moc(sc_core::sc_module_name name, T1 p1, T2 p2, T3 p3)
     : Graph(name, p1, p2, p3), s(this) {}
   template <typename T1, typename T2, typename T3, typename T4>
-  explicit smoc_top_moc(sc_module_name name, T1 p1, T2 p2, T3 p3, T4 p4)
+  explicit smoc_top_moc(sc_core::sc_module_name name, T1 p1, T2 p2, T3 p3, T4 p4)
     : Graph(name, p1, p2, p3, p4), s(this) {}
   template <typename T1, typename T2, typename T3, typename T4, typename T5>
-  explicit smoc_top_moc(sc_module_name name, T1 p1, T2 p2, T3 p3, T4 p4, T5 p5)
+  explicit smoc_top_moc(sc_core::sc_module_name name, T1 p1, T2 p2, T3 p3, T4 p4, T5 p5)
     : Graph(name, p1, p2, p3, p4, p5), s(this) {}
 
   static void beforeSimulation()
