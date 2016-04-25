@@ -45,7 +45,7 @@ static const std::string MESSAGE_123   = "012345";
 class Source: public smoc_actor {
 public:
   smoc_port_out<char> out;
-  Source(sc_module_name name, const std::string msg) : smoc_actor(name, start),
+  Source(sc_core::sc_module_name name, const std::string msg) : smoc_actor(name, start),
     count(0), size(msg.size()), message(msg) {
     start = 
       GUARD(Source::hasToken)  >>
@@ -74,7 +74,7 @@ private:
 
   smoc_firing_state one, zero;
 public:
-  Alternate(sc_module_name name)
+  Alternate(sc_core::sc_module_name name)
     : smoc_actor(name, one) {
     one =
       in0(1)    >>  out(1)      >>
@@ -97,7 +97,7 @@ private:
 
   smoc_firing_state merge;
 public:
-  NDMerge(sc_module_name name)
+  NDMerge(sc_core::sc_module_name name)
     : smoc_actor(name, merge) {
     merge =
       in0(1)    >>  out(1)    >>
@@ -126,7 +126,7 @@ private:
   smoc_firing_state start;
 public:
   // actor constructor
-  Sink(sc_module_name name)
+  Sink(sc_core::sc_module_name name)
     : smoc_actor(name, start)
   {
 
@@ -150,7 +150,7 @@ protected:
   Sink             sink;
 public:
   // networkgraph constructor
-  NetworkGraph(sc_module_name name)
+  NetworkGraph(sc_core::sc_module_name name)
     : smoc_graph(name),
       // create actors
       source0("Source0", MESSAGE_123),
@@ -170,6 +170,6 @@ int sc_main (int argc, char **argv) {
   smoc_top_moc<NetworkGraph> top("top");
 
   // start simulation (SystemC)
-  sc_start();
+  sc_core::sc_start();
   return 0;
 }

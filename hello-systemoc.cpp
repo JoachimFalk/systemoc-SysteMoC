@@ -50,7 +50,7 @@ private:
   smoc_firing_state state_a, state_b;
 public:
   // actor constructor
-  HelloActor(sc_module_name name)
+  HelloActor(sc_core::sc_module_name name)
     : smoc_actor(name, state_a)
   {
 
@@ -68,7 +68,7 @@ private:
   HelloActor     helloActor;
 public:
   // networkgraph constructor
-  HelloNetworkGraph(sc_module_name name)
+  HelloNetworkGraph(sc_core::sc_module_name name)
     : smoc_graph(name),
       helloActor("HelloActor") // create actor HelloActor
   {
@@ -82,6 +82,6 @@ int sc_main (int argc, char **argv) {
   smoc_scheduler_top sched(top);
 
   // start simulation (SystemC)
-  sc_start();
+  sc_core::sc_start();
   return 0;
 }

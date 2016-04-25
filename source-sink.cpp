@@ -43,7 +43,7 @@ public:
   // ports:
   smoc_port_in<char> in;
 
-  Sink(sc_module_name name)   // actor constructor
+  Sink(sc_core::sc_module_name name)   // actor constructor
     : smoc_actor(name, start) {
     // FSM definition:
     start =
@@ -64,7 +64,7 @@ public:
   // ports:
   smoc_port_out<char> out;
 
-  Source(sc_module_name name)
+  Source(sc_core::sc_module_name name)
     : smoc_actor(name, start) {
     start = 
       out(1)                   >>
@@ -84,7 +84,7 @@ private:
 
 class NetworkGraph: public smoc_graph {
 public:
-  NetworkGraph(sc_module_name name)  // networkgraph constructor
+  NetworkGraph(sc_core::sc_module_name name)  // networkgraph constructor
     : smoc_graph(name),
       source("Source"),             // create actors
       sink("Sink") {
@@ -98,6 +98,6 @@ private:
 int sc_main (int argc, char **argv) {
   smoc_top_moc<NetworkGraph> top("top"); // create networkgraph
 
-  sc_start();   // start simulation (SystemC)
+  sc_core::sc_start();   // start simulation (SystemC)
   return 0;
 }

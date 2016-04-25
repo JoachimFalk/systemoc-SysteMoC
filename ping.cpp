@@ -43,7 +43,7 @@ public:
   smoc_port_in<int> in;
   smoc_port_out<int> out;
 
-  Forward(sc_module_name name) : smoc_actor(name, start){
+  Forward(sc_core::sc_module_name name) : smoc_actor(name, start){
     start = 
       in(1)                    >>
       out(1)                   >>
@@ -67,7 +67,7 @@ protected:
   Forward         pong;
 public:
   // networkgraph constructor
-  NetworkGraph(sc_module_name name)
+  NetworkGraph(sc_core::sc_module_name name)
     : smoc_graph(name),
       // create actors
       ping("Ping"),
@@ -86,6 +86,6 @@ int sc_main (int argc, char **argv) {
   smoc_top_moc<NetworkGraph> top("top");
 
   // start simulation (SystemC)
-  sc_start();
+  sc_core::sc_start();
   return 0;
 }

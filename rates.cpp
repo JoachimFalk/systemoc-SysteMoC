@@ -45,7 +45,7 @@ static const char MESSAGE_123 []   = "0123456789";
 class Source: public smoc_actor {
 public:
   smoc_port_out<char> out;
-  Source(sc_module_name name, const char* msg) : smoc_actor(name, start),
+  Source(sc_core::sc_module_name name, const char* msg) : smoc_actor(name, start),
     count(0), size(strlen(msg)), message(msg) {
     start = 
       GUARD(Source::hasToken)  >>
@@ -82,7 +82,7 @@ private:
   smoc_firing_state start;
 public:
   // actor constructor
-  Sink(sc_module_name name)
+  Sink(sc_core::sc_module_name name)
     : smoc_actor(name, start)
   {
 
@@ -103,7 +103,7 @@ protected:
   Sink           sink;
 public:
   // networkgraph constructor
-  NetworkGraph(sc_module_name name)
+  NetworkGraph(sc_core::sc_module_name name)
     : smoc_graph(name),
       // create actors
       source("Source", MESSAGE_123),
@@ -120,6 +120,6 @@ int sc_main (int argc, char **argv) {
   smoc_top_moc<NetworkGraph> top("top");
 
   // start simulation (SystemC)
-  sc_start();
+  sc_core::sc_start();
   return 0;
 }

@@ -68,7 +68,7 @@ private:
   smoc_firing_state start;
 public:
   // actor constructor
-  Source(sc_module_name name, Type type = INLINE_GUARD)
+  Source(sc_core::sc_module_name name, Type type = INLINE_GUARD)
     : smoc_actor(name, start),
       count(0),
       size(sizeof(message))
@@ -112,7 +112,7 @@ private:
   smoc_firing_state start;
 public:
   // actor constructor
-  TypedSource(sc_module_name name, Type type)
+  TypedSource(sc_core::sc_module_name name, Type type)
     : smoc_actor(name, start),
       count(0),
       size(sizeof(message))
@@ -157,7 +157,7 @@ private:
   smoc_firing_state start;
 public:
   // actor constructor
-  Sink(sc_module_name name)
+  Sink(sc_core::sc_module_name name)
     : smoc_actor(name, start)
   {
 
@@ -177,7 +177,7 @@ protected:
   Sink           sink;
 public:
   // networkgraph constructor
-  NetworkGraph(sc_module_name name, const unsigned int actor)
+  NetworkGraph(sc_core::sc_module_name name, const unsigned int actor)
     : smoc_graph(name),
       // create actors
       sink("Sink")
@@ -207,6 +207,6 @@ int sc_main (int argc, char **argv) {
   smoc_top_moc<NetworkGraph> top("top", type);
 
   // start simulation (SystemC)
-  sc_start();
+  sc_core::sc_start();
   return 0;
 }

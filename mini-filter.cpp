@@ -82,7 +82,7 @@ class PacketSource :
 public:
   smoc_port_out<Packet> out;
 
-  PacketSource(sc_module_name name) :
+  PacketSource(sc_core::sc_module_name name) :
     smoc_actor(name, s_a)
   {
     s_a =
@@ -127,7 +127,7 @@ public:
   smoc_port_in<DATATYPE>  in;
   smoc_port_out<DATATYPE> out;
 
-  Forward(sc_module_name name) :
+  Forward(sc_core::sc_module_name name) :
     smoc_actor(name, s_main)
   {
     s_main =
@@ -159,7 +159,7 @@ class PacketDumper :
 public:
   smoc_port_in<Packet> inPacket;
 
-  PacketDumper(sc_module_name name) :
+  PacketDumper(sc_core::sc_module_name name) :
     smoc_actor(name, s_main)
   {
     s_main =
@@ -191,7 +191,7 @@ public:
   smoc_port_out<Packet> outLeft;
   smoc_port_out<Packet> outRight;
 
-  Dispatcher(sc_module_name name) :
+  Dispatcher(sc_core::sc_module_name name) :
     smoc_actor(name, s_main)
   {
     s_main =
@@ -249,7 +249,7 @@ public:
   smoc_port_out<Packet> outLeft;
   smoc_port_out<Packet> outRight;
 
-  HierarchicalGraph(sc_module_name name) :
+  HierarchicalGraph(sc_core::sc_module_name name) :
     smoc_graph(name),
     dispatcher("dispatcher"),
     left("left"),
@@ -287,7 +287,7 @@ class TopGraph :
   public smoc_graph
 {
 public:
-  TopGraph(sc_module_name name) :
+  TopGraph(sc_core::sc_module_name name) :
     smoc_graph(name),
     src("src"),
     graph("hierarchy"),
@@ -317,6 +317,6 @@ int sc_main (int argc, char **argv)
   TopGraph top("top");
   smoc_scheduler_top sched(top);
 
-  sc_start();
+  sc_core::sc_start();
   return 0;
 }

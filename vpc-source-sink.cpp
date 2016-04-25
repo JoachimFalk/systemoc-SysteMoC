@@ -44,7 +44,7 @@ class Source : public smoc_actor
 public:
   smoc_port_out<char> out;
 
-  Source(sc_module_name name) :
+  Source(sc_core::sc_module_name name) :
     smoc_actor(name, start), count(0), size(MESSAGE_HELLO.size()), message(
         MESSAGE_HELLO)
   {
@@ -65,7 +65,7 @@ private:
   void
   src()
   {
-    std::cerr << this->name() << "> @ " << sc_time_stamp() << "\tsend: \'"
+    std::cerr << this->name() << "> @ " << sc_core::sc_time_stamp() << "\tsend: \'"
         << message[count] << "\'" << std::endl;
     out[0] = message[count++];
   } // action
@@ -77,7 +77,7 @@ public:
   // ports:
   smoc_port_in<char> in;
 
-  Sink(sc_module_name name) // actor constructor
+  Sink(sc_core::sc_module_name name) // actor constructor
   :
     smoc_actor(name, start)
   {
@@ -90,7 +90,7 @@ private:
   void
   sink()
   {
-    std::cout << this->name() << "> @ " << sc_time_stamp() << "\trecv: \'"
+    std::cout << this->name() << "> @ " << sc_core::sc_time_stamp() << "\trecv: \'"
         << in[0] << "\'" << std::endl;
   }
 };
@@ -98,7 +98,7 @@ private:
 class NetworkGraph : public smoc_graph
 {
 public:
-  NetworkGraph(sc_module_name name) // network graph constructor
+  NetworkGraph(sc_core::sc_module_name name) // network graph constructor
   :
     smoc_graph(name), source("Source"), // create actors
         sink("Sink")
@@ -117,6 +117,6 @@ sc_main(int argc, char **argv)
   NetworkGraph top("top"); // create network graph
   smoc_scheduler_top sched(top);
 
-  sc_start(); // start simulation (SystemC)
+  sc_core::sc_start(); // start simulation (SystemC)
   return 0;
 }

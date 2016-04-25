@@ -48,7 +48,7 @@ class Source : public smoc_actor
 public:
   smoc_port_out<char> out;
 
-  Source(sc_module_name name) :
+  Source(sc_core::sc_module_name name) :
     smoc_actor(name, start), count(0), size(MESSAGE_HELLO.size()), message(
         MESSAGE_HELLO)
   {
@@ -69,7 +69,7 @@ private:
   void
   source()
   {
-    std::cerr << this->name() << "> @ " << sc_time_stamp() << "\tsend: \'"
+    std::cerr << this->name() << "> @ " << sc_core::sc_time_stamp() << "\tsend: \'"
         << message[count] << "\'" << std::endl;
     out[0] = message[count++];
   } // action
@@ -81,7 +81,7 @@ public:
   // ports:
   smoc_port_in<char> in;
 
-  Sink(sc_module_name name) // actor constructor
+  Sink(sc_core::sc_module_name name) // actor constructor
   :
     smoc_actor(name, start)
   {
@@ -94,7 +94,7 @@ private:
   void
   sink()
   {
-    std::cout << this->name() << "> @ " << sc_time_stamp() << "\trecv: \'"
+    std::cout << this->name() << "> @ " << sc_core::sc_time_stamp() << "\trecv: \'"
         << in[0] << "\'" << std::endl;
   }
 };
@@ -102,7 +102,7 @@ private:
 class NetworkGraph : public smoc_graph
 {
 public:
-  NetworkGraph(sc_module_name name) // network graph constructor
+  NetworkGraph(sc_core::sc_module_name name) // network graph constructor
   :
     smoc_graph(name), source("Source"), // create actors
         sink("Sink")
@@ -138,11 +138,11 @@ public:
       // timings
       VC::DefaultTimingsProvider::Ptr provider = cpu->getDefaultTimingsProvider();
 
-      provider->add(VC::Timing("Source::source", sc_time(10, SC_NS),
-          sc_time(10, SC_NS))); // dii, latency
-      provider->add(VC::Timing("Sink::sink", sc_time(10, SC_NS))); // delay
-      provider->add(VC::Timing("Source::source", sc_time(100, SC_NS)));
-      provider->add(VC::Timing("Sink::sink", sc_time(100, SC_NS)));
+      provider->add(VC::Timing("Source::source", sc_core::sc_time(10, SC_NS),
+          sc_core::sc_time(10, SC_NS))); // dii, latency
+      provider->add(VC::Timing("Sink::sink", sc_core::sc_time(10, SC_NS))); // delay
+      provider->add(VC::Timing("Source::source", sc_core::sc_time(100, SC_NS)));
+      provider->add(VC::Timing("Sink::sink", sc_core::sc_time(100, SC_NS)));
 
 
       // configure routing
@@ -151,7 +151,7 @@ public:
       VC::Component::Ptr bus = VC::createComponent("Bus");
       VC::Component::Ptr mem = VC::createComponent("Memory");
 
-      VC::Timing transfer(sc_time(20,SC_NS), sc_time(20,SC_NS));
+      VC::Timing transfer(sc_core::sc_time(20,SC_NS), sc_core::sc_time(20,SC_NS));
       bus->setTransferTiming(transfer);
       mem->setTransferTiming(transfer);
       cpu->setTransferTiming(transfer);
@@ -161,8 +161,8 @@ public:
       VC::Route::Ptr writeRoute = VC::createRoute(&source.out);
       VC::Route::Ptr readRoute = VC::createRoute(&sink.in);
 
-      sc_time d(10, SC_NS);
-      sc_time l(20, SC_NS);
+      sc_core::sc_time d(10, SC_NS);
+      sc_core::sc_time l(20, SC_NS);
 
       writeRoute->addHop(cpu);
       writeRoute->addHop(bus).setPriority(0).setTransferTiming(VC::Timing(d,l));
@@ -192,6 +192,6 @@ sc_main(int argc, char **argv)
   NetworkGraph top("top"); // create network graph
   smoc_scheduler_top sched(top);
 
-  sc_start(); // start simulation (SystemC)
+  sc_core::sc_start(); // start simulation (SystemC)
   return 0;
 }
