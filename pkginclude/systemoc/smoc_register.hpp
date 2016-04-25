@@ -18,7 +18,7 @@ class smoc_register
 public:
   typedef T                             data_type;
   typedef typename this_type::chan_type chan_type;
-  typedef std::map<smoc::Detail::PortOutBaseIf*,sc_port_base*>  EntryMap;
+  typedef std::map<smoc::Detail::PortOutBaseIf *, sc_core::sc_port_base *>  EntryMap;
 
 private:
   chan_type *chan;
@@ -71,7 +71,7 @@ public:
   this_type &operator <<(smoc_port_in<T> &p)
     { return this->connect(p); }
   template<class IFACE>
-  this_type &operator <<(sc_port<IFACE> &p)
+  this_type &operator <<(sc_core::sc_port<IFACE> &p)
     { return this->connect(p); }
 private:
   chan_type *getChan() {
