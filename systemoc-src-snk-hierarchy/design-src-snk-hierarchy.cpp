@@ -54,7 +54,7 @@ private:
   }
   smoc_firing_state run;
 public:
-  m_h_copy(sc_module_name name)
+  m_h_copy(sc_core::sc_module_name name)
     : smoc_actor(name, run)
   {
     run =
@@ -80,7 +80,7 @@ private:
   }
   smoc_firing_state start;
 public:
-  m_h_src(sc_module_name name, size_t _iter)
+  m_h_src(sc_core::sc_module_name name, size_t _iter)
     : smoc_actor(name, start),
       i(1), iter(_iter) {
     start =
@@ -104,7 +104,7 @@ private:
   
   smoc_firing_state start;
 public:
-  m_h_sink(sc_module_name name)
+  m_h_sink(sc_core::sc_module_name name)
     : smoc_actor(name, start) {
     start = in(1) >> CALL(m_h_sink::sink) >> start;
   }
@@ -117,7 +117,7 @@ public:
 protected:
   m_h_copy<int> cpy;
 public:
-  m_h_inner(sc_module_name name)
+  m_h_inner(sc_core::sc_module_name name)
     : smoc_graph(name),
       cpy("cpy") {
     cpy.in(in);
@@ -131,7 +131,7 @@ protected:
   m_h_inner inner;
   m_h_sink<int> snk;
 public:
-  m_h_top(sc_module_name name, size_t iter)
+  m_h_top(sc_core::sc_module_name name, size_t iter)
     : smoc_graph(name),
       src("src", iter), inner("inner"), snk("snk") {
     connectNodePorts(src.out, inner.in);
@@ -146,6 +146,6 @@ int sc_main (int argc, char **argv) {
     iter = atol(argv[1]);
   
   smoc_top_moc<m_h_top> top("top", iter);
-  sc_start();
+  sc_core::sc_start();
   return 0;
 }

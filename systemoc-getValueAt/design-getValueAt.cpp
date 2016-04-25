@@ -25,7 +25,7 @@ class m_source: public smoc_actor {
 
     smoc_firing_state start;
   public:
-    m_source( sc_module_name name )
+    m_source( sc_core::sc_module_name name )
       :smoc_actor( name, start ), i(0) {
       start =  out(1) >> (VAR(i) < 1000000) >> CALL(m_source::process) >> start;
     }
@@ -43,7 +43,7 @@ class m_sink: public smoc_actor {
     
     smoc_firing_state start;
   public:
-    m_sink( sc_module_name name )
+    m_sink( sc_core::sc_module_name name )
       :smoc_actor( name, start ) {
       start = (in(1) && in.getValueAt(0) == 0) 
 				>> CALL(m_sink::process) 
@@ -57,7 +57,7 @@ class m_sink: public smoc_actor {
 class m_top
 : public smoc_graph {
   public:
-    m_top( sc_module_name name )
+    m_top( sc_core::sc_module_name name )
       : smoc_graph(name) {
       m_source      &src1 = registerNode(new m_source("src1"));
       m_sink        &sink = registerNode(new m_sink("sink"));
@@ -70,7 +70,7 @@ class m_top
 int sc_main (int argc, char **argv) {
   smoc_top_moc<m_top> top("top");
   
-  sc_start();
+  sc_core::sc_start();
 
   return 0;
 }

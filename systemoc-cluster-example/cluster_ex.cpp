@@ -20,7 +20,7 @@ private:
   DynSwitch dyn_switch;
 
 public:
-  m_top<upsample_factor>(sc_module_name name)
+  m_top<upsample_factor>(sc_core::sc_module_name name)
     : smoc_graph(name),
       static_cluster("static_cluster",5,10),
       dyn_switch("dyn_switch",1000)
@@ -41,6 +41,6 @@ int sc_main (int argc, char **argv) {
 #ifndef KASCPAR_PARSING    
   smoc_top_moc<m_top<10> > top("top");
 #endif
-  sc_start();
+  sc_core::sc_start();
   return 0;
 }

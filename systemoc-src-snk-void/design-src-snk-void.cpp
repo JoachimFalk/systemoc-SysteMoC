@@ -48,7 +48,7 @@ class Src : public smoc_actor {
 public:
   smoc_port_out<void> out;
 
-  Src(sc_module_name name) :
+  Src(sc_core::sc_module_name name) :
     smoc_actor(name, run)
   {
     run = out(1) >> CALL(Src::src) >> run;
@@ -66,7 +66,7 @@ class Snk : public smoc_actor {
 public:
   smoc_port_in<void> in;
 
-  Snk(sc_module_name name) :
+  Snk(sc_core::sc_module_name name) :
     smoc_actor(name, run)
   {
     run = in(1) >> CALL(Snk::snk) >> run;
@@ -82,7 +82,7 @@ private:
 
 class Graph : public smoc_graph {
 public:
-  Graph(sc_module_name name) :
+  Graph(sc_core::sc_module_name name) :
     smoc_graph(name),
     src("src"),
     snk("snk")
@@ -97,6 +97,6 @@ private:
 int sc_main (int argc, char **argv) { 
   Graph g("g");
   smoc_top top(g);
-  sc_start();
+  sc_core::sc_start();
   return 0;
 }

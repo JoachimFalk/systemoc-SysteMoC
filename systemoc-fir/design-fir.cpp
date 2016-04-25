@@ -61,7 +61,7 @@ private:
   }
   smoc_firing_state start;
 public:
-  m_h_src(sc_module_name name, unsigned int iterations)
+  m_h_src(sc_core::sc_module_name name, unsigned int iterations)
     : smoc_actor(name, start), i(1) {
     
     SMOC_REGISTER_CPARAM(iterations);
@@ -100,7 +100,7 @@ private:
   }
 public:
   m_h_fir(
-      sc_module_name name//,        // name of actor
+      sc_core::sc_module_name name//,        // name of actor
       //const vector<double> &taps  // the taps are the coefficients, starting
                                     // with the one for the most recent data item 
   ) : smoc_actor( name, start )     //,
@@ -131,7 +131,7 @@ private:
   
   smoc_firing_state start;
 public:
-  m_h_sink(sc_module_name name)
+  m_h_sink(sc_core::sc_module_name name)
     : smoc_actor(name, start) {
     start = in(1) >> CALL(m_h_sink::sink) >> start;
   }
@@ -153,7 +153,7 @@ public:
     return retval;
   }*/
   
-  m_h_top(sc_module_name name, unsigned int iterations)
+  m_h_top(sc_core::sc_module_name name, unsigned int iterations)
     : smoc_graph(name),
       src("src", iterations),
       fir("fir"/*, gentaps()*/),
@@ -168,6 +168,6 @@ int sc_main (int argc, char **argv) {
   if (argc >= 2)
     iterations = atoi(argv[1]);
   smoc_top_moc<m_h_top> top("top", iterations);
-  sc_start();
+  sc_core::sc_start();
   return 0;
 }

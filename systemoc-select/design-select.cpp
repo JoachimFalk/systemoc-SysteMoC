@@ -54,7 +54,7 @@ private:
   }
   smoc_firing_state start;
 public:
-  m_h_src(sc_module_name name)
+  m_h_src(sc_core::sc_module_name name)
     : smoc_actor(name, start),
       i(1) {
     start = out(1) >> call(&m_h_src::src) >> start;
@@ -73,7 +73,7 @@ private:
   }
   smoc_firing_state start;
 public:
-  m_h_srcbool(sc_module_name name)
+  m_h_srcbool(sc_core::sc_module_name name)
     : smoc_actor(name, start),
       i(false) {
     start = out(1) >> call(&m_h_srcbool::src) >> start;
@@ -97,7 +97,7 @@ private:
   }
   smoc_firing_state atChannel0, atChannel1;
 public:
-  SelectX(sc_module_name name, int initialChannel = 0)
+  SelectX(sc_core::sc_module_name name, int initialChannel = 0)
     : smoc_actor(name, initialChannel ? atChannel1 : atChannel0) {
     atChannel0
       = (Control(1) && Data0(1) &&
@@ -138,7 +138,7 @@ private:
   
   smoc_firing_state start;
 public:
-  m_h_sink(sc_module_name name)
+  m_h_sink(sc_core::sc_module_name name)
     : smoc_actor(name, start) {
     start = in(1) >> call(&m_h_sink::sink) >> start;
   }
@@ -151,7 +151,7 @@ protected:
   SelectX<double>      select;
   m_h_sink<double>    sink;
 public:
-  m_h_top( sc_module_name name )
+  m_h_top( sc_core::sc_module_name name )
     : smoc_graph(name),
       srcbool("srcbool"),
       src1("src1"), src2("src2"),
@@ -166,6 +166,6 @@ public:
 
 int sc_main (int argc, char **argv) {
   smoc_top_moc<m_h_top> top("top");
-  sc_start();
+  sc_core::sc_start();
   return 0;
 }

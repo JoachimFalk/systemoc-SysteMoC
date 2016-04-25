@@ -46,7 +46,7 @@ class Src : public smoc_actor {
 public:
   smoc_port_out<T> out;
 
-  Src(sc_module_name name, size_t _iter)
+  Src(sc_core::sc_module_name name, size_t _iter)
     : smoc_actor(name, start),
       iter(_iter), i(0)
   {
@@ -73,7 +73,7 @@ class Snk : public smoc_actor {
 public:
   smoc_port_in<T> in;
 
-  Snk(sc_module_name name)
+  Snk(sc_core::sc_module_name name)
     : smoc_actor(name, start)
   {
     start =
@@ -97,7 +97,7 @@ public:
   smoc_port_in<T> in;
   smoc_port_out<T> out;
 
-  Transform(sc_module_name name)
+  Transform(sc_core::sc_module_name name)
     : smoc_actor(name, init)
   {
     smoc_junction_state s;
@@ -162,7 +162,7 @@ private:
 
 class Top : public smoc_graph {
 public:
-  Top(sc_module_name name, size_t iter)
+  Top(sc_core::sc_module_name name, size_t iter)
     : smoc_graph(name),
       src("src", iter),
       snk("snk"),
@@ -186,6 +186,6 @@ int sc_main (int argc, char **argv) {
 
   smoc_top_moc<Top> top("top", iter);
 
-  sc_start();
+  sc_core::sc_start();
   return 0;
 }

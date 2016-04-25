@@ -50,7 +50,7 @@ protected:
   size_t            iter;
   int               random;
 public:
-  Testbench(sc_module_name name, size_t _iter)
+  Testbench(sc_core::sc_module_name name, size_t _iter)
     : smoc_actor(name, bf),
       bf("bf"), be("be"), bg("bg"), cf("cf"), ce("ce"), cg("cg"),
       iter(_iter), random((rand()&1)+1)
@@ -90,7 +90,7 @@ protected:
   smoc_xor_state    a, d;
   smoc_firing_state b, c, e, f, g;
 public:
-  Transform(sc_module_name name)
+  Transform(sc_core::sc_module_name name)
     : smoc_actor(name, y),
       i1("i1"), i2("i2"), o1("o1"), o2("o2"),
       y("y"), a("a"), d("d"), b("b"), c("c"), e("e"), f("f"), g("g")
@@ -114,7 +114,7 @@ private:
 
 class Top : public smoc_graph {
 public:
-  Top(sc_module_name name, size_t iter)
+  Top(sc_core::sc_module_name name, size_t iter)
     : smoc_graph(name),
       tb("tb", iter),
       trans("transform")
@@ -138,6 +138,6 @@ int sc_main (int argc, char **argv) {
 
   smoc_top_moc<Top> top("top", iter);
 
-  sc_start();
+  sc_core::sc_start();
   return 0;
 }

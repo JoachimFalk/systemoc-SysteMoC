@@ -36,7 +36,7 @@ private:
   smoc_firing_state fsm_main;
 
 public:
-  Actor_a2(sc_module_name name,
+  Actor_a2(sc_core::sc_module_name name,
            unsigned long heat_time)
     : smoc_actor(name, fsm_main),
       heat_time(heat_time)

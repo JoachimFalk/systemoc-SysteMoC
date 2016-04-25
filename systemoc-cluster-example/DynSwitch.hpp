@@ -202,7 +202,7 @@ private:
   smoc_firing_state stuck;
 
 public:
-  DynSwitch(sc_module_name name,
+  DynSwitch(sc_core::sc_module_name name,
             unsigned long num_iterations)
     : smoc_actor(name,fsm_start),
       path_selector(0),
