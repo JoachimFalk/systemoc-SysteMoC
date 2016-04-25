@@ -66,7 +66,7 @@ private:
   smoc_event        ev;
   sc_core::sc_clock clk;
 public:
-  Src(sc_module_name name)
+  Src(sc_core::sc_module_name name)
     : smoc_actor(name, start), i(0), clk("clk", 10, sc_core::SC_NS)
   {
     start =
@@ -97,7 +97,7 @@ private:
   
   smoc_firing_state start;
 public:
-  Sink(sc_module_name name)
+  Sink(sc_core::sc_module_name name)
     : smoc_actor(name, start)
   {
     start =
@@ -114,7 +114,7 @@ protected:
   Src      src1, src2, src3;
   Sink     snk;
 public:
-  Graph(sc_module_name name)
+  Graph(sc_core::sc_module_name name)
     : smoc_graph(name),
       src1("src1"), src2("src2"), src3("src3"), snk("snk")
   {
@@ -129,6 +129,6 @@ public:
 
 int sc_main (int argc, char **argv) {
   smoc_top_moc<Graph> graph("graph");
-  sc_start();
+  sc_core::sc_start();
   return 0;
 }

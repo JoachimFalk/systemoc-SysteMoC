@@ -45,7 +45,7 @@ class Src: public smoc_actor {
 public:
   smoc_port_out<void> o1, o2, o3, o4;
 
-  Src(sc_module_name name, size_t _iter)
+  Src(sc_core::sc_module_name name, size_t _iter)
     : smoc_actor(name, start),
       start("start"),
       iter(_iter), cv(-1)
@@ -81,7 +81,7 @@ protected:
   smoc_xor_state    d;
   smoc_firing_state a, b, c;
 public:
-  Transform(sc_module_name name)
+  Transform(sc_core::sc_module_name name)
     : smoc_actor(name, d),
       i1("i1"), i2("i2"), i3("i3"), i4("i4"),
       d("d"), a("a"), b("b"), c("c")
@@ -101,7 +101,7 @@ private:
 
 class Top : public smoc_graph {
 public:
-  Top(sc_module_name name, size_t iter)
+  Top(sc_core::sc_module_name name, size_t iter)
     : smoc_graph(name),
       src("src", iter),
       trans("transform")
@@ -125,6 +125,6 @@ int sc_main (int argc, char **argv) {
 
   smoc_top_moc<Top> top("top", iter);
 
-  sc_start();
+  sc_core::sc_start();
   return 0;
 }

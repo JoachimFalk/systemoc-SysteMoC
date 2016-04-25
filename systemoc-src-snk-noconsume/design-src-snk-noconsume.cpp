@@ -54,7 +54,7 @@ private:
   }
   smoc_firing_state start;
 public:
-  m_h_src(sc_module_name name, const T &iters)
+  m_h_src(sc_core::sc_module_name name, const T &iters)
     : smoc_actor(name, start),
       i(1) {
     start = (out(1) && VAR(i) <= iters) >> call(&m_h_src::src) >> start;
@@ -73,7 +73,7 @@ private:
   
   smoc_firing_state s0, s1;
 public:
-  m_h_sink(sc_module_name name)
+  m_h_sink(sc_core::sc_module_name name)
     : smoc_actor(name, s0) {
     s0 = in(0,1) >> call(&m_h_sink::sink) >> s1;
     s1 = in(1)   >> call(&m_h_sink::sink) >> s0;
@@ -85,7 +85,7 @@ protected:
   m_h_src<int>     src;
   m_h_sink<int>    snk;
 public:
-  m_h_top(sc_module_name name, int iters)
+  m_h_top(sc_core::sc_module_name name, int iters)
     : smoc_graph(name),
       src("src", iters), snk("snk") {
     connectNodePorts(src.out, snk.in);
@@ -98,6 +98,6 @@ int sc_main (int argc, char **argv) {
     iters = atoi(argv[1]);
   }
   smoc_top_moc<m_h_top> top("top", iters);
-  sc_start();
+  sc_core::sc_start();
   return 0;
 }

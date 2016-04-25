@@ -58,10 +58,11 @@ private:
   
 
 public:
-  StaticCluster<upsample_factor>( sc_module_name name,
-                                  unsigned int num_dummy_actors,
-                                  unsigned long heat_time)
-    : smoc_graph(name),
+  StaticCluster<upsample_factor>(
+    sc_core::sc_module_name name,
+    unsigned int num_dummy_actors,
+    unsigned long heat_time
+  ) : smoc_graph(name),
       actor_a1("a1",heat_time),
       actor_a2("a2",heat_time),
       actor_a3("a3",heat_time),

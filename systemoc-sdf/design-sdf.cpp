@@ -61,7 +61,7 @@ class m_adder: public smoc_actor {
     
     smoc_firing_state start;
   public:
-    m_adder( sc_module_name name )
+    m_adder( sc_core::sc_module_name name )
       :smoc_actor( name, start ) {
       start = (in1(2) && in2(1) && out(1)) >> CALL(m_adder::process) >> start;
     }
@@ -88,7 +88,7 @@ class m_multiply: public smoc_actor {
     
     smoc_firing_state start;
   public:
-    m_multiply( sc_module_name name )
+    m_multiply( sc_core::sc_module_name name )
       :smoc_actor( name, start ) {
       start = (in1(1) && in2(1) && 
                out1(1) && out2(1)) >>
@@ -103,7 +103,7 @@ class m_top2
     smoc_port_in<int>  in2;
     smoc_port_out<int> out;
     
-    m_top2( sc_module_name name )
+    m_top2( sc_core::sc_module_name name )
       : smoc_graph(name)
     {
       m_adder    &adder = registerNode(new m_adder("adder"));
@@ -134,7 +134,7 @@ class m_source: public smoc_actor {
 
     smoc_firing_state start;
   public:
-    m_source( sc_module_name name )
+    m_source( sc_core::sc_module_name name )
       :smoc_actor( name, start ), i(0) {
       start =  out(1) >> (VAR(i) < 1000000) >> CALL(m_source::process) >> start;
     }
@@ -152,7 +152,7 @@ class m_sink: public smoc_actor {
     
     smoc_firing_state start;
   public:
-    m_sink( sc_module_name name )
+    m_sink( sc_core::sc_module_name name )
       :smoc_actor( name, start ) {
       start = in(1) >> CALL(m_sink::process) >> start;
     }
@@ -161,7 +161,7 @@ class m_sink: public smoc_actor {
 class m_top
 : public smoc_graph {
   public:
-    m_top( sc_module_name name )
+    m_top( sc_core::sc_module_name name )
       : smoc_graph(name) {
       m_top2        &top2 = registerNode(new m_top2("top2"));
       m_source      &src1 = registerNode(new m_source("src1"));
@@ -177,6 +177,6 @@ class m_top
 
 int sc_main (int argc, char **argv) {
   smoc_top_moc<m_top> top("top");
-  sc_start();
+  sc_core::sc_start();
   return 0;
 }

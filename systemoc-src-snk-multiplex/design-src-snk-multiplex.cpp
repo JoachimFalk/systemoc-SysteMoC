@@ -97,7 +97,7 @@ private:
 
   smoc_firing_state start;
 public:
-  m_h_src(sc_module_name name, size_t iter, size_t inst)
+  m_h_src(sc_core::sc_module_name name, size_t iter, size_t inst)
     : smoc_actor(name, start),
       iter(iter),
       inst(inst),
@@ -123,7 +123,7 @@ private:
   
   smoc_firing_state start;
 public:
-  m_h_snk(sc_module_name name, size_t idx)
+  m_h_snk(sc_core::sc_module_name name, size_t idx)
     : smoc_actor(name, start),
       idx(idx)
   {
@@ -147,7 +147,7 @@ protected:
   m_h_src  src;
   CheckedVector<m_h_snk> snk;
 public:
-  m_h_top(sc_module_name name, size_t iter, size_t inst, size_t size, size_t ooo)
+  m_h_top(sc_core::sc_module_name name, size_t iter, size_t inst, size_t size, size_t ooo)
     : smoc_graph(name),
       src("src", iter, inst),
       snk(inst, m_h_snk::factory("snk"))
@@ -193,6 +193,6 @@ int sc_main (int argc, char **argv) {
   std::srand(seed);
 
   smoc_top_moc<m_h_top> top("top", iter, inst, size, ooo);
-  sc_start();
+  sc_core::sc_start();
   return 0;
 }

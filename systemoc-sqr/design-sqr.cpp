@@ -58,7 +58,7 @@ private:
   
   smoc_firing_state start;
 public:
-  Src(sc_module_name name, int from)
+  Src(sc_core::sc_module_name name, int from)
     : smoc_actor(name, start), i(from)
   {
       SMOC_REGISTER_CPARAM(from);
@@ -108,7 +108,7 @@ private:
 public:
   // Constructor responsible for declaring the
   // communication FSM and initializing the actor
-  SqrLoop(sc_module_name name)
+  SqrLoop(sc_core::sc_module_name name)
     : smoc_actor( name, start ) {
     start =
         i1(1)                               >>
@@ -136,7 +136,7 @@ private:
   
   smoc_firing_state start;
 public:
-  Approx(sc_module_name name)
+  Approx(sc_core::sc_module_name name)
     : smoc_actor(name, start) {
     start =
         (i1(1) && i2(1))         >>
@@ -160,7 +160,7 @@ private:
   
   smoc_firing_state start;
 public:
-  Dup(sc_module_name name)
+  Dup(sc_core::sc_module_name name)
     : smoc_actor(name, start) {
     start =
         i1(1)                    >>
@@ -186,7 +186,7 @@ private:
   
   smoc_firing_state start;
 public:
-  Sink(sc_module_name name)
+  Sink(sc_core::sc_module_name name)
     : smoc_actor(name, start) {
     start =
         in(1)             >>
@@ -206,7 +206,7 @@ protected:
   Dup      dup;
   Sink     sink;
 public:
-  SqrRoot( sc_module_name name, const int from = 1 )
+  SqrRoot(sc_core::sc_module_name name, const int from = 1)
     : smoc_graph(name),
       src("a1", from),
       sqrloop("a2"),
@@ -232,6 +232,6 @@ int sc_main (int argc, char **argv) {
     from = NUM_MAX_ITERATIONS - iterations;
   }
   smoc_top_moc<SqrRoot> sqrroot("sqrroot", from);
-  sc_start();
+  sc_core::sc_start();
   return 0;
 }

@@ -85,7 +85,7 @@ public:
   smoc_port_out<int> out;
   smoc_port_in<int> in;
 
-  B(sc_module_name name) :
+  B(sc_core::sc_module_name name) :
     smoc_actor(name, run)
   {
     run = in(1) >> out(1) >> CALL(B::copy) >> run;
@@ -105,7 +105,7 @@ class Src : public smoc_actor {
 public:
   smoc_port_out<int> out;
 
-  Src(sc_module_name name) :
+  Src(sc_core::sc_module_name name) :
     smoc_actor(name, run),
     x(0)
   {
@@ -126,7 +126,7 @@ class Snk : public smoc_actor {
 public:
   smoc_port_in<int> in;
 
-  Snk(sc_module_name name) :
+  Snk(sc_core::sc_module_name name) :
     smoc_actor(name, run)
   {
     run = in(1) >> CALL(Snk::copy) >> run;
@@ -147,7 +147,7 @@ public:
   sc_port< tlm::tlm_nonblocking_get_if<int> > in;
   smoc_port_out<int> out;
 
-  G(sc_module_name name) :
+  G(sc_core::sc_module_name name) :
     smoc_graph(name),
     a("a"),
     b("b")
@@ -163,7 +163,7 @@ private:
 
 class GTop : public smoc_graph {
 public:
-  GTop(sc_module_name name) :
+  GTop(sc_core::sc_module_name name) :
     smoc_graph(name),
     src("src"),
     snk("snk"),
@@ -184,6 +184,6 @@ int sc_main (int argc, char **argv) {
   GTop gtop("gtop");
 
   smoc_top top(&gtop);
-  sc_start();
+  sc_core::sc_start();
   return 0;
 }

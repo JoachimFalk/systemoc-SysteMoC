@@ -31,7 +31,7 @@ private:
   smoc_firing_state fsm_main;
 
 public:
-  Upsample(sc_module_name name, unsigned int factor)
+  Upsample(sc_core::sc_module_name name, unsigned int factor)
     : smoc_actor(name, fsm_main),
       factor(factor)
   {
