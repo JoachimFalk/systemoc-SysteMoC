@@ -1,7 +1,7 @@
 #include <systemoc/smoc_tt.hpp>
 
 
-smoc_graph_tt::smoc_graph_tt(const sc_module_name& name) :
+smoc_graph_tt::smoc_graph_tt(const sc_core::sc_module_name& name) :
   smoc_graph_base(name, run),
   // Prefix all SysteMoC internal modules with __smoc_ to enable filtering out the module on smx dump!
   ttNodeQueue("__smoc_ttEventQueue"),
@@ -11,7 +11,7 @@ smoc_graph_tt::smoc_graph_tt(const sc_module_name& name) :
 }
 
 smoc_graph_tt::smoc_graph_tt() :
-  smoc_graph_base(sc_gen_unique_name("smoc_graph_tt"), run),
+  smoc_graph_base(sc_core::sc_gen_unique_name("smoc_graph_tt"), run),
   // Prefix all SysteMoC internal modules with __smoc_ to enable filtering out the module on smx dump!
   ttNodeQueue("__smoc_ttNodeQueue"),
   run("run")

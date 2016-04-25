@@ -145,7 +145,7 @@ public:
 protected:
   //typedef smoc_module_name sc_module_name;
 
-  smoc_graph_base(const sc_module_name& name, smoc_firing_state& init);
+  smoc_graph_base(const sc_core::sc_module_name& name, smoc_firing_state& init);
 
   void finalise();
   
@@ -182,7 +182,7 @@ class smoc_graph : public smoc_graph_base
 {
 public:
   // construct graph with name
-  explicit smoc_graph(const sc_module_name& name);
+  explicit smoc_graph(const sc_core::sc_module_name& name);
 
   // construct graph with generated name
   smoc_graph();

@@ -40,7 +40,7 @@
 #endif //SYSTEMOC_ENABLE_MAESTRO
 
 #ifdef SYSTEMOC_ENABLE_MAESTRO
-smoc_actor::smoc_actor(sc_module_name name, smoc_hierarchical_state &s, unsigned int thread_stack_size, bool useLogFile)
+smoc_actor::smoc_actor(sc_core::sc_module_name name, smoc_hierarchical_state &s, unsigned int thread_stack_size, bool useLogFile)
   : smoc_root_node(name, smoc_root_node::NODE_TYPE_ACTOR, s),
     SMoCActor(thread_stack_size)
 {
@@ -50,7 +50,7 @@ smoc_actor::smoc_actor(sc_module_name name, smoc_hierarchical_state &s, unsigned
 }
 
 smoc_actor::smoc_actor(smoc_hierarchical_state &s, unsigned int thread_stack_size, bool useLogFile)
-  : smoc_root_node(sc_gen_unique_name("smoc_actor"), smoc_root_node::NODE_TYPE_ACTOR, s),
+  : smoc_root_node(sc_core::sc_gen_unique_name("smoc_actor"), smoc_root_node::NODE_TYPE_ACTOR, s),
 SMoCActor(thread_stack_size)
 {
   this->setName(this->name());
@@ -58,13 +58,13 @@ SMoCActor(thread_stack_size)
   initMMactor();
 }
 #else //!defined(SYSTEMOC_ENABLE_MAESTRO)
-smoc_actor::smoc_actor(sc_module_name name, smoc_hierarchical_state &s)
+smoc_actor::smoc_actor(sc_core::sc_module_name name, smoc_hierarchical_state &s)
 	: smoc_root_node(name, smoc_root_node::NODE_TYPE_ACTOR, s)
 {
 }
 
 smoc_actor::smoc_actor(smoc_hierarchical_state &s)
-	: smoc_root_node(sc_gen_unique_name("smoc_actor"), smoc_root_node::NODE_TYPE_ACTOR, s)
+	: smoc_root_node(sc_core::sc_gen_unique_name("smoc_actor"), smoc_root_node::NODE_TYPE_ACTOR, s)
 {
 }
 #endif //!defined(SYSTEMOC_ENABLE_MAESTRO)
@@ -157,61 +157,61 @@ void smoc_actor::execute()
   this->schedule();
 }
 
-void smoc_actor::wait(double v, sc_time_unit tu )
+void smoc_actor::wait(double v, sc_core::sc_time_unit tu )
 {
 #ifdef MAESTRO_ENABLE_POLYPHONIC
 	this->waitListener->notifyWillWaitTime(*this);
 #endif
-  sc_module::wait(v,tu);
+        sc_core::sc_module::wait(v,tu);
 #ifdef MAESTRO_ENABLE_POLYPHONIC
   this->waitListener->notifyTimeEllapsedAndAwaken(*this);
 #endif
 }
 
-void smoc_actor::wait(sc_time sct )
+void smoc_actor::wait(sc_core::sc_time sct )
 {
 #ifdef MAESTRO_ENABLE_POLYPHONIC
-	this->waitListener->notifyWillWaitTime(*this);
+  this->waitListener->notifyWillWaitTime(*this);
 #endif
-    sc_module::wait(sct);
+  sc_core::sc_module::wait(sct);
 #ifdef MAESTRO_ENABLE_POLYPHONIC
-	this->waitListener->notifyTimeEllapsedAndAwaken(*this);
+  this->waitListener->notifyTimeEllapsedAndAwaken(*this);
 #endif
 }
 
-void smoc_actor::wait(sc_time sct, sc_event& waitEvent)
+void smoc_actor::wait(sc_core::sc_time sct, sc_core::sc_event& waitEvent)
 {
-	sc_module::wait(sct, waitEvent);
+  sc_core::sc_module::wait(sct, waitEvent);
 }
 
 
-void smoc_actor::wait(sc_event& waitEvent)
+void smoc_actor::wait(sc_core::sc_event& waitEvent)
 {
-	sc_module::wait(waitEvent);
+  sc_core::sc_module::wait(waitEvent);
 }
 
 void smoc_actor::wait()
 {
-  sc_module::wait();
+  sc_core::sc_module::wait();
 }
 
-void smoc_actor::sleep(sc_event& wakeUpevent)
+void smoc_actor::sleep(sc_core::sc_event& wakeUpevent)
 {
   wait(wakeUpevent);
 }
 
 double smoc_actor::getLocalTimeDiff()
 {
-	sc_time localTime = localClock->computeTimeStamp();
-	sc_time globalTime = sc_time_stamp();
+	sc_core::sc_time localTime = localClock->computeTimeStamp();
+	sc_core::sc_time globalTime = sc_core::sc_time_stamp();
 
 	return globalTime.to_double() - localTime.to_double();
 
 }
 
-void smoc_actor::localClockWait(sc_time sct)
+void smoc_actor::localClockWait(sc_core::sc_time sct)
 {
-	sc_time totalTimeToWait;
+	sc_core::sc_time totalTimeToWait;
 
 	//ClockI* clock = SMoCActor::trace->getClock();
 
@@ -228,15 +228,15 @@ void smoc_actor::localClockWait(sc_time sct)
 #ifdef MAESTRO_ENABLE_POLYPHONIC
 	this->waitListener->notifyWillWaitTime(*this);
 #endif
-	sc_module::wait(totalTime,SC_PS);
+	sc_core::sc_module::wait(totalTime,sc_core::SC_PS);
 #ifdef MAESTRO_ENABLE_POLYPHONIC
 	this->waitListener->notifyTimeEllapsedAndAwaken(*this);
 #endif
 }
 
-void smoc_actor::localClockWait(double v, sc_time_unit tu)
+void smoc_actor::localClockWait(double v, sc_core::sc_time_unit tu)
 {
-	localClockWait(sc_time(v, tu));
+	localClockWait(sc_core::sc_time(v, tu));
 }
 
 #endif //defined(SYSTEMOC_ENABLE_MAESTRO)

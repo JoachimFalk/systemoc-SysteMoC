@@ -68,8 +68,8 @@ namespace smoc { namespace Detail {
 
 namespace SGX = SystemCoDesigner::SGX;
 
-typedef std::map<sc_port_base const *, SGX::Port::Ptr>  SCPortBase2Port;
-typedef std::map<sc_interface *, SGX::Port::Ptr>  SCInterface2Port;
+typedef std::map<sc_core::sc_port_base const *, SGX::Port::Ptr>  SCPortBase2Port;
+typedef std::map<sc_core::sc_interface *, SGX::Port::Ptr>  SCInterface2Port;
 
 using CoSupport::String::Concat;
 
@@ -139,14 +139,14 @@ public:
 };
 
 ExprNGXVisitor::result_type ExprNGXVisitor::visitVar(const std::string &name, const std::string &type) {
-  std::auto_ptr<SGX::ASTNodeVar> astNode(new SGX::ASTNodeVar);
+  std::unique_ptr<SGX::ASTNodeVar> astNode(new SGX::ASTNodeVar);
   astNode->name() = name;
   astNode->valueType() = type;
   return astNode.release();
 }
 
 ExprNGXVisitor::result_type ExprNGXVisitor::visitLiteral(const std::string &type, const std::string &value) {
-  std::auto_ptr<SGX::ASTNodeLiteral> astNode(new SGX::ASTNodeLiteral);
+  std::unique_ptr<SGX::ASTNodeLiteral> astNode(new SGX::ASTNodeLiteral);
   astNode->valueType() = type;
   astNode->value() = value;
   return astNode.release();
@@ -154,7 +154,7 @@ ExprNGXVisitor::result_type ExprNGXVisitor::visitLiteral(const std::string &type
 
 ExprNGXVisitor::result_type ExprNGXVisitor::visitMemGuard(
     const std::string &name, const std::string& cxxType, const std::string &reType, const ParamInfoList &params) {
-  std::auto_ptr<SGX::ASTNodeMemGuard> astNode(new SGX::ASTNodeMemGuard);
+  std::unique_ptr<SGX::ASTNodeMemGuard> astNode(new SGX::ASTNodeMemGuard);
   astNode->name() = name;
   astNode->valueType() = reType;
   astNode->cxxType() = cxxType;
@@ -170,14 +170,14 @@ ExprNGXVisitor::result_type ExprNGXVisitor::visitMemGuard(
 }
 
 ExprNGXVisitor::result_type ExprNGXVisitor::visitEvent(const std::string &name) {
-  std::auto_ptr<SGX::ASTNodeEvent> astNode(new SGX::ASTNodeEvent);
+  std::unique_ptr<SGX::ASTNodeEvent> astNode(new SGX::ASTNodeEvent);
   astNode->name() = name;
   astNode->valueType() = typeid(bool).name();
   return astNode.release();
 }
 
 ExprNGXVisitor::result_type ExprNGXVisitor::visitPortTokens(smoc_sysc_port &p) {
-  std::auto_ptr<SGX::ASTNodePortTokens> astNode(new SGX::ASTNodePortTokens);
+  std::unique_ptr<SGX::ASTNodePortTokens> astNode(new SGX::ASTNodePortTokens);
   SCPortBase2Port::iterator iter = ports.find(&p);
   assert(iter != ports.end() && "WTF?!: Got port in activation pattern which is not from the same actor as the FSM?!");
   astNode->port() = iter->second;
@@ -186,7 +186,7 @@ ExprNGXVisitor::result_type ExprNGXVisitor::visitPortTokens(smoc_sysc_port &p) {
 }
 
 ExprNGXVisitor::result_type ExprNGXVisitor::visitToken(smoc_sysc_port &p, size_t n) {
-  std::auto_ptr<SGX::ASTNodeToken> astNode(new SGX::ASTNodeToken);
+  std::unique_ptr<SGX::ASTNodeToken> astNode(new SGX::ASTNodeToken);
   SCPortBase2Port::iterator iter = ports.find(&p);
   assert(iter != ports.end() && "WTF?!: Got port in activation pattern which is not from the same actor as the FSM?!");
   astNode->port() = iter->second;
@@ -195,11 +195,11 @@ ExprNGXVisitor::result_type ExprNGXVisitor::visitToken(smoc_sysc_port &p, size_t
 }
 
 ExprNGXVisitor::result_type ExprNGXVisitor::visitComm(smoc_sysc_port &p, boost::function<result_type (base_type &)> e) {
-  std::auto_ptr<SGX::ASTNodeComm> astNode(new SGX::ASTNodeComm);
+  std::unique_ptr<SGX::ASTNodeComm> astNode(new SGX::ASTNodeComm);
   SCPortBase2Port::iterator iter = ports.find(&p);
   assert(iter != ports.end() && "WTF?!: Got port in activation pattern which is not from the same actor as the FSM?!");
   astNode->port() = iter->second;
-  std::auto_ptr<SGX::ASTNode> childNode(e(*this));
+  std::unique_ptr<SGX::ASTNode> childNode(e(*this));
   astNode->childNode() = childNode->toPtr();
   return astNode.release();
 }
@@ -208,9 +208,9 @@ ExprNGXVisitor::result_type ExprNGXVisitor::visitUnOp(
     OpUnT op,
     boost::function<result_type (base_type &)> e)
 {
-  std::auto_ptr<SGX::ASTNodeUnOp> astNode(new SGX::ASTNodeUnOp);
+  std::unique_ptr<SGX::ASTNodeUnOp> astNode(new SGX::ASTNodeUnOp);
   astNode->opType() = op;
-  std::auto_ptr<SGX::ASTNode> childNode(e(*this));
+  std::unique_ptr<SGX::ASTNode> childNode(e(*this));
   astNode->childNode() = childNode->toPtr();
   return astNode.release();
 }
@@ -220,11 +220,11 @@ ExprNGXVisitor::result_type ExprNGXVisitor::visitBinOp(
     boost::function<result_type (base_type &)> a,
     boost::function<result_type (base_type &)> b)
 {
-  std::auto_ptr<SGX::ASTNodeBinOp> astNode(new SGX::ASTNodeBinOp);
+  std::unique_ptr<SGX::ASTNodeBinOp> astNode(new SGX::ASTNodeBinOp);
   astNode->opType() = op;
-  std::auto_ptr<SGX::ASTNode> leftNode(a(*this));
+  std::unique_ptr<SGX::ASTNode> leftNode(a(*this));
   astNode->leftNode() = leftNode->toPtr();
-  std::auto_ptr<SGX::ASTNode> rightNode(b(*this));
+  std::unique_ptr<SGX::ASTNode> rightNode(b(*this));
   astNode->rightNode() = rightNode->toPtr();
   return astNode.release();
 }
@@ -248,9 +248,9 @@ struct SMXDumpCTX {
 template <class Visitor>
 void recurse(Visitor &visitor, sc_core::sc_object &obj) {
 #if SYSTEMC_VERSION < 20050714
-  typedef sc_pvector<sc_core::sc_object*> sc_object_list;
+  typedef sc_core::sc_pvector<sc_core::sc_object*> sc_object_list;
 #else
-  typedef std::vector<sc_core::sc_object*>  sc_object_list;
+  typedef std::vector<sc_core::sc_object*>         sc_object_list;
 #endif
   {
     sc_core::sc_module *mod;
@@ -493,7 +493,7 @@ public:
   DumpFifoBase(GraphSubVisitor &gsv)
     : gsv(gsv) {}
 
-  void connectPort(SGX::Port &pChan, sc_interface *sci, SGX::Port::Direction d) {
+  void connectPort(SGX::Port &pChan, sc_core::sc_interface *sci, SGX::Port::Direction d) {
     {
       SCInterface2Port::iterator iter =
         gsv.expectedChannelConnections.find(sci);

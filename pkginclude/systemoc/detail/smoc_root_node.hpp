@@ -90,7 +90,7 @@
  * you have to change apply_visitor.hpp accordingly.
  */
 class smoc_root_node
-: public sc_module,
+: public sc_core::sc_module,
 #ifdef SYSTEMOC_NEED_IDS
   public  smoc::Detail::NamedIdedObj,
 #endif // SYSTEMOC_NEED_IDS
@@ -170,7 +170,7 @@ private:
 
 protected:
   //smoc_root_node(const smoc_firing_state &s);
-  smoc_root_node(sc_module_name, NodeType nodeType, smoc_hierarchical_state &s);
+  smoc_root_node(sc_core::sc_module_name, NodeType nodeType, smoc_hierarchical_state &s);
   
   friend class smoc_graph_base;
 
@@ -252,7 +252,7 @@ public:
     { return nodeType == NODE_TYPE_ACTOR; }
 
   const char *name() const
-    { return sc_module::name(); }
+    { return sc_core::sc_module::name(); }
 
   FiringFSMImpl *getFiringFSM() const
     { return initialState.getImpl()->getFiringFSM(); }
