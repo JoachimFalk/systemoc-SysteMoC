@@ -43,7 +43,9 @@
 
 #include <systemoc/smoc_config.h>
 
-#include <smoc/detail/PortBaseIf.hpp>
+#include "../smoc/detail/PortBaseIf.hpp"
+#include "../smoc/smoc_event.hpp"
+
 #include "detail/smoc_chan_if.hpp"
 
 namespace tlm {
@@ -233,8 +235,7 @@ public:
 
   /// see tlm::tlm_blocking_get_if<T>
   T get(tlm::tlm_tag<T> * = nullptr) {
-    
-    wait(this->dataAvailable);
+    smoc::smoc_wait(this->dataAvailable);
     
     typename this_type::iface_impl_type::access_type *ca =
       this->getIface().getChannelAccess();
@@ -279,7 +280,7 @@ public:
 
   /// see tlm::tlm_blocking_get_if<void>
   void get(tlm::tlm_tag<void> * = nullptr) {
-    wait(this->dataAvailable);
+    smoc::smoc_wait(this->dataAvailable);
     
     typename this_type::iface_impl_type::access_type *ca =
       this->getIface().getChannelAccess();
@@ -430,7 +431,7 @@ public:
     : smoc::Detail::ChanAdapterMid<smoc_port_in_if<T,R> >(in_if) {}
 
   T peek(tlm::tlm_tag<T> *t = nullptr) const {
-    wait(this->dataAvailable);
+    smoc::smoc_wait(this->dataAvailable);
     
     typename this_type::iface_impl_type::access_type *ca =
       this->getIface().getChannelAccess();
@@ -465,7 +466,7 @@ public:
     : smoc::Detail::ChanAdapterMid<smoc_port_in_if<void,R> >(in_if) {}
 
   void peek(tlm::tlm_tag<void> *t = nullptr) const {
-    wait(this->dataAvailable);
+    smoc::smoc_wait(this->dataAvailable);
     
     typename this_type::iface_impl_type::access_type *ca =
       this->getIface().getChannelAccess();
@@ -600,7 +601,7 @@ public:
 
   /// see tlm::tlm_blocking_put_if<T>
   void put(const T &t) {
-    wait(this->spaceAvailable);
+    smoc::smoc_wait(this->spaceAvailable);
     
     typename this_type::iface_impl_type::access_type *ca =
       this->getIface().getChannelAccess();
@@ -642,7 +643,7 @@ public:
 
   /// see tlm::tlm_blocking_put_if<void>
   void put(tlm::tlm_tag<void> * = nullptr) {
-    wait(this->spaceAvailable);
+    smoc::smoc_wait(this->spaceAvailable);
     
     typename this_type::iface_impl_type::access_type *ca =
       this->getIface().getChannelAccess();
