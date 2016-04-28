@@ -489,23 +489,23 @@ smoc_transition operator >> (
     smoc_firing_state_base::ConstRef &s)
   { return smoc_transition(Guard(g),s); }
 
-template <class E>
-smoc_transition_part operator >> (
-    const smoc::Expr::D<E> &g,
-    const smoc_sr_func_pair &fp)
-  { return smoc_transition_part(Guard(g),fp); }
-
-inline
-smoc_transition operator >> (
-    const smoc_sr_func_pair &fp,
-    smoc_firing_state_base::ConstRef &s)
-  { return smoc_transition(smoc_action(fp),s); }
-
-inline
-smoc_sr_func_pair operator && (
-    const smoc_func_call &f1,
-    const smoc_func_call &f2)
-  { return smoc_sr_func_pair(f1, f2); }
+//template <class E>
+//smoc_transition_part operator >> (
+//    const smoc::Expr::D<E> &g,
+//    const smoc_sr_func_pair &fp)
+//  { return smoc_transition_part(Guard(g),fp); }
+//
+//inline
+//smoc_transition operator >> (
+//    const smoc_sr_func_pair &fp,
+//    smoc_firing_state_base::ConstRef &s)
+//  { return smoc_transition(smoc_action(fp),s); }
+//
+//inline
+//smoc_sr_func_pair operator && (
+//    const smoc_func_call &f1,
+//    const smoc_func_call &f2)
+//  { return smoc_sr_func_pair(f1, f2); }
 
 inline
 smoc_multi_state::Ref operator,(

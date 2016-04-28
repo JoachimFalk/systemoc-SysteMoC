@@ -226,7 +226,6 @@ class RuntimeState;
 
 /**
  * smoc_func_diverge
- */
 
 class smoc_func_diverge {
 private:
@@ -253,13 +252,10 @@ public:
     return k->call();
   }
 };
-
-//bool operator <(const smoc_func_diverge &lhs, const smoc_func_diverge &rhs)
-//  { return lhs.k < rhs.k; }
+ */
 
 /**
  * smoc_sr_func_pair
- */
 
 class smoc_sr_func_pair {
 public:
@@ -279,6 +275,7 @@ public:
       const smoc_func_call &tick)
     : go(go), tick(tick) {}
 };
+ */
 
 class smoc_func_call_list
 : public std::list<smoc_func_call> {
@@ -292,9 +289,12 @@ public:
 };
 
 typedef boost::variant<
-  smoc_func_call_list,
-  smoc_func_diverge,
-  smoc_sr_func_pair> smoc_action;
+  smoc_func_call_list> smoc_action;
+
+//typedef boost::variant<
+//  smoc_func_call_list,
+//  smoc_func_diverge,
+//  smoc_sr_func_pair> smoc_action;
 
 smoc_action merge(const smoc_action& a, const smoc_action& b);
 
@@ -310,8 +310,8 @@ public:
   ActionVisitor(RuntimeState* dest, int mode);
 
   result_type operator()(const smoc_func_call_list& f) const;
-  result_type operator()(const smoc_func_diverge& f) const;
-  result_type operator()(const smoc_sr_func_pair& f) const;
+//result_type operator()(const smoc_func_diverge& f) const;
+//result_type operator()(const smoc_sr_func_pair& f) const;
 
 private:
   RuntimeState* dest;
@@ -331,8 +331,8 @@ public:
   ActionNameVisitor(FunctionNames & names);
 
   result_type operator()(const smoc_func_call_list& f) const;
-  result_type operator()(const smoc_sr_func_pair& f) const;
-  result_type operator()(const smoc_func_diverge& f) const;
+//result_type operator()(const smoc_sr_func_pair& f) const;
+//result_type operator()(const smoc_func_diverge& f) const;
 
 private:
   FunctionNames &functionNames;
@@ -414,8 +414,8 @@ public:
   TransitionOnThreadVisitor(RuntimeState* dest, MetaMap::Transition* transition);
 
   result_type operator()(const smoc_func_call_list& f) const;
-  result_type operator()(const smoc_func_diverge& f) const;
-  result_type operator()(const smoc_sr_func_pair& f) const;
+//result_type operator()(const smoc_func_diverge& f) const;
+//result_type operator()(const smoc_sr_func_pair& f) const;
 
 private:
   RuntimeState* dest;
@@ -442,21 +442,21 @@ public:
     }
   }
 
-  result_type operator()(const smoc_sr_func_pair& f) const{
-    functionNames.push_back(f.go.getFuncName());
-    functionNames.push_back(f.tick.getFuncName());
+//result_type operator()(const smoc_sr_func_pair& f) const{
+//  functionNames.push_back(f.go.getFuncName());
+//  functionNames.push_back(f.tick.getFuncName());
+//
+//  /* FIXME: we cannot modify tickLink here:
+//  f.tickLink = new SystemC_VPC::FastLink(
+//      SystemC_VPC::Director::getInstance().getFastLink(
+//        name, f.tick.getFuncName()));
+//  */
+//}
 
-    /* FIXME: we cannot modify tickLink here:
-    f.tickLink = new SystemC_VPC::FastLink(
-        SystemC_VPC::Director::getInstance().getFastLink(
-          name, f.tick.getFuncName()));
-    */
-  }
-
-  result_type operator()(const smoc_func_diverge& f) const{
-  //  std::cerr << "FIXME: got a smoc_func_diverge" << std::endl;
-  //  functionNames.push_back("smoc_func_diverge");
-  }
+//result_type operator()(const smoc_func_diverge& f) const{
+////  std::cerr << "FIXME: got a smoc_func_diverge" << std::endl;
+////  functionNames.push_back("smoc_func_diverge");
+//}
 
 private:
   list<string> &functionNames;

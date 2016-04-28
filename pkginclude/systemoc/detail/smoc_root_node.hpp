@@ -129,8 +129,8 @@ private:
   /// @brief For non strict scheduling
   RuntimeState *lastState;
 
-  /// @brief For non strict scheduling
-  bool _non_strict;
+///// @brief For non strict scheduling
+//bool _non_strict;
 
 #ifdef SYSTEMOC_ENABLE_VPC
   RuntimeState *commState;
@@ -299,8 +299,8 @@ public:
   //true if actual state is a communication state
   bool inCommState() const;
 
-  //determines non-strict actors (non-strict blocks in synchronous-reactive domains)
-  bool isNonStrict() const;
+////determines non-strict actors (non-strict blocks in synchronous-reactive domains)
+//bool isNonStrict() const;
 
   virtual ~smoc_root_node();
 

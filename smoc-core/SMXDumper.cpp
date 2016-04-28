@@ -79,8 +79,8 @@ public:
   typedef SGX::Action::Ptr result_type;
 public:
   result_type operator()(smoc_func_call_list &f) const;
-  result_type operator()(smoc_func_diverge &f) const;
-  result_type operator()(smoc_sr_func_pair &f) const;
+//result_type operator()(smoc_func_diverge &f) const;
+//result_type operator()(smoc_sr_func_pair &f) const;
 };
 
 SGX::Action::Ptr ActionNGXVisitor::operator()(smoc_func_call_list &f) const {
@@ -111,13 +111,13 @@ SGX::Action::Ptr ActionNGXVisitor::operator()(smoc_func_call_list &f) const {
   return &top;
 }
 
-SGX::Action::Ptr ActionNGXVisitor::operator()(smoc_func_diverge &f) const {
-  return nullptr;
-}
+//SGX::Action::Ptr ActionNGXVisitor::operator()(smoc_func_diverge &f) const {
+//  return nullptr;
+//}
 
-SGX::Action::Ptr ActionNGXVisitor::operator()(smoc_sr_func_pair &f) const {
-  return nullptr;
-}
+//SGX::Action::Ptr ActionNGXVisitor::operator()(smoc_sr_func_pair &f) const {
+//  return nullptr;
+//}
 
 class ExprNGXVisitor: public ExprVisitor<SGX::ASTNode> {
   typedef ExprVisitor<SGX::ASTNode> base_type;
