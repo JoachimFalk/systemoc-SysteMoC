@@ -56,7 +56,7 @@ smoc_root_node::smoc_root_node(sc_core::sc_module_name name, NodeType nodeType, 
   , nodeType(nodeType)
   , currentState(nullptr)
   , lastState(nullptr)
-  , _non_strict(false)
+//, _non_strict(false)
 #ifdef SYSTEMOC_ENABLE_VPC
   , commState(new RuntimeState())
   , nextState(nullptr)
@@ -109,7 +109,7 @@ void smoc_root_node::finalise() {
 
   getFiringFSM()->finalise(this, initialState.getImpl());
   
-  //check for non strict transitions
+/*//check for non strict transitions
   const RuntimeStateSet& states = getFiringFSM()->getStates(); 
   
   for (RuntimeStateSet::const_iterator sIter = states.begin(); 
@@ -129,6 +129,7 @@ void smoc_root_node::finalise() {
       }
     }
   }
+ */
 #ifdef SYSTEMOC_DEBUG
   outDbg << Indent::Down << "</smoc_root_node::finalise>" << std::endl;
 #endif
@@ -160,9 +161,11 @@ bool smoc_root_node::inCommState() const{
 #endif // SYSTEMOC_ENABLE_VPC
 }
 
+/*
 bool smoc_root_node::isNonStrict() const{
   return _non_strict;
 }
+ */
 
 smoc_root_node::~smoc_root_node() {
 #ifdef SYSTEMOC_ENABLE_VPC

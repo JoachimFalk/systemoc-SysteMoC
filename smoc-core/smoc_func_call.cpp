@@ -89,6 +89,7 @@ RuntimeState* ActionVisitor::operator()(const smoc_func_call_list& f) const {
   return dest;
 }
 
+/*
 RuntimeState* ActionVisitor::operator()(const smoc_func_diverge& f) const {
   // Function call determines next state (Internal use only)
 #ifdef SYSTEMOC_DEBUG
@@ -103,7 +104,9 @@ RuntimeState* ActionVisitor::operator()(const smoc_func_diverge& f) const {
 #endif
   return ret;
 }
+ */
 
+/*
 RuntimeState* ActionVisitor::operator()(const smoc_sr_func_pair& f) const {
   // SR GO & TICK calls
 #ifdef SYSTEMOC_ENABLE_DATAFLOW_TRACE
@@ -134,6 +137,7 @@ RuntimeState* ActionVisitor::operator()(const smoc_sr_func_pair& f) const {
 #endif
   return dest;
 }
+ */
 
 #ifdef MAESTRO_ENABLE_POLYPHONIC
 
@@ -217,6 +221,7 @@ void smoc::dMM::TransitionOnThreadVisitor::executeTransition(const smoc_func_cal
 	transition->notifyThreadDone();
 }
 
+/*
 RuntimeState* smoc::dMM::TransitionOnThreadVisitor::operator()(const smoc_func_diverge& f) const {
 	// Function call determines next state (Internal use only)
 # ifdef SYSTEMOC_DEBUG
@@ -231,11 +236,14 @@ RuntimeState* smoc::dMM::TransitionOnThreadVisitor::operator()(const smoc_func_d
 # endif //SYSTEMOC_DEBUG
 	return ret;
 }
+ */
 
+/*
 RuntimeState* smoc::dMM::TransitionOnThreadVisitor::operator()(const smoc_sr_func_pair& f) const
 {
 	throw std::runtime_error("Not implemented");
 }
+ */
 
 #endif //MAESTRO_ENABLE_POLYPHONIC
 
@@ -253,21 +261,24 @@ void ActionNameVisitor::operator()(const smoc_func_call_list& f) const {
   }
 }
 
+/*
 void ActionNameVisitor::operator()(const smoc_sr_func_pair& f) const {
   functionNames.push_back(f.go.getFuncName());
   functionNames.push_back(f.tick.getFuncName());
 
-  /* FIXME: we cannot modify tickLink here:
-  f.tickLink = new SystemC_VPC::FastLink(
-      SystemC_VPC::Director::getInstance().getFastLink(
-        name, f.tick.getFuncName()));
-  */
+  // FIXME: we cannot modify tickLink here:
+  //f.tickLink = new SystemC_VPC::FastLink(
+  //    SystemC_VPC::Director::getInstance().getFastLink(
+  //      name, f.tick.getFuncName()));
 }
+ */
 
+/*
 void ActionNameVisitor::operator()(const smoc_func_diverge& f) const {
   std::cerr << "FIXME: got a smoc_func_diverge" << std::endl;
   functionNames.push_back("smoc_func_diverge");
 }
+ */
 
 } } // namespace smoc::Detail
 #endif // SYSTEMOC_ENABLE_VPC

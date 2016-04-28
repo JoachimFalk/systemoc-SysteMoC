@@ -222,12 +222,12 @@ public:
     }
     return str.str();
   }
-  result_type operator()(smoc_func_diverge &f) const {
-    return "";
-  }
-  result_type operator()(smoc_sr_func_pair &f) const {
-    return "";
-  }
+//result_type operator()(smoc_func_diverge &f) const {
+//  return "";
+//}
+//result_type operator()(smoc_sr_func_pair &f) const {
+//  return "";
+//}
 };
 
 class Action_HasWaitVisitor {
@@ -244,13 +244,13 @@ public:
     return false;
   }
 
-  result_type operator()(const smoc_func_diverge &f) const {
-    return false;
-  }
+//result_type operator()(const smoc_func_diverge &f) const {
+//  return false;
+//}
 
-  result_type operator()(const smoc_sr_func_pair &f) const {
-    return false;
-  }
+//result_type operator()(const smoc_sr_func_pair &f) const {
+//  return false;
+//}
 };
 
 #ifdef SYSTEMOC_ENABLE_MAESTRO

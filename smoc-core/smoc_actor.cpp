@@ -41,8 +41,8 @@
 
 #ifdef SYSTEMOC_ENABLE_MAESTRO
 smoc_actor::smoc_actor(sc_core::sc_module_name name, smoc_hierarchical_state &s, unsigned int thread_stack_size, bool useLogFile)
-  : smoc_root_node(name, smoc_root_node::NODE_TYPE_ACTOR, s),
-    SMoCActor(thread_stack_size)
+  : SMoCActor(thread_stack_size)
+  , smoc_root_node(name, smoc_root_node::NODE_TYPE_ACTOR, s)
 {
   this->setName(this->name());
   this->instanceLogger(this->name(), useLogFile);
@@ -50,8 +50,8 @@ smoc_actor::smoc_actor(sc_core::sc_module_name name, smoc_hierarchical_state &s,
 }
 
 smoc_actor::smoc_actor(smoc_hierarchical_state &s, unsigned int thread_stack_size, bool useLogFile)
-  : smoc_root_node(sc_core::sc_gen_unique_name("smoc_actor"), smoc_root_node::NODE_TYPE_ACTOR, s),
-SMoCActor(thread_stack_size)
+  : SMoCActor(thread_stack_size)
+  , smoc_root_node(sc_core::sc_gen_unique_name("smoc_actor"), smoc_root_node::NODE_TYPE_ACTOR, s)
 {
   this->setName(this->name());
   this->instanceLogger(this->name(), useLogFile);
@@ -59,14 +59,12 @@ SMoCActor(thread_stack_size)
 }
 #else //!defined(SYSTEMOC_ENABLE_MAESTRO)
 smoc_actor::smoc_actor(sc_core::sc_module_name name, smoc_hierarchical_state &s)
-	: smoc_root_node(name, smoc_root_node::NODE_TYPE_ACTOR, s)
-{
-}
+  : smoc_root_node(name, smoc_root_node::NODE_TYPE_ACTOR, s)
+  {}
 
 smoc_actor::smoc_actor(smoc_hierarchical_state &s)
-	: smoc_root_node(sc_core::sc_gen_unique_name("smoc_actor"), smoc_root_node::NODE_TYPE_ACTOR, s)
-{
-}
+  : smoc_root_node(sc_core::sc_gen_unique_name("smoc_actor"), smoc_root_node::NODE_TYPE_ACTOR, s)
+  {}
 #endif //!defined(SYSTEMOC_ENABLE_MAESTRO)
 
 #ifdef SYSTEMOC_ENABLE_MAESTRO
@@ -79,38 +77,29 @@ void smoc_actor::initMMactor()
 
 bool smoc_actor::canExecute()
 {
-    //smoc_actor* sActor =static_cast<smoc_actor*>(this);
-    bool canFire = this->canFire();
-
-#ifdef SYSTEMOC_ENABLE_VPC
-    canFire = canFire && getActive;
-#endif //SYSTEMOC_ENABLE_VPC
-
-    return canFire;
+  bool canFire = this->canFire();
+  return canFire;
 }
 
 bool smoc_actor::testCanExecute()
 {
-	//smoc_actor* sActor =static_cast<smoc_actor*>(this);
-	bool canFire = this->testCanFire();
-
-	return canFire;
+  bool canFire = this->testCanFire();
+  return canFire;
 }
 
 bool smoc_actor::isScheduled()
 {
-	return this->scheduled;
+  return this->scheduled;
 }
 
 void smoc_actor::setScheduled(bool set)
 {
-	scheduled = set;
+  scheduled = set;
 }
 
 void smoc_actor::getCurrentTransition(MetaMap::Transition*& activeTransition)
 {
-    //smoc_actor* sActor =static_cast<smoc_actor*>(this);
-    activeTransition = (MetaMap::Transition*) this->ct;
+  activeTransition = (MetaMap::Transition*) this->ct;
 }
 
 void smoc_actor::registerTransitionReadyListener(MetaMap::TransitionReadyListener& listener)
@@ -129,7 +118,7 @@ void smoc_actor::registerTransitionReadyListener(MetaMap::TransitionReadyListene
 
 }
 
-#ifdef MAESTRO_ENABLE_POLYPHONIC
+# ifdef MAESTRO_ENABLE_POLYPHONIC
 void smoc_actor::registerThreadDoneListener(MetaMap::ThreadDoneListener& listener)
 {
 	//For all states
@@ -145,7 +134,7 @@ void smoc_actor::registerThreadDoneListener(MetaMap::ThreadDoneListener& listene
 	}
 
 }
-#endif
+# endif
 
 
 void smoc_actor::execute()
@@ -159,24 +148,24 @@ void smoc_actor::execute()
 
 void smoc_actor::wait(double v, sc_core::sc_time_unit tu )
 {
-#ifdef MAESTRO_ENABLE_POLYPHONIC
+# ifdef MAESTRO_ENABLE_POLYPHONIC
 	this->waitListener->notifyWillWaitTime(*this);
-#endif
+# endif
         sc_core::sc_module::wait(v,tu);
-#ifdef MAESTRO_ENABLE_POLYPHONIC
+# ifdef MAESTRO_ENABLE_POLYPHONIC
   this->waitListener->notifyTimeEllapsedAndAwaken(*this);
-#endif
+# endif
 }
 
 void smoc_actor::wait(sc_core::sc_time sct )
 {
-#ifdef MAESTRO_ENABLE_POLYPHONIC
+# ifdef MAESTRO_ENABLE_POLYPHONIC
   this->waitListener->notifyWillWaitTime(*this);
-#endif
+# endif
   sc_core::sc_module::wait(sct);
-#ifdef MAESTRO_ENABLE_POLYPHONIC
+# ifdef MAESTRO_ENABLE_POLYPHONIC
   this->waitListener->notifyTimeEllapsedAndAwaken(*this);
-#endif
+# endif
 }
 
 void smoc_actor::wait(sc_core::sc_time sct, sc_core::sc_event& waitEvent)
@@ -225,20 +214,19 @@ void smoc_actor::localClockWait(sc_core::sc_time sct)
 
 	double totalTime = (sct.to_double() /*- shift - offset*/)*freqFactor;
 
-#ifdef MAESTRO_ENABLE_POLYPHONIC
+# ifdef MAESTRO_ENABLE_POLYPHONIC
 	this->waitListener->notifyWillWaitTime(*this);
-#endif
+# endif
 	sc_core::sc_module::wait(totalTime,sc_core::SC_PS);
-#ifdef MAESTRO_ENABLE_POLYPHONIC
+# ifdef MAESTRO_ENABLE_POLYPHONIC
 	this->waitListener->notifyTimeEllapsedAndAwaken(*this);
-#endif
+# endif
 }
 
 void smoc_actor::localClockWait(double v, sc_core::sc_time_unit tu)
 {
 	localClockWait(sc_core::sc_time(v, tu));
 }
-
 #endif //defined(SYSTEMOC_ENABLE_MAESTRO)
 
 #ifdef SYSTEMOC_ENABLE_VPC
@@ -257,6 +245,4 @@ void smoc_actor::setActivation(bool activation){
 #ifdef SYSTEMOC_ENABLE_VPC
   this->notifyActivation(activation);
 #endif //SYSTEMOC_ENABLE_VPC
-
-
 }
