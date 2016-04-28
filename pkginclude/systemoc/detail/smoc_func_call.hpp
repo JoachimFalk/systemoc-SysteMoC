@@ -80,11 +80,7 @@ static inline
 void intrusive_ptr_release( smoc_member_func_interface<R> *r );
 
 template <typename R>
-class smoc_member_func_interface
-#ifdef SYSTEMOC_NEED_IDS
-  :  public smoc::Detail::NamedIdedObj
-#endif // SYSTEMOC_NEED_IDS
-{
+class smoc_member_func_interface {
 public:
   typedef smoc_member_func_interface<R> this_type;
   
@@ -103,19 +99,11 @@ public:
   virtual
   const char *getCxxType() const = 0;
 
-
   virtual
   smoc::Detail::ParamInfoList getParams() const = 0;
   
   virtual
   ~smoc_member_func_interface() {}
-
-private:
-#ifdef SYSTEMOC_NEED_IDS
-  // Implement pure virtual function name from NamedIdedObj
-  const char *_name() const
-    { return this->getFuncName(); }
-#endif // SYSTEMOC_NEED_IDS
 };
 
 template <typename R>
@@ -134,8 +122,10 @@ void intrusive_ptr_release( smoc_member_func_interface<R> *r )
 template<class F, class PL>
 class smoc_member_func
 : public smoc_member_func_interface<typename F::return_type> {
+  typedef smoc_member_func<F, PL>                             this_type;
+  typedef smoc_member_func_interface<typename F::return_type> base_type; 
 public:
-  typedef smoc_member_func<F, PL> type;
+  typedef this_type type;
 protected:
   F  f;
   PL pl;
@@ -143,12 +133,11 @@ public:
 #ifdef MAESTRO_ENABLE_POLYPHONIC
   bool canRunInParallel;
 #endif
-  smoc_member_func(const F &_f, const PL &_pl = PL() )
+  smoc_member_func(const F &_f, const PL &_pl = PL())
     : f(_f), pl(_pl)
 #ifdef MAESTRO_ENABLE_POLYPHONIC
     , canRunInParallel(_f.canRunInParallel)
 #endif
-
   {}
 
   typename F::return_type call() const
@@ -157,8 +146,8 @@ public:
     { return f.name; }
   const char *getCxxType() const
     { return typeid(f.func).name(); }
-  smoc::Detail::ParamInfoList getParams() const
-  { 
+
+  smoc::Detail::ParamInfoList getParams() const { 
     smoc::Detail::ParamInfoVisitor piv;
     f.paramListVisit(pl, piv);
     return piv.pil;
@@ -193,10 +182,6 @@ public:
     , polyphonic_smoc_func_call(_k.canRunInParallel)
 #endif
   {
-#ifdef SYSTEMOC_NEED_IDS
-    this->getSimCTX()->createId( k.get() );
-#endif // SYSTEMOC_NEED_IDS
-
     pil = k->getParams();
   }
   
@@ -207,12 +192,6 @@ public:
     { return k->getFuncName(); }
   const char *getCxxType() const
     { return k->getCxxType(); }
-  
-#ifdef SYSTEMOC_NEED_IDS
-  size_t getId() const {
-    return k->getId();
-  }
-#endif // SYSTEMOC_NEED_IDS
   
   const smoc::Detail::ParamInfoList& getParams() const {
     return pil;

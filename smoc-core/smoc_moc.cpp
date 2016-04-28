@@ -112,50 +112,43 @@ void smoc_scheduler_top::before_end_of_elaboration() {
 }
 
 void smoc_scheduler_top::end_of_elaboration() {
-  try{
+  try {
 #ifdef SYSTEMOC_ENABLE_VPC
-  SystemC_VPC::Director::getInstance().beforeVpcFinalize();
+    SystemC_VPC::Director::getInstance().beforeVpcFinalize();
 
-  boost::function<void (SystemC_VPC::ScheduledTask* actor)> callExecute
-    = &smoc::Scheduling::execute;
-  boost::function<bool (SystemC_VPC::ScheduledTask* actor)> callCanExecute
-    = &smoc::Scheduling::canExecute;
-  SystemC_VPC::Director::getInstance().
-    registerSysteMoCCallBacks(callExecute, callCanExecute);
+    boost::function<void (SystemC_VPC::ScheduledTask* actor)> callExecute
+      = &smoc::Scheduling::execute;
+    boost::function<bool (SystemC_VPC::ScheduledTask* actor)> callCanExecute
+      = &smoc::Scheduling::canExecute;
+    SystemC_VPC::Director::getInstance().
+      registerSysteMoCCallBacks(callExecute, callCanExecute);
 #endif //SYSTEMOC_ENABLE_VPC
-
-
-
-  g->finalise();
+    g->finalise();
 
 #ifdef SYSTEMOC_ENABLE_MAESTRO
-  MM::MMAPI* api = MM::MMAPI::getInstance();
-  api->endOfElaboration();
-#endif
+    MM::MMAPI* api = MM::MMAPI::getInstance();
+    api->endOfElaboration();
+#endif //SYSTEMOC_ENABLE_MAESTRO
 
 #ifdef SYSTEMOC_ENABLE_VPC
-  //another finalise to patch the vpcCommTask
-  // requires: ports finalised (in root_node::finalise)
-  //           channel names (in root_chan::finalise)
-  g->finaliseVpcLink();
-  SystemC_VPC::Director::getInstance().endOfVpcFinalize();
-  validVpcConfiguration = SystemC_VPC::Director::getInstance().hasValidConfig();
+    //another finalise to patch the vpcCommTask
+    // requires: ports finalised (in root_node::finalise)
+    //           channel names (in root_chan::finalise)
+    g->finaliseVpcLink();
+    SystemC_VPC::Director::getInstance().endOfVpcFinalize();
+    validVpcConfiguration = SystemC_VPC::Director::getInstance().hasValidConfig();
 #endif //SYSTEMOC_ENABLE_VPC
-  //g->notifyReset();
-  g->doReset();
+    g->doReset();
 #ifdef SYSTEMOC_ENABLE_SGX
-  if (getSimCTX()->isSMXDumpingPreSimEnabled()) {
-    smoc::Detail::dumpSMX(getSimCTX()->getSMXPreSimFile(), getSimCTX(), *g);
-    if (!getSimCTX()->isSMXDumpingPreSimKeepGoing())
-      sc_core::sc_stop();
-  }
+    if (getSimCTX()->isSMXDumpingPreSimEnabled()) {
+      smoc::Detail::dumpSMX(getSimCTX()->getSMXPreSimFile(), getSimCTX(), *g);
+      if (!getSimCTX()->isSMXDumpingPreSimKeepGoing())
+        sc_core::sc_stop();
+    }
 #endif // SYSTEMOC_ENABLE_SGX
-#ifdef SYSTEMOC_NEED_IDS
-  getSimCTX()->generateIdsAfterFinalise();
-#endif // SYSTEMOC_NEED_IDS
-  }catch(std::exception & e) {
+  } catch (std::exception &e) {
     std::cerr << "Got exception at smoc_scheduler_top::end_of_elaboration():\n\t"
-        << e.what();
+              << e.what();
     exit(-1);
   }
 }
