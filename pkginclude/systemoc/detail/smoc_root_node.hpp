@@ -63,26 +63,30 @@
 #endif //SYSTEMOC_ENABLE_HOOKING
 
 #ifdef MAESTRO_ENABLE_POLYPHONIC
-#include <PolyphoniC/Callip.h>
-#endif
+# include <PolyphoniC/Callip.h>
+#endif //MAESTRO_ENABLE_POLYPHONIC
 
-#define SMOC_REGISTER_CPARAM(name) registerParam(#name,name)
-
-#define CALL(func)    call(&func, #func)
-#define GUARD(func)   guard(&func, #func)
+// FIXME: These macros are all obsolete, delete them!
+#define VAR(variable)       var(variable, #variable)
+#define TILL(event)         till(event, #event)
+#define LITERAL(lit)        literal(lit)
+#define CALL(func)          call(&func, #func)
+#define GUARD(func)         guard(&func, #func)
 #ifdef SYSTEMOC_ENABLE_MAESTRO
-#define CALLI(ins,func)    calli(ins, &func, #func)
-#define GUARDI(ins,func)   guardi(ins, &func, #func)
-#endif
-#define VAR(variable) var(variable, #variable)
-#define TILL(event)   till(event, #event)
-#define LITERAL(lit)  literal(lit)
+# define CALLI(ins,func)    calli(ins, &func, #func)
+# define GUARDI(ins,func)   guardi(ins, &func, #func)
+#endif //SYSTEMOC_ENABLE_MAESTRO
 
-#define SMOC_CALL(func)    call(&func, #func)
-#define SMOC_GUARD(func)   guard(&func, #func)
-#define SMOC_VAR(variable) var(variable, #variable)
-#define SMOC_TILL(event)   till(event, #event)
-#define SMOC_LITERAL(lit)  literal(lit)
+#define SMOC_REGISTER_CPARAM(name)  registerParam(#name,name)
+#define SMOC_CALL(func)             call(&func, #func)
+#define SMOC_GUARD(func)            guard(&func, #func)
+#define SMOC_VAR(variable)          var(variable, #variable)
+#define SMOC_TILL(event)            till(event, #event)
+#define SMOC_LITERAL(lit)           literal(lit)
+#ifdef SYSTEMOC_ENABLE_MAESTRO
+# define SMOC_CALLI(ins,func)       calli(ins, &func, #func)
+# define SMOC_GUARDI(ins,func)      guardi(ins, &func, #func)
+#endif //SYSTEMOC_ENABLE_MAESTRO
 
 /**
  * smoc_root_node is the base class of all systemoc nodes be it
@@ -103,6 +107,12 @@ class smoc_root_node
 {
   typedef smoc_root_node this_type;
   friend class RuntimeTransition;
+  // To call doReset()
+  friend class smoc_reset_chan;
+#ifdef SYSTEMOC_ENABLE_HOOKING
+  // To manipulate transitionHooks
+  friend void smoc::Hook::Detail::addTransitionHook(smoc_actor *, const smoc::Hook::Detail::TransitionHook &);
+#endif //SYSTEMOC_ENABLE_HOOKING
 public:
   enum NodeType {
     NODE_TYPE_UNKNOWN = 0,
@@ -112,24 +122,6 @@ public:
 
 private:
   NodeType nodeType;
-
-#ifdef SYSTEMOC_ENABLE_MAESTRO
-public:
-#endif
-  /// @brief Initial firing state
-  smoc_hierarchical_state &initialState;
-
-#ifdef SYSTEMOC_ENABLE_MAESTRO
-public:
-  bool testCanFire();
-  
-  /**
-  * Flag to determine if the actor can be executed if its schedulers enables it
-  */
-  bool scheduled;
-
-private:
-#endif
 
   /// @brief Current firing state
   RuntimeState *currentState;
@@ -141,13 +133,13 @@ private:
   bool _non_strict;
 
 #ifdef SYSTEMOC_ENABLE_VPC
-  RuntimeState *commstate;
+  RuntimeState *commState;
   RuntimeState *nextState;
 
   /// @brief For non strict scheduling
-  RuntimeTransition* lastTransition;
+  RuntimeTransition *lastTransition;
   
-  // vpc_event_xxx must be constructed before commstate
+  // vpc_event_xxx must be constructed before commState
   /// @brief VPC data introduction interval event
   smoc::smoc_vpc_event_p diiEvent;
 
@@ -155,14 +147,32 @@ private:
 #endif // SYSTEMOC_ENABLE_VPC
 
 #ifdef SYSTEMOC_ENABLE_HOOKING
-  friend void smoc::Hook::Detail::addTransitionHook(smoc_actor *, const smoc::Hook::Detail::TransitionHook &);
-
   std::list<smoc::Hook::Detail::TransitionHook> transitionHooks;
 #endif //SYSTEMOC_ENABLE_HOOKING
 
+#ifdef SYSTEMOC_ENABLE_MAESTRO
+public:
+#endif //SYSTEMOC_ENABLE_MAESTRO
+  /// @brief Initial firing state
+  smoc_hierarchical_state &initialState;
+
+public:
+#ifdef SYSTEMOC_ENABLE_MAESTRO
+  /**
+   * Flag to determine if the actor can be executed if its schedulers enables it
+   */
+  bool scheduled;
+#endif //SYSTEMOC_ENABLE_MAESTRO
+
+private:
+#ifdef SYSTEMOC_NEED_IDS
+  // To reflect SystemC name back to NamedIdedObj base class.
+  const char *_name() const
+    { return this->sc_core::sc_module::name(); }
+#endif // SYSTEMOC_NEED_IDS
+
   /// @brief Resets this node, calls reset()
   virtual void doReset();
-  friend class smoc_reset_chan; 
 
   void signaled(smoc::smoc_event_waiter *e);
   void eventDestroyed(smoc::smoc_event_waiter *e);
@@ -214,9 +224,10 @@ public:
   typename smoc::Expr::MemGuard<F>::type guardi(const X* ins, const F &f, const char *name = "") const {
 	  return smoc::Expr::guard(ins, f, name);
   }
-#endif
-  
 
+  bool testCanFire();
+#endif //SYSTEMOC_ENABLE_MAESTRO
+  
 protected:
 
   template <typename T>
@@ -251,9 +262,6 @@ public:
   bool isActor() const
     { return nodeType == NODE_TYPE_ACTOR; }
 
-  const char *name() const
-    { return sc_core::sc_module::name(); }
-
   FiringFSMImpl *getFiringFSM() const
     { return initialState.getImpl()->getFiringFSM(); }
 
@@ -264,7 +272,7 @@ public:
 
 #ifdef SYSTEMOC_ENABLE_VPC
   RuntimeState *getCommState() const
-    { return commstate; }
+    { return commState; }
 
   RuntimeState *getNextState() const
     { return nextState; }
@@ -288,25 +296,11 @@ public:
   /// @brief Collect ports from child objects
   smoc_sysc_port_list getPorts() const;
 
-///// @brief Collect firing states from child object
-///// (Sorted by construction order; better use
-///// getFiringFSM()->getStates() if order does not matter!)
-//RuntimeStateList getStates() const;
-
-  //std::ostream &dumpActor(std::ostream &o);
-    
   //true if actual state is a communication state
   bool inCommState() const;
 
   //determines non-strict actors (non-strict blocks in synchronous-reactive domains)
   bool isNonStrict() const;
-  
-  // typedef for transition ready list
-//  typedef CoSupport::SystemC::EventOrList<RuntimeTransition>
-//          smoc_transition_ready_list;
-
-  //void addCurOutTransitions(smoc_transition_ready_list &ol) const;
-  //void delCurOutTransitions(smoc_transition_ready_list &ol) const;
 
   virtual ~smoc_root_node();
 
@@ -320,6 +314,7 @@ public:
   // FIXME should not be public 
   smoc::smoc_event_waiter *reset(smoc::smoc_event_listener* el)
     { return smoc::smoc_event::reset(el); }
+
 };
 
 typedef std::list<smoc_root_node *> smoc_node_list;

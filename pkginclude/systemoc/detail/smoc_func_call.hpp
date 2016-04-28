@@ -113,7 +113,7 @@ public:
 private:
 #ifdef SYSTEMOC_NEED_IDS
   // Implement pure virtual function name from NamedIdedObj
-  const char *name() const
+  const char *_name() const
     { return this->getFuncName(); }
 #endif // SYSTEMOC_NEED_IDS
 };
@@ -141,12 +141,12 @@ protected:
   PL pl;
 public:
 #ifdef MAESTRO_ENABLE_POLYPHONIC
-	bool canRunInParallel;
+  bool canRunInParallel;
 #endif
   smoc_member_func(const F &_f, const PL &_pl = PL() )
     : f(_f), pl(_pl)
 #ifdef MAESTRO_ENABLE_POLYPHONIC
-	  , canRunInParallel(_f.canRunInParallel)
+    , canRunInParallel(_f.canRunInParallel)
 #endif
 
   {}
@@ -190,7 +190,7 @@ public:
   smoc_func_call( const smoc_member_func<F, PL> &_k )
     : k(new smoc_member_func<F, PL>(_k))
 #ifdef MAESTRO_ENABLE_POLYPHONIC
-	  , polyphonic_smoc_func_call(_k.canRunInParallel)
+    , polyphonic_smoc_func_call(_k.canRunInParallel)
 #endif
   {
 #ifdef SYSTEMOC_NEED_IDS
@@ -399,35 +399,33 @@ using namespace std;
 
 using namespace smoc::Detail;
 
-namespace MetaMap
-{
-	class Transition;
+namespace MetaMap {
+  class Transition;
 }
 
 
 namespace smoc { namespace dMM {
 
-	
 class TransitionOnThreadVisitor : public smoc::Detail::SimCTXBase {
 public:
-	typedef RuntimeState* result_type;
+  typedef RuntimeState* result_type;
 
 public:
-	TransitionOnThreadVisitor(RuntimeState* dest, MetaMap::Transition* transition);
+  TransitionOnThreadVisitor(RuntimeState* dest, MetaMap::Transition* transition);
 
-	result_type operator()(const smoc_func_call_list& f) const;
-	result_type operator()(const smoc_func_diverge& f) const;
-	result_type operator()(const smoc_sr_func_pair& f) const;
+  result_type operator()(const smoc_func_call_list& f) const;
+  result_type operator()(const smoc_func_diverge& f) const;
+  result_type operator()(const smoc_sr_func_pair& f) const;
 
 private:
-	RuntimeState* dest;
+  RuntimeState* dest;
 
-	MetaMap::Transition* transition;
+  MetaMap::Transition* transition;
 
-	void executeTransition(const smoc_func_call_list& f) const;
+  void executeTransition(const smoc_func_call_list& f) const;
 
 };
-	
+
 class MMActionNameVisitor {
 public:
   typedef void result_type;

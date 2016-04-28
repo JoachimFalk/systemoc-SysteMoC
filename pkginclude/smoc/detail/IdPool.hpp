@@ -92,7 +92,8 @@ struct IdPoolTypes {
 class IdPool
 : public IdPoolTypes::IdAllocAnon,
   public IdPoolTypes::IdAllocNamed,
-  public IdPoolTypes {
+  public IdPoolTypes,
+  public NamedIdedObjAccess {
 public:
   typedef IdPoolTypes::IdMap IdMap;
 

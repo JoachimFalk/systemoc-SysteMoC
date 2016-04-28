@@ -68,11 +68,9 @@
 #else
 # include <smoc/detail/QueueRWPtr.hpp>
 #endif
-#ifdef SYSTEMOC_ENABLE_MAESTRO
-#ifdef ENABLE_BRUCKNER
-#include "Channel.h"
-#endif
-#endif
+#if defined(SYSTEMOC_ENABLE_MAESTRO) && defined(MAESTRO_ENABLE_BRUCKNER)
+# include "Channel.h"
+#endif //defined(SYSTEMOC_ENABLE_MAESTRO) && defined(MAESTRO_ENABLE_BRUCKNER)
 
 #include <smoc/detail/DumpingInterfaces.hpp>
 
@@ -387,15 +385,13 @@ private:
  */
 template <typename T>
 class smoc_fifo
-: public smoc_fifo_chan<T>::chan_init,
-#ifdef SYSTEMOC_ENABLE_MAESTRO
-#ifdef ENABLE_BRUCKNER
-  public Bruckner::Model::Channel,
-#endif
-#endif
-  public smoc::Detail::ConnectProvider<
-    smoc_fifo<T>,
-    smoc_fifo_chan<T> >
+  : public smoc_fifo_chan<T>::chan_init
+#if defined(SYSTEMOC_ENABLE_MAESTRO) && defined(MAESTRO_ENABLE_BRUCKNER)
+  , public Bruckner::Model::Channel
+#endif //defined(SYSTEMOC_ENABLE_MAESTRO) && defined(MAESTRO_ENABLE_BRUCKNER)
+  , public smoc::Detail::ConnectProvider<
+      smoc_fifo<T>,
+      smoc_fifo_chan<T> >
 {
 public:
   //typedef T                 data_type;

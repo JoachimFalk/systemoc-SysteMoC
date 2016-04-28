@@ -258,8 +258,6 @@ public:
   bool         isOutput() const
     { return !isInput(); }
 
-  const char *name() const
-    { return sc_core::sc_object::name(); }
 
 //// get the first interface without checking for nil
 //smoc::Detail::PortBaseIf       *get_interface()
@@ -275,6 +273,12 @@ private:
   // disable get_interface() from sc_core::sc_port_base
   sc_core::sc_interface       *get_interface();
   sc_core::sc_interface const *get_interface() const;
+
+#ifdef SYSTEMOC_NEED_IDS
+  // To reflect SystemC name back to NamedIdedObj base class.
+  const char *_name() const
+    { return this->sc_core::sc_port_base::name(); }
+#endif // SYSTEMOC_NEED_IDS
 };
 
 typedef std::list<smoc_sysc_port *>       smoc_sysc_port_list;

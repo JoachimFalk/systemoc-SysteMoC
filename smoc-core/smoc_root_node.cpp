@@ -52,33 +52,30 @@
 using namespace smoc::Detail;
 
 smoc_root_node::smoc_root_node(sc_core::sc_module_name name, NodeType nodeType, smoc_hierarchical_state &s)
-  : sc_core::sc_module(name), nodeType(nodeType),
-#if defined(SYSTEMOC_ENABLE_DEBUG)
-//  _finalizeCalled(false),
-#endif
-    initialState(s),
-    _non_strict(false)
+  : sc_core::sc_module(name)
+  , nodeType(nodeType)
+  , currentState(nullptr)
+  , lastState(nullptr)
+  , _non_strict(false)
 #ifdef SYSTEMOC_ENABLE_VPC
-    ,diiEvent(new smoc::smoc_vpc_event())
-//# if defined(SYSTEMOC_ENABLE_DEBUG)
-//    vpc_event_lat(nullptr),
-//# endif
+  , commState(new RuntimeState())
+  , nextState(nullptr)
+  , lastTransition(nullptr)
+  , diiEvent(new smoc::smoc_vpc_event())
 #endif // SYSTEMOC_ENABLE_VPC
+  , initialState(s)
+#ifdef SYSTEMOC_ENABLE_MAESTRO
+  , scheduled(false)
+#endif //SYSTEMOC_ENABLE_MAESTRO
 {
 #ifdef SYSTEMOC_ENABLE_VPC
-  commstate = new RuntimeState();
-  commstate->addTransition(
+  commState->addTransition(
       RuntimeTransition(
         boost::shared_ptr<TransitionImpl>(new TransitionImpl(
           smoc::Expr::till(*diiEvent),
           smoc_func_diverge(this, &smoc_root_node::_communicate)))),
       this);
 #endif // SYSTEMOC_ENABLE_VPC
-
-#ifdef SYSTEMOC_ENABLE_MAESTRO
-  scheduled = false;
-#endif
-
 }
 
 #ifdef SYSTEMOC_ENABLE_VPC
@@ -111,19 +108,6 @@ void smoc_root_node::finalise() {
   ct = 0;
 
   getFiringFSM()->finalise(this, initialState.getImpl());
-/*  setCurrentState(getFiringFSM()->getInitialState());
-
-  RuntimeTransitionList& tl = currentState->getTransitions();
-  for(RuntimeTransitionList::iterator t = tl.begin();
-      t != tl.end(); ++t)
-  {
-    ol |= (*t->ap);
-  }*/
-
-  //outDbg << "smoc_root_node::finalise() name == " << this->name() << std::endl
-  //          << "  FiringFSM: " << currentState->getFiringFSM()
-  //          << "; #leafStates: " << currentState->getFiringFSM()->getLeafStates().size()
-  //          << std::endl;
   
   //check for non strict transitions
   const RuntimeStateSet& states = getFiringFSM()->getStates(); 
@@ -170,9 +154,9 @@ smoc_sysc_port_list smoc_root_node::getPorts() const {
 
 bool smoc_root_node::inCommState() const{
 #ifdef SYSTEMOC_ENABLE_VPC
-    return currentState == getCommState();
+  return currentState == getCommState();
 #else // SYSTEMOC_ENABLE_VPC
-    return false;
+  return false;
 #endif // SYSTEMOC_ENABLE_VPC
 }
 
@@ -180,49 +164,9 @@ bool smoc_root_node::isNonStrict() const{
   return _non_strict;
 }
 
-/*void smoc_root_node::addCurOutTransitions(smoc_transition_ready_list& ol) const {
-#ifdef SYSTEMOC_DEBUG
-  outDbg << "<smoc_root_node::addCurOutTransitions name=\"" << name() << "\""
-         << " state=\""<< currentState->name() << "\">" << std::endl;
-#endif // SYSTEMOC_DEBUG
-
-  assert(currentState);
-  for(RuntimeTransitionList::iterator tIter =
-        currentState->getTransitions().begin();
-      tIter != currentState->getTransitions().end();
-      ++tIter)
-  {
-    ol |= *tIter;
-  }
-  
-#ifdef SYSTEMOC_DEBUG
-  outDbg << "</smoc_root_node::addCurOutTransitions>" << std::endl;
-#endif // SYSTEMOC_DEBUG
-}
-
-void smoc_root_node::delCurOutTransitions(smoc_transition_ready_list& ol) const {
-#ifdef SYSTEMOC_DEBUG
-  outDbg << "<smoc_root_node::delCurOutTransitions name=\"" << name() << "\""
-         << " state=\""<< currentState->name() << "\">" << std::endl;
-#endif // SYSTEMOC_DEBUG
-  
-  assert(currentState);
-  for(RuntimeTransitionList::iterator tIter =
-        currentState->getTransitions().begin();
-      tIter != currentState->getTransitions().end();
-      ++tIter)
-  {
-    ol.remove(*tIter);
-  }
-  
-#ifdef SYSTEMOC_DEBUG
-  outDbg << "</smoc_root_node::delCurOutTransitions>" << std::endl;
-#endif // SYSTEMOC_DEBUG
-}*/
-
 smoc_root_node::~smoc_root_node() {
 #ifdef SYSTEMOC_ENABLE_VPC
-  delete commstate;
+  delete commState;
 #endif // SYSTEMOC_ENABLE_VPC
 }
 

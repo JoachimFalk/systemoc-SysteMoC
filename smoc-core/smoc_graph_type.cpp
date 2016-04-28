@@ -217,29 +217,27 @@ void smoc_graph_base::doReset() {
 #endif //SYSTEMOC_DEBUG
 }
   
-smoc_graph::smoc_graph(const sc_core::sc_module_name& name) :
-  smoc_graph_base(name, run),
-  run("run")
+smoc_graph::smoc_graph(const sc_core::sc_module_name &name)
+  : smoc_graph_base(name, run)
 #ifdef SYSTEMOC_ENABLE_MAESTRO
-  , SMoCGraph(name.operator const char *())
-#endif
+  , MetaMap::SMoCGraph(name.operator const char *())
+#endif //SYSTEMOC_ENABLE_MAESTRO
+  , run("run")
 {
 #ifdef SYSTEMOC_ENABLE_MAESTRO
-	this->setName(this->name());
-#endif
-
+  this->setName(this->name());
+#endif //SYSTEMOC_ENABLE_MAESTRO
   constructor();
 }
 
-smoc_graph::smoc_graph() :
-  smoc_graph_base(sc_core::sc_gen_unique_name("smoc_graph"), run),
-  run("run")
+smoc_graph::smoc_graph()
+  : smoc_graph_base(sc_core::sc_gen_unique_name("smoc_graph"), run)
+  , run("run")
 {
   constructor();
-
 #ifdef SYSTEMOC_ENABLE_MAESTRO
   this->setName(this->name());
-#endif
+#endif //SYSTEMOC_ENABLE_MAESTRO
 }
   
 void smoc_graph::finalise() {
@@ -259,7 +257,7 @@ void smoc_graph::finalise() {
 void smoc_graph::constructor() {
 
   // if there is at least one active transition: execute it
-  run = smoc::Expr::till(ol) >> CALL(smoc_graph::scheduleDDF) >> run;
+  run = smoc::Expr::till(ol) >> SMOC_CALL(smoc_graph::scheduleDDF) >> run;
 }
 
 void smoc_graph::initDDF() {

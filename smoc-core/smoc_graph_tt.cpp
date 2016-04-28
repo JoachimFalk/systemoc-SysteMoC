@@ -37,7 +37,7 @@ void smoc_graph_tt::constructor() {
   // if there is at least one active transition: execute it
   graph_activation |= ddf_nodes_activations;
   graph_activation |= ttNodeQueue;
-  run = smoc::Expr::till(graph_activation) >> CALL(smoc_graph_tt::scheduleTT) >> run;
+  run = smoc::Expr::till(graph_activation) >> SMOC_CALL(smoc_graph_tt::scheduleTT) >> run;
 }
 
 void smoc_graph_tt::initTT() {
@@ -124,9 +124,9 @@ void smoc_graph_tt::disableActor(std::string actor_name){
   entry->setActive(false);
 #endif //SYSTEMOC_ENABLE_VPC
 
-  if(ddf_nodes_activations.contains(*nodeToDisable)){
+  if (ddf_nodes_activations.contains(*nodeToDisable)) {
     ddf_nodes_activations.remove(*nodeToDisable);
-  }else{
+  } else {
     //so it must be a tt-actor
     //ttNodeQueue.disableNode(nodeToDisable);
     nodeDisabled[nodeToDisable] = true;
@@ -134,8 +134,7 @@ void smoc_graph_tt::disableActor(std::string actor_name){
 
 }
 
-
-void smoc_graph_tt::reEnableActor(std::string actor_name){
+void smoc_graph_tt::reEnableActor(std::string actor_name) {
   assert(nameToNode[actor_name] != 0);
   smoc_root_node* nodeToEnable = nameToNode[actor_name];
 #ifdef SYSTEMOC_ENABLE_VPC
@@ -143,13 +142,12 @@ void smoc_graph_tt::reEnableActor(std::string actor_name){
   actor->setActive(true);
 #endif //SYSTEMOC_ENABLE_VPC
   smoc_periodic_actor *entry = dynamic_cast<smoc_periodic_actor *>( nodeToEnable );
-      if(entry){
-        nodeDisabled[entry] = false;
-        ttNodeQueue.registerNode(entry, entry->getNextReleaseTime());
-      }else{
-        //nodes of other types then smoc_periodic_actor will be added to ddf_nodes_activations
-        //could be another graph or other nodes
-        ddf_nodes_activations |= *nodeToEnable;
-      }
+  if (entry) {
+    nodeDisabled[entry] = false;
+    ttNodeQueue.registerNode(entry, entry->getNextReleaseTime());
+  } else {
+    //nodes of other types then smoc_periodic_actor will be added to ddf_nodes_activations
+    //could be another graph or other nodes
+    ddf_nodes_activations |= *nodeToEnable;
+  }
 }
-
