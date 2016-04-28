@@ -54,16 +54,16 @@ IdedObj *IdPool::getNodeById(const NgId id) const {
 // set "id"-attribute to some new id
 void IdPool::addIdedObj(IdedObj *n) {
   IdMap::iterator iter = IdAllocAnon::idAlloc(IdMapEntry(n));
-  n->setId(iter->first);
+  setId(n, iter->first);
 }
 
 // set "id"-attribute to id
 void IdPool::addIdedObj(NamedIdedObj *n) {
   CoSupport::Math::FNV<IdRangeNamed::bits> hf;
-  NgId id = IdRangeNamed::min + hf(n->name());
+  NgId id = IdRangeNamed::min + hf(getName(n));
   assert(id <= IdRangeNamed::max);
   IdMap::iterator iter = IdAllocNamed::idAllocNext(id, IdMapEntry(n));
-  n->setId(iter->first);
+  setId(n, iter->first);
 }
 
 } } // namespace smoc::Detail

@@ -33,23 +33,35 @@
  * ENHANCEMENTS, OR MODIFICATIONS.
  */
 
-#include <systemoc/smoc_config.h>
-
-#include "IdedObj.hpp"
-
 #ifndef _INCLUDED_SMOC_DETAIL_NAMEDIDEDOBJ_HPP
 #define _INCLUDED_SMOC_DETAIL_NAMEDIDEDOBJ_HPP
 
-namespace smoc { namespace Detail {
+#include <systemoc/smoc_config.h>
 
 #ifdef SYSTEMOC_NEED_IDS
+
+#include "IdedObj.hpp"
+
+namespace smoc { namespace Detail {
+
+class NamedIdedObjAccess;
+
 class NamedIdedObj: public IdedObj {
-public:
-  virtual const char *name() const = 0;
+  friend class NamedIdedObjAccess;
+protected:
+  virtual const char *_name() const = 0;
   virtual ~NamedIdedObj() {}
 };
-#endif // SYSTEMOC_NEED_IDS
+
+class NamedIdedObjAccess: public IdedObjAccess {
+protected:
+  static
+  const char *getName(NamedIdedObj const *namedIdedObj)
+    { return namedIdedObj->_name(); }
+};
 
 } } // namespace smoc::Detail
+
+#endif // SYSTEMOC_NEED_IDS
 
 #endif // _INCLUDED_SMOC_DETAIL_NAMEDIDEDOBJ_HPP

@@ -148,8 +148,8 @@ public:
     { ioPattern = iop; }
 };
 
-class TransitionImpl :
-  public TransitionBase
+class TransitionImpl
+  : public TransitionBase
 #ifdef SYSTEMOC_ENABLE_VPC
   , public smoc::Detail::VpcTaskInterface
 #endif // SYSTEMOC_ENABLE_VPC
@@ -242,14 +242,15 @@ typedef std::list<ExpandedTransition> ExpandedTransitionList;
 class RuntimeState;
 
 class RuntimeTransition
-: //public smoc_event_and_list,
+  :
 #ifdef SYSTEMOC_NEED_IDS
-  public smoc::Detail::IdedObj,
+    public smoc::Detail::IdedObj,
 #endif // SYSTEMOC_NEED_IDS
 #ifdef SYSTEMOC_ENABLE_MAESTRO
-  public MetaMap::Transition,
-#endif
-  public smoc::Detail::SimCTXBase {
+    public MetaMap::Transition,
+#endif //SYSTEMOC_ENABLE_MAESTRO
+    public smoc::Detail::SimCTXBase
+{
   typedef RuntimeTransition this_type;
 
   friend class RuntimeState; // for ap
@@ -261,11 +262,11 @@ private:
 
 #ifdef SYSTEMOC_ENABLE_MAESTRO
   /**
-  * Method to be used by a thread to execute this transition's actions
-  */
+   * Method to be used by a thread to execute this transition's actions
+   */
   virtual void executeTransition(smoc_root_node* node);
   
-#endif
+#endif //SYSTEMOC_ENABLE_MAESTRO
 
 #ifdef SYSTEMOC_ENABLE_HOOKING
   typedef std::vector<const smoc::Hook::PreCallback  *> PreHooks;
@@ -283,9 +284,9 @@ public:
   /// @brief Constructor
   RuntimeTransition(
       const boost::shared_ptr<TransitionImpl> &tip,
-      #ifdef SYSTEMOC_ENABLE_MAESTRO
-	  MetaMap::SMoCActor& parentActor,
-      #endif
+#ifdef SYSTEMOC_ENABLE_MAESTRO
+      MetaMap::SMoCActor &parentActor,
+#endif //SYSTEMOC_ENABLE_MAESTRO
       RuntimeState *dest = nullptr);
 
   /// @brief Returns the target state
@@ -313,10 +314,7 @@ public:
 
 #ifdef SYSTEMOC_ENABLE_MAESTRO
   virtual bool hasWaitAction();
-#endif
-
-  //RuntimeTransition& operator=(const RuntimeTransition& other);
-
+#endif //SYSTEMOC_ENABLE_MAESTRO
 };
 
 typedef std::list<RuntimeTransition>   RuntimeTransitionList;
@@ -325,29 +323,25 @@ typedef std::list<RuntimeTransition *> RuntimeTransitionPtrList;
 typedef std::set<smoc::smoc_event_waiter*> EventWaiterSet; 
 
 class RuntimeState
-:
-#ifdef SYSTEMOC_ENABLE_MAESTRO
-#ifdef ENABLE_BRUCKNER
-public Bruckner::Model::State,
-#endif
-#endif
+  :
+#if defined(SYSTEMOC_ENABLE_MAESTRO) && defined(MAESTRO_ENABLE_BRUCKNER)
+    public Bruckner::Model::State,
+#endif //defined(SYSTEMOC_ENABLE_MAESTRO) && defined(MAESTRO_ENABLE_BRUCKNER)
 #ifdef SYSTEMOC_NEED_IDS
-  public smoc::Detail::NamedIdedObj,
+    public smoc::Detail::NamedIdedObj,
 #endif // SYSTEMOC_NEED_IDS
-  public smoc::Detail::SimCTXBase {
-  typedef RuntimeState                    this_type;
+    public smoc::Detail::SimCTXBase {
+    typedef RuntimeState                    this_type;
 private:
-  std::string           _name;
+  std::string           stateName;
   RuntimeTransitionList tl;
 
   void  finalise();
 public:
   RuntimeState(const std::string name = "");
-#ifdef SYSTEMOC_ENABLE_MAESTRO
-#ifdef ENABLE_BRUCKNER
+#if defined(SYSTEMOC_ENABLE_MAESTRO) && defined(MAESTRO_ENABLE_BRUCKNER)
   RuntimeState(const std::string name = "", Bruckner::Model::Hierarchical* sParent = nullptr);
-#endif
-#endif
+#endif //defined(SYSTEMOC_ENABLE_MAESTRO) && defined(MAESTRO_ENABLE_BRUCKNER)
 
   const RuntimeTransitionList& getTransitions() const;
   RuntimeTransitionList& getTransitions();
@@ -357,10 +351,13 @@ public:
 
   EventWaiterSet am;
 
-  const char *name() const
-    { return _name.c_str(); }
-
   ~RuntimeState();
+private:
+#ifdef SYSTEMOC_NEED_IDS
+  // To reflect stateName back to NamedIdedObj base class.
+  const char *_name() const
+    { return stateName.c_str(); }
+#endif // SYSTEMOC_NEED_IDS
 };
 
 typedef std::set<RuntimeState*> RuntimeStateSet;

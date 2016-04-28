@@ -48,21 +48,28 @@ namespace smoc { namespace Detail {
 // This must be synced with SystemCoDesigner::SGX::NgId
 typedef uint32_t NgId;
 
-class IdPool;
+class IdedObjAccess;
 
 class IdedObj {
-  friend class IdPool;
+  friend class IdedObjAccess;
 private:
   NgId _id;
-public:
+protected:
   IdedObj()
     : _id(std::numeric_limits<NgId>::max()) {}
-
+public:
   NgId getId() const
     { return _id; }
-private:
-  void setId(NgId id)
-    { _id = id; }
+};
+
+class IdedObjAccess {
+protected:
+  static
+  NgId getId(IdedObj const *idedObj)
+    { return idedObj->_id; }
+  static
+  void setId(IdedObj *idedObj, NgId id)
+    { idedObj->_id = id; }
 };
 
 } } // namespace smoc::Detail

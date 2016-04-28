@@ -60,14 +60,17 @@ smoc_root_chan::smoc_root_chan(const std::string& name)
       : name.c_str()),
     myName(name),
     resetCalled(false)
-{
-//idPool.regObj(this);
-}
+  {}
 #endif
-  
-smoc_root_chan::~smoc_root_chan() {
-//idPool.unregObj(this);
+
+/// @brief Resets FIFOs which are not in the SysteMoC hierarchy
+void smoc_root_chan::start_of_simulation() {
+  if (!resetCalled)
+    doReset();
 }
+
+smoc_root_chan::~smoc_root_chan()
+  {}
 
 void smoc_root_chan::finalise() {
 #ifdef SYSTEMOC_DEBUG
@@ -79,7 +82,7 @@ void smoc_root_chan::finalise() {
 
 #ifndef SYSTEMOC_ENABLE_MAESTROMM_SPEEDUP
   generateName();
-#endif
+#endif //!SYSTEMOC_ENABLE_MAESTROMM_SPEEDUP
 
 #ifdef SYSTEMOC_NEED_IDS  
   // Allocate Id for myself.
@@ -131,4 +134,4 @@ void smoc_root_chan::generateName() {
     myName = genName.str();
   }
 }
-#endif
+#endif //!SYSTEMOC_ENABLE_MAESTROMM_SPEEDUP

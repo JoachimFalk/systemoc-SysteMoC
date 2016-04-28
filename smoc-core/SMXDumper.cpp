@@ -51,6 +51,7 @@
 #include <CoSupport/String/Concat.hpp>
 
 #include <smoc/detail/DumpingInterfaces.hpp>
+#include <smoc/detail/NamedIdedObj.hpp>
 
 #include "apply_visitor.hpp"
 #include <systemoc/detail/smoc_root_node.hpp>
@@ -400,7 +401,7 @@ public:
   using ProcessSubVisitor::operator();
 };
 
-class DumpPort {
+class DumpPort: public NamedIdedObjAccess {
 public:
   typedef void result_type;
 protected:
@@ -413,13 +414,13 @@ public:
 #ifdef SYSTEMOC_DEBUG
     std::cerr << "DumpPort::operator ()(smoc_sysc_port &) [BEGIN]" << std::endl;
 #endif
-    SGX::Port port(p.name(), p.getId());
+    SGX::Port port(getName(&p), getId(&p));
     port.direction() = p.isInput() ? SGX::Port::In : SGX::Port::Out;
     sassert(psv.ports.insert(std::make_pair(&p, &port)).second);
     psv.proc.ports().push_back(port);
     if (p.getActorPort() == &p) {
 #ifdef SYSTEMOC_DEBUG
-      std::cerr << p.name() << " => expectedChannelConnections";
+      std::cerr << getName(&p) << " => expectedChannelConnections";
 #endif
       for (smoc_sysc_port::Interfaces::const_iterator iter = p.get_interfaces().begin();
            iter != p.get_interfaces().end();
@@ -436,7 +437,7 @@ public:
     }
     if (p.getParentPort()) {
 #ifdef SYSTEMOC_DEBUG
-      std::cerr << p.name() << " => expectedOuterPorts " << p.getParentPort()->name() << std::endl;
+      std::cerr << getName(&p) << " => expectedOuterPorts " << p.getParentPort()->name() << std::endl;
 #endif
       sassert(psv.epc.expectedOuterPorts.insert(
         std::make_pair(p.getParentPort(), &port)).second);
@@ -444,7 +445,7 @@ public:
     SCPortBase2Port::iterator iter = psv.expectedOuterPorts.find(&p);
     if (iter != psv.expectedOuterPorts.end()) {
 #ifdef SYSTEMOC_DEBUG
-      std::cerr << " => handeled expectedOuterPorts " << iter->second->name() << " connected to outer port " << p.name() << std::endl;
+      std::cerr << " => handeled expectedOuterPorts " << iter->second->name() << " connected to outer port " << getName(&p) << std::endl;
 #endif
       iter->second->otherPorts().insert(port.toPtr());
       psv.expectedOuterPorts.erase(iter); // handled it!
@@ -486,7 +487,7 @@ public:
 
 };
 
-class DumpFifoBase {
+class DumpFifoBase: public NamedIdedObjAccess {
 protected:
   GraphSubVisitor &gsv;
 public:
@@ -527,7 +528,7 @@ public:
     for (smoc_root_chan::EntryMap::const_iterator iter = rc.getEntries().begin();
          iter != rc.getEntries().end();
          ++iter) {
-      SGX::Port p(Concat(rc.name())(".in"));
+      SGX::Port p(Concat(getName(&rc))(".in"));
       p.direction() = SGX::Port::In;
       channel.ports().push_back(p);
       connectPort(p, iter->first, SGX::Port::Out);
@@ -535,7 +536,7 @@ public:
     for (smoc_root_chan::OutletMap::const_iterator iter = rc.getOutlets().begin();
          iter != rc.getOutlets().end();
          ++iter) {
-      SGX::Port p(Concat(rc.name())(".out"));
+      SGX::Port p(Concat(getName(&rc))(".out"));
       p.direction() = SGX::Port::Out;
       channel.ports().push_back(p);
       connectPort(p, iter->first, SGX::Port::In);
@@ -570,9 +571,9 @@ public:
 
   result_type operator ()(smoc_fifo_chan_base &p) {
 #ifdef SYSTEMOC_DEBUG
-    std::cerr << "DumpFifo::operator ()(...) [BEGIN] for " << p.name() << std::endl;
+    std::cerr << "DumpFifo::operator ()(...) [BEGIN] for " << getName(&p) << std::endl;
 #endif
-    SGX::Fifo fifo(p.name(), p.getId());
+    SGX::Fifo fifo(getName(&p), getId(&p));
     // set some attributes
     fifo.size() = p.depthCount();
     gsv.pg.processes().push_back(fifo);
@@ -614,9 +615,9 @@ public:
 
   result_type operator ()(smoc_multireader_fifo_chan_base &p) {
 #ifdef SYSTEMOC_DEBUG
-    std::cerr << "DumpMultiportFifo::operator ()(...) [BEGIN] for " << p.name() << std::endl;
+    std::cerr << "DumpMultiportFifo::operator ()(...) [BEGIN] for " << getName(&p) << std::endl;
 #endif
-    SGX::MultiportFifo fifo(p.name(), p.getId());
+    SGX::MultiportFifo fifo(getName(&p), getId(&p));
     // set some attributes
     fifo.size() = p.depthCount();
     gsv.pg.processes().push_back(fifo);
@@ -665,7 +666,7 @@ public:
     for (smoc_multiplex_fifo_chan_base::VEntryMap::const_iterator iter = rc.getVEntries().begin();
          iter != rc.getVEntries().end();
          ++iter) {
-      SGX::ColoredPort p(Concat(rc.name())(".in"), iter->first);
+      SGX::ColoredPort p(Concat(getName(&rc))(".in"), iter->first);
       p.direction() = SGX::Port::In;
       channel.ports().push_back(p);
       connectPort(p, iter->second, SGX::Port::Out);
@@ -673,7 +674,7 @@ public:
     for (smoc_multiplex_fifo_chan_base::VOutletMap::const_iterator iter = rc.getVOutlets().begin();
          iter != rc.getVOutlets().end();
          ++iter) {
-      SGX::ColoredPort p(Concat(rc.name())(".out"), iter->first);
+      SGX::ColoredPort p(Concat(getName(&rc))(".out"), iter->first);
       p.direction() = SGX::Port::Out;
       channel.ports().push_back(p);
       connectPort(p, iter->second, SGX::Port::In);
@@ -682,9 +683,9 @@ public:
 
   result_type operator ()(smoc_multiplex_fifo_chan_base &p) {
 #ifdef SYSTEMOC_DEBUG
-    std::cerr << "DumpMultiplexFifo::operator ()(...) [BEGIN] for " << p.name() << std::endl;
+    std::cerr << "DumpMultiplexFifo::operator ()(...) [BEGIN] for " << getName(&p) << std::endl;
 #endif
-    SGX::MultiplexFifo fifo(p.name(), p.getId());
+    SGX::MultiplexFifo fifo(getName(&p), getId(&p));
     // set some attributes
     fifo.size() = p.depthCount();
     gsv.pg.processes().push_back(fifo);
@@ -710,9 +711,9 @@ public:
 
   result_type operator ()(smoc_reset_chan &p) {
 #ifdef SYSTEMOC_DEBUG
-    std::cerr << "DumpResetNet::operator ()(...) [BEGIN] for " << p.name() << std::endl;
+    std::cerr << "DumpResetNet::operator ()(...) [BEGIN] for " << getName(&p) << std::endl;
 #endif
-    SGX::ResetNet fifo(p.name(), p.getId());
+    SGX::ResetNet fifo(getName(&p), getId(&p));
 //  // set some attributes
 //  fifo.size() = p.depthCount();
     gsv.pg.processes().push_back(fifo);
@@ -723,7 +724,7 @@ public:
   }
 };
 
-class DumpActor {
+class DumpActor: public NamedIdedObjAccess {
 public:
   typedef void result_type;
 protected:
@@ -739,9 +740,9 @@ public:
 
   result_type operator ()(smoc_actor &a) {
 #ifdef SYSTEMOC_DEBUG
-    std::cerr << "DumpActor::operator ()(...) [BEGIN] for " << a.name() << std::endl;
+    std::cerr << "DumpActor::operator ()(...) [BEGIN] for " << getName(&a) << std::endl;
 #endif
-    SGX::Actor actor(a.name(), a.getId());
+    SGX::Actor actor(getName(&a), getId(&a));
     actor.cxxClass() = typeid(a).name();
     ActorSubVisitor sv(gsv.ctx, gsv, actor);
     recurse(sv, a);
@@ -776,7 +777,7 @@ public:
       for (RuntimeStateSet::const_iterator sIter = smocStates.begin();
            sIter != smocStates.end();
            ++sIter) {
-        std::string stateName = (*sIter)->name();
+        std::string stateName = getName(*sIter);
         // Eleminate actor name from state name, e.g.,
         // sqrroot.a1:smoc_firing_state_0 => smoc_firing_state_0.
         std::string::size_type colonPos = stateName.find(':');
@@ -857,7 +858,7 @@ public:
   }
 };
 
-class DumpGraph {
+class DumpGraph: public NamedIdedObjAccess {
 public:
   typedef void result_type;
 protected:
@@ -868,11 +869,11 @@ public:
 
   result_type operator ()(smoc_graph_base &g) {
 #ifdef SYSTEMOC_DEBUG
-    std::cerr << "DumpGraph::operator ()(...) [BEGIN] for " << g.name() << std::endl;
+    std::cerr << "DumpGraph::operator ()(...) [BEGIN] for " << getName(&g) << std::endl;
 #endif
-    SGX::RefinedProcess rp(Concat(g.name())("_rp"));
+    SGX::RefinedProcess rp(Concat(getName(&g))("_rp"));
     gsv.pg.processes().push_back(rp);
-    SGX::ProblemGraph   pg(g.name(), g.getId());
+    SGX::ProblemGraph   pg(getName(&g), getId(&g));
     pg.cxxClass() = typeid(g).name();
     rp.refinements().push_back(pg);
     GraphSubVisitor sv(gsv.ctx, gsv, rp, pg);

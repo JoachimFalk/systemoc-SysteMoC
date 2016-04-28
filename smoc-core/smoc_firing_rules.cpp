@@ -93,10 +93,6 @@ void markStates(const T& t, Marking& m)  {
   }
 }
 
-
-  
-  
-  
 struct ModelingError : public std::runtime_error {
   ModelingError(const char* desc)
     : std::runtime_error(desc)
@@ -169,16 +165,16 @@ IOPattern *getCachedIOPattern(const IOPattern &iop) {
 
 /// @brief Constructor
 RuntimeTransition::RuntimeTransition(
-    const boost::shared_ptr<TransitionImpl> &tip,
-    #ifdef SYSTEMOC_ENABLE_MAESTRO
-	SMoCActor& pActor,
-    #endif
-    RuntimeState *dest)
-  : transitionImpl(tip),
-    #ifdef SYSTEMOC_ENABLE_MAESTRO
-      Transition(pActor),
-    #endif
-    dest(dest)
+    const boost::shared_ptr<TransitionImpl> &tip
+#ifdef SYSTEMOC_ENABLE_MAESTRO
+  , SMoCActor& pActor
+#endif //SYSTEMOC_ENABLE_MAESTRO
+  , RuntimeState *dest)
+  : transitionImpl(tip)
+#ifdef SYSTEMOC_ENABLE_MAESTRO
+  , Transition(pActor)
+#endif //SYSTEMOC_ENABLE_MAESTRO
+  , dest(dest)
 {
   IOPattern tmp;
   smoc::Expr::evalTo<smoc::Expr::Sensitivity>(getExpr(), tmp);
@@ -186,46 +182,11 @@ RuntimeTransition::RuntimeTransition(
   IOPattern* iop = getCachedIOPattern(tmp);
   transitionImpl->setIOPattern(iop);
 
-#ifdef SYSTEMOC_ENABLE_MAESTRO
-#ifdef ENABLE_BRUCKNER
+#if defined(SYSTEMOC_ENABLE_MAESTRO) && defined(MAESTRO_ENABLE_BRUCKNER)
   //FSMTransition
   this->parent = dynamic_cast<Bruckner::Model::Hierarchical*>(this->parentActor);
-#endif
-#endif
-
+#endif //defined(SYSTEMOC_ENABLE_MAESTRO) && defined(MAESTRO_ENABLE_BRUCKNER)
 }
-
-//
-//RuntimeTransition& RuntimeTransition::operator=(const RuntimeTransition& other)
-//{
-//	if (this == &other)  /* the same object in both sides */
-//		return *this;
-//	else {
-//		/* delete local memory assignated
-//		* **in constructor** to object, not elsewhere
-//		*/
-//
-//
-//		/* do the actual assignments onto *this,
-//		* don't create another instance or value.  This
-//		* is an assignment operation, you are supposed to
-//		* change the values of *this
-//		*/
-//		this->transitionImpl = other.transitionImpl;
-//		this->dest = other.dest;
-//#ifdef SYSTEMOC_ENABLE_MAESTRO
-//#ifdef ENABLE_BRUCKNER
-//		//FSMTransition
-//		this->parent = other.parent;
-//#endif
-//#endif
-//
-//		return *this;
-//		/* **never** return a local copy made by the compiler
-//		* inside the function call, it ceases to exist just
-//		* on returning from it */
-//	}
-//}
 
 const smoc::Expr::Ex<bool>::type &RuntimeTransition::getExpr() const
   { return transitionImpl->getExpr(); }
@@ -271,47 +232,39 @@ public:
 
 class Action_HasWaitVisitor {
 public:
-	typedef bool result_type;
+  typedef bool result_type;
 public:
-	result_type operator()(const smoc_func_call_list &f) const
-	{
-		for (smoc_func_call_list::const_iterator i = f.begin(); i != f.end(); ++i)
-		{
-			std::string name = i->getFuncName();
-			if ( name.find("simulateTime") != std::string::npos)
-			{
-				return true;
-			}
-		}
+  result_type operator()(const smoc_func_call_list &f) const {
+    for (smoc_func_call_list::const_iterator i = f.begin(); i != f.end(); ++i) {
+      std::string name = i->getFuncName();
+      if ( name.find("simulateTime") != std::string::npos) {
+        return true;
+      }
+    }
+    return false;
+  }
 
-		return false;
-	}
-	result_type operator()(const smoc_func_diverge &f) const
-	{
-		return false;
-	}
-	result_type operator()(const smoc_sr_func_pair &f) const
-	{
-		return false;
-	}
+  result_type operator()(const smoc_func_diverge &f) const {
+    return false;
+  }
+
+  result_type operator()(const smoc_sr_func_pair &f) const {
+    return false;
+  }
 };
-
 
 #ifdef SYSTEMOC_ENABLE_MAESTRO
 /**
-* Method to be used by a thread to execute this transition's actions
-*/
-void RuntimeTransition::executeTransition(smoc_root_node* node)
-{
-	this->execute(node);
+ * Method to be used by a thread to execute this transition's actions
+ */
+void RuntimeTransition::executeTransition(smoc_root_node* node) {
+  this->execute(node);
 }
 
-bool RuntimeTransition::hasWaitAction()
-{
-	return boost::apply_visitor(Action_HasWaitVisitor(), getAction());
-
+bool RuntimeTransition::hasWaitAction() {
+  return boost::apply_visitor(Action_HasWaitVisitor(), getAction());
 }
-#endif
+#endif //SYSTEMOC_ENABLE_MAESTRO
 
 void RuntimeTransition::execute(smoc_root_node *actor, int mode) {
   enum {
@@ -346,19 +299,18 @@ void RuntimeTransition::execute(smoc_root_node *actor, int mode) {
 #endif //SYSTEMOC_DEBUG
   
 #ifdef SYSTEMOC_ENABLE_DATAFLOW_TRACE
-  if(execMode != MODE_GRAPH)
+  if (execMode != MODE_GRAPH)
     this->getSimCTX()->getDataflowTraceLog()->traceStartActor(actor, execMode == MODE_DIISTART ? "s" : "e");
   if (execMode == MODE_DIISTART) {
     this->getSimCTX()->getDataflowTraceLog()->traceTransition(getId());
   }
-#endif
-  
+#endif //SYSTEMOC_ENABLE_DATAFLOW_TRACE
+ 
 #if defined(SYSTEMOC_ENABLE_DEBUG) || defined(SYSTEMOC_ENABLE_DATAFLOW_TRACE)
   smoc::Expr::evalTo<smoc::Expr::CommSetup>(getExpr());
-#endif
-  
+#endif //defined(SYSTEMOC_ENABLE_DEBUG) || defined(SYSTEMOC_ENABLE_DATAFLOW_TRACE)
+
 #ifdef SYSTEMOC_ENABLE_HOOKING
-  
   if (execMode == MODE_DIISTART) {
     if (!hookingValid) {
       actionStr = boost::apply_visitor(ActionNameVisitor(), f);
@@ -387,39 +339,28 @@ void RuntimeTransition::execute(smoc_root_node *actor, int mode) {
   // only smoc_func_diverge may set nextState to something
   // different than dest here...
 
-  //If parallel execution of actors enable, use ActionOnThreadVisitor
+  // If parallel execution of actors enable, use ActionOnThreadVisitor.
 #ifdef MAESTRO_ENABLE_POLYPHONIC
-
-  
-
   RuntimeState *nextState =
-	  boost::apply_visitor(ActionOnThreadVisitor(dest, MM::MMAPI::getInstance()->runtimeManager), getAction());
-  
+    boost::apply_visitor(ActionOnThreadVisitor(dest, MM::MMAPI::getInstance()->runtimeManager), getAction());
 #else
   RuntimeState *nextState =
     boost::apply_visitor(ActionVisitor(dest, mode), getAction());
 #endif
-  
 
-#ifdef SYSTEMOC_ENABLE_MAESTRO
-
-#ifdef ENABLE_BRUCKNER
-  if (this->parentActor->logEnabled)
-  {
-	  Bruckner::Model::FSMTransition* fsmTransition = (Bruckner::Model::FSMTransition*)(this);
-	  fsmTransition->logMessage("Ex:", 0, 0, true, true, false);
-	  //Log Transition actions
-	  for (std::string actionName : this->actionNames)
-	  {
-		  fsmTransition->logMessage(actionName + ",", 0, 0, false, false, false);
-	  }
-
-	  //Log New State
-	  Bruckner::Model::State* destState = (Bruckner::Model::State*)(dest);
-	  destState->logMessage("=", 0, 0, false, false, true);
+#if defined(SYSTEMOC_ENABLE_MAESTRO) && defined(MAESTRO_ENABLE_BRUCKNER)
+  if (this->parentActor->logEnabled) {
+    Bruckner::Model::FSMTransition* fsmTransition = (Bruckner::Model::FSMTransition*)(this);
+    fsmTransition->logMessage("Ex:", 0, 0, true, true, false);
+    //Log Transition actions
+    for (std::string actionName : this->actionNames) {
+      fsmTransition->logMessage(actionName + ",", 0, 0, false, false, false);
+    }
+    //Log New State
+    Bruckner::Model::State* destState = (Bruckner::Model::State*)(dest);
+    destState->logMessage("=", 0, 0, false, false, true);
   }
-#endif
-#endif
+#endif //defined(SYSTEMOC_ENABLE_MAESTRO) && defined(MAESTRO_ENABLE_BRUCKNER)
 
 #ifdef SYSTEMOC_ENABLE_HOOKING
   if (execMode == MODE_DIISTART) {
@@ -431,7 +372,6 @@ void RuntimeTransition::execute(smoc_root_node *actor, int mode) {
   }
 #endif // SYSTEMOC_ENABLE_HOOKING
 
-  
 #ifdef SYSTEMOC_ENABLE_DEBUG
   smoc::Expr::evalTo<smoc::Expr::CommReset>(getExpr());
 #endif
@@ -443,15 +383,6 @@ void RuntimeTransition::execute(smoc_root_node *actor, int mode) {
   
 
 #if defined SYSTEMOC_ENABLE_VPC
-
-  #if defined SYSTEMOC_ENABLE_MAESTRO
-
-      MM::Actor* mmActor = dynamic_cast<MM::Actor*>(actor);
-      if (!mmActor->isMMScheduled())
-        {
-
-  #endif
-
   if (execMode == MODE_DIISTART /*&& (mode&GO)*/) {
     VpcTaskInterface *vti = this->transitionImpl.get();
     vti->getDiiEvent()->reset();
@@ -469,45 +400,22 @@ void RuntimeTransition::execute(smoc_root_node *actor, int mode) {
     if(!*events.latency) {
       // latency event not signaled
       events.latency->addListener(new smoc::Detail::DeferedTraceLogDumper(actor, "l"));
-
     } else {
       this->getSimCTX()->getDataflowTraceLog()->traceStartActor(actor, "l");
       this->getSimCTX()->getDataflowTraceLog()->traceEndActor(actor);
     }
-# endif
-  }
-  else {
+# endif //SYSTEMOC_ENABLE_DATAFLOW_TRACE
+  } else {
     smoc::Expr::evalTo<smoc::Expr::CommExec>(getExpr(), VpcInterface());
   }
-
-  #ifdef SYSTEMOC_ENABLE_MAESTRO
-
-        }
-        else
-
-          {
-            smoc::Expr::evalTo<smoc::Expr::CommExec>(getExpr());
-          }
-
-  #endif//SYSTEMOC_ENABLE_MAESTRO
-
-#endif // SYSTEMOC_ENABLE_VPC
-
-
-//#if !defined SYSTEMOC_ENABLE_VPC || defined SYSTEMOC_ENABLE_MAESTRO
-//  smoc::Expr::evalTo<smoc::Expr::CommExec>(getExpr());
-//#endif // SYSTEMOC_ENABLE_VPC
-#ifndef SYSTEMOC_ENABLE_VPC
+#else // !defined(SYSTEMOC_ENABLE_VPC)
   smoc::Expr::evalTo<smoc::Expr::CommExec>(getExpr());
-#endif // SYSTEMOC_ENABLE_VPC
-
-
-
+#endif // !defined(SYSTEMOC_ENABLE_VPC)
 
 #ifdef SYSTEMOC_ENABLE_DATAFLOW_TRACE
   if(execMode != MODE_GRAPH)
     this->getSimCTX()->getDataflowTraceLog()->traceEndActor(actor);
-#endif
+#endif //SYSTEMOC_ENABLE_DATAFLOW_TRACE
 
   actor->setCurrentState(nextState);
   ///todo:delete r
@@ -607,24 +515,20 @@ void RuntimeTransition::finaliseRuntimeTransition(smoc_root_node *node) {
 static int UnnamedStateCount = 0;
 
 RuntimeState::RuntimeState(const std::string name)
-  : _name(name.empty() ? Concat("smoc_firing_state_")(UnnamedStateCount++) : name) {
-//idPool.regObj(this);
+  : stateName(name.empty() ? Concat("smoc_firing_state_")(UnnamedStateCount++) : name)
+{
   finalise();
 }
 
-#ifdef SYSTEMOC_ENABLE_MAESTRO
-#ifdef ENABLE_BRUCKNER
+#if defined(SYSTEMOC_ENABLE_MAESTRO) && defined(MAESTRO_ENABLE_BRUCKNER)
 RuntimeState::RuntimeState(const std::string name, Bruckner::Model::Hierarchical* sParent)
-	: 
-	State(name),
-	_name(name.empty() ? Concat("smoc_firing_state_")(UnnamedStateCount++) : name) 
+  : State(name),
+    stateName(name.empty() ? Concat("smoc_firing_state_")(UnnamedStateCount++) : name)
 {
-	//idPool.regObj(this);
-	dynamic_cast<Bruckner::Model::Hierarchical*>(this)->parent = sParent;
-	finalise();
+  dynamic_cast<Bruckner::Model::Hierarchical*>(this)->parent = sParent;
+  finalise();
 }
-#endif
-#endif
+#endif //defined(SYSTEMOC_ENABLE_MAESTRO) && defined(MAESTRO_ENABLE_BRUCKNER)
 
 RuntimeState::~RuntimeState() {
 //idPool.unregObj(this);
@@ -833,19 +737,12 @@ void FiringFSMImpl::finalise(
     ProdState psinit;
     top->getInitialState(psinit, Marking());
 
-#ifdef SYSTEMOC_ENABLE_MAESTRO
-#ifdef ENABLE_BRUCKNER
-	  //init = *rts.insert(new RuntimeState (Concat(actorOrGraphNode->name())(":")(psinit), dynamic_cast<Bruckner::Model::Hierarchical*>(actorOrGraphNode) )).first;
-	init = *rts.insert(new RuntimeState (Concat("")(psinit), dynamic_cast<Bruckner::Model::Hierarchical*>(actorOrGraphNode) )).first;
-#else
-	init = *rts.insert(new RuntimeState(Concat(actorOrGraphNode->name())(":")(psinit))).first;
-#endif
-#endif
+#if defined(SYSTEMOC_ENABLE_MAESTRO) && defined(MAESTRO_ENABLE_BRUCKNER)
+    init = *rts.insert(new RuntimeState (Concat("")(psinit), dynamic_cast<Bruckner::Model::Hierarchical*>(actorOrGraphNode) )).first;
+#else //!defined(SYSTEMOC_ENABLE_MAESTRO) || !defined(MAESTRO_ENABLE_BRUCKNER)
+    init = *rts.insert(new RuntimeState(Concat(actorOrGraphNode->name())(":")(psinit))).first;
+#endif //!defined(SYSTEMOC_ENABLE_MAESTRO) || !defined(MAESTRO_ENABLE_BRUCKNER)
 
-#ifndef SYSTEMOC_ENABLE_MAESTRO
-	  init = *rts.insert(new RuntimeState(Concat(actorOrGraphNode->name())(":")(psinit))).first;
-#endif
-	  
     ns.push_back(
         st.insert(STEntry(psinit, init)).first);
 #ifdef FSM_FINALIZE_BENCHMARK
@@ -894,22 +791,15 @@ void FiringFSMImpl::finalise(
           std::pair<StateTable::iterator,bool> ins =
             st.insert(STEntry(d, nullptr));
                 
-          if(ins.second) {
+          if (ins.second) {
             // FIXME: construct state name and pass to RuntimeState
-              ProdState f = ins.first->first;
-#ifdef SYSTEMOC_ENABLE_MAESTRO
-#ifdef ENABLE_BRUCKNER
-            //ins.first->second = *rts.insert(new RuntimeState(Concat(actorOrGraphNode->name())(":")(f), dynamic_cast<Bruckner::Model::Hierarchical*>(actorOrGraphNode)	)).first;
-			  ins.first->second = *rts.insert(new RuntimeState(Concat("")(f), dynamic_cast<Bruckner::Model::Hierarchical*>(actorOrGraphNode)	)).first;
-#else
-			  ins.first->second = *rts.insert(new RuntimeState(Concat(actorOrGraphNode->name())(":")(f))).first;
-#endif
-
-#else
-			ins.first->second = *rts.insert(new RuntimeState(Concat(actorOrGraphNode->name())(":")(f) )).first;
-#endif
-
-			ns.push_back(ins.first);
+            ProdState f = ins.first->first;
+#if defined(SYSTEMOC_ENABLE_MAESTRO) && defined(MAESTRO_ENABLE_BRUCKNER)
+            ins.first->second = *rts.insert(new RuntimeState(Concat("")(f), dynamic_cast<Bruckner::Model::Hierarchical*>(actorOrGraphNode)	)).first;
+#else //!defined(SYSTEMOC_ENABLE_MAESTRO) || !defined(MAESTRO_ENABLE_BRUCKNER)
+            ins.first->second = *rts.insert(new RuntimeState(Concat(actorOrGraphNode->name())(":")(f))).first;
+#endif //!defined(SYSTEMOC_ENABLE_MAESTRO) || !defined(MAESTRO_ENABLE_BRUCKNER)
+            ns.push_back(ins.first);
 #ifdef FSM_FINALIZE_BENCHMARK
             nRunStates++;
 #endif // FSM_FINALIZE_BENCHMARK
@@ -918,34 +808,26 @@ void FiringFSMImpl::finalise(
           RuntimeState* rd = ins.first->second;
           assert(rd);
 
-          // create runtime transition
-//          outDbg << "creating runtime transition " << rs << " -> " << rd << std::endl;
-
 #ifdef SYSTEMOC_ENABLE_MAESTRO
-
-		  SMoCActor* a = nullptr;
-
-		  if (actorOrGraphNode->isActor())
-		  {
-			  a = dynamic_cast<MetaMap::SMoCActor*>(actorOrGraphNode);
-		  }
-#endif
+          SMoCActor* a = nullptr;
+          if (actorOrGraphNode->isActor()) {
+            a = dynamic_cast<MetaMap::SMoCActor*>(actorOrGraphNode);
+          }
+#endif //SYSTEMOC_ENABLE_MAESTRO
           rs->addTransition(
-              RuntimeTransition(
-                t->getCachedTransitionImpl(),
-                #ifdef SYSTEMOC_ENABLE_MAESTRO
-                *a,
-                #endif
-                rd),
-			  actorOrGraphNode);
+            RuntimeTransition(
+              t->getCachedTransitionImpl(),
+#ifdef SYSTEMOC_ENABLE_MAESTRO
+              *a,
+#endif //SYSTEMOC_ENABLE_MAESTRO
+              rd),
+            actorOrGraphNode);
 #ifdef FSM_FINALIZE_BENCHMARK
           nRunTrans++;
 #endif // FSM_FINALIZE_BENCHMARK
         }
       }
     }
-
-//    }
   }
   catch(const ModelingError& e) {
     std::cerr << "A modeling error occurred:" << std::endl
