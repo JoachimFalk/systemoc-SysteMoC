@@ -154,53 +154,19 @@ void smoc_scheduler_top::end_of_elaboration() {
 }
 
 void smoc_scheduler_top::schedule() {
-#if defined SYSTEMOC_ENABLE_MAESTRO && !defined SYSTEMOC_ENABLE_VPC
+#ifdef SYSTEMOC_ENABLE_MAESTRO
   return;
-#endif
+#endif //SYSTEMOC_ENABLE_MAESTRO
 #ifdef SYSTEMOC_ENABLE_VPC
   // enable VPC scheduling if the VPC configuration is valid
   // or if forced by command line option
-  if (validVpcConfiguration || getSimCTX()->isVpcSchedulingEnabled()) {
+  if (validVpcConfiguration || getSimCTX()->isVpcSchedulingEnabled())
     return;
-//      std::cerr << "SMoC: " << getSimCTX()->isVpcSchedulingEnabled() << std::endl;
-      smoc_node_list nodes;
-      g->getNodesRecursive(nodes);
-
-      boost::function<void (SystemC_VPC::ScheduledTask* actor)> callExecute
-          = &smoc::Scheduling::execute;
-      boost::function<bool (SystemC_VPC::ScheduledTask* actor)> callCanExecute
-          = &smoc::Scheduling::canExecute;
-
-      CoSupport::SystemC::EventOrList<smoc_root_node> actors;
-      for (smoc_node_list::iterator iter = nodes.begin();
-          iter != nodes.end(); ++iter){
-          smoc_root_node *actor = *iter;
-          actors |= *actor;
-      }
-
-      while(true) {
-        smoc::smoc_wait(actors);
-        for (smoc_node_list::iterator iter = nodes.begin();
-            iter != nodes.end(); ++iter){
-            smoc_root_node *node = *iter;
-            SystemC_VPC::ScheduledTask * actor =
-                dynamic_cast<SystemC_VPC::ScheduledTask *>(node);
-            assert(actor != nullptr);
-            std::cerr << node->name() << " : " << callCanExecute(actor) << std::endl;
-            if (callCanExecute(actor)) {
-                callExecute(actor);
-            }
-        }
-      }
-      return;
-  }
-
 #endif //SYSTEMOC_ENABLE_VPC
-
   // plain old smoc scheduler
-  while(true) {
+  while (true) {
     smoc::smoc_wait(*g);
-    while(*g) {
+    while (*g) {
 #ifdef SYSTEMOC_DEBUG
       outDbg << "<node name=\"" << g->name() << "\">" << std::endl
              << Indent::Up;
@@ -212,4 +178,3 @@ void smoc_scheduler_top::schedule() {
     }
   }
 }
-
