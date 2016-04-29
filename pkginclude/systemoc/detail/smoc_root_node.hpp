@@ -126,24 +126,12 @@ private:
   /// @brief Current firing state
   RuntimeState *currentState;
 
-  /// @brief For non strict scheduling
-  RuntimeState *lastState;
-
-///// @brief For non strict scheduling
-//bool _non_strict;
-
 #ifdef SYSTEMOC_ENABLE_VPC
   RuntimeState *commState;
-  RuntimeState *nextState;
 
-  /// @brief For non strict scheduling
-  RuntimeTransition *lastTransition;
-  
   // vpc_event_xxx must be constructed before commState
   /// @brief VPC data introduction interval event
   smoc::smoc_vpc_event_p diiEvent;
-
-  RuntimeState *_communicate();
 #endif // SYSTEMOC_ENABLE_VPC
 
 #ifdef SYSTEMOC_ENABLE_HOOKING
@@ -274,30 +262,13 @@ public:
   RuntimeState *getCommState() const
     { return commState; }
 
-  RuntimeState *getNextState() const
-    { return nextState; }
- 
-  void setNextState(RuntimeState* s)
-    { nextState = s; }
-
-  RuntimeTransition* getLastTransition() const
-    { return lastTransition; }
-
-  void setLastTransition(RuntimeTransition* t)
-    { lastTransition = t; }
+  //true if actual state is a communication state
+  bool inCommState() const
+    { return currentState == commState; }
 #endif // SYSTEMOC_ENABLE_VPC
-
-  RuntimeState *getLastState() const
-    { return lastState; }
-
-  void setLastState(RuntimeState* s)
-    { lastState = s; }
 
   /// @brief Collect ports from child objects
   smoc_sysc_port_list getPorts() const;
-
-  //true if actual state is a communication state
-  bool inCommState() const;
 
 ////determines non-strict actors (non-strict blocks in synchronous-reactive domains)
 //bool isNonStrict() const;

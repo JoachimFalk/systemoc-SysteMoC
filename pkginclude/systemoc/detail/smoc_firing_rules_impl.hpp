@@ -278,9 +278,6 @@ private:
   PostHooks   postHooks;
 #endif //SYSTEMOC_ENABLE_HOOKING
 public:
-  /// @brief Execution masks used for SR Scheduling
-  enum { GO = 1, TICK = 2 };
-public:
   /// @brief Constructor
   RuntimeTransition(
       const boost::shared_ptr<TransitionImpl> &tip,
@@ -306,7 +303,7 @@ public:
   bool evaluateGuard() const;
 
   /// @brief Execute transitions
-  void execute(smoc_root_node *actor, int mode = GO | TICK);
+  void execute(smoc_root_node *actor);
 
   void *getID() const;
 

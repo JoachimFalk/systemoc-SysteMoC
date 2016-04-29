@@ -60,7 +60,6 @@
 #endif //MAESTRO_ENABLE_POLYPHONIC
 
 /**
- * TODO: deprecate smoc_func_diverge and smoc_func_branch
  * TODO: replace smoc_member_func_interface, smoc_member_func,
  *       smoc_func_call with boost::function
  */
@@ -203,59 +202,6 @@ public:
 
 class RuntimeState;
 
-/**
- * smoc_func_diverge
-
-class smoc_func_diverge {
-private:
-  typedef RuntimeState* return_type;
-
-  boost::intrusive_ptr<
-    smoc_member_func_interface<return_type> > k;
-
-//friend bool operator <(const smoc_func_diverge &lhs, const smoc_func_diverge &rhs);
-public:
-  template <class F, class PL>
-  smoc_func_diverge( const smoc_member_func<F, PL> &_k )
-    : k(new smoc_member_func<F, PL>(_k)) {}
-  
-  template <class T>
-  smoc_func_diverge( T *_obj, return_type (T::*_f)() )
-    : k(new typename CoSupport::Lambda::ParamAccumulator<
-        smoc_member_func,
-        CoSupport::Lambda::Functor<return_type, return_type (T::*)()> >::accumulated_type
-      (CoSupport::Lambda::Functor<return_type, return_type (T::*)()>(_obj, _f, "")))
-    {}
-  
-  return_type operator()() const {
-    return k->call();
-  }
-};
- */
-
-/**
- * smoc_sr_func_pair
-
-class smoc_sr_func_pair {
-public:
-  friend class smoc_transition;
-  friend class smoc_transition_part;
-  //private:
-  smoc_func_call             go;
-  smoc_func_call             tick;
-
-#ifdef SYSTEMOC_ENABLE_VPC
-  SystemC_VPC::FastLink* tickLink;
-#endif // SYSTEMOC_ENABLE_VPC
-
-public:
-  smoc_sr_func_pair(
-      const smoc_func_call &go,
-      const smoc_func_call &tick)
-    : go(go), tick(tick) {}
-};
- */
-
 class smoc_func_call_list
 : public std::list<smoc_func_call> {
 public:
@@ -270,11 +216,6 @@ public:
 typedef boost::variant<
   smoc_func_call_list> smoc_action;
 
-//typedef boost::variant<
-//  smoc_func_call_list,
-//  smoc_func_diverge,
-//  smoc_sr_func_pair> smoc_action;
-
 smoc_action merge(const smoc_action& a, const smoc_action& b);
 
 /**
@@ -286,15 +227,12 @@ public:
   typedef RuntimeState* result_type;
 
 public:
-  ActionVisitor(RuntimeState* dest, int mode);
+  ActionVisitor(RuntimeState *dest);
 
   result_type operator()(const smoc_func_call_list& f) const;
-//result_type operator()(const smoc_func_diverge& f) const;
-//result_type operator()(const smoc_sr_func_pair& f) const;
 
 private:
-  RuntimeState* dest;
-  int mode;
+  RuntimeState *dest;
 };
 
 #ifdef SYSTEMOC_ENABLE_VPC
@@ -310,8 +248,6 @@ public:
   ActionNameVisitor(FunctionNames & names);
 
   result_type operator()(const smoc_func_call_list& f) const;
-//result_type operator()(const smoc_sr_func_pair& f) const;
-//result_type operator()(const smoc_func_diverge& f) const;
 
 private:
   FunctionNames &functionNames;
@@ -393,8 +329,6 @@ public:
   TransitionOnThreadVisitor(RuntimeState* dest, MetaMap::Transition* transition);
 
   result_type operator()(const smoc_func_call_list& f) const;
-//result_type operator()(const smoc_func_diverge& f) const;
-//result_type operator()(const smoc_sr_func_pair& f) const;
 
 private:
   RuntimeState* dest;
@@ -414,28 +348,10 @@ public:
   functionNames(names) {}
 
   result_type operator()(const smoc_func_call_list& f) const {
-    //if(f.begin() == f.end()) std::cerr << "???" << std::endl; // no action
-
-    for(smoc_func_call_list::const_iterator i = f.begin(); i != f.end(); ++i) {
+    for (smoc_func_call_list::const_iterator i = f.begin(); i != f.end(); ++i) {
       functionNames.push_back(i->getFuncName());
     }
   }
-
-//result_type operator()(const smoc_sr_func_pair& f) const{
-//  functionNames.push_back(f.go.getFuncName());
-//  functionNames.push_back(f.tick.getFuncName());
-//
-//  /* FIXME: we cannot modify tickLink here:
-//  f.tickLink = new SystemC_VPC::FastLink(
-//      SystemC_VPC::Director::getInstance().getFastLink(
-//        name, f.tick.getFuncName()));
-//  */
-//}
-
-//result_type operator()(const smoc_func_diverge& f) const{
-////  std::cerr << "FIXME: got a smoc_func_diverge" << std::endl;
-////  functionNames.push_back("smoc_func_diverge");
-//}
 
 private:
   list<string> &functionNames;
