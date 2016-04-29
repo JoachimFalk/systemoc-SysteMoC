@@ -58,23 +58,6 @@
 
 class smoc_graph_base;
 
-#ifdef SYSTEMOC_ENABLE_VPC
-namespace smoc { namespace Scheduling {
-bool canExecute(SystemC_VPC::ScheduledTask* actor);
-void execute(SystemC_VPC::ScheduledTask* actor);
-}} // namespace smoc::Scheduler
-#endif //SYSTEMOC_ENABLE_VPC
-#ifdef SYSTEMOC_ENABLE_MAESTRO
-/////////////////////////
-//RR
-namespace SysteMoC {
-	bool canExecute(MetaMap::SMoCActor& actor, MetaMap::Transition& activeTransition);
-	void execute(MetaMap::SMoCActor& actor);
-}
-/////////////////////////
-#endif //SYSTEMOC_ENABLE_MAESTRO
-
-
 class smoc_scheduler_top
 : public sc_core::sc_module,
   public smoc::Detail::SimCTXBase {

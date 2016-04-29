@@ -95,13 +95,7 @@ public:
     assert(diiEvent != nullptr);
 
     SystemC_VPC::EventPair ep(diiEvent, latEvent);
-    // TODO (ms): care about function lists (func_call_list and sr_func_pair)
-  //else if(mode & TICK) {
-  //  const smoc_sr_func_pair* fp =
-  //    boost::get<smoc_sr_func_pair>(&getAction());
-  //  assert(fp);
-  //  fp->tickLink->compute(p);
-  //}
+    // TODO (ms): care about function lists smoc_func_call_list
 
     // force a callback to "releaseTask" at end of read phase 
 #ifdef SYSTEMOC_DEBUG_VPC_IF

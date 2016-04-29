@@ -55,12 +55,8 @@ smoc_root_node::smoc_root_node(sc_core::sc_module_name name, NodeType nodeType, 
   : sc_core::sc_module(name)
   , nodeType(nodeType)
   , currentState(nullptr)
-  , lastState(nullptr)
-//, _non_strict(false)
 #ifdef SYSTEMOC_ENABLE_VPC
   , commState(new RuntimeState())
-  , nextState(nullptr)
-  , lastTransition(nullptr)
   , diiEvent(new smoc::smoc_vpc_event())
 #endif // SYSTEMOC_ENABLE_VPC
   , initialState(s)
@@ -73,18 +69,10 @@ smoc_root_node::smoc_root_node(sc_core::sc_module_name name, NodeType nodeType, 
       RuntimeTransition(
         boost::shared_ptr<TransitionImpl>(new TransitionImpl(
           smoc::Expr::till(*diiEvent),
-          smoc_func_diverge(this, &smoc_root_node::_communicate)))),
+          smoc_func_call_list()))),
       this);
 #endif // SYSTEMOC_ENABLE_VPC
 }
-
-#ifdef SYSTEMOC_ENABLE_VPC
-RuntimeState* smoc_root_node::_communicate() {
-  assert(diiEvent != nullptr && *diiEvent); // && vpc_event_lat != nullptr
-  //diiEvent->reset();
-  return nextState;
-}
-#endif // SYSTEMOC_ENABLE_VPC
 
 void smoc_root_node::finalise() {
 #ifdef SYSTEMOC_DEBUG
@@ -92,10 +80,10 @@ void smoc_root_node::finalise() {
          << std::endl << Indent::Up;
 #endif
   
-#ifdef SYSTEMOC_NEED_IDS  
+#ifdef SYSTEMOC_NEED_IDS
   // Allocate Id for myself.
   getSimCTX()->getIdPool().addIdedObj(this);
-#endif // SYSTEMOC_NEED_IDS  
+#endif // SYSTEMOC_NEED_IDS
   
   // finalise ports before FSM (ActivationPattern needs port nodes)
   smoc_sysc_port_list ports = getPorts();
@@ -109,27 +97,6 @@ void smoc_root_node::finalise() {
 
   getFiringFSM()->finalise(this, initialState.getImpl());
   
-/*//check for non strict transitions
-  const RuntimeStateSet& states = getFiringFSM()->getStates(); 
-  
-  for (RuntimeStateSet::const_iterator sIter = states.begin(); 
-       sIter != states.end();
-       ++sIter) {
-    
-    const RuntimeTransitionList& tl = (*sIter)->getTransitions();
-    
-    for (RuntimeTransitionList::const_iterator tIter = tl.begin();
-         tIter != tl.end();
-         ++tIter) {
-      if (boost::get<smoc_sr_func_pair>(&tIter->getAction())) {
-#ifdef SYSTEMOC_DEBUG
-        outDbg << "found non strict SR block: " << this->name() << endl;
-#endif
-        _non_strict = true;
-      }
-    }
-  }
- */
 #ifdef SYSTEMOC_DEBUG
   outDbg << Indent::Down << "</smoc_root_node::finalise>" << std::endl;
 #endif
@@ -138,7 +105,7 @@ void smoc_root_node::finalise() {
 smoc_sysc_port_list smoc_root_node::getPorts() const {
   smoc_sysc_port_list ret;
   
-  for( 
+  for(
 #if SYSTEMC_VERSION < 20050714
     sc_core::sc_pvector<sc_core::sc_object*>::const_iterator iter =
 #else
@@ -152,20 +119,6 @@ smoc_sysc_port_list smoc_root_node::getPorts() const {
   }
   return ret;
 }
-
-bool smoc_root_node::inCommState() const{
-#ifdef SYSTEMOC_ENABLE_VPC
-  return currentState == getCommState();
-#else // SYSTEMOC_ENABLE_VPC
-  return false;
-#endif // SYSTEMOC_ENABLE_VPC
-}
-
-/*
-bool smoc_root_node::isNonStrict() const{
-  return _non_strict;
-}
- */
 
 smoc_root_node::~smoc_root_node() {
 #ifdef SYSTEMOC_ENABLE_VPC
@@ -182,16 +135,16 @@ void smoc_root_node::doReset() {
   // call user-defined reset code (->re-evaluate guards!!!)
   reset();
   
-  RuntimeState* oldState = currentState; 
+  RuntimeState* oldState = currentState;
 
   // will re-evaluate guards
   setCurrentState(getFiringFSM()->getInitialState());
   
   if(!executing) {
 
-    // also del/add me as listener  
-    if(currentState != oldState) {
-      if(oldState) { 
+    // also del/add me as listener
+    if (currentState != oldState) {
+      if (oldState) {
         EventWaiterSet& am = oldState->am;
 
         for(EventWaiterSet::iterator i = am.begin();
@@ -295,37 +248,24 @@ void smoc_root_node::eventDestroyed(smoc::smoc_event_waiter *e) {
 
 void smoc_root_node::setCurrentState(RuntimeState *s) {
 #ifdef SYSTEMOC_DEBUG
-	outDbg << "<smoc_root_node::setCurrentState name=\"" << name() << "\">"
-		<< std::endl << Indent::Up;
+  outDbg << "<smoc_root_node::setCurrentState name=\"" << name() << "\">"
+          << std::endl << Indent::Up;
 #endif // SYSTEMOC_DEBUG
-
-	//assert(executing);
-
-  #ifdef SYSTEMOC_ENABLE_MAESTRO
+#ifdef SYSTEMOC_ENABLE_MAESTRO
   if (s == NULL)
-  {
-		throw MAESTRORuntimeException((string)"Error while trying to set the new state to NULL on actor: " + this->name());
-  }
-  #else
+    throw MAESTRORuntimeException(std::string("Error while trying to set the new state to NULL on actor: ") + this->name());
+#endif //SYSTEMOC_ENABLE_MAESTRO
   assert(s);
-  #endif
   
-
-  
-
   currentState = s;
-
-  //todo: delete rrr
-  //cout << "**************setting current state" << currentState->name() << "on actor" << this->name();
-
-  RuntimeTransitionList& tl = currentState->getTransitions();
   
-  ct = 0;
-
-  for(RuntimeTransitionList::iterator t = tl.begin();
-      t != tl.end(); ++t)
-  {
-    if(t->evaluateIOP() && t->evaluateGuard()) {
+  RuntimeTransitionList &tl = currentState->getTransitions();
+  
+  ct = nullptr;
+  for (RuntimeTransitionList::iterator t = tl.begin();
+       t != tl.end();
+       ++t) {
+    if (t->evaluateIOP() && t->evaluateGuard()) {
       ct = &*t;
       break;
     }
@@ -344,40 +284,25 @@ void smoc_root_node::schedule() {
 #endif // SYSTEMOC_DEBUG
   
   assert(currentState);
-  RuntimeState* oldState = currentState; 
+  RuntimeState *oldState = currentState;
   
   executing = true;
   
   if (ct == nullptr)
     setCurrentState(currentState);
 
-  // ct may be nullptr if
-  // t->evaluateIOP() holds and t->evaluateGuard() fails for all transitions t
+  // ct may be nullptr if t->evaluateIOP() holds and t->evaluateGuard() fails
+  // for all transitions t
   if (ct != nullptr) {
-#ifdef SYSTEMOC_ENABLE_MAESTRO
-    ct->execute(this);
-    /*
-    if (ct->hasWaitAction())
-    {
-            ct->execute(this);
-    }
-    else
-    {
-            boost::thread thread(ct->startThreadToExecuteTransition(this));
-            //thread.join();
-            //ct->join();
-            //ct->deleteThread();
-    }
-    */
-#else
+//#ifndef SYSTEMOC_ENABLE_MAESTRO
     assert(ct->evaluateIOP());
     assert(ct->evaluateGuard());
+//#endif //SYSTEMOC_ENABLE_MAESTRO
     ct->execute(this);
-#endif
   }
-  // also del/add me as listener  
+  // also del/add me as listener
   if(currentState != oldState) {
-    { 
+    {
       EventWaiterSet& am = oldState->am;
 
       for(EventWaiterSet::iterator i = am.begin();
@@ -398,7 +323,7 @@ void smoc_root_node::schedule() {
   }
 
   executing = false;
-  if(!ct){  
+  if (!ct) {
     setActivation(false);
   }
 
@@ -416,13 +341,12 @@ bool smoc_root_node::canFire() {
 #else
   return (ct != nullptr) && !executing;
 #endif
-
 }
 
 #ifdef SYSTEMOC_ENABLE_MAESTRO
-bool smoc_root_node::testCanFire() 
+bool smoc_root_node::testCanFire()
 {
-	return (ct != NULL && !executing);
+  return (ct != NULL && !executing);
 }
 #endif
 

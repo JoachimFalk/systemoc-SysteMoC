@@ -63,10 +63,10 @@ smoc_action merge(const smoc_action& a, const smoc_action& b) {
   assert(0);
 }
 
-ActionVisitor::ActionVisitor(RuntimeState* dest, int mode)
-  : dest(dest), mode(mode) {}
+ActionVisitor::ActionVisitor(RuntimeState *dest)
+  : dest(dest) {}
 
-RuntimeState* ActionVisitor::operator()(const smoc_func_call_list& f) const {
+RuntimeState *ActionVisitor::operator()(const smoc_func_call_list& f) const {
   // Function call
   for(smoc_func_call_list::const_iterator i = f.begin(); i != f.end(); ++i) {
 #ifdef SYSTEMOC_ENABLE_DATAFLOW_TRACE
@@ -88,56 +88,6 @@ RuntimeState* ActionVisitor::operator()(const smoc_func_call_list& f) const {
   }
   return dest;
 }
-
-/*
-RuntimeState* ActionVisitor::operator()(const smoc_func_diverge& f) const {
-  // Function call determines next state (Internal use only)
-#ifdef SYSTEMOC_DEBUG
-  outDbg << "<action type=\"smoc_func_diverge\" func=\"???\">"
-         << std::endl;
-#endif
-
-  RuntimeState* ret = f();
-
-#ifdef SYSTEMOC_DEBUG
-  outDbg << "</action>" << std::endl;
-#endif
-  return ret;
-}
- */
-
-/*
-RuntimeState* ActionVisitor::operator()(const smoc_sr_func_pair& f) const {
-  // SR GO & TICK calls
-#ifdef SYSTEMOC_ENABLE_DATAFLOW_TRACE
-  getSimCTX()->getDataflowTraceLog()->traceStartFunction(&f.go);
-#endif
-  if(mode & RuntimeTransition::GO) {
-#ifdef SYSTEMOC_DEBUG
-    outDbg << "<action type=\"smoc_sr_func_pair\" go=\""
-           << f.go.getFuncName() << "\">" << std::endl;
-#endif
-    f.go();
-#ifdef SYSTEMOC_DEBUG
-    outDbg << "</action>" << std::endl;
-#endif
-  }
-  if(mode & RuntimeTransition::TICK) {
-#ifdef SYSTEMOC_DEBUG
-    outDbg << "<action type=\"smoc_sr_func_pair\" tick=\""
-           << f.tick.getFuncName() << "\">" << std::endl;
-#endif
-    f.tick();
-#ifdef SYSTEMOC_DEBUG
-    outDbg << "</action>" << std::endl;
-#endif
-  }
-#ifdef SYSTEMOC_ENABLE_DATAFLOW_TRACE
-  getSimCTX()->getDataflowTraceLog()->traceEndFunction(&f.go);
-#endif
-  return dest;
-}
- */
 
 #ifdef MAESTRO_ENABLE_POLYPHONIC
 
@@ -221,64 +171,19 @@ void smoc::dMM::TransitionOnThreadVisitor::executeTransition(const smoc_func_cal
 	transition->notifyThreadDone();
 }
 
-/*
-RuntimeState* smoc::dMM::TransitionOnThreadVisitor::operator()(const smoc_func_diverge& f) const {
-	// Function call determines next state (Internal use only)
-# ifdef SYSTEMOC_DEBUG
-	outDbg << "<action type=\"smoc_func_diverge\" func=\"???\">"
-		<< std::endl;
-# endif //SYSTEMOC_DEBUG
-
-	RuntimeState* ret = f();
-
-# ifdef SYSTEMOC_DEBUG
-	outDbg << "</action>" << std::endl;
-# endif //SYSTEMOC_DEBUG
-	return ret;
-}
- */
-
-/*
-RuntimeState* smoc::dMM::TransitionOnThreadVisitor::operator()(const smoc_sr_func_pair& f) const
-{
-	throw std::runtime_error("Not implemented");
-}
- */
-
 #endif //MAESTRO_ENABLE_POLYPHONIC
 
 #ifdef SYSTEMOC_ENABLE_VPC
 namespace smoc { namespace Detail {
 
-ActionNameVisitor::ActionNameVisitor(FunctionNames & names) :
-    functionNames(names) {}
+ActionNameVisitor::ActionNameVisitor(FunctionNames & names)
+  : functionNames(names) {}
 
-void ActionNameVisitor::operator()(const smoc_func_call_list& f) const {
-  //if(f.begin() == f.end()) std::cerr << "???" << std::endl; // no action
-
-  for(smoc_func_call_list::const_iterator i = f.begin(); i != f.end(); ++i) {
+void ActionNameVisitor::operator()(const smoc_func_call_list &f) const {
+  for (smoc_func_call_list::const_iterator i = f.begin(); i != f.end(); ++i) {
     functionNames.push_back(i->getFuncName());
   }
 }
-
-/*
-void ActionNameVisitor::operator()(const smoc_sr_func_pair& f) const {
-  functionNames.push_back(f.go.getFuncName());
-  functionNames.push_back(f.tick.getFuncName());
-
-  // FIXME: we cannot modify tickLink here:
-  //f.tickLink = new SystemC_VPC::FastLink(
-  //    SystemC_VPC::Director::getInstance().getFastLink(
-  //      name, f.tick.getFuncName()));
-}
- */
-
-/*
-void ActionNameVisitor::operator()(const smoc_func_diverge& f) const {
-  std::cerr << "FIXME: got a smoc_func_diverge" << std::endl;
-  functionNames.push_back("smoc_func_diverge");
-}
- */
 
 } } // namespace smoc::Detail
 #endif // SYSTEMOC_ENABLE_VPC

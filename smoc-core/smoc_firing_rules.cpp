@@ -222,12 +222,6 @@ public:
     }
     return str.str();
   }
-//result_type operator()(smoc_func_diverge &f) const {
-//  return "";
-//}
-//result_type operator()(smoc_sr_func_pair &f) const {
-//  return "";
-//}
 };
 
 class Action_HasWaitVisitor {
@@ -243,14 +237,6 @@ public:
     }
     return false;
   }
-
-//result_type operator()(const smoc_func_diverge &f) const {
-//  return false;
-//}
-
-//result_type operator()(const smoc_sr_func_pair &f) const {
-//  return false;
-//}
 };
 
 #ifdef SYSTEMOC_ENABLE_MAESTRO
@@ -266,7 +252,7 @@ bool RuntimeTransition::hasWaitAction() {
 }
 #endif //SYSTEMOC_ENABLE_MAESTRO
 
-void RuntimeTransition::execute(smoc_root_node *actor, int mode) {
+void RuntimeTransition::execute(smoc_root_node *actor) {
   enum {
     MODE_DIISTART,
     MODE_DIIEND,
@@ -336,16 +322,14 @@ void RuntimeTransition::execute(smoc_root_node *actor, int mode) {
   }
 #endif // SYSTEMOC_ENABLE_HOOKING
   
-  // only smoc_func_diverge may set nextState to something
-  // different than dest here...
-
-  // If parallel execution of actors enable, use ActionOnThreadVisitor.
+  // FIXME: Set nextState directly to dest as ActionOnThreadVisitor/ActionVisitor can no longer overwrite this!
 #ifdef MAESTRO_ENABLE_POLYPHONIC
+  // If parallel execution of actors enable, use ActionOnThreadVisitor.
   RuntimeState *nextState =
     boost::apply_visitor(ActionOnThreadVisitor(dest, MM::MMAPI::getInstance()->runtimeManager), getAction());
 #else
   RuntimeState *nextState =
-    boost::apply_visitor(ActionVisitor(dest, mode), getAction());
+    boost::apply_visitor(ActionVisitor(dest), getAction());
 #endif
 
 #if defined(SYSTEMOC_ENABLE_MAESTRO) && defined(MAESTRO_ENABLE_BRUCKNER)
@@ -383,17 +367,16 @@ void RuntimeTransition::execute(smoc_root_node *actor, int mode) {
   
 
 #if defined SYSTEMOC_ENABLE_VPC
-  if (execMode == MODE_DIISTART /*&& (mode&GO)*/) {
+  if (execMode == MODE_DIISTART) {
     VpcTaskInterface *vti = this->transitionImpl.get();
     vti->getDiiEvent()->reset();
     smoc::Expr::evalTo<smoc::Expr::CommExec>(getExpr(), VpcInterface(vti));
-
     SystemC_VPC::EventPair events = this->transitionImpl->startCompute();
-
-    // save nextState to later execute communication
-    actor->setNextState(nextState);
     
-    // insert magic commstate
+    // Insert magic commstate by saving nextState in the sole outgoing
+    // transition of the commState
+    actor->getCommState()->getTransitions().front().dest = nextState;
+    // and overriding nextState with commState.
     nextState = actor->getCommState();
     
 # ifdef SYSTEMOC_ENABLE_DATAFLOW_TRACE

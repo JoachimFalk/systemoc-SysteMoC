@@ -50,26 +50,28 @@
 
 #include "SMXDumper.hpp"
 
-
 #ifdef SYSTEMOC_ENABLE_VPC
+namespace smoc { namespace Detail {
 
-bool smoc::Scheduling::canExecute(SystemC_VPC::ScheduledTask* actor) {
-  assert(dynamic_cast<smoc_actor*>(actor) != nullptr);
-  return static_cast<smoc_actor*>(actor)->canFire();
-}
-void smoc::Scheduling::execute(SystemC_VPC::ScheduledTask* actor) {
-  //std::cerr << "smoc::Scheduling::execute" << std::endl;
-  assert(dynamic_cast<smoc_actor*>(actor) != nullptr);
-  static_cast<smoc_actor*>(actor)->schedule();
-}
+  static
+  bool systemcVpcCanExecute(SystemC_VPC::ScheduledTask *actor) {
+    assert(dynamic_cast<smoc_actor*>(actor) != nullptr);
+    return static_cast<smoc_actor*>(actor)->canFire();
+  }
+
+  static
+  void systemcVpcExecute(SystemC_VPC::ScheduledTask *actor) {
+    //std::cerr << "smoc::Scheduling::execute" << std::endl;
+    assert(dynamic_cast<smoc_actor*>(actor) != nullptr);
+    static_cast<smoc_actor*>(actor)->schedule();
+  }
+
+} } // smoc::Detail
 #endif //SYSTEMOC_ENABLE_VPC
-
-
-
 
 smoc_scheduler_top::smoc_scheduler_top(smoc_graph_base* g) :
   // Prefix all SysteMoC internal modules with __smoc_ to enable filtering out the module on smx dump!
-  sc_core::sc_module(sc_core::sc_module_name("__smoc_scheduler_top")),
+  sc_core::sc_module(sc_core::sc_module_name("__smoc_smoc_scheduler_top")),
   g(g),
   validVpcConfiguration(false),
   simulation_running(false)
@@ -116,10 +118,10 @@ void smoc_scheduler_top::end_of_elaboration() {
 #ifdef SYSTEMOC_ENABLE_VPC
     SystemC_VPC::Director::getInstance().beforeVpcFinalize();
 
-    boost::function<void (SystemC_VPC::ScheduledTask* actor)> callExecute
-      = &smoc::Scheduling::execute;
-    boost::function<bool (SystemC_VPC::ScheduledTask* actor)> callCanExecute
-      = &smoc::Scheduling::canExecute;
+    boost::function<void (SystemC_VPC::ScheduledTask *actor)> callExecute
+      = &smoc::Detail::systemcVpcExecute;
+    boost::function<bool (SystemC_VPC::ScheduledTask *actor)> callCanExecute
+      = &smoc::Detail::systemcVpcCanExecute;
     SystemC_VPC::Director::getInstance().
       registerSysteMoCCallBacks(callExecute, callCanExecute);
 #endif //SYSTEMOC_ENABLE_VPC
