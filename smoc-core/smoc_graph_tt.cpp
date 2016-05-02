@@ -89,11 +89,15 @@ void smoc_graph_tt::scheduleTT() {
 #endif // SYSTEMOC_DEBUG
     if(nodeDisabled[entry] == false){
       entry->schedule();
+#ifdef SYSTEMOC_ENABLE_VPC
       if(entry->inCommState()){ // Node needs some time to process (VPC is used), switch node to DDF
         ddf_nodes_activations |= *next;
       }else{ // Node completely processed -> re-register it in the ttNodeQueue
+#endif //SYSTEMOC_ENABLE_VPC
         ttNodeQueue.registerNode(entry, entry->getNextReleaseTime());
+#ifdef SYSTEMOC_ENABLE_VPC
       }
+#endif //SYSTEMOC_ENABLE_VPC
     }
 #ifdef SYSTEMOC_DEBUG
     outDbg << Indent::Down << "</node>" << std::endl;
