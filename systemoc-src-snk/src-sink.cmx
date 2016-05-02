@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<!DOCTYPE vpcconfiguration SYSTEM "cmx.dtd">
+<!DOCTYPE vpcconfiguration SYSTEM "vpc.dtd">
 <vpcconfiguration>
  <resultfile name=""/>
  <measurefile name=""/>
