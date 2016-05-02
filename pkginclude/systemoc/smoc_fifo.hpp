@@ -69,7 +69,7 @@
 # include <smoc/detail/QueueRWPtr.hpp>
 #endif
 #if defined(SYSTEMOC_ENABLE_MAESTRO) && defined(MAESTRO_ENABLE_BRUCKNER)
-# include "Channel.h"
+# include <Maestro/Bruckner/Channel.hpp>
 #endif //defined(SYSTEMOC_ENABLE_MAESTRO) && defined(MAESTRO_ENABLE_BRUCKNER)
 
 #include <smoc/detail/DumpingInterfaces.hpp>

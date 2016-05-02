@@ -51,7 +51,7 @@
 #include "detail/smoc_chan_if.hpp"
 
 #if defined(SYSTEMOC_ENABLE_MAESTRO) && defined(MAESTRO_ENABLE_BRUCKNER)
-# include  "Port.h"
+# include  <Maestro/Bruckner/Port.hpp>
 #endif //defined(SYSTEMOC_ENABLE_MAESTRO) && defined(MAESTRO_ENABLE_BRUCKNER)
 
 /// IFACE: interface type (this is basically sc_port_b<IFACE>)
