@@ -107,17 +107,10 @@ void smoc_scheduler_top::end_of_simulation() {
 }
 
 void smoc_scheduler_top::before_end_of_elaboration() {
-#ifdef SYSTEMOC_ENABLE_MAESTRO
-  MM::MMAPI* api = MM::MMAPI::getInstance();
-  api->beforeEndOfElaboration();
-#endif
-}
-
-void smoc_scheduler_top::end_of_elaboration() {
   try {
 #ifdef SYSTEMOC_ENABLE_VPC
     SystemC_VPC::Director::getInstance().beforeVpcFinalize();
-
+    
     boost::function<void (SystemC_VPC::ScheduledTask *actor)> callExecute
       = &smoc::Detail::systemcVpcExecute;
     boost::function<bool (SystemC_VPC::ScheduledTask *actor)> callCanExecute
@@ -125,13 +118,11 @@ void smoc_scheduler_top::end_of_elaboration() {
     SystemC_VPC::Director::getInstance().
       registerSysteMoCCallBacks(callExecute, callCanExecute);
 #endif //SYSTEMOC_ENABLE_VPC
-    g->finalise();
-
 #ifdef SYSTEMOC_ENABLE_MAESTRO
     MM::MMAPI* api = MM::MMAPI::getInstance();
-    api->endOfElaboration();
+    api->beforeEndOfElaboration();
 #endif //SYSTEMOC_ENABLE_MAESTRO
-
+    g->finalise();
 #ifdef SYSTEMOC_ENABLE_VPC
     //another finalise to patch the vpcCommTask
     // requires: ports finalised (in root_node::finalise)
@@ -140,6 +131,19 @@ void smoc_scheduler_top::end_of_elaboration() {
     SystemC_VPC::Director::getInstance().endOfVpcFinalize();
     validVpcConfiguration = SystemC_VPC::Director::getInstance().hasValidConfig();
 #endif //SYSTEMOC_ENABLE_VPC
+  } catch (std::exception &e) {
+    std::cerr << "Got exception at smoc_scheduler_top::before_end_of_elaboration():\n\t"
+              << e.what();
+    exit(-1);
+  }
+}
+
+void smoc_scheduler_top::end_of_elaboration() {
+  try {
+#ifdef SYSTEMOC_ENABLE_MAESTRO
+    MM::MMAPI* api = MM::MMAPI::getInstance();
+    api->endOfElaboration();
+#endif //SYSTEMOC_ENABLE_MAESTRO
     g->doReset();
 #ifdef SYSTEMOC_ENABLE_SGX
     if (getSimCTX()->isSMXDumpingPreSimEnabled()) {
