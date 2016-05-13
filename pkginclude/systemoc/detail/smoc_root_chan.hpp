@@ -86,7 +86,7 @@ public:
 #ifndef SYSTEMOC_ENABLE_MAESTROMM_SPEEDUP
   /// @brief Overwrite SystemC name method to provide our own version of channel names.
   const char *name() const
-    { return myName.c_str(); }
+    { assert(myName != ""); return myName.c_str(); }
 #endif //!SYSTEMOC_ENABLE_MAESTROMM_SPEEDUP
 protected:
 
@@ -111,9 +111,9 @@ protected:
   virtual ~smoc_root_chan();
 private:
 #ifdef SYSTEMOC_NEED_IDS
-  // To reflect SystemC name back to NamedIdedObj base class.
+  // To reflect the generated name or SystemC name back to the NamedIdedObj base class.
   const char *_name() const
-    { return this->sc_core::sc_prim_channel::name(); }
+    { return this->name(); }
 #endif // SYSTEMOC_NEED_IDS
 };
 
