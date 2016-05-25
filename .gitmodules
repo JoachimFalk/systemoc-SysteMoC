@@ -1,6 +1,6 @@
 [submodule "maestro"]
 	path = maestro
-	url = ssh://git@codesignrev.informatik.uni-erlangen.de/scd/src/systemoc/Maestro/Testcases.git
+	url = codesign:scd/src/systemoc/Maestro/Testcases.git
 [submodule "vpc"]
 	path = vpc
-	url = ssh://git@codesignrev.informatik.uni-erlangen.de/scd/src/systemoc/SystemC-VPC/Testcases.git
+	url = codesign:scd/src/systemoc/SystemC-VPC/Testcases.git
