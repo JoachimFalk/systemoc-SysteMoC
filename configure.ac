@@ -100,6 +100,7 @@ ACJF_CHECK_LIB_COSUPPORT_STREAMS([[version:>= 1.0]])
 ACJF_CHECK_LIB_COSUPPORT_SMARTPTR([[version:>= 1.0]])
 ACJF_CHECK_LIB_COSUPPORT_MATH([[version:>= 1.0]])
 ACJF_CHECK_LIB_COSUPPORT_ALLOCATORS([[version:>= 1.0]])
+ACJF_CHECK_LIB_COSUPPORT_STRING([[version:>= 1.0]])
 
 ### TRACING ###
 # --enable-transition-trace option
