@@ -12,7 +12,7 @@ includedir=@includedir@
 srctreemode_srcdir=@abs_top_srcdir@
 srctreemode_builddir=@abs_top_builddir@
 srctreemode_libdir=${srctreemode_builddir}
-srctreemode_includedir=${srctreemode_builddir}/pkginclude -I${srctreemode_srcdir}/pkginclude
+srctreemode_includedir=${srctreemode_builddir}/src/systemoc/headers -I${srctreemode_srcdir}/src/systemoc/headers
 
 # pkg-config fields
 # human-readable name

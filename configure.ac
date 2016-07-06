@@ -32,7 +32,7 @@ AC_DEFINE_UNQUOTED([SYSTEMOC_MICRO_VERSION],
   "$SYSTEMOC_MICRO_VERSION",
   [For SysteMoC version x.y.z defined to micro version, e.g., z])
 
-AC_CONFIG_SRCDIR([smoc-core/smoc_root_node.cpp])
+AC_CONFIG_SRCDIR([src/systemoc/cpp/smoc_root_node.cpp])
 AC_CONFIG_AUX_DIR([../BuildSystem])
 AC_CONFIG_MACRO_DIR([../BuildSystem/m4])
 
@@ -65,7 +65,7 @@ if test x"$enable_debug" = x"yes"; then
   AC_DEFINE([SYSTEMOC_ENABLE_DEBUG], [yes], [Defined if debug support is enabled])
 fi
 
-AC_CONFIG_HEADER([config.h pkginclude/systemoc/smoc_config.h])
+AC_CONFIG_HEADER([config.h src/systemoc/headers/systemoc/smoc_config.h])
 
 DX_HTML_FEATURE(ON)
 DX_CHM_FEATURE(OFF)
@@ -116,7 +116,7 @@ AC_ARG_ENABLE(
 )
 
 AM_CONDITIONAL([SYSTEMOC_ENABLE_TRANSITION_TRACE], [test x"$enable_transition_trace" = x"yes"])
-# This is a define for pkginclude/systemoc/smoc_config.h to guarantee
+# This is a define for src/systemoc/headers/systemoc/smoc_config.h to guarantee
 # consistency for Examples and Testcases
 if test x"$enable_transition_trace" = x"yes"; then
   AC_DEFINE([SYSTEMOC_ENABLE_TRANSITION_TRACE], [yes], [Defined if tracing support is enabled])
@@ -135,7 +135,7 @@ AC_ARG_ENABLE(
 )
 
 AM_CONDITIONAL([SYSTEMOC_ENABLE_DATAFLOW_TRACE], [test x"$enable_dataflow_trace" = x"yes"])
-# This is a define for pkginclude/systemoc/smoc_config.h to guarantee
+# This is a define for src/systemoc/headers/systemoc/smoc_config.h to guarantee
 # consistency for Examples and Testcases
 if test x"$enable_dataflow_trace" = x"yes"; then
   AC_DEFINE([SYSTEMOC_ENABLE_DATAFLOW_TRACE], [yes], [Defined if tracing support is enabled])
@@ -155,7 +155,7 @@ AC_ARG_ENABLE(
 )
 
 AM_CONDITIONAL([SYSTEMOC_ENABLE_HOOKING], [test x"$enable_hooking" = x"yes"])
-# This is a define for pkginclude/systemoc/smoc_config.h to guarantee
+# This is a define for src/systemoc/headers/systemoc/smoc_config.h to guarantee
 # consistency for Examples and Testcases
 if test x"$enable_hooking" = x"yes"; then
   AC_DEFINE([SYSTEMOC_ENABLE_HOOKING], [yes], [Defined if hooking infrastructure is provided])
@@ -164,7 +164,7 @@ fi
 SYSTEMOC_OPTIONAL_REQUIRES=""
 ACJF_CHECK_LIB_SGX([enable_sgx=yes], [enable_sgx=no])
 dnl AM_CONDITIONAL([SYSTEMOC_ENABLE_SGX], [test x"$enable_sgx" = x"yes"])
-# This is a define for pkginclude/systemoc/smoc_config.h to guarantee
+# This is a define for src/systemoc/headers/systemoc/smoc_config.h to guarantee
 # consistency for Examples and Testcases
 if test x"$enable_sgx" = x"yes"; then
   AC_DEFINE([SYSTEMOC_ENABLE_SGX], [yes], [Defined if SGX support is enabled])
@@ -173,7 +173,7 @@ fi
 
 ACJF_CHECK_LIB_SYSTEMC_VPC([enable_vpc=yes], [enable_vpc=no])
 dnl AM_CONDITIONAL([SYSTEMOC_ENABLE_VPC], [test x"$enable_vpc" = x"yes"])
-# This is a define for pkginclude/systemoc/smoc_config.h to guarantee
+# This is a define for src/systemoc/headers/systemoc/smoc_config.h to guarantee
 # consistency for Examples and Testcases
 if test x"$enable_vpc" = x"yes"; then
   AC_DEFINE([SYSTEMOC_ENABLE_VPC], [yes], [Defined if SystemC-VPC support is enabled])
@@ -182,7 +182,7 @@ fi
 
 ACJF_CHECK_LIB_MAESTRO_METAMAP([enable_maestro_metamap=yes], [enable_maestro_metamap=no])
 AM_CONDITIONAL([SYSTEMOC_ENABLE_MAESTRO], [test x"$enable_maestro_metamap" = x"yes"])
-# This is a define for pkginclude/systemoc/smoc_config.h to guarantee
+# This is a define for src/systemoc/headers/systemoc/smoc_config.h to guarantee
 # consistency for Examples and Testcases
 if test x"$enable_maestro_metamap" = x"yes"; then
   AC_DEFINE([SYSTEMOC_ENABLE_MAESTRO], [yes], [Defined if Maestro MetaMap library support is enabled])
@@ -192,7 +192,7 @@ AC_SUBST([SYSTEMOC_OPTIONAL_REQUIRES])
 
 AC_CONFIG_FILES([
   Makefile
-  pkginclude/Makefile
+  src/systemoc/headers/Makefile
   pkgconfig/libsystemoc.pc
 ])
 
