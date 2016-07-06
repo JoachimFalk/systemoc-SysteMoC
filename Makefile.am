@@ -23,14 +23,14 @@
 include $(auxdir)/jfrules.mk
 include ../BuildSystem/doxygen.am
 
-SUBDIRS = pkginclude
+SUBDIRS = src/systemoc/headers
 
 # This is only needed if there is a configure.in in this directory
 ACLOCAL_AMFLAGS=-I ../BuildSystem/m4
 
 AM_CPPFLAGS= @AM_CPPFLAGS@ \
-	-Ipkginclude \
-	-I$(srcdir)/pkginclude
+	-Isrc/systemoc/headers \
+	-I$(srcdir)/src/systemoc/headers
 
 AM_LDFLAGS = @AM_LDFLAGS@
 
@@ -50,32 +50,32 @@ CLEANFILES=$(nodist_pkgconfig_DATA)
 lib_LTLIBRARIES = libsystemoc.la
 
 libsystemoc_la_SOURCES = \
-	smoc-core/IOPattern.cpp \
-	smoc-core/IdPool.cpp \
-	smoc-core/TraceLog.cpp \
-	smoc-core/VpcInterface.cpp \
-	smoc-core/smoc_simulation_ctx.cpp \
-	smoc-core/smoc_hooking.cpp \
-	smoc-core/smoc_main.cpp \
-	smoc-core/smoc_elab_and_sim.cpp \
-	smoc-core/smoc_fifo.cpp \
-	smoc-core/smoc_multiplex_fifo.cpp \
-	smoc-core/smoc_multireader_fifo.cpp \
-	smoc-core/LatencyQueue.cpp \
-	smoc-core/smoc_multicast_sr_signal.cpp \
-	smoc-core/smoc_reset.cpp \
-	smoc-core/smoc_graph_type.cpp \
-	smoc-core/smoc_graph_tt.cpp \
-	smoc-core/smoc_actor.cpp \
-	smoc-core/smoc_root_node.cpp \
-	smoc-core/smoc_sysc_port.cpp \
-	smoc-core/smoc_firing_rules.cpp \
-	smoc-core/smoc_chan_if.cpp \
-	smoc-core/smoc_root_chan.cpp \
-	smoc-core/smoc_moc.cpp \
-	smoc-core/SMXDumper.cpp \
-	smoc-core/smoc_func_call.cpp \
-	smoc-core/smoc_debug_stream.cpp
+	src/systemoc/cpp/IOPattern.cpp \
+	src/systemoc/cpp/IdPool.cpp \
+	src/systemoc/cpp/TraceLog.cpp \
+	src/systemoc/cpp/VpcInterface.cpp \
+	src/systemoc/cpp/smoc_simulation_ctx.cpp \
+	src/systemoc/cpp/smoc_hooking.cpp \
+	src/systemoc/cpp/smoc_main.cpp \
+	src/systemoc/cpp/smoc_elab_and_sim.cpp \
+	src/systemoc/cpp/smoc_fifo.cpp \
+	src/systemoc/cpp/smoc_multiplex_fifo.cpp \
+	src/systemoc/cpp/smoc_multireader_fifo.cpp \
+	src/systemoc/cpp/LatencyQueue.cpp \
+	src/systemoc/cpp/smoc_multicast_sr_signal.cpp \
+	src/systemoc/cpp/smoc_reset.cpp \
+	src/systemoc/cpp/smoc_graph_type.cpp \
+	src/systemoc/cpp/smoc_graph_tt.cpp \
+	src/systemoc/cpp/smoc_actor.cpp \
+	src/systemoc/cpp/smoc_root_node.cpp \
+	src/systemoc/cpp/smoc_sysc_port.cpp \
+	src/systemoc/cpp/smoc_firing_rules.cpp \
+	src/systemoc/cpp/smoc_chan_if.cpp \
+	src/systemoc/cpp/smoc_root_chan.cpp \
+	src/systemoc/cpp/smoc_moc.cpp \
+	src/systemoc/cpp/SMXDumper.cpp \
+	src/systemoc/cpp/smoc_func_call.cpp \
+	src/systemoc/cpp/smoc_debug_stream.cpp
 #	smoc_ngx_sync.cpp
 
 libsystemoc_la_CPPFLAGS = $(AM_CPPFLAGS) \
