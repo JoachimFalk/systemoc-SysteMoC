@@ -1,17 +1,16 @@
 // vim: set syntax=groovy sts=2 ts=8 et:
 
-import de.jfalk.GradleJFPlugins.JFHelperFunctions;
-import de.jfalk.GradleJFPlugins.JFCppPlugin;
+import de.jfalk.gradle.JFHelperFunctions;
 
+apply plugin: 'de.jfalk.gradle.cpp'
 apply plugin: JFHelperFunctions;
-apply plugin: JFCppPlugin;
 
 //apply plugin: 'cpp' replaced by JFCppPlugin
 apply plugin: 'visual-studio'
 //apply plugin: 'eclipse'
 //apply plugin: 'eclipse-cdt' <= This does not really work at the moment
 
-// this is a project
+// Here, ``this'' is the current org.gradle.api.Project
 this.buildDir = 'obj'
 
 model {
