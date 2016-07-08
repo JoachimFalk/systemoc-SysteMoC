@@ -1,0 +1,118 @@
+// vim: set syntax=groovy sts=2 ts=8 et:
+
+import de.jfalk.GradleJFPlugins.JFHelperFunctions;
+import de.jfalk.GradleJFPlugins.JFCppPlugin;
+
+apply plugin: JFHelperFunctions;
+apply plugin: JFCppPlugin;
+
+//apply plugin: 'cpp' replaced by JFCppPlugin
+apply plugin: 'visual-studio'
+//apply plugin: 'eclipse'
+//apply plugin: 'eclipse-cdt' <= This does not really work at the moment
+
+// this is a project
+this.buildDir = 'obj'
+
+model {
+  buildTypes {
+    debug
+    release
+  }
+  flavors {
+    hix
+    hax
+  }
+  components {
+    "systemoc"(JFNativeLibrarySpec) {
+      sources {
+        cpp {
+          source {
+            srcDirs "src/systemoc/cpp"
+//          include "**/*.cpp"
+          }
+          exportedHeaders {
+            srcDirs "src/systemoc/headers"
+          }
+          lib project: ':PrebuiltLibraries', library: "boost_headers", exportHeaders: true
+          lib project: ':PrebuiltLibraries', library: "boost_program_options"
+          lib project: ':Support', library: "cosupport-systemc"
+          lib project: ':Support', library: "cosupport-tracing"
+          lib project: ':Support', library: "cosupport-streams"
+          lib project: ':Support', library: "cosupport-smartptr"
+          lib project: ':Support', library: "cosupport-allocators"
+          lib project: ':Support', library: "cosupport-math"
+          lib project: ':Support', library: "cosupport-string"
+        }
+      }
+      binaries.all {
+        if (flavor == flavors.hix) {
+          cppCompiler.define "FLUMMY_DEFINE"
+        } else if (flavor == flavors.hix) {
+          cppCompiler.define "FLAMMY_DEFINE"
+        }
+      }
+    }
+  }
+  binaries {
+    all {
+//    println "YYYY: class: " + it.class + ", name: " + it.name
+//    for (NativeDependencySet lib : it.getBackingNode().getPrivateData().libs) {
+//      println "YYYY:    lib.class: " + lib.getClass();
+//    }
+//    for (LanguageSourceSet foo : it.getInputs()) {
+//      println "YYYY:  foo.class: " + foo.getClass();
+//    }
+//    for (LanguageSourceSet foo : it.getInputs()) {
+//      println "YYYY:  foo.class: " + foo.getClass();
+//    }
+
+//    analysis("binary", it)
+//    println "TOOLCHAIN: " + toolChain
+      // Specify toolchain-agnostic stuff
+      if (buildType.name == 'release') {
+        cppCompiler.define "NDEBUG"
+      }
+//    cppCompiler.define "COSUPPORT_DLL_IMPORT"
+      // Define toolchain-specific compiler and linker options
+      if (toolChain in VisualCpp) {
+        // Enable standard C++ exception for visual studio
+        cppCompiler.args "/EHsc" //, '/I"C:/Program Files (x86)/Windows Kits/10/Include/10.0.10586.0/ucrt/"'
+        linker.args "/LIBPATH:" + rootProject.childProjects.get('PrebuiltLibraries').projectDir + "\\i686-msvc120-win\\libboost-1_55\\lib"
+        if (buildType.name == 'debug') {
+          cppCompiler.args "/Z7", "/MDd"
+          linker.args "/DEBUG"
+        } else {
+          cppCompiler.args "/MD"
+        }
+      } else if (toolChain in Gcc) {
+        cppCompiler.args "-Wall", "-std=gnu++11"
+        cCompiler.args "-Wall", "-std=gnu99"
+        linker.args "-Xlinker", "-S"
+        if (buildType.name == 'debug') {
+          cppCompiler.args "-ggdb"
+          cCompiler.args "-ggdb"
+        } else {
+          cppCompiler.args "-O2"
+          cCompiler.args "-O2"
+        }
+      }
+    }
+    // For any shared library binaries built with Visual C++, define the DLL_EXPORT macro
+    withType(SharedLibraryBinarySpec) {
+      if (toolChain in VisualCpp) {
+        def dllExportDefine = it.component.name.toUpperCase().inject("") {
+            result, c -> c >= 'A' && c <= 'Z' ? result + c : result + '_'
+          } + "_DLL_EXPORT"
+//      println "FLUMMY: " + dllExportDefine
+        cppCompiler.define dllExportDefine
+      }
+    }
+    withType(SharedLibraryBinarySpec) {
+      cppCompiler.define "COSUPPORT_DLL_IMPORT"
+    }
+    withType(NativeExecutableBinarySpec) {
+      cppCompiler.define "COSUPPORT_DLL_IMPORT"
+    }
+  }
+}
