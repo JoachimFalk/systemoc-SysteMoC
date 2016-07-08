@@ -33,15 +33,15 @@ model {
           exportedHeaders {
             srcDirs "src/systemoc/headers"
           }
-          lib project: ':PrebuiltLibraries', library: "boost_headers", exportHeaders: true
-          lib project: ':PrebuiltLibraries', library: "boost_program_options"
-          lib project: ':Support', library: "cosupport-systemc"
-          lib project: ':Support', library: "cosupport-tracing"
-          lib project: ':Support', library: "cosupport-streams"
-          lib project: ':Support', library: "cosupport-smartptr"
-          lib project: ':Support', library: "cosupport-allocators"
-          lib project: ':Support', library: "cosupport-math"
-          lib project: ':Support', library: "cosupport-string"
+          lib project: ':PrebuiltLibraries', library: "boost_headers", flavor: "default", exportHeaders: true
+          lib project: ':PrebuiltLibraries', library: "boost_program_options", flavor: "default"
+          lib project: ':Support', library: "cosupport-systemc", flavor: "default"
+          lib project: ':Support', library: "cosupport-tracing", flavor: "default"
+          lib project: ':Support', library: "cosupport-streams", flavor: "default"
+          lib project: ':Support', library: "cosupport-smartptr", flavor: "default"
+          lib project: ':Support', library: "cosupport-allocators", flavor: "default"
+          lib project: ':Support', library: "cosupport-math", flavor: "default"
+          lib project: ':Support', library: "cosupport-string", flavor: "default"
         }
       }
       binaries.all {
