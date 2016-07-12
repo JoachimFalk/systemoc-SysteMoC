@@ -19,35 +19,64 @@ model {
     release
   }
   flavors {
-    hix
-    hax
+    create('default')
+    sgx
+    vpc
+    maestro
+    create('sgx-vpc')
+    create('sgx-maestro')
   }
   components {
     "systemoc"(JFNativeLibrarySpec) {
       sources {
         cpp {
           source {
-            srcDirs "src/systemoc/cpp"
-//          include "**/*.cpp"
+            exclude "**/*"
           }
-          exportedHeaders {
-            srcDirs "src/systemoc/headers"
-          }
-          lib project: ':PrebuiltLibraries', library: "boost_headers", flavor: "default", exportHeaders: true
-          lib project: ':PrebuiltLibraries', library: "boost_program_options", flavor: "default"
-          lib project: ':Support', library: "cosupport-systemc", flavor: "default"
-          lib project: ':Support', library: "cosupport-tracing", flavor: "default"
-          lib project: ':Support', library: "cosupport-streams", flavor: "default"
-          lib project: ':Support', library: "cosupport-smartptr", flavor: "default"
-          lib project: ':Support', library: "cosupport-allocators", flavor: "default"
-          lib project: ':Support', library: "cosupport-math", flavor: "default"
-          lib project: ':Support', library: "cosupport-string", flavor: "default"
+//        exportedHeaders {
+//          srcDirs "src/systemoc/headers"
+//        }
         }
       }
       binaries.all {
-        if (flavor == flavors.hix) {
+        def binary = it
+        sources {
+          cpp(JFCppSourceSet) {
+            source {
+              srcDirs "src/systemoc/cpp"
+              srcDirs "src/systemoc/headers-connfig"
+              include "**/*.cpp"
+            }
+            exportedHeaders {
+              srcDirs "src/systemoc/headers"
+              srcDirs "src/systemoc/headers-connfig"
+            }
+            if (binary.flavor == flavors.vpc) {
+              println "flavors.vpc"
+            } else if (binary.flavor == flavors.maestro) {
+              println "flavors.maestro"
+            }
+            lib project: ':PrebuiltLibraries', library: "boost_headers", flavor: "default", exportHeaders: true
+            lib project: ':PrebuiltLibraries', library: "boost_program_options", flavor: "default"
+            lib project: ':Support', library: "cosupport-systemc", flavor: "default"
+            lib project: ':Support', library: "cosupport-tracing", flavor: "default"
+            lib project: ':Support', library: "cosupport-streams", flavor: "default"
+            lib project: ':Support', library: "cosupport-smartptr", flavor: "default"
+            lib project: ':Support', library: "cosupport-allocators", flavor: "default"
+            lib project: ':Support', library: "cosupport-math", flavor: "default"
+            lib project: ':Support', library: "cosupport-string", flavor: "default"
+          }
+        }
+//      tasks.withType(CppCompile) {
+//        includes "src/systemoc/headers-connfig"
+//      }
+        if (flavor == flavors.vpc) {
           cppCompiler.define "FLUMMY_DEFINE"
-        } else if (flavor == flavors.hix) {
+        } else if (flavor == flavors.maestro) {
+          cppCompiler.define "FLAMMY_DEFINE"
+        } else if (flavor == flavors.'sgx-vpc') {
+          cppCompiler.define "FLUMMY_DEFINE"
+        } else if (flavor == flavors.'sgx-maestro') {
           cppCompiler.define "FLAMMY_DEFINE"
         }
       }
