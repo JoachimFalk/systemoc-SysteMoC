@@ -22,7 +22,7 @@ class GenerateSysteMoCConfigH extends DefaultTask {
 
   @TaskAction
   void generateSysteMoCConfigH() {
-    def m = templateFile.path =~ /\/headers\/(.*)\.in$/
+    def m = templateFile.path =~ /[\/\\]headers[\/\\](.*)\.in$/
     assert m instanceof Matcher
     assert m
     File output = new File(headerDir, m.group(1))
@@ -168,9 +168,11 @@ model {
     }
     withType(SharedLibraryBinarySpec) {
       cppCompiler.define "COSUPPORT_DLL_IMPORT"
+      cppCompiler.define "BOOST_ALL_DYN_LINK"
     }
     withType(NativeExecutableBinarySpec) {
       cppCompiler.define "COSUPPORT_DLL_IMPORT"
+      cppCompiler.define "BOOST_ALL_DYN_LINK"
     }
   }
 }
