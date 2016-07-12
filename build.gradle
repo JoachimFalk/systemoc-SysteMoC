@@ -13,6 +13,28 @@ apply plugin: 'visual-studio'
 // Here, ``this'' is the current org.gradle.api.Project
 this.buildDir = 'obj'
 
+import java.util.regex.Matcher 
+
+class GenerateSysteMoCConfigH extends DefaultTask {
+  @InputFile       File templateFile
+  @OutputDirectory File headerDir
+  @OutputDirectory File sourceDir
+
+  @TaskAction
+  void generateSysteMoCConfigH() {
+    def m = templateFile.path =~ /\/headers\/(.*)\.in$/
+    assert m instanceof Matcher
+    assert m
+    File output = new File(headerDir, m.group(1))
+    output.parentFile.mkdirs()
+    output.text = '';
+    templateFile.eachLine { line ->
+//    String quotedLine = line.replaceAll(/["\\]/) { c -> '\\'+c }
+      output.append(line+"\n")
+    }
+  }
+}
+
 model {
   buildTypes {
     debug
@@ -39,17 +61,18 @@ model {
         }
       }
       binaries.all {
-        def binary = it
+        def binary          = it
+        def configHeaderDir = new File(namingScheme.getOutputDirectory(new File(buildDir, "src")), "headers")
         sources {
           cpp(JFCppSourceSet) {
             source {
               srcDirs "src/systemoc/cpp"
-              srcDirs "src/systemoc/headers-connfig"
+//            srcDirs "src/systemoc/headers-connfig"
               include "**/*.cpp"
             }
             exportedHeaders {
               srcDirs "src/systemoc/headers"
-              srcDirs "src/systemoc/headers-connfig"
+              srcDirs configHeaderDir
             }
             if (binary.flavor == flavors.vpc) {
               println "flavors.vpc"
@@ -66,6 +89,13 @@ model {
             lib project: ':Support', library: "cosupport-math", flavor: "default"
             lib project: ':Support', library: "cosupport-string", flavor: "default"
           }
+        }
+        tasks.create(tasks.taskName('configHeaderGeneration'), GenerateSysteMoCConfigH.class) { task ->
+          sources.cpp.generatedBy task
+          task.description  = "Wrap xsd and dtd files in testlog/xerces into c files for consumption by the test_xerces application."
+          task.templateFile = project.file("src/systemoc/headers/systemoc/smoc_config.h.in")
+          task.headerDir    = configHeaderDir
+          task.sourceDir    = configHeaderDir
         }
 //      tasks.withType(CppCompile) {
 //        includes "src/systemoc/headers-connfig"
