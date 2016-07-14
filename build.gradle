@@ -74,11 +74,11 @@ model {
               srcDirs "src/systemoc/headers"
               srcDirs configHeaderDir
             }
-            if (binary.flavor == flavors.vpc) {
-              println "flavors.vpc"
-            } else if (binary.flavor == flavors.maestro) {
-              println "flavors.maestro"
-            }
+//          if (binary.flavor == flavors.vpc) {
+//            println "flavors.vpc"
+//          } else if (binary.flavor == flavors.maestro) {
+//            println "flavors.maestro"
+//          }
             lib project: ':PrebuiltLibraries', library: "boost_headers", flavor: "default", exportHeaders: true
             lib project: ':PrebuiltLibraries', library: "boost_program_options", flavor: "default"
             lib project: ':Support', library: "cosupport-systemc", flavor: "default"
@@ -168,10 +168,12 @@ model {
     }
     withType(SharedLibraryBinarySpec) {
       cppCompiler.define "COSUPPORT_DLL_IMPORT"
+      cppCompiler.define "SYSTEMC_DLL_IMPORT"
       cppCompiler.define "BOOST_ALL_DYN_LINK"
     }
     withType(NativeExecutableBinarySpec) {
       cppCompiler.define "COSUPPORT_DLL_IMPORT"
+      cppCompiler.define "SYSTEMC_DLL_IMPORT"
       cppCompiler.define "BOOST_ALL_DYN_LINK"
     }
   }

@@ -3,6 +3,8 @@
 #ifndef _INCLUDED_SYSTEMOC_SMOC_CONFIG_H
 #define _INCLUDED_SYSTEMOC_SMOC_CONFIG_H
 
+#include <smoc/detail/export_config.h>
+
 /* Defined to SysteMoC version */
 #undef SYSTEMOC_VERSION
 #undef SYSTEMOC_MAJOR_VERSION
