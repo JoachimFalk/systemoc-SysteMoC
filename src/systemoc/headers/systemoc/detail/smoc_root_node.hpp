@@ -138,11 +138,8 @@ private:
   std::list<smoc::Hook::Detail::TransitionHook> transitionHooks;
 #endif //SYSTEMOC_ENABLE_HOOKING
 
-#ifdef SYSTEMOC_ENABLE_MAESTRO
-public:
-#endif //SYSTEMOC_ENABLE_MAESTRO
   /// @brief Initial firing state
-  smoc_hierarchical_state &initialState;
+  smoc_hierarchical_state::Ptr initialState;
 
 public:
 #ifdef SYSTEMOC_ENABLE_MAESTRO
@@ -167,7 +164,6 @@ private:
   void renotified(smoc::smoc_event_waiter *e);
 
 protected:
-  //smoc_root_node(const smoc_firing_state &s);
   smoc_root_node(sc_core::sc_module_name, NodeType nodeType, smoc_hierarchical_state &s);
   
   friend class smoc_graph_base;
@@ -244,6 +240,8 @@ protected:
     constrArgs(name, t);
   }
 
+  void setInitialState(smoc_hierarchical_state &s);
+
 public:
   /// Function to determine if the current node is an actor or a graph
   /// to avoid expensive RTTI dynamic_cast calls
@@ -251,7 +249,7 @@ public:
     { return nodeType == NODE_TYPE_ACTOR; }
 
   FiringFSMImpl *getFiringFSM() const
-    { return initialState.getImpl()->getFiringFSM(); }
+    { return CoSupport::DataTypes::FacadeCoreAccess::getImpl(initialState)->getFiringFSM(); }
 
   RuntimeState *getCurrentState() const
     { return currentState; }

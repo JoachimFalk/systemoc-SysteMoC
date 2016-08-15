@@ -108,6 +108,8 @@ protected:
   explicit smoc_firing_state_base(_StorageType const &x): FFType(x) {}
   smoc_firing_state_base(SmartPtr const &p);
 public:
+  ImplType *getImpl() const;
+
   /// @brief Add transitions to state
   void addTransition(const smoc_transition_list &tl);
 
@@ -136,9 +138,6 @@ protected:
   this_type& operator=(const this_type &);
 
 public:
-
-  this_type& clone(const this_type &);
-
   ImplType *getImpl() const;
   using smoc_firing_state_base::operator=;
 
