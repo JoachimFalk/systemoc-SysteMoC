@@ -88,6 +88,7 @@ model {
             lib project: ':Support', library: "cosupport-allocators", flavor: "default"
             lib project: ':Support', library: "cosupport-math", flavor: "default"
             lib project: ':Support', library: "cosupport-string", flavor: "default"
+            exportedCompilerArgs.define "FLIMMY_DEFINE=4711"
           }
         }
         tasks.create(tasks.taskName('configHeaderGeneration'), GenerateSysteMoCConfigH.class) { task ->
@@ -101,13 +102,13 @@ model {
 //        includes "src/systemoc/headers-connfig"
 //      }
         if (flavor == flavors.vpc) {
-          cppCompiler.define "FLUMMY_DEFINE"
+          cppCompiler.define "FLOMMY_DEFINE=\"vpc\""
         } else if (flavor == flavors.maestro) {
-          cppCompiler.define "FLAMMY_DEFINE"
+          cppCompiler.define "FLOMMY_DEFINE=\"maestro\""
         } else if (flavor == flavors.'sgx-vpc') {
-          cppCompiler.define "FLUMMY_DEFINE"
+          cppCompiler.define "FLOMMY_DEFINE=\"sgx-vpc\""
         } else if (flavor == flavors.'sgx-maestro') {
-          cppCompiler.define "FLAMMY_DEFINE"
+          cppCompiler.define "FLOMMY_DEFINE=\"sgx-maestro\""
         }
       }
     }
