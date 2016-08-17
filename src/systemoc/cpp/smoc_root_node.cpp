@@ -59,7 +59,7 @@ smoc_root_node::smoc_root_node(sc_core::sc_module_name name, NodeType nodeType, 
   , commState(new RuntimeState())
   , diiEvent(new smoc::smoc_vpc_event())
 #endif // SYSTEMOC_ENABLE_VPC
-  , initialState(s.toPtr())
+  , initialState(s)
 #ifdef SYSTEMOC_ENABLE_MAESTRO
   , scheduled(false)
 #endif //SYSTEMOC_ENABLE_MAESTRO
@@ -96,7 +96,9 @@ void smoc_root_node::finalise() {
   ct = 0;
 
   getFiringFSM()->finalise(this,
-    CoSupport::DataTypes::FacadeCoreAccess::getImpl(initialState));
+    initialStatePtr
+    ? CoSupport::DataTypes::FacadeCoreAccess::getImpl(initialStatePtr)
+    : CoSupport::DataTypes::FacadeCoreAccess::getImpl(initialState));
   
 #ifdef SYSTEMOC_DEBUG
   outDbg << Indent::Down << "</smoc_root_node::finalise>" << std::endl;
@@ -247,7 +249,7 @@ void smoc_root_node::eventDestroyed(smoc::smoc_event_waiter *e) {
 }
 
 void smoc_root_node::setInitialState(smoc_hierarchical_state &s) {
-  initialState = s.toPtr();
+  initialStatePtr = s.toPtr();
 }
 
 void smoc_root_node::setCurrentState(RuntimeState *s) {

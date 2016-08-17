@@ -139,8 +139,8 @@ private:
 #endif //SYSTEMOC_ENABLE_HOOKING
 
   /// @brief Initial firing state
-  smoc_hierarchical_state::Ptr initialState;
-
+  smoc_hierarchical_state      &initialState;
+  smoc_hierarchical_state::Ptr  initialStatePtr;
 public:
 #ifdef SYSTEMOC_ENABLE_MAESTRO
   /**
