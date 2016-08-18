@@ -3,7 +3,7 @@
 <configuration id="org.eclipse.linuxtools.cdt.autotools.core.configuration.build.55389389">
 <option id="configure" value="configure"/>
 <option id="configdir" value=""/>
-<option id="cache-file" value="../../config.cache"/>
+<option id="cache-file" value="${workspace_loc}/obj/config.cache"/>
 <option id="help" value="false"/>
 <option id="no-create" value="false"/>
 <option id="quiet" value="false"/>
@@ -21,7 +21,7 @@
 <option id="sysconfdir" value=""/>
 <option id="infodir" value=""/>
 <option id="mandir" value=""/>
-<option id="srcdir" value=""/>
+<option id="srcdir" value="${workspace_loc}/Examples/SysteMoC-Tutorial"/>
 <option id="localstatedir" value=""/>
 <option id="sharedstatedir" value=""/>
 <option id="libexecdir" value=""/>
@@ -30,7 +30,7 @@
 <option id="program-suffix" value=""/>
 <option id="program-transform-name" value=""/>
 <option id="enable-maintainer-mode" value="false"/>
-<flag id="CFLAGS">
+<flag id="CFLAGS" value="CFLAGS|CXXFLAGS">
 <flagvalue id="cflags-debug" value="false"/>
 <flagvalue id="cflags-gprof" value="false"/>
 <flagvalue id="cflags-gcov" value="false"/>
