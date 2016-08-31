@@ -60,7 +60,7 @@
 #include <systemoc/smoc_config.h>
 
 #include "smoc_event.hpp"
-#include <systemoc/detail/smoc_debug_stream.hpp>
+#include "detail/DebugOStream.hpp"
 #include "detail/IOPattern.hpp"
 
 #ifdef SYSTEMOC_ENABLE_VPC
@@ -191,7 +191,7 @@ namespace smoc { namespace Detail {
     typedef ActivationStatus this_type;
 #ifdef SYSTEMOC_DEBUG
     friend std::ostream &operator <<(std::ostream &, this_type);
-#endif
+#endif //defined(SYSTEMOC_DEBUG)
   private:
     _XXX value;
   public:
@@ -213,6 +213,8 @@ namespace smoc { namespace Detail {
     _XXX toSymbol() const
       { return value; }
   };
+
+  std::ostream &operator <<(std::ostream &out, ActivationStatus s);
 
   template <typename T>
   class ExprVisitor {
@@ -325,9 +327,11 @@ public:
 
   static inline
   result_type apply(const E &e, Detail::IOPattern &ap) {
-//#ifdef SYSTEMOC_DEBUG
-//    outDbg << EXPR << "Sensitivity<E>::apply(...) al == " << al << std::endl << INFO;
-//#endif
+#ifdef SYSTEMOC_DEBUG
+    if (Detail::outDbg.isVisible(Detail::Debug::Low)) {
+      Detail::outDbg << "Sensitivity<E>::apply(...) ap == " << ap << std::endl;
+    }
+#endif //defined(SYSTEMOC_DEBUG)
   }
 };
 
@@ -495,16 +499,20 @@ public:
   static inline
   result_type apply(const DVirtual <T> &e, smoc::Detail::VpcInterface vpcIf) {
 # ifdef SYSTEMOC_DEBUG
-    outDbg << EXPR << "CommExec<DVirtual<T> >::apply(e)" << std::endl << INFO;
-# endif
+    if (Detail::outDbg.isVisible(Detail::Debug::Low)) {
+      Detail::outDbg << "CommExec<DVirtual<T> >::apply(e)" << std::endl;
+    }
+# endif //defined(SYSTEMOC_DEBUG)
     return e.v->evalToCommExec(vpcIf);
   }
 #else //!defined(SYSTEMOC_ENABLE_VPC)
   static inline
   result_type apply(const DVirtual <T> &e) {
 # ifdef SYSTEMOC_DEBUG
-    outDbg << EXPR << "CommExec<DVirtual<T> >::apply(e)" << std::endl << INFO;
-# endif
+    if (Detail::outDbg.isVisible(Detail::Debug::Low)) {
+      Detail::outDbg << "CommExec<DVirtual<T> >::apply(e)" << std::endl;
+    }
+# endif //defined(SYSTEMOC_DEBUG)
     return e.v->evalToCommExec();
   }
 #endif //!defined(SYSTEMOC_ENABLE_VPC)
@@ -520,8 +528,10 @@ public:
   static inline
   result_type apply(const DVirtual <T> &e) {
 # ifdef SYSTEMOC_DEBUG
-    outDbg << EXPR << "CommReset<DVirtual<T> >::apply(e)" << std::endl << INFO;
-# endif
+    if (Detail::outDbg.isVisible(Detail::Debug::Low)) {
+      Detail::outDbg << "CommReset<DVirtual<T> >::apply(e)" << std::endl;
+    }
+# endif //defined(SYSTEMOC_DEBUG)
     return e.v->evalToCommReset();
   }
 };
@@ -535,8 +545,10 @@ public:
   static inline
   result_type apply(const DVirtual <T> &e) {
 # ifdef SYSTEMOC_DEBUG
-    outDbg << EXPR << "CommSetup<DVirtual<T> >::apply(e)" << std::endl << INFO;
-# endif
+    if (Detail::outDbg.isVisible(Detail::Debug::Low)) {
+      Detail::outDbg << "CommSetup<DVirtual<T> >::apply(e)" << std::endl;
+    }
+# endif //defined(SYSTEMOC_DEBUG)
     return e.v->evalToCommSetup();
   }
 };
@@ -553,9 +565,11 @@ public:
 
   static inline
   result_type apply(const DVirtual <T> &e, Detail::IOPattern &ap) {
-//#ifdef SYSTEMOC_DEBUG
-//    outDbg << EXPR << "Sensitivity<DVirtual<T> >::apply(e, al)" << std::endl << INFO;
-//#endif
+#ifdef SYSTEMOC_DEBUG
+    if (Detail::outDbg.isVisible(Detail::Debug::Low)) {
+      Detail::outDbg << "Sensitivity<DVirtual<T> >::apply(e, al)" << std::endl;
+    }
+#endif //defined(SYSTEMOC_DEBUG)
     return e.v->evalToSensitivity(ap);
   }
 };
@@ -842,12 +856,13 @@ struct Sensitivity<DSMOCEvent> {
 
   static inline
   void apply(const DSMOCEvent &e, Detail::IOPattern &ap) {
-    /// add (plain) event used in activation patterns (especially Expr::till)
+    // add (plain) event used in activation patterns (especially Expr::till)
     ap.addEvent(e.v);
-
-//#ifdef SYSTEMOC_DEBUG
-//    outDbg << EXPR << "Sensitivity<DSMOCEvent>::apply(...) al == " << al << std::endl << INFO;
-//#endif
+#ifdef SYSTEMOC_DEBUG
+    if (Detail::outDbg.isVisible(Detail::Debug::Low)) {
+      Detail::outDbg << "Sensitivity<DSMOCEvent>::apply(...) ap == " << ap << std::endl;
+    }
+#endif //defined(SYSTEMOC_DEBUG)
   }
 };
 
@@ -956,8 +971,10 @@ public:
     smoc::Detail::VpcInterface vpcIf)
   {
 # ifdef SYSTEMOC_DEBUG
-    outDbg << EXPR << "CommExec<DBinOp<A,B,OpBinT::LAnd> >::apply(e)" << std::endl << INFO;
-# endif
+    if (Detail::outDbg.isVisible(Detail::Debug::Low)) {
+      Detail::outDbg << "CommExec<DBinOp<A,B,OpBinT::LAnd> >::apply(e)" << std::endl;
+    }
+# endif //defined(SYSTEMOC_DEBUG)
     OpT::apply(e.a, e.b, vpcIf);
   }
 #else // !defined(SYSTEMOC_ENABLE_VPC)
@@ -965,8 +982,10 @@ public:
   result_type apply(const DBinOp<A,B,Expr::OpBinT::LAnd> &e)
   {
 # ifdef SYSTEMOC_DEBUG
-    outDbg << EXPR << "CommExec<DBinOp<A,B,OpBinT::LAnd> >::apply(e)" << std::endl << INFO;
-# endif
+    if (Detail::outDbg.isVisible(Detail::Debug::Low)) {
+      Detail::outDbg << "CommExec<DBinOp<A,B,OpBinT::LAnd> >::apply(e)" << std::endl;
+    }
+# endif //defined(SYSTEMOC_DEBUG)
     OpT::apply(e.a, e.b);
   }
 #endif // !defined(SYSTEMOC_ENABLE_VPC)
@@ -984,8 +1003,10 @@ public:
   result_type apply(const DBinOp<A,B,Expr::OpBinT::LAnd> &e)
   {
 # ifdef SYSTEMOC_DEBUG
-    outDbg << EXPR << "CommReset<DBinOp<A,B,OpBinT::LAnd> >::apply(e)" << std::endl << INFO;
-# endif
+    if (Detail::outDbg.isVisible(Detail::Debug::Low)) {
+      Detail::outDbg << "CommReset<DBinOp<A,B,OpBinT::LAnd> >::apply(e)" << std::endl;
+    }
+# endif //defined(SYSTEMOC_DEBUG)
     CommReset<A>::apply(e.a);
     CommReset<B>::apply(e.b);
   }
@@ -1001,8 +1022,10 @@ public:
   result_type apply(const DBinOp<A,B,Expr::OpBinT::LAnd> &e)
   {
 # ifdef SYSTEMOC_DEBUG
-    outDbg << EXPR << "CommSetup<DBinOp<A,B,OpBinT::LAnd> >::apply(e)" << std::endl << INFO;
-# endif
+    if (Detail::outDbg.isVisible(Detail::Debug::Low)) {
+      Detail::outDbg << "CommSetup<DBinOp<A,B,OpBinT::LAnd> >::apply(e)" << std::endl;
+    }
+# endif //defined(SYSTEMOC_DEBUG)
     CommSetup<A>::apply(e.a);
     CommSetup<B>::apply(e.b);
   }
@@ -1025,9 +1048,11 @@ public:
   static inline
   void apply(const DBinOp<A,B,Op> &e, Detail::IOPattern &ap) {
     OpT::apply(e.a, e.b, ap);
-//#ifdef SYSTEMOC_DEBUG
-//    outDbg << EXPR << "Sensitivity<DBinOp<A,B,Op>>::apply(...) al == " << al << std::endl << INFO;
-//#endif
+#ifdef SYSTEMOC_DEBUG
+    if (Detail::outDbg.isVisible(Detail::Debug::Low)) {
+      Detail::outDbg << "Sensitivity<DBinOp<A,B,Op>>::apply(...) ap == " << ap << std::endl;
+    }
+#endif //defined(SYSTEMOC_DEBUG)
   }
 };
 
@@ -1340,7 +1365,7 @@ class DUnOpExecute;
 template<typename TE>                                                 \
 struct DUnOpExecute<TE,Op,Value> {                                    \
   typedef DUnOpExecute<TE,Op,Value>   this_type;                      \
-  BOOST_TYPEOF_NESTED_TYPEDEF_TPL(nested, op (*(TE*)(nullptr)))          \
+  BOOST_TYPEOF_NESTED_TYPEDEF_TPL(nested, op (*(TE*)(nullptr)))       \
   typedef typename nested::type result_type;                          \
                                                                       \
   template <class E>                                                  \
@@ -1510,9 +1535,11 @@ struct CommReset<DBinOp<DPortTokens<P>,E,Expr::OpBinT::Ge> >
   result_type apply(const DBinOp<DPortTokens<P>,E,Expr::OpBinT::Ge> &e)
   {
 # ifdef SYSTEMOC_DEBUG
-    outDbg << EXPR << "CommReset<DBinOp<DPortTokens<P>,E,OpBinT::Ge> >"
-                 "::apply(" << e.a.p.name() << ", ... )" << std::endl << INFO;
-# endif
+    if (Detail::outDbg.isVisible(Detail::Debug::Low)) {
+      Detail::outDbg << "CommReset<DBinOp<DPortTokens<P>,E,OpBinT::Ge> >"
+                 "::apply(" << e.a.p.name() << ", ... )" << std::endl;
+    }
+# endif //defined(SYSTEMOC_DEBUG)
     return e.a.p.setLimit(0);
   }
 };
@@ -1526,8 +1553,10 @@ struct CommSetup<DBinOp<DPortTokens<P>,E,Expr::OpBinT::Ge> >
   result_type apply(const DBinOp<DPortTokens<P>,E,Expr::OpBinT::Ge> &e)
   {
 # ifdef SYSTEMOC_DEBUG
-    outDbg << EXPR << "CommSetup<DBinOp<DPortTokens<P>,E,OpBinT::Ge> >"
-                 "::apply(" << e.a.p.name() << ", ... )" << std::endl << INFO;
+    if (Detail::outDbg.isVisible(Detail::Debug::Low)) {
+      Detail::outDbg << "CommSetup<DBinOp<DPortTokens<P>,E,OpBinT::Ge> >"
+                "::apply(" << e.a.p.name() << ", ... )" << std::endl;
+    }
 # endif //defined(SYSTEMOC_DEBUG)
     size_t req = Value<E>::apply(e.b);
 # ifdef SYSTEMOC_ENABLE_DATAFLOW_TRACE
@@ -1624,11 +1653,13 @@ struct Sensitivity<DComm<P,E> >
     smoc_sysc_port& port = comm.p;
     ap.addPortRequirement(port, numberRequiredTokens, blockEvent);
 #ifdef SYSTEMOC_DEBUG
-    outDbg << "Sensitivity: match comm" << std::endl;
-    outDbg << "req: " << numberRequiredTokens << "\t"
-              << blockEvent  << "\t"
-              << &port << std::endl;
-#endif
+    if (Detail::outDbg.isVisible(Detail::Debug::Low)) {
+      Detail::outDbg << "Sensitivity: match comm" << std::endl;
+      Detail::outDbg << "req: " << numberRequiredTokens << "\t"
+                << blockEvent  << "\t"
+                << &port << std::endl;
+    }
+#endif //defined(SYSTEMOC_DEBUG)
   }
 };
 
@@ -1642,9 +1673,10 @@ struct CommExec<DComm<P, E> > {
   result_type apply(const DComm<P, E>                &e,
                     const smoc::Detail::VpcInterface  vpcIf) {
 # ifdef SYSTEMOC_DEBUG
-    outDbg << EXPR << "CommExec<DComm<P, E> >"
-                 "::apply(" << e.p.name() << ", ... )" << std::endl << INFO;
-# endif
+    if (Detail::outDbg.isVisible(Detail::Debug::Low)) {
+      Detail::outDbg << "CommExec<DComm<P, E> >::apply(" << e.p.name() << ", ... )" << std::endl;
+    }
+# endif //defined(SYSTEMOC_DEBUG)
   //std::cerr << "accessCount = " << e.p.getAccessCount() << std::endl;
     e.p.resetAccessCount();
     return e.p.commExec(Value<E>::apply(e.committed), vpcIf);
@@ -1653,9 +1685,10 @@ struct CommExec<DComm<P, E> > {
   static inline
   result_type apply(const DComm<P, E> &e) {
 # ifdef SYSTEMOC_DEBUG
-    outDbg << EXPR << "CommExec<DComm<P, E> >"
-                 "::apply(" << e.p.name() << ", ... )" << std::endl << INFO;
-# endif
+    if (Detail::outDbg.isVisible(Detail::Debug::Low)) {
+      Detail::outDbg << "CommExec<DComm<P, E> >::apply(" << e.p.name() << ", ... )" << std::endl;
+    }
+# endif //defined(SYSTEMOC_DEBUG)
     return e.p.commExec(Value<E>::apply(e.committed));
   }
 #endif //!defined(SYSTEMOC_ENABLE_VPC)

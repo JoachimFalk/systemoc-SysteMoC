@@ -44,7 +44,7 @@
 #include <smoc/smoc_simulation_ctx.hpp>
 #include <smoc/smoc_event.hpp>
 #include <systemoc/smoc_graph_type.hpp>
-#include <systemoc/detail/smoc_debug_stream.hpp>
+#include <smoc/detail/DebugOStream.hpp>
 #ifdef SYSTEMOC_ENABLE_MAESTRO
 # include <Maestro/MetaMap/MAESTRORuntimeException.hpp>
 #endif //SYSTEMOC_ENABLE_MAESTRO
@@ -76,8 +76,10 @@ smoc_root_node::smoc_root_node(sc_core::sc_module_name name, NodeType nodeType, 
 
 void smoc_root_node::finalise() {
 #ifdef SYSTEMOC_DEBUG
-  outDbg << "<smoc_root_node::finalise name=\"" << this->name() << "\">"
-         << std::endl << Indent::Up;
+  if (smoc::Detail::outDbg.isVisible(smoc::Detail::Debug::High)) {
+    smoc::Detail::outDbg << "<smoc_root_node::finalise name=\"" << this->name() << "\">"
+         << std::endl << smoc::Detail::Indent::Up;
+  }
 #endif
   
 #ifdef SYSTEMOC_NEED_IDS
@@ -101,7 +103,9 @@ void smoc_root_node::finalise() {
     : CoSupport::DataTypes::FacadeCoreAccess::getImpl(initialState));
   
 #ifdef SYSTEMOC_DEBUG
-  outDbg << Indent::Down << "</smoc_root_node::finalise>" << std::endl;
+  if (smoc::Detail::outDbg.isVisible(smoc::Detail::Debug::High)) {
+    smoc::Detail::outDbg << smoc::Detail::Indent::Down << "</smoc_root_node::finalise>" << std::endl;
+  }
 #endif
 }
 
@@ -131,8 +135,10 @@ smoc_root_node::~smoc_root_node() {
 
 void smoc_root_node::doReset() {
 #ifdef SYSTEMOC_DEBUG
-  outDbg << "<smoc_root_node::doReset name=\"" << name() << "\">"
-         << std::endl << Indent::Up;
+  if (smoc::Detail::outDbg.isVisible(smoc::Detail::Debug::High)) {
+    smoc::Detail::outDbg << "<smoc_root_node::doReset name=\"" << name() << "\">"
+         << std::endl << smoc::Detail::Indent::Up;
+  }
 #endif // SYSTEMOC_DEBUG
 
   // call user-defined reset code (->re-evaluate guards!!!)
@@ -176,28 +182,36 @@ void smoc_root_node::doReset() {
   }
 
 #ifdef SYSTEMOC_DEBUG
-  outDbg << Indent::Down << "</smoc_root_node::doReset>" << std::endl;
+  if (smoc::Detail::outDbg.isVisible(smoc::Detail::Debug::High)) {
+    smoc::Detail::outDbg << smoc::Detail::Indent::Down << "</smoc_root_node::doReset>" << std::endl;
+  }
 #endif // SYSTEMOC_DEBUG
 }
 
 void smoc_root_node::renotified(smoc::smoc_event_waiter *e) {
 #ifdef SYSTEMOC_DEBUG
-  outDbg << "<smoc_root_node::renotified name=\"" << name() << "\">"
-         << std::endl << Indent::Up;
+  if (smoc::Detail::outDbg.isVisible(smoc::Detail::Debug::High)) {
+    smoc::Detail::outDbg << "<smoc_root_node::renotified name=\"" << name() << "\">"
+         << std::endl << smoc::Detail::Indent::Up;
+  }
 #endif // SYSTEMOC_DEBUG
 
   assert(*e);
   signaled(e);
 
 #ifdef SYSTEMOC_DEBUG
-  outDbg << Indent::Down << "</smoc_root_node::renotified>" << std::endl;
+  if (smoc::Detail::outDbg.isVisible(smoc::Detail::Debug::High)) {
+    smoc::Detail::outDbg << smoc::Detail::Indent::Down << "</smoc_root_node::renotified>" << std::endl;
+  }
 #endif // SYSTEMOC_DEBUG
 }
 
 void smoc_root_node::signaled(smoc::smoc_event_waiter *e) {
 #ifdef SYSTEMOC_DEBUG
-  outDbg << "<smoc_root_node::signaled name=\"" << name() << "\">"
-         << std::endl << Indent::Up;
+  if (smoc::Detail::outDbg.isVisible(smoc::Detail::Debug::High)) {
+    smoc::Detail::outDbg << "<smoc_root_node::signaled name=\"" << name() << "\">"
+         << std::endl << smoc::Detail::Indent::Up;
+  }
 #endif // SYSTEMOC_DEBUG
   if (!executing) {
     // Never execute t->evaluateGuard() if events are reseted as the state of
@@ -240,7 +254,9 @@ void smoc_root_node::signaled(smoc::smoc_event_waiter *e) {
   }
   
 #ifdef SYSTEMOC_DEBUG
-  outDbg << Indent::Down << "</smoc_root_node::signaled>" << std::endl;
+  if (smoc::Detail::outDbg.isVisible(smoc::Detail::Debug::High)) {
+    smoc::Detail::outDbg << smoc::Detail::Indent::Down << "</smoc_root_node::signaled>" << std::endl;
+  }
 #endif // SYSTEMOC_DEBUG
 }
 
@@ -254,8 +270,10 @@ void smoc_root_node::setInitialState(smoc_hierarchical_state &s) {
 
 void smoc_root_node::setCurrentState(RuntimeState *s) {
 #ifdef SYSTEMOC_DEBUG
-  outDbg << "<smoc_root_node::setCurrentState name=\"" << name() << "\">"
-          << std::endl << Indent::Up;
+  if (smoc::Detail::outDbg.isVisible(smoc::Detail::Debug::High)) {
+    smoc::Detail::outDbg << "<smoc_root_node::setCurrentState name=\"" << name() << "\">"
+          << std::endl << smoc::Detail::Indent::Up;
+  }
 #endif // SYSTEMOC_DEBUG
 #ifdef SYSTEMOC_ENABLE_MAESTRO
   if (s == NULL)
@@ -278,15 +296,19 @@ void smoc_root_node::setCurrentState(RuntimeState *s) {
   }
 
 #ifdef SYSTEMOC_DEBUG
-  outDbg << Indent::Down << "</smoc_root_node::setCurrentState>" << std::endl;
+  if (smoc::Detail::outDbg.isVisible(smoc::Detail::Debug::High)) {
+    smoc::Detail::outDbg << smoc::Detail::Indent::Down << "</smoc_root_node::setCurrentState>" << std::endl;
+  }
 #endif // SYSTEMOC_DEBUG
 }
 
 
 void smoc_root_node::schedule() {
 #ifdef SYSTEMOC_DEBUG
-  outDbg << "<smoc_root_node::schedule name=\"" << name() << "\">"
-         << std::endl << Indent::Up;
+  if (smoc::Detail::outDbg.isVisible(smoc::Detail::Debug::High)) {
+    smoc::Detail::outDbg << "<smoc_root_node::schedule name=\"" << name() << "\">"
+         << std::endl << smoc::Detail::Indent::Up;
+  }
 #endif // SYSTEMOC_DEBUG
   
   assert(currentState);
@@ -334,7 +356,9 @@ void smoc_root_node::schedule() {
   }
 
 #ifdef SYSTEMOC_DEBUG
-  outDbg << Indent::Down << "</smoc_root_node::schedule>" << std::endl;
+  if (smoc::Detail::outDbg.isVisible(smoc::Detail::Debug::High)) {
+    smoc::Detail::outDbg << smoc::Detail::Indent::Down << "</smoc_root_node::schedule>" << std::endl;
+  }
 #endif // SYSTEMOC_DEBUG
 }
 
@@ -359,12 +383,12 @@ bool smoc_root_node::testCanFire()
 void smoc_root_node::setActivation(bool activation){
   if(activation) {
 #ifdef SYSTEMOC_DEBUG
-    outDbg << "requested schedule" << std::endl;
+    smoc::Detail::outDbg << "requested schedule" << std::endl;
 #endif // SYSTEMOC_DEBUG
     smoc::smoc_event::notify();
   } else {
 #ifdef SYSTEMOC_DEBUG
-    outDbg << "canceled schedule" << std::endl;
+    smoc::Detail::outDbg << "canceled schedule" << std::endl;
 #endif // SYSTEMOC_DEBUG
     smoc::smoc_event::reset();
   }

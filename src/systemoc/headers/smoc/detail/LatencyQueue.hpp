@@ -36,31 +36,37 @@
 #ifndef _INCLUDED_SMOC_DETAIL_LATENCYQUEUE_HPP
 #define _INCLUDED_SMOC_DETAIL_LATENCYQUEUE_HPP
 
-#include <list>
-
-#include <boost/function.hpp>
-
 #include <systemoc/smoc_config.h>
-#include <systemoc/detail/smoc_root_chan.hpp>
-
-#include "../smoc_event.hpp"
-#include "SimCTXBase.hpp"
-#include "EventQueue.hpp"
 
 #ifdef SYSTEMOC_ENABLE_VPC
-# include <vpc.hpp>
 
+# include "VpcInterface.hpp"
+
+// We need this before #include "EventQueue.hpp"
 namespace smoc { namespace Detail {
 
-class TokenInfo {
-public:
-  TokenInfo(size_t count, smoc::Detail::VpcInterface vpcIf) :
-    count(count), vpcIf(vpcIf) {}
-  size_t                           count;
-  smoc::Detail::VpcInterface   vpcIf;
+struct TokenInfo {
+  TokenInfo(size_t count, smoc::Detail::VpcInterface vpcIf)
+    : count(count), vpcIf(vpcIf) {}
+
+  size_t                      count;
+  smoc::Detail::VpcInterface  vpcIf;
 };
 
-void dump_helper(std::pair<TokenInfo, smoc_vpc_event_p> &e);
+/// This is a helper for EventQueue<TokenInfo>::dump()
+void dump_helper(std::pair<TokenInfo, smoc_vpc_event_p> const &e);
+/// This is a helper for EventQueue<size_t>::dump()
+void dump_helper(std::pair<size_t,    smoc_vpc_event_p> const &e);
+
+} } // namespace smoc::Detail
+
+# include "EventQueue.hpp"
+
+# include "../../systemoc/detail/smoc_root_chan.hpp"
+# include "../smoc_event.hpp"
+# include "SimCTXBase.hpp"
+
+namespace smoc { namespace Detail {
 
 class LatencyQueue: public smoc::Detail::SimCTXBase {
 private:
@@ -85,6 +91,7 @@ public:
   void addEntry(size_t n, const smoc_vpc_event_p &latEvent,
                 smoc::Detail::VpcInterface vpcIf)
     { requestQueue.addEntry(TokenInfo(n, vpcIf), latEvent); }
+
   void dump(){
     std::cerr << &requestQueue << "\trequestQueue: " << std::endl;
     requestQueue.dump();
@@ -94,6 +101,7 @@ public:
 };
 
 } } // namespace smoc::Detail
+
 #endif // SYSTEMOC_ENABLE_VPC
 
 #endif // _INCLUDED_SMOC_DETAIL_LATENCYQUEUE_HPP

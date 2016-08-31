@@ -36,22 +36,20 @@
 #ifndef _INCLUDED_SMOC_DETAIL_EVENTQUEUE_HPP
 #define _INCLUDED_SMOC_DETAIL_EVENTQUEUE_HPP
 
-#include <CoSupport/compatibility-glue/nullptr.h>
-
-#include <list>
-
-#include <boost/function.hpp>
-
 #include <systemoc/smoc_config.h>
 
-#include <smoc/smoc_event.hpp>
-
 #ifdef SYSTEMOC_ENABLE_VPC
+# include <list>
+
+# include <boost/function.hpp>
+
+# include <CoSupport/compatibility-glue/nullptr.h>
+
+# include <smoc/smoc_event.hpp>
+
 # include <vpc.hpp>
 
 namespace smoc { namespace Detail {
-
-void dump_helper(std::pair<size_t, smoc_vpc_event_p> &e);
 
 template<typename T>
 class EventQueue
@@ -141,6 +139,7 @@ public:
 };
 
 } } // namespace smoc::Detail
+
 #endif // SYSTEMOC_ENABLE_VPC
 
 #endif //_INCLUDED_SMOC_DETAIL_EVENTQUEUE_HPP

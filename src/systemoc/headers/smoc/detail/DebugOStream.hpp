@@ -1,7 +1,6 @@
-//  -*- tab-width:8; intent-tabs-mode:nil;  c-basic-offset:2; -*-
-// vim: set sw=2 ts=8:
+// vim: set sw=2 sts=2 ts=8 et syn=cpp:
 /*
- * Copyright (c) 2004-2009 Hardware-Software-CoDesign, University of Erlangen-Nuremberg.
+ * Copyright (c) 2016-2016 Hardware-Software-CoDesign, University of Erlangen-Nuremberg.
  * 
  *   This library is free software; you can redistribute it and/or modify it under
  *   the terms of the GNU Lesser General Public License as published by the Free
@@ -33,37 +32,40 @@
  * ENHANCEMENTS, OR MODIFICATIONS.
  */
 
-#ifndef _INCLUDED_SMOC_DETAIL_DEBUG_STREAM_HPP
-#define _INCLUDED_SMOC_DETAIL_DEBUG_STREAM_HPP
+#ifndef _INCLUDED_SYSTEMOC_DETAIL_DEBUGOSTREAM_HPP
+#define _INCLUDED_SYSTEMOC_DETAIL_DEBUGOSTREAM_HPP
 
 #include <systemoc/smoc_config.h>
 
-#ifdef SYSTEMOC_DEBUG
-
-#include <CoSupport/Streams/FilterOStream.hpp>
-#include <CoSupport/Streams/IndentStreambuf.hpp>
+#include <CoSupport/Streams/NullStreambuf.hpp>
 #include <CoSupport/Streams/DebugStreambuf.hpp>
+#include <CoSupport/Streams/IndentStreambuf.hpp>
+//#include <CoSupport/Streams/FilterOStream.hpp>
+//#include <CoSupport/Streams/HeaderFooterStreambuf.hpp>
 
-using CoSupport::Streams::Indent;
+namespace smoc { namespace Detail {
+
 using CoSupport::Streams::Debug;
+using CoSupport::Streams::ScopedDebug;
+using CoSupport::Streams::Indent;
+using CoSupport::Streams::ScopedIndent;
 
-extern Debug EXPR;  // info, FSM, event, expr
-extern Debug EVENT; // info, FSM, event
-extern Debug FSM;   // info, FSM
-extern Debug INFO;  // default
+typedef
+#ifndef SYSTEMOC_DEBUG
+  CoSupport::Streams::NullStreambuf::Stream<
+#endif
+    CoSupport::Streams::DebugStreambuf::Stream<
+      CoSupport::Streams::IndentStreambuf::Stream<
+    > >
+#ifndef SYSTEMOC_DEBUG
+  >
+#endif
+  DebugOStream;
 
-struct SmocDebugOstream
-  : public CoSupport::Streams::FilterOStream
-{
-  CoSupport::Streams::DebugStreambuf bufDbg;
-  CoSupport::Streams::IndentStreambuf bufIdt;
-  SmocDebugOstream(const Debug& level = INFO);
+/// Debug output stream
+extern DebugOStream outDbg;
+extern DebugOStream outDbgFSM;
 
-  void setTarget(std::streambuf* os);
-};
+} } // namespace smoc::Detail
 
-extern SmocDebugOstream outDbg;
-
-#endif // SYSTEMOC_DEBUG
-
-#endif // _INCLUDED_SMOC_DETAIL_DEBUG_STREAM_HPP
+#endif // _INCLUDED_SYSTEMOC_DETAIL_DEBUGOSTREAM_HPP

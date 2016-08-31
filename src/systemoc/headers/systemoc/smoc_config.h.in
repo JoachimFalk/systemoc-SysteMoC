@@ -44,9 +44,12 @@
 # define SYSTEMOC_PORT_ACCESS_COUNTER
 #endif //defined(SYSTEMOC_ENABLE_VPC)
 
-#if defined(SYSTEMOC_DEBUG) && defined(SYSTEMOC_ENABLE_VPC)
-# define SYSTEMOC_DEBUG_VPC_IF
-#endif //defined(SYSTEMOC_DEBUG) && defined(SYSTEMOC_ENABLE_VPC)
+#ifdef SYSTEMOC_ENABLE_DEBUG
+# define SYSTEMOC_DEBUG
+# ifdef SYSTEMOC_ENABLE_VPC 
+#   define SYSTEMOC_DEBUG_VPC_IF
+# endif //defined(SYSTEMOC_ENABLE_DEBUG) && defined(SYSTEMOC_ENABLE_VPC)
+#endif //defined(SYSTEMOC_ENABLE_DEBUG)
 
 // Pull config of Maestro libraries
 #ifdef SYSTEMOC_ENABLE_MAESTRO

@@ -37,7 +37,7 @@
 #include <systemoc/detail/smoc_chan_if.hpp>
 #include <systemoc/detail/smoc_root_chan.hpp>
 #include <systemoc/detail/smoc_root_node.hpp>
-#include <systemoc/detail/smoc_debug_stream.hpp>
+#include <smoc/detail/DebugOStream.hpp>
 #include <smoc/smoc_simulation_ctx.hpp>
 
 #include <map>
@@ -73,16 +73,17 @@ smoc_root_chan::~smoc_root_chan()
   {}
 
 void smoc_root_chan::finalise() {
-#ifdef SYSTEMOC_DEBUG
-  outDbg << "<smoc_root_chan::finalise name=\"" << name() << "\">"
-         << std::endl << Indent::Up;
-#endif // SYSTEMOC_DEBUG
-
-  // will do no harm if already generated
-
 #ifndef SYSTEMOC_ENABLE_MAESTROMM_SPEEDUP
+  // This is required before we use the first call to the name() method!
   generateName();
 #endif //!SYSTEMOC_ENABLE_MAESTROMM_SPEEDUP
+
+#ifdef SYSTEMOC_DEBUG
+  if (smoc::Detail::outDbg.isVisible(smoc::Detail::Debug::High)) {
+    smoc::Detail::outDbg << "<smoc_root_chan::finalise name=\"" << name() << "\">"
+         << std::endl << smoc::Detail::Indent::Up;
+  }
+#endif // SYSTEMOC_DEBUG
 
 #ifdef SYSTEMOC_NEED_IDS  
   // Allocate Id for myself.
@@ -90,7 +91,9 @@ void smoc_root_chan::finalise() {
 #endif // SYSTEMOC_NEED_IDS  
 
 #ifdef SYSTEMOC_DEBUG
-  outDbg << Indent::Down << "</smoc_root_chan::finalise>" << std::endl;
+  if (smoc::Detail::outDbg.isVisible(smoc::Detail::Debug::High)) {
+    smoc::Detail::outDbg << smoc::Detail::Indent::Down << "</smoc_root_chan::finalise>" << std::endl;
+  }
 #endif // SYSTEMOC_DEBUG
 }
 
@@ -112,7 +115,7 @@ void smoc_root_chan::generateName() {
         sc_core::sc_port_base const *ap = p != nullptr ? p->getActorPort() : iter->second;
         genName
           << (iter == entries.begin() ? "" : "|")
-          << ap->get_parent()->name();
+          << ap->get_parent_object()->name();
       }
     }
     genName << "_";
@@ -126,7 +129,7 @@ void smoc_root_chan::generateName() {
         sc_core::sc_port_base const *ap = p != nullptr ? p->getActorPort() : iter->second;
         genName
           << (iter == outlets.begin() ? "" : "|")
-          << ap->get_parent()->name();
+          << ap->get_parent_object()->name();
       }
     }
     genName << "_";

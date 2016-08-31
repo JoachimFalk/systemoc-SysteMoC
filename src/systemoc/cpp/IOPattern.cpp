@@ -34,49 +34,71 @@
 
 #include <smoc/detail/IOPattern.hpp>
 #include <smoc/smoc_event.hpp>
+#include <systemoc/detail/smoc_sysc_port.hpp>
 
-using namespace smoc;
-using namespace smoc::Detail;
+namespace smoc { namespace Detail {
 
+static
 smoc_event_and_list *getCAP(const smoc_event_and_list &ap) {
   typedef std::set<smoc_event_and_list> Cache;
   static Cache* cache = new Cache();
   return &const_cast<smoc_event_and_list&>(*cache->insert(ap).first);
 }
 
-void
-IOPattern::finalise(){
-  //std::cerr << this << " IOPattern::finalise" << std::endl;
-
+void IOPattern::finalise() {
   smoc_event_and_list tmp;
+  
   for(PortInfos::const_iterator pi = portInfos.begin();
       pi != portInfos.end();
       ++pi) {
     tmp &= *(pi->portEvent);
   }
-
+  
   for(PlainEvents::const_iterator pe = plainEvents.begin();
       pe != plainEvents.end();
       ++pe) {
     tmp &= **pe;
   }
-
+  
   ioPatternWaiter = getCAP(tmp);
 }
 
-void
-IOPattern::addPortRequirement(smoc_sysc_port    &port,
-                              size_t             numberRequiredTokens,
-                              smoc_event_waiter &portEvent){
-  //std::cerr << this << " IOPattern::addPortRequirement" << std::endl;
-
+void IOPattern::addPortRequirement(
+    smoc_sysc_port    &port,
+    size_t             numberRequiredTokens,
+    smoc_event_waiter &portEvent) {
   portInfos.push_back(PortInfo(&port, numberRequiredTokens, &portEvent));
 }
 
-void
-IOPattern::addEvent(smoc_event_waiter &plainEvent){
-  //std::cerr << this << " IOPattern::addEvent" << std::endl;
-
+void IOPattern::addEvent(smoc_event_waiter &plainEvent) {
   // plainEvent may be a "Expr::till" event!
   plainEvents.push_back(&plainEvent);
 }
+
+#ifdef SYSTEMOC_DEBUG
+std::ostream &operator <<(std::ostream &out, IOPattern const &iop) {
+  bool first = true;
+  
+  out << "[IOP: ";
+  for(PortInfos::const_iterator pi = iop.portInfos.begin();
+      pi != iop.portInfos.end();
+      ++pi) {
+    if (!first)
+      out << ", ";
+    first = false;
+    out << "#" << pi->port->name() << ">=" << pi->numberRequiredTokens;
+  }
+  for(PlainEvents::const_iterator pe = iop.plainEvents.begin();
+      pe != iop.plainEvents.end();
+      ++pe) {
+    if (!first)
+      out << ", ";
+    first = false;
+    out << "event(" << *pe << ")";
+  }
+  out << "]";
+  return out;
+}
+#endif //defined(SYSTEMOC_DEBUG)
+
+} } // namespace smoc::Detail

@@ -19,8 +19,8 @@
 #include <systemoc/smoc_config.h>
 #include <systemoc/smoc_graph_type.hpp>
 #include <systemoc/smoc_reset.hpp>
-#include <systemoc/detail/smoc_debug_stream.hpp>
 #include <smoc/detail/TraceLog.hpp>
+#include <smoc/detail/DebugOStream.hpp>
 
 #ifdef SYSTEMOC_ENABLE_VPC
 # include <vpc.hpp>
@@ -63,8 +63,10 @@ void smoc_reset_chan::produce(smoc::Detail::PortOutBaseIf *who, const smoc::smoc
   tokenId++;
 
 #ifdef SYSTEMOC_DEBUG
-  outDbg << "<smoc_reset_chan::reset name=\"" << name() << "\">"
-         << std::endl << Indent::Up;
+  if (smoc::Detail::outDbg.isVisible(smoc::Detail::Debug::Medium)) {
+    smoc::Detail::outDbg << "<smoc_reset_chan::reset name=\"" << name() << "\">"
+         << std::endl << smoc::Detail::Indent::Up;
+  }
 #endif // SYSTEMOC_DEBUG
 
   // reset channels
@@ -82,7 +84,9 @@ void smoc_reset_chan::produce(smoc::Detail::PortOutBaseIf *who, const smoc::smoc
   }
 
 #ifdef SYSTEMOC_DEBUG
-  outDbg << Indent::Down << "</smoc_reset_chan::reset>" << std::endl;
+  if (smoc::Detail::outDbg.isVisible(smoc::Detail::Debug::Medium)) {
+    smoc::Detail::outDbg << smoc::Detail::Indent::Down << "</smoc_reset_chan::reset>" << std::endl;
+  }
 #endif // SYSTEMOC_DEBUG
 }
 #endif
@@ -95,8 +99,10 @@ void smoc_reset_chan::produce(smoc::Detail::PortOutBaseIf *who)
   tokenId++;
 
 #ifdef SYSTEMOC_DEBUG
-  outDbg << "<smoc_reset_chan::reset name=\"" << name() << "\">"
-         << std::endl << Indent::Up;
+  if (smoc::Detail::outDbg.isVisible(smoc::Detail::Debug::Medium)) {
+    smoc::Detail::outDbg << "<smoc_reset_chan::reset name=\"" << name() << "\">"
+         << std::endl << smoc::Detail::Indent::Up;
+  }
 #endif // SYSTEMOC_DEBUG
 
   // reset channels
@@ -114,7 +120,9 @@ void smoc_reset_chan::produce(smoc::Detail::PortOutBaseIf *who)
   }
   
 #ifdef SYSTEMOC_DEBUG
-  outDbg << Indent::Down << "</smoc_reset_chan::reset>" << std::endl;
+  if (smoc::Detail::outDbg.isVisible(smoc::Detail::Debug::Medium)) {
+    smoc::Detail::outDbg << smoc::Detail::Indent::Down << "</smoc_reset_chan::reset>" << std::endl;
+  }
 #endif // SYSTEMOC_DEBUG
 }
 

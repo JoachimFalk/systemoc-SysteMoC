@@ -1,6 +1,6 @@
-// vim: set sw=2 ts=8:
+// vim: set sw=2 sts=2 ts=8 et syn=cpp:
 /*
- * Copyright (c) 2004-2009 Hardware-Software-CoDesign, University of Erlangen-Nuremberg.
+ * Copyright (c) 2016-2016 Hardware-Software-CoDesign, University of Erlangen-Nuremberg.
  * 
  *   This library is free software; you can redistribute it and/or modify it under
  *   the terms of the GNU Lesser General Public License as published by the Free
@@ -32,30 +32,12 @@
  * ENHANCEMENTS, OR MODIFICATIONS.
  */
 
-#include <systemoc/smoc_config.h>
-
-#ifdef SYSTEMOC_DEBUG
+#include <smoc/detail/DebugOStream.hpp>
 
 #include <iostream>
-#include <systemoc/detail/smoc_debug_stream.hpp>
 
-Debug EXPR(0);
-Debug EVENT(1);
-Debug FSM(2);
-Debug INFO(3);
+namespace smoc { namespace Detail {
+  
+DebugOStream outDbg(std::cerr);
 
-SmocDebugOstream::SmocDebugOstream(const Debug& level)
-  : FilterOStream(std::cerr),
-    bufDbg(level) 
-{ 
-  insert(bufDbg); // 2. discard characters
-  insert(bufIdt); // 1. indent lines
-}
-
-void SmocDebugOstream::setTarget(std::streambuf* os) {
-  bufDbg.setTarget(os);
-}
-
-SmocDebugOstream outDbg;
-
-#endif // SYSTEMOC_DEBUG
+} } // namespace smoc::Detail
