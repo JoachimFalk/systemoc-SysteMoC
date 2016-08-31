@@ -56,8 +56,8 @@ smoc_fifo_chan_base::smoc_fifo_chan_base(const chan_init& i)
   tokenId(0)
 {}
 
-void smoc_fifo_chan_base::finalise() {
-  smoc_root_chan::finalise();
+void smoc_fifo_chan_base::before_end_of_elaboration() {
+  smoc_root_chan::before_end_of_elaboration();
   assert(getEntries().size() == 1);
   assert(getOutlets().size() == 1);
 }

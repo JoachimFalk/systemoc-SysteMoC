@@ -54,20 +54,20 @@ smoc_graph_tt::smoc_graph_tt() :
   constructor();
 }
   
-void smoc_graph_tt::finalise() {
+void smoc_graph_tt::before_end_of_elaboration() {
 #ifdef SYSTEMOC_DEBUG
   if (smoc::Detail::outDbg.isVisible(smoc::Detail::Debug::High)) {
-    smoc::Detail::outDbg << "<smoc_graph::finalise name=\"" << name() << "\">"
+    smoc::Detail::outDbg << "<smoc_graph::before_end_of_elaboration name=\"" << name() << "\">"
            << std::endl << smoc::Detail::Indent::Up;
   }
 #endif // SYSTEMOC_DEBUG
   
-  smoc_graph_base::finalise();
+  smoc_graph_base::before_end_of_elaboration();
   initTT();
 
 #ifdef SYSTEMOC_DEBUG
   if (smoc::Detail::outDbg.isVisible(smoc::Detail::Debug::High)) {
-    smoc::Detail::outDbg << smoc::Detail::Indent::Down << "</smoc_graph::finalise>" << std::endl;
+    smoc::Detail::outDbg << smoc::Detail::Indent::Down << "</smoc_graph::before_end_of_elaboration>" << std::endl;
   }
 #endif // SYSTEMOC_DEBUG
 }

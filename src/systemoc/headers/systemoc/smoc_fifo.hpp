@@ -144,7 +144,7 @@ protected:
     smoc_root_chan::doReset();
   }
 
-  virtual void finalise();
+  virtual void before_end_of_elaboration();
 public:
 #ifdef SYSTEMOC_ENABLE_SGX
   // FIXME: This should be protected for the SysteMoC user but accessible

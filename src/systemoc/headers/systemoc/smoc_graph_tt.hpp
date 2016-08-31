@@ -134,7 +134,7 @@ public:
 
 protected:
   /// @brief See smoc_graph_base
-  void finalise();
+  virtual void before_end_of_elaboration();
 
 private:
   

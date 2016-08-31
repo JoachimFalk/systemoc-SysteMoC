@@ -55,6 +55,7 @@ smoc_root_node::smoc_root_node(sc_core::sc_module_name name, NodeType nodeType, 
   : sc_core::sc_module(name)
   , nodeType(nodeType)
   , currentState(nullptr)
+  , ct(nullptr)
 #ifdef SYSTEMOC_ENABLE_VPC
   , commState(new RuntimeState())
   , diiEvent(new smoc::smoc_vpc_event())
@@ -74,39 +75,45 @@ smoc_root_node::smoc_root_node(sc_core::sc_module_name name, NodeType nodeType, 
 #endif // SYSTEMOC_ENABLE_VPC
 }
 
-void smoc_root_node::finalise() {
+void smoc_root_node::before_end_of_elaboration() {
 #ifdef SYSTEMOC_DEBUG
   if (smoc::Detail::outDbg.isVisible(smoc::Detail::Debug::High)) {
-    smoc::Detail::outDbg << "<smoc_root_node::finalise name=\"" << this->name() << "\">"
+    smoc::Detail::outDbg << "<smoc_root_node::before_end_of_elaboration name=\"" << this->name() << "\">"
          << std::endl << smoc::Detail::Indent::Up;
   }
-#endif
-  
+#endif //defined(SYSTEMOC_DEBUG)
+  sc_core::sc_module::before_end_of_elaboration();
 #ifdef SYSTEMOC_NEED_IDS
   // Allocate Id for myself.
   getSimCTX()->getIdPool().addIdedObj(this);
 #endif // SYSTEMOC_NEED_IDS
-  
-  // finalise ports before FSM (ActivationPattern needs port nodes)
-  smoc_sysc_port_list ports = getPorts();
-  for (smoc_sysc_port_list::iterator iter = ports.begin();
-      iter != ports.end(); ++iter)
-    (*iter)->finalise();
-  
-  executing = false;
-  currentState = 0;
-  ct = 0;
-
   getFiringFSM()->finalise(this,
     initialStatePtr
     ? CoSupport::DataTypes::FacadeCoreAccess::getImpl(initialStatePtr)
     : CoSupport::DataTypes::FacadeCoreAccess::getImpl(initialState));
-  
 #ifdef SYSTEMOC_DEBUG
   if (smoc::Detail::outDbg.isVisible(smoc::Detail::Debug::High)) {
-    smoc::Detail::outDbg << smoc::Detail::Indent::Down << "</smoc_root_node::finalise>" << std::endl;
+    smoc::Detail::outDbg << smoc::Detail::Indent::Down << "</smoc_root_node::before_end_of_elaboration>"
+         << std::endl;
   }
-#endif
+#endif //defined(SYSTEMOC_DEBUG)
+}
+
+void smoc_root_node::end_of_elaboration() {
+#ifdef SYSTEMOC_DEBUG
+  if (smoc::Detail::outDbg.isVisible(smoc::Detail::Debug::High)) {
+    smoc::Detail::outDbg << "<smoc_root_node::end_of_elaboration name=\"" << this->name() << "\">"
+         << std::endl << smoc::Detail::Indent::Up;
+  }
+#endif //defined(SYSTEMOC_DEBUG)
+  sc_core::sc_module::end_of_elaboration();
+  executing    = false;
+#ifdef SYSTEMOC_DEBUG
+  if (smoc::Detail::outDbg.isVisible(smoc::Detail::Debug::High)) {
+    smoc::Detail::outDbg << smoc::Detail::Indent::Down << "</smoc_root_node::end_of_elaboration>"
+         << std::endl;
+  }
+#endif //defined(SYSTEMOC_DEBUG)
 }
 
 smoc_sysc_port_list smoc_root_node::getPorts() const {

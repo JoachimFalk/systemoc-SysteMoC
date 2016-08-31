@@ -74,21 +74,33 @@ void smoc_sysc_port::bind(this_type &parent_) {
   sc_core::sc_port_base::bind(parent_);
 }
 
-void smoc_sysc_port::finalise() {
+void smoc_sysc_port::before_end_of_elaboration() {
 #ifdef SYSTEMOC_DEBUG
-  outDbg << "<smoc_sysc_port::finalise name=\"" << this->name() << "\">"
+  outDbg << "<smoc_sysc_port::before_end_of_elaboration name=\"" << this->name() << "\">"
          << std::endl << Indent::Up;
 #endif // SYSTEMOC_DEBUG
+  sc_core::sc_port_base::before_end_of_elaboration();
 #ifdef SYSTEMOC_NEED_IDS  
   // Allocate Id for myself.
   getSimCTX()->getIdPool().addIdedObj(this);
 #endif // SYSTEMOC_NEED_IDS
+#ifdef SYSTEMOC_DEBUG
+  outDbg << Indent::Down << "</smoc_sysc_port::before_end_of_elaboration>" << std::endl;
+#endif // SYSTEMOC_DEBUG
+}
+
+void smoc_sysc_port::end_of_elaboration() {
+#ifdef SYSTEMOC_DEBUG
+  outDbg << "<smoc_sysc_port::end_of_elaboration name=\"" << this->name() << "\">"
+         << std::endl << Indent::Up;
+#endif // SYSTEMOC_DEBUG
+  sc_core::sc_port_base::end_of_elaboration();
   for (Interfaces::iterator iter = interfaces.begin();
        iter != interfaces.end();
        ++iter)
     portAccesses.push_back((*iter)->getChannelAccess());
 #ifdef SYSTEMOC_DEBUG
-  outDbg << Indent::Down << "</smoc_sysc_port::finalise>" << std::endl;
+  outDbg << Indent::Down << "</smoc_sysc_port::end_of_elaboration>" << std::endl;
 #endif // SYSTEMOC_DEBUG
 }
 
