@@ -33,22 +33,15 @@
  * ENHANCEMENTS, OR MODIFICATIONS.
  */
 
-#include <CoSupport/compatibility-glue/nullptr.h>
-
-#include <systemoc/detail/smoc_debug_stream.hpp>
 #include <smoc/detail/VpcInterface.hpp>
 
-# ifdef SYSTEMOC_ENABLE_VPC
-# include <vpc.hpp>
+#ifdef SYSTEMOC_ENABLE_VPC
 
 namespace smoc { namespace Detail {
 
 ///
 SystemC_VPC::EventPair
 VpcPortInterface::startVpcRead(size_t tokenCount){
-#ifdef SYSTEMOC_DEBUG_VPC_IF
-  outDbg << "VpcPortInterface::startVpcRead()" << std::endl;
-#endif // SYSTEMOC_DEBUG_VPC_IF
   assert(readEventLat != nullptr);
   readEventLat->reset();
 
@@ -62,20 +55,38 @@ smoc_vpc_event_p VpcPortInterface::dummyDii(new smoc_vpc_event(true));
 ///
 SystemC_VPC::EventPair
 VpcInterface::startWrite(size_t tokenCount) {
-  assert(this->portIf!=nullptr);
+  assert(this->portIf != nullptr);
+# ifdef SYSTEMOC_DEBUG_VPC_IF
+  if (outDbg.isVisible(Debug::Medium)) {
+    outDbg << "VpcInterface::startWrite(" << tokenCount << ")" << portIf->actor << " from " << portIf->channel << std::endl;
+  }
+# endif // SYSTEMOC_DEBUG_VPC_IF
   smoc_vpc_event_p latEvent(new smoc_vpc_event());
   smoc_vpc_event_p diiEvent = dummy;
 # ifdef SYSTEMOC_ENABLE_DATAFLOW_TRACE
   // we need to trace communication DII 
   diiEvent.reset(new smoc_vpc_event());
-# endif
+# endif //SYSTEMOC_ENABLE_DATAFLOW_TRACE
   SystemC_VPC::EventPair ep(diiEvent, latEvent);
   this->portIf->vpcCommTask.write(tokenCount, ep);
-
+  
   return ep;
+}
+
+void VpcInterface::startVpcRead(size_t tokenCount) {
+  assert(this->taskIf != nullptr);
+  assert(this->portIf != nullptr);
+# ifdef SYSTEMOC_DEBUG_VPC_IF
+  if (outDbg.isVisible(Debug::Medium)) {
+    outDbg << "VpcInterface::startVpcRead(" << tokenCount << ") for " << portIf->actor << " from " << portIf->channel << std::endl;
+  }
+# endif // SYSTEMOC_DEBUG_VPC_IF
+  this->taskIf->addReadEvent(
+    this->portIf->startVpcRead(tokenCount));
 }
 
 smoc_vpc_event_p VpcInterface::dummy(new smoc_vpc_event(true));
 
-}} // namespace smoc::Detail
-# endif // SYSTEMOC_ENABLE_VPC
+} } // namespace smoc::Detail
+
+#endif // SYSTEMOC_ENABLE_VPC

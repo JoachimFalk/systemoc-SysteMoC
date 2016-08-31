@@ -37,6 +37,7 @@
 #include <systemoc/smoc_multireader_fifo.hpp>
 #include <systemoc/smoc_graph_type.hpp>
 #include <smoc/detail/TraceLog.hpp>
+#include <smoc/detail/DebugOStream.hpp>
 
 #ifdef SYSTEMOC_ENABLE_VPC
 # include <vpc.hpp>
@@ -67,15 +68,19 @@ void smoc_multireader_fifo_chan_base::consume(smoc::Detail::PortInBaseIf *who, s
 #endif
 {
 #ifdef SYSTEMOC_DEBUG
-  outDbg << "<smoc_multireader_fifo_chan_base::consume this=\"" << this << "\">"
-         << std::endl << Indent::Up;
+  if (smoc::Detail::outDbg.isVisible(smoc::Detail::Debug::Medium)) {
+    smoc::Detail::outDbg << "<smoc_multireader_fifo_chan_base::consume this=\"" << this << "\">"
+           << std::endl << smoc::Detail::Indent::Up;
+  }
 #endif // SYSTEMOC_DEBUG
 #ifdef SYSTEMOC_ENABLE_DATAFLOW_TRACE
   this->getSimCTX()->getDataflowTraceLog()->traceCommExecIn(this, n);
 #endif
 #ifdef SYSTEMOC_DEBUG
-  outDbg << "n: " << n << "; #avail: " << visibleCount()
-         << "; #free: " << freeCount() << "; size: " << (qfSize()-1) << std::endl;
+  if (smoc::Detail::outDbg.isVisible(smoc::Detail::Debug::Medium)) {
+    smoc::Detail::outDbg << "n: " << n << "; #avail: " << visibleCount()
+           << "; #free: " << freeCount() << "; size: " << (qfSize()-1) << std::endl;
+  }
 #endif // SYSTEMOC_DEBUG
   rpp(n);
   // FIXME: Make sure consumers are notified
@@ -91,7 +96,9 @@ void smoc_multireader_fifo_chan_base::consume(smoc::Detail::PortInBaseIf *who, s
   diiExpired(n);
 #endif
 #ifdef SYSTEMOC_DEBUG
-  outDbg << Indent::Down << "</smoc_multireader_fifo_chan_base::consume>" << std::endl;
+  if (smoc::Detail::outDbg.isVisible(smoc::Detail::Debug::Medium)) {
+    smoc::Detail::outDbg << smoc::Detail::Indent::Down << "</smoc_multireader_fifo_chan_base::consume>" << std::endl;
+  }
 #endif // SYSTEMOC_DEBUG
 }
 
@@ -102,15 +109,19 @@ void smoc_multireader_fifo_chan_base::produce(size_t n)
 #endif
 {
 #ifdef SYSTEMOC_DEBUG
-  outDbg << "<smoc_multireader_fifo_chan_base::produce this=\"" << this << "\">"
-         << std::endl << Indent::Up;
+  if (smoc::Detail::outDbg.isVisible(smoc::Detail::Debug::Medium)) {
+    smoc::Detail::outDbg << "<smoc_multireader_fifo_chan_base::produce this=\"" << this << "\">"
+         << std::endl << smoc::Detail::Indent::Up;
+  }
 #endif // SYSTEMOC_DEBUG
 #ifdef SYSTEMOC_ENABLE_DATAFLOW_TRACE
   this->getSimCTX()->getDataflowTraceLog()->traceCommExecOut(this, n);
 #endif
 #ifdef SYSTEMOC_DEBUG
-  outDbg << "n: " << n << "; #avail: " << visibleCount()
+  if (smoc::Detail::outDbg.isVisible(smoc::Detail::Debug::Medium)) {
+    smoc::Detail::outDbg << "n: " << n << "; #avail: " << visibleCount()
          << "; #free: " << freeCount() << "; size: " << (qfSize()-1) << std::endl;
+  }
 #endif // SYSTEMOC_DEBUG
   tokenId += n;
   wpp(n);
@@ -123,7 +134,9 @@ void smoc_multireader_fifo_chan_base::produce(size_t n)
   latencyExpired(n);
 #endif
 #ifdef SYSTEMOC_DEBUG
-  outDbg << Indent::Down << "</smoc_multireader_fifo_chan_base::produce>" << std::endl;
+  if (smoc::Detail::outDbg.isVisible(smoc::Detail::Debug::Medium)) {
+    smoc::Detail::outDbg << smoc::Detail::Indent::Down << "</smoc_multireader_fifo_chan_base::produce>" << std::endl;
+  }
 #endif // SYSTEMOC_DEBUG
 }
 
@@ -183,8 +196,10 @@ void smoc_multireader_fifo_chan_base::lessSpace(size_t n) {
 
 void smoc_multireader_fifo_chan_base::doReset() {
 #ifdef SYSTEMOC_DEBUG
-  outDbg << "<smoc_multireader_fifo_chan_base::doReset name=\"" << name() << "\">"
-         << std::endl << Indent::Up;
+  if (smoc::Detail::outDbg.isVisible(smoc::Detail::Debug::Medium)) {
+    smoc::Detail::outDbg << "<smoc_multireader_fifo_chan_base::doReset name=\"" << name() << "\">"
+         << std::endl << smoc::Detail::Indent::Up;
+  }
 #endif // SYSTEMOC_DEBUG
 
   // queue and initial tokens set up by smoc_fifo_storage...
@@ -208,12 +223,16 @@ void smoc_multireader_fifo_chan_base::doReset() {
   smoc_root_chan::doReset();
 
 #ifdef SYSTEMOC_DEBUG
-  outDbg << "#avail: " << visibleCount() << "; #free: " << freeCount()
+  if (smoc::Detail::outDbg.isVisible(smoc::Detail::Debug::Medium)) {
+    smoc::Detail::outDbg << "#avail: " << visibleCount() << "; #free: " << freeCount()
          << "; size: " << (qfSize()-1) << std::endl;
+  }
 #endif // SYSTEMOC_DEBUG
 
 #ifdef SYSTEMOC_DEBUG
-  outDbg << Indent::Down << "</smoc_multireader_fifo_chan_base::doReset>" << std::endl;
+  if (smoc::Detail::outDbg.isVisible(smoc::Detail::Debug::Medium)) {
+    smoc::Detail::outDbg << smoc::Detail::Indent::Down << "</smoc_multireader_fifo_chan_base::doReset>" << std::endl;
+  }
 #endif // SYSTEMOC_DEBUG
 }
 

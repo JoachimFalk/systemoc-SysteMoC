@@ -1,7 +1,7 @@
 //  -*- tab-width:8; intent-tabs-mode:nil;  c-basic-offset:2; -*-
 // vim: set sw=2 ts=8:
 /*
- * Copyright (c) 2004-2009 Hardware-Software-CoDesign, University of Erlangen-Nuremberg.
+ * Copyright (c) 2004-2016 Hardware-Software-CoDesign, University of Erlangen-Nuremberg.
  * 
  *   This library is free software; you can redistribute it and/or modify it under
  *   the terms of the GNU Lesser General Public License as published by the Free
@@ -33,26 +33,28 @@
  * ENHANCEMENTS, OR MODIFICATIONS.
  */
 
-#ifndef _INCLUDED_VPC_INTERFACE_HPP
-#define _INCLUDED_VPC_INTERFACE_HPP
-
-#include <CoSupport/compatibility-glue/nullptr.h>
-
-#include <CoSupport/SystemC/systemc_support.hpp>
+#ifndef _INCLUDED_SMOC_DETAIL_VPC_INTERFACE_HPP
+#define _INCLUDED_SMOC_DETAIL_VPC_INTERFACE_HPP
 
 #include <systemoc/smoc_config.h>
-#include "../smoc_event.hpp"
 
 #ifdef SYSTEMOC_ENABLE_VPC
+
+# include <CoSupport/compatibility-glue/nullptr.h>
+# include <CoSupport/SystemC/systemc_support.hpp>
+# include "../smoc_event.hpp"
+# include "DebugOStream.hpp"
+
 # include <vpc.hpp>
 
 namespace smoc { namespace Detail {
 
 /// link between systemoc ports (outlet/entry) and VPC read/write
-class VpcPortInterface{
+class VpcPortInterface {
 public:
-  VpcPortInterface()  : vpcCommTask(), readEventLat(new smoc_vpc_event())
- {}
+  VpcPortInterface()
+    : vpcCommTask(), readEventLat(new smoc_vpc_event())
+  {}
 
   ///
   SystemC_VPC::EventPair startVpcRead(size_t tokenCount);
@@ -64,10 +66,10 @@ public:
   smoc_vpc_event_p readEventLat;  // cached by IOPattern
   static smoc_vpc_event_p dummyDii;
 
-#ifdef SYSTEMOC_DEBUG_VPC_IF
+# ifdef SYSTEMOC_DEBUG_VPC_IF
   std::string actor;
   std::string channel;
-#endif // SYSTEMOC_DEBUG_VPC_IF
+# endif // SYSTEMOC_DEBUG_VPC_IF
 };
 
 /// links systemoc transitions and VPC compute
@@ -77,9 +79,9 @@ public:
   typedef VpcTaskInterface this_type;
 
   VpcTaskInterface() :
-#ifdef SYSTEMOC_DEBUG_VPC_IF
+# ifdef SYSTEMOC_DEBUG_VPC_IF
     actor("anonymous"),
-#endif // SYSTEMOC_DEBUG_VPC_IF
+# endif // SYSTEMOC_DEBUG_VPC_IF
     vpcTask(),
     dynamicReadEvents(),
     diiEvent(nullptr),
@@ -91,52 +93,52 @@ public:
     dynamicReadEvents &= *events.latency;
   }
 
-  SystemC_VPC::EventPair startCompute(){
+  SystemC_VPC::EventPair startCompute() {
     assert(diiEvent != nullptr);
-
+    
     SystemC_VPC::EventPair ep(diiEvent, latEvent);
     // TODO (ms): care about function lists smoc_func_call_list
-
+    
     // force a callback to "releaseTask" at end of read phase 
-#ifdef SYSTEMOC_DEBUG_VPC_IF
+# ifdef SYSTEMOC_DEBUG_VPC_IF
     outDbg << "startCompute " << dynamicReadEvents << std::endl;
-#endif // SYSTEMOC_DEBUG_VPC_IF
-    if(dynamicReadEvents){
-#ifdef SYSTEMOC_DEBUG_VPC_IF
+# endif // SYSTEMOC_DEBUG_VPC_IF
+    if (dynamicReadEvents) {
+# ifdef SYSTEMOC_DEBUG_VPC_IF
       outDbg << "shortcut release()" << std::endl;
-#endif // SYSTEMOC_DEBUG_VPC_IF
+# endif // SYSTEMOC_DEBUG_VPC_IF
       this->releaseTask();
-    }else{
+    } else {
       dynamicReadEvents.addListener( this );
     }
+    
+    return ep;
+  }
 
-  return ep;
-}
-
-  void releaseTask(){
-#ifdef SYSTEMOC_DEBUG_VPC_IF
+  void releaseTask() {
+# ifdef SYSTEMOC_DEBUG_VPC_IF
     outDbg << "[" << this << "] " << actor
            << " release @ " << sc_time_stamp() << std::endl;
-#endif // SYSTEMOC_DEBUG_VPC_IF
-
+# endif // SYSTEMOC_DEBUG_VPC_IF
+    
     // prevent from unecessary event_and_list evaluation
     dynamicReadEvents.clear();
-
+    
     SystemC_VPC::EventPair ep(diiEvent, latEvent);
     vpcTask.compute(ep);
-
+    
     // reset events from last iteration
     latEvent = new smoc_vpc_event();
-}
+  }
 
   smoc_vpc_event_p getLatEvent() const
     { assert(latEvent != nullptr); return latEvent; }
   smoc_vpc_event_p getDiiEvent() const
     { assert(diiEvent != nullptr); return diiEvent; }
 
-#ifdef SYSTEMOC_DEBUG_VPC_IF
+# ifdef SYSTEMOC_DEBUG_VPC_IF
   std::string actor;
-#endif // SYSTEMOC_DEBUG_VPC_IF
+# endif // SYSTEMOC_DEBUG_VPC_IF
 
 //protected:
   ///
@@ -158,10 +160,9 @@ protected:
     }
   }
 
-  void eventDestroyed(CoSupport::SystemC::EventWaiter *_e)
-    { 
-		//assert(!"eventDestroyed must never be called!");
-    }
+  void eventDestroyed(CoSupport::SystemC::EventWaiter *_e) { 
+    //assert(!"eventDestroyed must never be called!");
+  }
 
 private:
   /// latEvent is created new for each compute
@@ -170,7 +171,7 @@ private:
 
 /// helper struct to link individual read and/or write operations
 /// on systemoc ports to the corresponding systemoc transition
-class VpcInterface{
+class VpcInterface {
 public:
   ///
   VpcInterface(VpcTaskInterface *taskIf = nullptr)
@@ -192,12 +193,7 @@ public:
   SystemC_VPC::EventPair startWrite(size_t tokenCount);
 
   ///
-  void startVpcRead(size_t tokenCount) {
-    assert(this->taskIf!=nullptr);
-    assert(this->portIf!=nullptr);
-    this->taskIf->addReadEvent(
-      this->portIf->startVpcRead(tokenCount) );
-  }
+  void startVpcRead(size_t tokenCount);
 
 private:
   VpcTaskInterface *taskIf;
@@ -206,7 +202,8 @@ private:
   static smoc_vpc_event_p dummy;
 };
 
-}} // namespace smoc::Detail
+} } // namespace smoc::Detail
+
 #endif // SYSTEMOC_ENABLE_VPC
 
-#endif //_INCLUDED_VPC_INTERFACE_HPP
+#endif //_INCLUDED_SMOC_DETAIL_VPC_INTERFACE_HPP

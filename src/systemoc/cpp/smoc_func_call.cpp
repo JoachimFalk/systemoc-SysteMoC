@@ -36,8 +36,8 @@
 
 #include <systemoc/detail/smoc_func_call.hpp>
 #include <systemoc/detail/smoc_firing_rules_impl.hpp>
-#include <systemoc/detail/smoc_debug_stream.hpp>
 #include <smoc/detail/TraceLog.hpp>
+#include <smoc/detail/DebugOStream.hpp>
 
 #ifdef MAESTRO_ENABLE_POLYPHONIC
 # include <Maestro/PolyphoniC/polyphonic_smoc_func_call.h>
@@ -73,14 +73,18 @@ RuntimeState *ActionVisitor::operator()(const smoc_func_call_list& f) const {
     this->getSimCTX()->getDataflowTraceLog()->traceStartFunction(&*i);
 #endif // SYSTEMOC_ENABLE_DATAFLOW_TRACE
 #ifdef SYSTEMOC_DEBUG
-    outDbg << "<action type=\"smoc_func_call\" func=\""
+    if (smoc::Detail::outDbg.isVisible(smoc::Detail::Debug::Medium)) {
+      smoc::Detail::outDbg << "<action type=\"smoc_func_call\" func=\""
            << i->getFuncName() << "\">" << std::endl;
+    }
 #endif // SYSTEMOC_DEBUG
   
     (*i)();
 
 #ifdef SYSTEMOC_DEBUG
-    outDbg << "</action>" << std::endl;
+    if (smoc::Detail::outDbg.isVisible(smoc::Detail::Debug::Medium)) {
+      smoc::Detail::outDbg << "</action>" << std::endl;
+    }
 #endif // SYSTEMOC_DEBUG
 #ifdef SYSTEMOC_ENABLE_DATAFLOW_TRACE
     getSimCTX()->getDataflowTraceLog()->traceEndFunction(&*i);
@@ -92,83 +96,81 @@ RuntimeState *ActionVisitor::operator()(const smoc_func_call_list& f) const {
 #ifdef MAESTRO_ENABLE_POLYPHONIC
 
 smoc::dMM::TransitionOnThreadVisitor::TransitionOnThreadVisitor(RuntimeState* dest, MetaMap::Transition* tr)
-	: dest(dest), transition(tr)
-{
-}
+  : dest(dest), transition(tr)
+{}
 
 RuntimeState* smoc::dMM::TransitionOnThreadVisitor::operator()(const smoc_func_call_list& f) const
 {
-	boost::thread privateThread;
+  boost::thread privateThread;
 
-	bool hasWaitTime = false;
+  bool hasWaitTime = false;
 
-	for (smoc_func_call_list::const_iterator i = f.begin(); i != f.end(); ++i)
-	{
-		string name = i->getFuncName();
-		
-		if (i->isWaitCall())
-		{
-			hasWaitTime = true;
-		}
-	}
+  for (smoc_func_call_list::const_iterator i = f.begin(); i != f.end(); ++i) {
+    string name = i->getFuncName();
+    
+    if (i->isWaitCall()) {
+      hasWaitTime = true;
+    }
+  }
 
-	if (!hasWaitTime)
-	{
-		privateThread = boost::thread(&TransitionOnThreadVisitor::executeTransition, this, f);
-
-		transition->waitThreadDone();
-
-		//privateThread.join();
-	}
-	else
-	{
-		// Function call
-		for (smoc_func_call_list::const_iterator i = f.begin(); i != f.end(); ++i) {
+  if (!hasWaitTime) {
+    privateThread = boost::thread(&TransitionOnThreadVisitor::executeTransition, this, f);
+    transition->waitThreadDone();
+    //privateThread.join();
+  } else {
+    // Function call
+    for (smoc_func_call_list::const_iterator i = f.begin(); i != f.end(); ++i) {
 # ifdef SYSTEMOC_ENABLE_DATAFLOW_TRACE
-			this->getSimCTX()->getDataflowTraceLog()->traceStartFunction(&*i);
+      this->getSimCTX()->getDataflowTraceLog()->traceStartFunction(&*i);
 # endif // SYSTEMOC_ENABLE_DATAFLOW_TRACE
 # ifdef SYSTEMOC_DEBUG
-			outDbg << "<action type=\"smoc_func_call\" func=\""
-				<< i->getFuncName() << "\">" << std::endl;
+      if (smoc::Detail::outDbg.isVisible(smoc::Detail::Debug::Medium)) {
+        smoc::Detail::outDbg << "<action type=\"smoc_func_call\" func=\""
+          << i->getFuncName() << "\">" << std::endl;
+      }
 # endif // SYSTEMOC_DEBUG
-
-			(*i)();
-
+      (*i)();
 # ifdef SYSTEMOC_DEBUG
-			outDbg << "</action>" << std::endl;
+      if (smoc::Detail::outDbg.isVisible(smoc::Detail::Debug::Medium)) {
+        smoc::Detail::outDbg << "</action>" << std::endl;
+      }
 # endif // SYSTEMOC_DEBUG
 # ifdef SYSTEMOC_ENABLE_DATAFLOW_TRACE
-			getSimCTX()->getDataflowTraceLog()->traceEndFunction(&*i);
+      getSimCTX()->getDataflowTraceLog()->traceEndFunction(&*i);
 # endif // SYSTEMOC_ENABLE_DATAFLOW_TRACE
-		}
-	}
-	
-	return dest;
+    }
+  }
+  
+  return dest;
 }
 
 void smoc::dMM::TransitionOnThreadVisitor::executeTransition(const smoc_func_call_list& f) const
 {
-	// Function call
-	for (smoc_func_call_list::const_iterator i = f.begin(); i != f.end(); ++i) {
+  // Function call
+  for (smoc_func_call_list::const_iterator i = f.begin(); i != f.end(); ++i) {
 # ifdef SYSTEMOC_ENABLE_DATAFLOW_TRACE
-		this->getSimCTX()->getDataflowTraceLog()->traceStartFunction(&*i);
+    this->getSimCTX()->getDataflowTraceLog()->traceStartFunction(&*i);
 # endif // SYSTEMOC_ENABLE_DATAFLOW_TRACE
 # ifdef SYSTEMOC_DEBUG
-		outDbg << "<action type=\"smoc_func_call\" func=\""
-			<< i->getFuncName() << "\">" << std::endl;
+    if (smoc::Detail::outDbg.isVisible(smoc::Detail::Debug::Medium)) {
+      smoc::Detail::outDbg << "<action type=\"smoc_func_call\" func=\""
+        << i->getFuncName() << "\">" << std::endl;
+    }
 # endif // SYSTEMOC_DEBUG
 
-		(*i)();
+    (*i)();
 
 # ifdef SYSTEMOC_DEBUG
-		outDbg << "</action>" << std::endl;
+    if (smoc::Detail::outDbg.isVisible(smoc::Detail::Debug::Medium)) {
+      smoc::Detail::outDbg << "</action>" << std::endl;
+    }
 # endif // SYSTEMOC_DEBUG
 # ifdef SYSTEMOC_ENABLE_DATAFLOW_TRACE
-		getSimCTX()->getDataflowTraceLog()->traceEndFunction(&*i);
+    getSimCTX()->getDataflowTraceLog()->traceEndFunction(&*i);
 # endif // SYSTEMOC_ENABLE_DATAFLOW_TRACE
-}
+  }
 
-	transition->notifyThreadDone();
+  transition->notifyThreadDone();
 }
 
 #endif //MAESTRO_ENABLE_POLYPHONIC

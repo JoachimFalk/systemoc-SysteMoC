@@ -33,16 +33,16 @@
  * ENHANCEMENTS, OR MODIFICATIONS.
  */
 
+#include <CoSupport/compatibility-glue/nullptr.h>
+
+#include <CoSupport/String/Concat.hpp>
+
 #include <systemoc/smoc_config.h>
 
 #include <systemoc/smoc_graph_type.hpp>
 #include <systemoc/smoc_firing_rules.hpp>
 #include <systemoc/detail/smoc_sysc_port.hpp>
-#include <systemoc/detail/smoc_debug_stream.hpp>
-
-#include <CoSupport/compatibility-glue/nullptr.h>
-
-#include <CoSupport/String/Concat.hpp>
+#include <smoc/detail/DebugOStream.hpp>
 
 using namespace smoc::Detail;
 using CoSupport::String::Concat;
@@ -63,16 +63,16 @@ void smoc_graph_base::getNodesRecursive( smoc_node_list & subnodes) const {
 #endif
         iter != get_child_objects().end();
         ++iter ) {
-    //outDbg << (*iter)->name() << std::endl;
+    //smoc::Detail::outDbg << (*iter)->name() << std::endl;
     
     smoc_root_node *node = dynamic_cast<smoc_actor *>(*iter);
     if (node != nullptr){
-      //outDbg << "add: " <<  node->name() << std::endl;
+      //smoc::Detail::outDbg << "add: " <<  node->name() << std::endl;
       subnodes.push_back(node);
     }
     smoc_graph_base *graph = dynamic_cast<smoc_graph_base *>(*iter);
     if (graph != nullptr){
-      //outDbg << "sub_graph: " <<  graph->name() << std::endl;
+      //smoc::Detail::outDbg << "sub_graph: " <<  graph->name() << std::endl;
       graph->getNodesRecursive(subnodes);
     }
   }
@@ -106,8 +106,10 @@ void smoc_graph_base::getChansRecursive( smoc_chan_list & channels) const {
 
 void smoc_graph_base::finalise() {
 #ifdef SYSTEMOC_DEBUG
-  outDbg << "<smoc_graph_base::finalise name=\"" << name() << "\">"
-         << std::endl << Indent::Up;
+  if (smoc::Detail::outDbg.isVisible(smoc::Detail::Debug::High)) {
+    smoc::Detail::outDbg << "<smoc_graph_base::finalise name=\"" << name() << "\">"
+           << std::endl << smoc::Detail::Indent::Up;
+  }
 #endif // SYSTEMOC_DEBUG
   
   smoc_root_node::finalise();
@@ -172,7 +174,9 @@ void smoc_graph_base::finalise() {
 //#endif
 
 #ifdef SYSTEMOC_DEBUG
-  outDbg << Indent::Down << "</smoc_graph_base::finalise>" << std::endl;
+  if (smoc::Detail::outDbg.isVisible(smoc::Detail::Debug::High)) {
+    smoc::Detail::outDbg << smoc::Detail::Indent::Down << "</smoc_graph_base::finalise>" << std::endl;
+  }
 #endif // SYSTEMOC_DEBUG
 }
 
@@ -190,8 +194,10 @@ void smoc_graph_base::finaliseVpcLink() {
 
 void smoc_graph_base::doReset() {
 #ifdef SYSTEMOC_DEBUG
-  outDbg << "<smoc_graph_base::doReset name=\"" << name() << "\">"
-         << std::endl << Indent::Up;
+  if (smoc::Detail::outDbg.isVisible(smoc::Detail::Debug::High)) {
+    smoc::Detail::outDbg << "<smoc_graph_base::doReset name=\"" << name() << "\">"
+         << std::endl << smoc::Detail::Indent::Up;
+  }
 #endif // SYSTEMOC_DEBUG
 
   // reset FIFOs
@@ -213,7 +219,9 @@ void smoc_graph_base::doReset() {
   smoc_root_node::doReset();
 
 #ifdef SYSTEMOC_DEBUG
-  outDbg << Indent::Down << "</smoc_graph_base::doReset>" << std::endl;
+  if (smoc::Detail::outDbg.isVisible(smoc::Detail::Debug::High)) {
+    smoc::Detail::outDbg << smoc::Detail::Indent::Down << "</smoc_graph_base::doReset>" << std::endl;
+  }
 #endif //SYSTEMOC_DEBUG
 }
   
@@ -242,15 +250,19 @@ smoc_graph::smoc_graph()
   
 void smoc_graph::finalise() {
 #ifdef SYSTEMOC_DEBUG
-  outDbg << "<smoc_graph::finalise name=\"" << name() << "\">"
-         << std::endl << Indent::Up;
+  if (smoc::Detail::outDbg.isVisible(smoc::Detail::Debug::High)) {
+    smoc::Detail::outDbg << "<smoc_graph::finalise name=\"" << name() << "\">"
+         << std::endl << smoc::Detail::Indent::Up;
+  }
 #endif // SYSTEMOC_DEBUG
   
   smoc_graph_base::finalise();
   initDDF();
 
 #ifdef SYSTEMOC_DEBUG
-  outDbg << Indent::Down << "</smoc_graph::finalise>" << std::endl;
+  if (smoc::Detail::outDbg.isVisible(smoc::Detail::Debug::High)) {
+    smoc::Detail::outDbg << smoc::Detail::Indent::Down << "</smoc_graph::finalise>" << std::endl;
+  }
 #endif // SYSTEMOC_DEBUG
 }
 
@@ -272,26 +284,36 @@ void smoc_graph::initDDF() {
 
 void smoc_graph::scheduleDDF() {
 #ifdef SYSTEMOC_DEBUG
-  outDbg << "<smoc_graph::scheduleDDF name=\"" << name() << "\">"
-         << std::endl << Indent::Up;
+  if (smoc::Detail::outDbg.isVisible(smoc::Detail::Debug::High)) {
+    smoc::Detail::outDbg << "<smoc_graph::scheduleDDF name=\"" << name() << "\">"
+           << std::endl << smoc::Detail::Indent::Up;
+  }
 #endif // SYSTEMOC_DEBUG
 
   while(ol) {
 #ifdef SYSTEMOC_DEBUG
-    outDbg << ol << std::endl;
+    if (smoc::Detail::outDbg.isVisible(smoc::Detail::Debug::High)) {
+      smoc::Detail::outDbg << ol << std::endl;
+    }
 #endif // SYSTEMOC_DEBUG
     smoc_root_node &n = ol.getEventTrigger();
 #ifdef SYSTEMOC_DEBUG
-    outDbg << "<node name=\"" << n.name() << "\">" << std::endl
-           << Indent::Up;
+    if (smoc::Detail::outDbg.isVisible(smoc::Detail::Debug::High)) {
+      smoc::Detail::outDbg << "<node name=\"" << n.name() << "\">" << std::endl
+             << smoc::Detail::Indent::Up;
+    }
 #endif // SYSTEMOC_DEBUG
     n.schedule();
 #ifdef SYSTEMOC_DEBUG
-    outDbg << Indent::Down << "</node>" << std::endl;
+    if (smoc::Detail::outDbg.isVisible(smoc::Detail::Debug::High)) {
+      smoc::Detail::outDbg << smoc::Detail::Indent::Down << "</node>" << std::endl;
+    }
 #endif // SYSTEMOC_DEBUG
   }
 
 #ifdef SYSTEMOC_DEBUG
-  outDbg << Indent::Down << "</smoc_graph::scheduleDDF>" << std::endl;
+  if (smoc::Detail::outDbg.isVisible(smoc::Detail::Debug::High)) {
+    smoc::Detail::outDbg << smoc::Detail::Indent::Down << "</smoc_graph::scheduleDDF>" << std::endl;
+  }
 #endif // SYSTEMOC_DEBUG
 }

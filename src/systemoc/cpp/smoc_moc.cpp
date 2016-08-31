@@ -41,7 +41,7 @@
 #include <systemoc/smoc_graph_type.hpp>
 #include <systemoc/smoc_sr_signal.hpp>
 #include <systemoc/smoc_multicast_sr_signal.hpp>
-#include <systemoc/detail/smoc_debug_stream.hpp>
+#include <smoc/detail/DebugOStream.hpp>
 #include <smoc/smoc_simulation_ctx.hpp>
 
 #ifdef SYSTEMOC_ENABLE_VPC
@@ -174,12 +174,16 @@ void smoc_scheduler_top::schedule() {
     smoc::smoc_wait(*g);
     while (*g) {
 #ifdef SYSTEMOC_DEBUG
-      outDbg << "<node name=\"" << g->name() << "\">" << std::endl
-             << Indent::Up;
+      if (smoc::Detail::outDbg.isVisible(smoc::Detail::Debug::Medium)) {
+        smoc::Detail::outDbg << "<node name=\"" << g->name() << "\">" << std::endl
+             << smoc::Detail::Indent::Up;
+      }
 #endif // SYSTEMOC_DEBUG
       g->schedule();
 #ifdef SYSTEMOC_DEBUG
-      outDbg << Indent::Down << "</node>" << std::endl;
+      if (smoc::Detail::outDbg.isVisible(smoc::Detail::Debug::Medium)) {
+        smoc::Detail::outDbg << smoc::Detail::Indent::Down << "</node>" << std::endl;
+      }
 #endif // SYSTEMOC_DEBUG
     }
   }

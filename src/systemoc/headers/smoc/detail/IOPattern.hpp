@@ -40,6 +40,8 @@
 
 #include <list>
 
+#include <iostream>
+
 #include <systemoc/smoc_config.h>
 
 #include "../smoc_event.hpp"
@@ -65,6 +67,10 @@ namespace smoc { namespace Detail {
   typedef std::list<smoc_event_waiter*> PlainEvents;
 
   class IOPattern {
+    typedef IOPattern this_type;
+#ifdef SYSTEMOC_DEBUG
+    friend std::ostream &operator <<(std::ostream &, this_type const &);
+#endif //defined(SYSTEMOC_DEBUG)
   public:
     IOPattern() :
       ioPatternWaiter(nullptr) {}
@@ -96,6 +102,8 @@ namespace smoc { namespace Detail {
     PlainEvents plainEvents;
 
   };
+
+  std::ostream &operator <<(std::ostream &, IOPattern const &);
 
 } } // namespace smoc::Detail
 

@@ -40,22 +40,10 @@
 
 #include <systemc>
 
-#include <boost/noncopyable.hpp>
-
-#include <CoSupport/SystemC/ChannelModificationListener.hpp> 
-
 #include <systemoc/smoc_config.h>
 
-#include <smoc/smoc_simulation_ctx.hpp>
 #include "smoc_storage.hpp"
-#include "smoc_sysc_port.hpp"
-//#include <smoc/smoc_event.hpp>
-//#include <smoc/smoc_expr.hpp>
-#include "smoc_debug_stream.hpp"
-#include "smoc/detail/IOPattern.hpp"
 #include "smoc/detail/PortIOBaseIf.hpp"
-
-#include <smoc/smoc_simulation_ctx.hpp>
 
 const sc_core::sc_event &smoc_default_event_abort();
 

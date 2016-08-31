@@ -32,21 +32,21 @@
  * ENHANCEMENTS, OR MODIFICATIONS.
  */
 
-#include <systemoc/smoc_config.h>
-
 #include <smoc/detail/LatencyQueue.hpp>
-#include <smoc/detail/TraceLog.hpp>
 
 #ifdef SYSTEMOC_ENABLE_VPC
+
+# include <smoc/detail/TraceLog.hpp>
+
 # include <vpc.hpp>
-#endif //SYSTEMOC_ENABLE_VPC
 
-#ifdef SYSTEMOC_ENABLE_VPC
 namespace smoc { namespace Detail {
 
-void dump_helper(std::pair<TokenInfo, smoc_vpc_event_p> & e){
-  std::cerr << e.first.count << "\t" << e.second << "\t" << *e.second << std::endl;
-}
+void dump_helper(std::pair<TokenInfo, smoc_vpc_event_p> const &e)
+  { std::cerr << e.first.count << "\t" << e.second << "\t" << *e.second << std::endl; }
+
+void dump_helper(std::pair<size_t,    smoc_vpc_event_p> const &e)
+  { std::cerr << e.first       << "\t" << e.second << "\t" << *e.second << std::endl; }
 
 void LatencyQueue::actorTokenLatencyExpired(TokenInfo ti) {
   // TODO (ms): "unroll n"
@@ -58,10 +58,6 @@ void LatencyQueue::actorTokenLatencyExpired(TokenInfo ti) {
     this->getSimCTX()->getDataflowTraceLog()->traceEndActor(chan);
 # endif
 
-#ifdef SYSTEMOC_DEBUG
-    std::cerr << "VPC::write(" << ti.vpcIf.portIf->actor << ", "
-              << ti.vpcIf.portIf->channel << ")" << std::endl;
-#endif // SYSTEMOC_DEBUG
 //  // new FastLink interface
 //  chan->vpcLink->compute(p);
     SystemC_VPC::EventPair events = ti.vpcIf.startWrite(1);

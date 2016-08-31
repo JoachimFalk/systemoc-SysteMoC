@@ -57,7 +57,7 @@
 #include <smoc/detail/TraceLog.hpp>
 #include <systemoc/smoc_firing_rules.hpp>
 #include <systemoc/detail/smoc_firing_rules_impl.hpp>
-#include <systemoc/detail/smoc_debug_stream.hpp>
+#include <smoc/detail/DebugOStream.hpp>
 
 #ifdef SYSTEMOC_ENABLE_HOOKING
 # include <boost/regex.hpp> 
@@ -279,9 +279,11 @@ void RuntimeTransition::execute(smoc_root_node *actor) {
 #ifdef SYSTEMOC_DEBUG
   static const char *execModeName[] = { "diiStart", "diiEnd", "graph" };
 
-  outDbg << "<transition actor=\"" << actor->name()
+  if (smoc::Detail::outDbg.isVisible(smoc::Detail::Debug::Medium)) {
+    smoc::Detail::outDbg << "<transition actor=\"" << actor->name()
          << "\" mode=\"" << execModeName[execMode]
-         << "\">" << std::endl << Indent::Up;
+         << "\">" << std::endl << smoc::Detail::Indent::Up;
+  }
 #endif //SYSTEMOC_DEBUG
   
 #ifdef SYSTEMOC_ENABLE_DATAFLOW_TRACE
@@ -405,13 +407,17 @@ void RuntimeTransition::execute(smoc_root_node *actor) {
   //cout << "NextState: " << nextState->name() << " for actor: "<< actor->name() << endl;
 
 #ifdef SYSTEMOC_DEBUG
-  outDbg << Indent::Down << "</transition>"<< std::endl;
+  if (smoc::Detail::outDbg.isVisible(smoc::Detail::Debug::Medium)) {
+    smoc::Detail::outDbg << smoc::Detail::Indent::Down << "</transition>"<< std::endl;
+  }
 #endif
 }
 
 bool RuntimeTransition::evaluateIOP() const {
 #ifdef SYSTEMOC_DEBUG
-  outDbg << "[" << getIOPatternWaiter() << "] " << *getIOPatternWaiter() << std::endl;
+  if (smoc::Detail::outDbg.isVisible(smoc::Detail::Debug::Medium)) {
+    smoc::Detail::outDbg << "[" << getIOPatternWaiter() << "] " << *getIOPatternWaiter() << std::endl;
+  }
 #endif
   return getIOPatternWaiter()->isActive();
 }
@@ -619,13 +625,13 @@ void FiringFSMImpl::finalise(
     smoc_root_node* actorOrGraphNode,
     HierarchicalStateImpl* hsinit)
 {
-//  outDbg << "FiringFSMImpl::finalise(...) this == " << this << std::endl;
-//  ScopedIndent s0(outDbg);
+//  smoc::Detail::outDbg << "FiringFSMImpl::finalise(...) this == " << this << std::endl;
+//  ScopedIndent s0(smoc::Detail::outDbg);
 
   assert(actorOrGraphNode);
   //actorOrGraphNode = _actor;
 
-//  outDbg << "Actor or Graph: " << actorOrGraphNode->name() << std::endl;
+//  smoc::Detail::outDbg << "Actor or Graph: " << actorOrGraphNode->name() << std::endl;
 
 #ifdef FSM_FINALIZE_BENCHMARK  
   uint64_t finStart;
@@ -661,8 +667,8 @@ void FiringFSMImpl::finalise(
 #endif // FSM_FINALIZE_BENCHMARK
 
     // move remaining hierarchical states into top state
-//    {outDbg << "moving HS to top state" << std::endl;
-//    ScopedIndent s1(outDbg);
+//    {smoc::Detail::outDbg << "moving HS to top state" << std::endl;
+//    ScopedIndent s1(smoc::Detail::outDbg);
     
     FiringStateBaseImplSet::iterator sIter, sNext;
 
@@ -688,8 +694,8 @@ void FiringFSMImpl::finalise(
     ExpandedTransitionList etl;
 
 //  // finalise states -> expanded transitions
-//  {outDbg << "finalising states" << std::endl;
-//  ScopedIndent s1(outDbg);
+//  {smoc::Detail::outDbg << "finalising states" << std::endl;
+//  ScopedIndent s1(smoc::Detail::outDbg);
     
     // finalize all non-hierarchical states, i.e., dynamic_cast<HierarchicalStateImpl*>(...) == nullptr
     for(FiringStateBaseImplSet::iterator sIter = states.begin();
@@ -704,8 +710,8 @@ void FiringFSMImpl::finalise(
 //    }
 
 //  // calculate runtime states and transitions
-//  {outDbg << "calculating runtime states / transitions" << std::endl;
-//  ScopedIndent s1(outDbg);
+//  {smoc::Detail::outDbg << "calculating runtime states / transitions" << std::endl;
+//  ScopedIndent s1(smoc::Detail::outDbg);
 
     assert(rts.empty());
 
@@ -1072,12 +1078,16 @@ bool HierarchicalStateImpl::isMarked(const Marking& m) const {
 
 void HierarchicalStateImpl::finalise(ExpandedTransitionList& etl) {
 #ifdef SYSTEMOC_DEBUG
-  outDbg << "<HierarchicalStateImpl::finalise name=\"" << getName() << "\">"
-         << std::endl << Indent::Up;
+  if (smoc::Detail::outDbg.isVisible(smoc::Detail::Debug::High)) {
+    smoc::Detail::outDbg << "<HierarchicalStateImpl::finalise name=\"" << getName() << "\">"
+         << std::endl << smoc::Detail::Indent::Up;
+  }
 #endif // SYSTEMOC_DEBUG
 
 #ifdef SYSTEMOC_DEBUG
-  outDbg << "Code: " << code << "; Bits: " << bits << std::endl;
+  if (smoc::Detail::outDbg.isVisible(smoc::Detail::Debug::High)) {
+    smoc::Detail::outDbg << "Code: " << code << "; Bits: " << bits << std::endl;
+  }
 #endif // SYSTEMOC_DEBUG
 
   if(!c.empty()) {
@@ -1085,7 +1095,9 @@ void HierarchicalStateImpl::finalise(ExpandedTransitionList& etl) {
     size_t cb = CoSupport::Math::flog2c(static_cast<uint32_t>(cs));
     
 #ifdef SYSTEMOC_DEBUG
-    outDbg << "#C: " << cs << " -> CB: " << cb << std::endl;
+    if (smoc::Detail::outDbg.isVisible(smoc::Detail::Debug::High)) {
+      smoc::Detail::outDbg << "#C: " << cs << " -> CB: " << cb << std::endl;
+    }
 #endif // SYSTEMOC_DEBUG
 
     uint64_t cc = code << cb;
@@ -1114,7 +1126,9 @@ void HierarchicalStateImpl::finalise(ExpandedTransitionList& etl) {
   }
 
 #ifdef SYSTEMOC_DEBUG
-  outDbg << Indent::Down << "</HierarchicalStateImpl::finalise>" << std::endl;
+  if (smoc::Detail::outDbg.isVisible(smoc::Detail::Debug::High)) {
+    smoc::Detail::outDbg << smoc::Detail::Indent::Down << "</HierarchicalStateImpl::finalise>" << std::endl;
+  }
 #endif // SYSTEMOC_DEBUG
 }
 
@@ -1122,8 +1136,8 @@ void HierarchicalStateImpl::expandTransition(
     ExpandedTransitionList& etl,
     const ExpandedTransition& t) const
 {
-//  outDbg << "HierarchicalStateImpl::expandTransition(etl,t) this == " << this << std::endl;
-//  ScopedIndent s0(outDbg);
+//  smoc::Detail::outDbg << "HierarchicalStateImpl::expandTransition(etl,t) this == " << this << std::endl;
+//  ScopedIndent s0(smoc::Detail::outDbg);
   
   assert(t.getDestStates().empty());
 
@@ -1154,8 +1168,8 @@ FiringStateImpl::FiringStateImpl(const std::string& name)
 void FiringStateImpl::getInitialState(
     ProdState& p, const Marking& m) const
 {
-//  outDbg << "FiringStateImpl::getInitialState(p,m) this == " << this << std::endl;
-//  ScopedIndent s0(outDbg);
+//  smoc::Detail::outDbg << "FiringStateImpl::getInitialState(p,m) this == " << this << std::endl;
+//  ScopedIndent s0(smoc::Detail::outDbg);
 
   p.insert(this);
 }
@@ -1217,8 +1231,8 @@ void XORStateImpl::countStates(size_t& nLeaf, size_t& nAnd, size_t& nXor, size_t
 void XORStateImpl::getInitialState(
     ProdState& p, const Marking& m) const
 {
-//  outDbg << "XORStateImpl::getInitialState(p,m) this == " << this << std::endl;
-//  ScopedIndent s0(outDbg);
+//  smoc::Detail::outDbg << "XORStateImpl::getInitialState(p,m) this == " << this << std::endl;
+//  ScopedIndent s0(smoc::Detail::outDbg);
 
   HierarchicalStateImpl* t = 0;
 
@@ -1323,8 +1337,8 @@ void JunctionStateImpl::expandTransition(
     ExpandedTransitionList& etl,
     const ExpandedTransition& t) const
 {
-//  outDbg << "JunctionStateImpl::expandTransition(etl,t) this == " << this << std::endl;
-//  ScopedIndent s0(outDbg);
+//  smoc::Detail::outDbg << "JunctionStateImpl::expandTransition(etl,t) this == " << this << std::endl;
+//  ScopedIndent s0(smoc::Detail::outDbg);
 
   assert(t.getDestStates().empty());
 
@@ -1358,8 +1372,8 @@ MultiStateImpl::MultiStateImpl()
   : FiringStateBaseImpl() {}
 
 void MultiStateImpl::finalise(ExpandedTransitionList& etl) {
-//  outDbg << "MultiStateImpl::finalise(etl) this == " << this << std::endl;
-//  ScopedIndent s0(outDbg);
+//  smoc::Detail::outDbg << "MultiStateImpl::finalise(etl) this == " << this << std::endl;
+//  ScopedIndent s0(smoc::Detail::outDbg);
  
   // target state if no transitions
   if(ptl.empty())
@@ -1387,8 +1401,8 @@ void MultiStateImpl::expandTransition(
     ExpandedTransitionList& etl,
     const ExpandedTransition& t) const
 {
-//  outDbg << "MultiStateImpl::expandTransition(etl,t) this == " << this << std::endl;
-//  ScopedIndent s0(outDbg);
+//  smoc::Detail::outDbg << "MultiStateImpl::expandTransition(etl,t) this == " << this << std::endl;
+//  ScopedIndent s0(smoc::Detail::outDbg);
   
   assert(t.getDestStates().empty());
 
@@ -1407,10 +1421,10 @@ void MultiStateImpl::expandTransition(
 
 
 void MultiStateImpl::addState(HierarchicalStateImpl* s) {
-//  outDbg << "MultiStateImpl::addState(s) this == " << this << std::endl; 
-//  ScopedIndent s0(outDbg);
+//  smoc::Detail::outDbg << "MultiStateImpl::addState(s) this == " << this << std::endl; 
+//  ScopedIndent s0(smoc::Detail::outDbg);
 
-//  outDbg << "state: " << s << std::endl;
+//  smoc::Detail::outDbg << "state: " << s << std::endl;
   
   fsm->unify(s->getFiringFSM());
 
@@ -1418,10 +1432,10 @@ void MultiStateImpl::addState(HierarchicalStateImpl* s) {
 }
 
 void MultiStateImpl::addCondState(HierarchicalStateImpl* s, bool neg) {
-//  outDbg << "MultiStateImpl::addCondState(s) this == " << this << std::endl;
-//  ScopedIndent s0(outDbg);
+//  smoc::Detail::outDbg << "MultiStateImpl::addCondState(s) this == " << this << std::endl;
+//  ScopedIndent s0(smoc::Detail::outDbg);
 
-//  outDbg << "state: " << s << std::endl;
+//  smoc::Detail::outDbg << "state: " << s << std::endl;
   
   fsm->unify(s->getFiringFSM());
 

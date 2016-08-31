@@ -37,20 +37,16 @@
 #include <systemoc/smoc_expr.hpp>
 #include <smoc/smoc_simulation_ctx.hpp>
 
-namespace smoc {
-
-namespace Detail {
+namespace smoc { namespace Detail {
 
 #ifdef SYSTEMOC_DEBUG
-std::ostream &operator <<( std::ostream &out, smoc::Detail::ActivationStatus s) {
+std::ostream &operator <<(std::ostream &out, ActivationStatus s) {
   static const char *display[3] = { "DISABLED", "BLOCKED", "ENABLED" };
   
   assert(static_cast<size_t>(s.value+1) < sizeof(display)/sizeof(display[0]));
   out << display[s.value+1];
   return out;
 }
-#endif
+#endif //defined(SYSTEMOC_DEBUG)
 
-} // namespace Expr::Detail
-
-} // namespace Expr
+} } // namespace smoc::Detail
