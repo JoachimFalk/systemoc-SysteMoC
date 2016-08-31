@@ -50,55 +50,11 @@
 using namespace smoc::Detail;
 using CoSupport::String::Concat;
 
-// value_type will be constructed as T(), which initializes primite types to 0!
-static std::map<std::string, size_t> _smoc_channel_name_map;
-
-#ifndef SYSTEMOC_ENABLE_MAESTROMM_SPEEDUP
-smoc_root_chan::smoc_root_chan(const std::string& name)
-  : sc_core::sc_prim_channel(name.empty()
-      ? sc_core::sc_gen_unique_name("smoc_unnamed_channel")
-      : name.c_str()),
-    myName(name),
-    resetCalled(false)
-  {}
-#endif
-
-/// @brief Resets FIFOs which are not in the SysteMoC hierarchy
-void smoc_root_chan::start_of_simulation() {
-  if (!resetCalled)
-    doReset();
-}
-
-smoc_root_chan::~smoc_root_chan()
-  {}
-
-void smoc_root_chan::finalise() {
-#ifndef SYSTEMOC_ENABLE_MAESTROMM_SPEEDUP
-  // This is required before we use the first call to the name() method!
-  generateName();
-#endif //!SYSTEMOC_ENABLE_MAESTROMM_SPEEDUP
-
-#ifdef SYSTEMOC_DEBUG
-  if (smoc::Detail::outDbg.isVisible(smoc::Detail::Debug::High)) {
-    smoc::Detail::outDbg << "<smoc_root_chan::finalise name=\"" << name() << "\">"
-         << std::endl << smoc::Detail::Indent::Up;
-  }
-#endif // SYSTEMOC_DEBUG
-
-#ifdef SYSTEMOC_NEED_IDS  
-  // Allocate Id for myself.
-  getSimCTX()->getIdPool().addIdedObj(this);
-#endif // SYSTEMOC_NEED_IDS  
-
-#ifdef SYSTEMOC_DEBUG
-  if (smoc::Detail::outDbg.isVisible(smoc::Detail::Debug::High)) {
-    smoc::Detail::outDbg << smoc::Detail::Indent::Down << "</smoc_root_chan::finalise>" << std::endl;
-  }
-#endif // SYSTEMOC_DEBUG
-}
-
 #ifndef SYSTEMOC_ENABLE_MAESTROMM_SPEEDUP
 void smoc_root_chan::generateName() {
+  // value_type will be constructed as T(), which initializes primite types to 0!
+  static std::map<std::string, size_t> _smoc_channel_name_map;
+  
   if (myName == "") {
     //Only overwrite if not specified by user
   
@@ -138,3 +94,49 @@ void smoc_root_chan::generateName() {
   }
 }
 #endif //!SYSTEMOC_ENABLE_MAESTROMM_SPEEDUP
+
+#ifndef SYSTEMOC_ENABLE_MAESTROMM_SPEEDUP
+smoc_root_chan::smoc_root_chan(const std::string& name)
+  : sc_core::sc_prim_channel(name.empty()
+      ? sc_core::sc_gen_unique_name("smoc_unnamed_channel")
+      : name.c_str()),
+    myName(name),
+    resetCalled(false)
+  {}
+#endif
+
+/// @brief Resets FIFOs which are not in the SysteMoC hierarchy
+void smoc_root_chan::start_of_simulation() {
+  if (!resetCalled)
+    doReset();
+}
+
+/// @brief Remember that reset has been called.
+void smoc_root_chan::doReset()
+  { resetCalled = true; }
+
+smoc_root_chan::~smoc_root_chan()
+  {}
+
+void smoc_root_chan::before_end_of_elaboration() {
+#ifndef SYSTEMOC_ENABLE_MAESTROMM_SPEEDUP
+  // This is required before we use the first call to the name() method!
+  generateName();
+#endif //!defined(SYSTEMOC_ENABLE_MAESTROMM_SPEEDUP)
+#ifdef SYSTEMOC_DEBUG
+  if (smoc::Detail::outDbg.isVisible(smoc::Detail::Debug::High)) {
+    smoc::Detail::outDbg << "<smoc_root_chan::before_end_of_elaboration name=\"" << name() << "\">"
+         << std::endl << smoc::Detail::Indent::Up;
+  }
+#endif //defined(SYSTEMOC_DEBUG)
+  sc_core::sc_prim_channel::before_end_of_elaboration();
+#ifdef SYSTEMOC_NEED_IDS  
+  // Allocate Id for myself.
+  getSimCTX()->getIdPool().addIdedObj(this);
+#endif //defined(SYSTEMOC_NEED_IDS)
+#ifdef SYSTEMOC_DEBUG
+  if (smoc::Detail::outDbg.isVisible(smoc::Detail::Debug::High)) {
+    smoc::Detail::outDbg << smoc::Detail::Indent::Down << "</smoc_root_chan::before_end_of_elaboration>" << std::endl;
+  }
+#endif //defined(SYSTEMOC_DEBUG)
+}

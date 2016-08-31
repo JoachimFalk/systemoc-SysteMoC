@@ -56,16 +56,18 @@
 # include <Maestro/MetaMap/SMoCGraph.hpp>
 #endif //SYSTEMOC_ENABLE_MAESTRO
 
-#define T_chan_init_default smoc_fifo
-
 /**
  * base class for all graph classes; no scheduling of childen (->
  * derive from this class and build FSM!). If you derive more stuff
  * from this class you have to change apply_visitor.hpp accordingly.
  */
 class smoc_graph_base : public smoc_root_node {
-public:  
+  // need to call *StateChange
+  friend class smoc_multireader_fifo_chan_base;
+  friend class smoc_reset_chan;
+  friend class smoc_root_node;
   friend class smoc_scheduler_top; // finalise
+public:  
   typedef smoc_graph_base this_type;
 
 //protected:
@@ -111,7 +113,7 @@ public:
   /// connect ports using the default channel initializer
   template<class PortA, class PortB>
   void connectNodePorts(PortA &a, PortB &b) {
-    connectNodePorts(a, b, T_chan_init_default<
+    connectNodePorts(a, b, smoc_fifo<
       typename smoc::Detail::Select<
         PortTraits<PortA>::isSpecialized,
         typename PortTraits<PortA>::data_type,
@@ -123,7 +125,7 @@ public:
   /// connect ports using the default channel initializer
   template<int s, class PortA, class PortB>
   void connectNodePorts(PortA &a, PortB &b) {
-    connectNodePorts(a, b, T_chan_init_default<
+    connectNodePorts(a, b, smoc_fifo<
       typename smoc::Detail::Select<
         PortTraits<PortA>::isSpecialized,
         typename PortTraits<PortA>::data_type,
@@ -137,17 +139,17 @@ public:
   T& registerNode(T* node)
     { return *node; }
 
-  const smoc_node_list& getNodes() const;
-  void getNodesRecursive( smoc_node_list & nodes) const;
-  const smoc_chan_list& getChans() const;
-  void getChansRecursive( smoc_chan_list & channels) const;
+  const smoc_node_list &getNodes() const;
+  const smoc_chan_list &getChans() const;
+//void getNodesRecursive(smoc_node_list &nodes) const;
+//void getChansRecursive(smoc_chan_list &chans) const;
 
 protected:
   //typedef smoc_module_name sc_module_name;
 
   smoc_graph_base(const sc_core::sc_module_name& name, smoc_firing_state& init);
 
-  void finalise();
+  virtual void before_end_of_elaboration();
   
 #ifdef SYSTEMOC_ENABLE_VPC
   void finaliseVpcLink();
@@ -156,21 +158,12 @@ protected:
   /// @brief Resets given node
   void doReset();
 
-  // need to call *StateChange
-  friend class smoc_multireader_fifo_chan_base;
-  friend class smoc_reset_chan;
-  friend class smoc_root_node;
 
 private:
-  // actor and graph child objects
-  smoc_node_list nodes;
-
-  // channel child objects
-  smoc_chan_list channels;
+  smoc_node_list nodes;    ///< actor and graph child objects
+  smoc_chan_list channels; ///< channel child objects
 };
   
-#undef T_chan_init_default
-
 /**
  * graph with FSM which schedules children by selecting
  * any executable transition
@@ -189,7 +182,7 @@ public:
   
 protected:
   /// @brief See smoc_graph_base
-  void finalise();
+  virtual void before_end_of_elaboration();
 
 private:
   // graph scheduler FSM state

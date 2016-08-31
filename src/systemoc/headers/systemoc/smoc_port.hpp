@@ -110,9 +110,9 @@ protected:
 #endif //defined(SYSTEMOC_ENABLE_MAESTRO) && defined(MAESTRO_ENABLE_BRUCKNER)
   }
 
-  virtual void finalise() {
-    base_type::finalise();
-    IFACE::template PortMixin<smoc_port_base<IFACE>,IFACE>::finalise();
+  virtual void end_of_elaboration() {
+    base_type::end_of_elaboration();
+    IFACE::template PortMixin<smoc_port_base<IFACE>,IFACE>::end_of_elaboration();
   }
 
 // FIXME: If we need this again, we have to rework this to support multiple interfaces.

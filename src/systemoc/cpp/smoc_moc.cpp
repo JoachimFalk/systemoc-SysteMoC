@@ -107,6 +107,12 @@ void smoc_scheduler_top::end_of_simulation() {
 }
 
 void smoc_scheduler_top::before_end_of_elaboration() {
+#ifdef SYSTEMOC_DEBUG
+  if (smoc::Detail::outDbg.isVisible(smoc::Detail::Debug::High)) {
+    smoc::Detail::outDbg << "<smoc_scheduler_top::before_end_of_elaboration name=\"" << this->name() << "\">"
+         << std::endl << smoc::Detail::Indent::Up;
+  }
+#endif //defined(SYSTEMOC_DEBUG)
   try {
 #ifdef SYSTEMOC_ENABLE_VPC
     SystemC_VPC::Director::getInstance().beforeVpcFinalize();
@@ -122,7 +128,30 @@ void smoc_scheduler_top::before_end_of_elaboration() {
     MM::MMAPI* api = MM::MMAPI::getInstance();
     api->beforeEndOfElaboration();
 #endif //SYSTEMOC_ENABLE_MAESTRO
-    g->finalise();
+//  g->finalise();
+#ifdef SYSTEMOC_ENABLE_VPC
+#endif //SYSTEMOC_ENABLE_VPC
+  } catch (std::exception &e) {
+    std::cerr << "Got exception at smoc_scheduler_top::before_end_of_elaboration():\n\t"
+              << e.what();
+    exit(-1);
+  }
+#ifdef SYSTEMOC_DEBUG
+  if (smoc::Detail::outDbg.isVisible(smoc::Detail::Debug::High)) {
+    smoc::Detail::outDbg << smoc::Detail::Indent::Down << "</smoc_scheduler_top::before_end_of_elaboration>"
+         << std::endl;
+  }
+#endif //defined(SYSTEMOC_DEBUG)
+}
+
+void smoc_scheduler_top::end_of_elaboration() {
+#ifdef SYSTEMOC_DEBUG
+  if (smoc::Detail::outDbg.isVisible(smoc::Detail::Debug::High)) {
+    smoc::Detail::outDbg << "<smoc_scheduler_top::end_of_elaboration name=\"" << this->name() << "\">"
+         << std::endl << smoc::Detail::Indent::Up;
+  }
+#endif //defined(SYSTEMOC_DEBUG)
+  try {
 #ifdef SYSTEMOC_ENABLE_VPC
     //another finalise to patch the vpcCommTask
     // requires: ports finalised (in root_node::finalise)
@@ -131,15 +160,6 @@ void smoc_scheduler_top::before_end_of_elaboration() {
     SystemC_VPC::Director::getInstance().endOfVpcFinalize();
     validVpcConfiguration = SystemC_VPC::Director::getInstance().hasValidConfig();
 #endif //SYSTEMOC_ENABLE_VPC
-  } catch (std::exception &e) {
-    std::cerr << "Got exception at smoc_scheduler_top::before_end_of_elaboration():\n\t"
-              << e.what();
-    exit(-1);
-  }
-}
-
-void smoc_scheduler_top::end_of_elaboration() {
-  try {
 #ifdef SYSTEMOC_ENABLE_MAESTRO
     MM::MMAPI* api = MM::MMAPI::getInstance();
     api->endOfElaboration();
@@ -157,6 +177,12 @@ void smoc_scheduler_top::end_of_elaboration() {
               << e.what();
     exit(-1);
   }
+#ifdef SYSTEMOC_DEBUG
+  if (smoc::Detail::outDbg.isVisible(smoc::Detail::Debug::High)) {
+    smoc::Detail::outDbg << smoc::Detail::Indent::Down << "</smoc_scheduler_top::end_of_elaboration>"
+         << std::endl;
+  }
+#endif //defined(SYSTEMOC_DEBUG)
 }
 
 void smoc_scheduler_top::schedule() {

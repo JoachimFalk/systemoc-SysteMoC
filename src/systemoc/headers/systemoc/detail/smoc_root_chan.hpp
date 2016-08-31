@@ -53,15 +53,6 @@
 #include <smoc/smoc_simulation_ctx.hpp>
 #include "../smoc_port.hpp"
 
-#ifdef SYSTEMOC_ENABLE_VPC
-namespace SystemC_VPC {
-  class FastLink;
-}
-namespace Detail {
-  class LatencyQueue;
-}
-#endif // SYSTEMOC_ENABLE_VPC
-
 class smoc_root_chan
 : public sc_core::sc_prim_channel,
   public smoc_port_registry,
@@ -73,40 +64,36 @@ class smoc_root_chan
   typedef smoc_root_chan this_type;
   friend class smoc_graph_base; // reset
   friend class smoc_reset_chan; // reset
-#ifdef SYSTEMOC_ENABLE_VPC
-  friend class Detail::LatencyQueue;
-#endif //SYSTEMOC_ENABLE_VPC
 
 private:
 #ifndef SYSTEMOC_ENABLE_MAESTROMM_SPEEDUP
-  std::string myName; // patched in finalise
-#endif //!SYSTEMOC_ENABLE_MAESTROMM_SPEEDUP
+  std::string myName; // patched in before_end_of_elaboration
+
+  void generateName();
+#endif //!defined(SYSTEMOC_ENABLE_MAESTROMM_SPEEDUP)
   bool resetCalled;
 public:
 #ifndef SYSTEMOC_ENABLE_MAESTROMM_SPEEDUP
   /// @brief Overwrite SystemC name method to provide our own version of channel names.
   const char *name() const
     { assert(myName != ""); return myName.c_str(); }
-#endif //!SYSTEMOC_ENABLE_MAESTROMM_SPEEDUP
+#endif //!defined(SYSTEMOC_ENABLE_MAESTROMM_SPEEDUP)
 protected:
-
 #ifndef SYSTEMOC_ENABLE_MAESTROMM_SPEEDUP
   // constructor
-  smoc_root_chan(const std::string& name);
-
-  void generateName();
-#endif //!SYSTEMOC_ENABLE_MAESTROMM_SPEEDUP
+  smoc_root_chan(const std::string &name);
+#endif //!defined(SYSTEMOC_ENABLE_MAESTROMM_SPEEDUP)
 
   virtual void setChannelID( std::string sourceActor,
                              CoSupport::SystemC::ChannelId id,
                              std::string name ) {};
-  
-  /// @brief Resets FIFOs which are not in the SysteMoC hierarchy
-  void start_of_simulation();
+ 
+  virtual void before_end_of_elaboration();
 
-  virtual void finalise();
-  virtual void doReset()
-    { resetCalled = true; }
+  /// @brief Resets FIFOs which are not in the SysteMoC hierarchy
+  virtual void start_of_simulation();
+
+  virtual void doReset();
 
   virtual ~smoc_root_chan();
 private:

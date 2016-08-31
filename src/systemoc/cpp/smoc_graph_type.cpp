@@ -48,12 +48,17 @@ using namespace smoc::Detail;
 using CoSupport::String::Concat;
 
 smoc_graph_base::smoc_graph_base(
-  const sc_core::sc_module_name &name, smoc_firing_state &init)
-: smoc_root_node(name, smoc_root_node::NODE_TYPE_GRAPH, init) {}
+    const sc_core::sc_module_name &name, smoc_firing_state &init)
+  : smoc_root_node(name, smoc_root_node::NODE_TYPE_GRAPH, init)
+{}
   
-const smoc_node_list& smoc_graph_base::getNodes() const
+const smoc_node_list &smoc_graph_base::getNodes() const
   { return nodes; } 
 
+const smoc_chan_list &smoc_graph_base::getChans() const
+  { return channels; }
+
+/*
 void smoc_graph_base::getNodesRecursive( smoc_node_list & subnodes) const {
   for (
 #if SYSTEMC_VERSION < 20050714
@@ -78,10 +83,9 @@ void smoc_graph_base::getNodesRecursive( smoc_node_list & subnodes) const {
   }
   //  return subnodes;
 }
- 
-const smoc_chan_list &smoc_graph_base::getChans() const
-  { return channels; }
+ */
 
+/*
 void smoc_graph_base::getChansRecursive( smoc_chan_list & channels) const {
 
   for (
@@ -103,81 +107,41 @@ void smoc_graph_base::getChansRecursive( smoc_chan_list & channels) const {
     }
   }
 }
+ */
 
-void smoc_graph_base::finalise() {
+void smoc_graph_base::before_end_of_elaboration() {
 #ifdef SYSTEMOC_DEBUG
   if (smoc::Detail::outDbg.isVisible(smoc::Detail::Debug::High)) {
-    smoc::Detail::outDbg << "<smoc_graph_base::finalise name=\"" << name() << "\">"
+    smoc::Detail::outDbg << "<smoc_graph_base::before_end_of_elaboration name=\"" << name() << "\">"
            << std::endl << smoc::Detail::Indent::Up;
   }
-#endif // SYSTEMOC_DEBUG
+#endif //defined(SYSTEMOC_DEBUG)
+  smoc_root_node::before_end_of_elaboration();
   
-  smoc_root_node::finalise();
+  for (std::vector<sc_core::sc_object *>::const_iterator iter = get_child_objects().begin();
+       iter != get_child_objects().end();
+       ++iter) {
+    // only processing children which are nodes
+    smoc_root_node *node = dynamic_cast<smoc_root_node*>(*iter);
+    if (node)
+      nodes.push_back(node);
+  }
   
-  // FIXME: Sync. WILL have to be different than now
-  
-  // SystemC --> SGX
-  for (std::vector<sc_core::sc_object*>::const_iterator iter = get_child_objects().begin();
+  for (std::vector<sc_core::sc_object *>::const_iterator iter = get_child_objects().begin();
        iter != get_child_objects().end();
        ++iter)
   {
-    // only processing children which are nodes
-    smoc_root_node* node = dynamic_cast<smoc_root_node*>(*iter);
-    if(!node) continue;
-    
-/*  // determine if node is in XML; otherwise it will be "hidden"
-    if(NGXConfig::getInstance().hasNGX()) {  
-      
-      Process::ConstPtr proc =
-        objAs<Process>(NGXCache::getInstance().get(node));
-
-      if(!proc || proc->owner()->id() != idGraph)
-        continue;
-    }*/
-
-    nodes.push_back(node);
-  }
-  
-  for(std::vector<sc_core::sc_object*>::const_iterator iter = get_child_objects().begin();
-      iter != get_child_objects().end();
-      ++iter)
-  {
     // only processing children which are channels
-    smoc_root_chan* channel = dynamic_cast<smoc_root_chan*>(*iter);
-    if(!channel) continue;
-    
-    channels.push_back(channel);
+    smoc_root_chan *channel = dynamic_cast<smoc_root_chan*>(*iter);
+    if (channel)
+      channels.push_back(channel);
   }
-
-  // finalise for actors must precede finalise for channels,
-  // because finalise for channels needs the patched in actor
-  // references in the ports which are updated by the finalise
-  // methods of their respective actors
-  // FIXME: seems no longer to be done this way
-  for(smoc_node_list::iterator iter = nodes.begin();
-      iter != nodes.end();
-      ++iter)
-  {
-    (*iter)->finalise();
-  }
-  
-  for(smoc_chan_list::iterator iter = channels.begin();
-      iter != channels.end();
-      ++iter)
-  {
-    (*iter)->finalise();
-  }
-  
-//#ifdef SYSTEMOC_ENABLE_SGX
-//  // FIXME: FSM is attribute of Actor, not of Process
-//  pg->firingFSM() = getFiringFSM()->getNGXObj();
-//#endif
 
 #ifdef SYSTEMOC_DEBUG
   if (smoc::Detail::outDbg.isVisible(smoc::Detail::Debug::High)) {
-    smoc::Detail::outDbg << smoc::Detail::Indent::Down << "</smoc_graph_base::finalise>" << std::endl;
+    smoc::Detail::outDbg << smoc::Detail::Indent::Down << "</smoc_graph_base::before_end_of_elaboration>" << std::endl;
   }
-#endif // SYSTEMOC_DEBUG
+#endif //defined(SYSTEMOC_DEBUG)
 }
 
 #ifdef SYSTEMOC_ENABLE_VPC
@@ -200,24 +164,19 @@ void smoc_graph_base::doReset() {
   }
 #endif // SYSTEMOC_DEBUG
 
-  // reset FIFOs
+  // Reset all FIFOs.
   for(smoc_chan_list::iterator iter = channels.begin();
       iter != channels.end();
       ++iter)
-  {
     (*iter)->doReset();
-  }
-
-  // reset child nodes
+  // Reset all actors and subgraphs.
   for(smoc_node_list::iterator iter = nodes.begin();
       iter != nodes.end();
       ++iter)
-  {
     (*iter)->doReset();
-  }
-
+  // Finally, reset myself.
   smoc_root_node::doReset();
-
+  
 #ifdef SYSTEMOC_DEBUG
   if (smoc::Detail::outDbg.isVisible(smoc::Detail::Debug::High)) {
     smoc::Detail::outDbg << smoc::Detail::Indent::Down << "</smoc_graph_base::doReset>" << std::endl;
@@ -248,20 +207,20 @@ smoc_graph::smoc_graph()
 #endif //SYSTEMOC_ENABLE_MAESTRO
 }
   
-void smoc_graph::finalise() {
+void smoc_graph::before_end_of_elaboration() {
 #ifdef SYSTEMOC_DEBUG
   if (smoc::Detail::outDbg.isVisible(smoc::Detail::Debug::High)) {
-    smoc::Detail::outDbg << "<smoc_graph::finalise name=\"" << name() << "\">"
+    smoc::Detail::outDbg << "<smoc_graph::before_end_of_elaboration name=\"" << name() << "\">"
          << std::endl << smoc::Detail::Indent::Up;
   }
 #endif // SYSTEMOC_DEBUG
   
-  smoc_graph_base::finalise();
+  smoc_graph_base::before_end_of_elaboration();
   initDDF();
 
 #ifdef SYSTEMOC_DEBUG
   if (smoc::Detail::outDbg.isVisible(smoc::Detail::Debug::High)) {
-    smoc::Detail::outDbg << smoc::Detail::Indent::Down << "</smoc_graph::finalise>" << std::endl;
+    smoc::Detail::outDbg << smoc::Detail::Indent::Down << "</smoc_graph::before_end_of_elaboration>" << std::endl;
   }
 #endif // SYSTEMOC_DEBUG
 }
@@ -274,12 +233,11 @@ void smoc_graph::constructor() {
 
 void smoc_graph::initDDF() {
   // FIXME if this an initial transition, ol must be cleared
-  // up to now, this is called in finalise...
-  for(smoc_node_list::const_iterator iter = getNodes().begin();
-      iter != getNodes().end(); ++iter)
-  {
+  // up to now, this is called in before_end_of_elaboration...
+  for (smoc_node_list::const_iterator iter = getNodes().begin();
+       iter != getNodes().end();
+       ++iter)
     ol |= **iter;
-  }
 }
 
 void smoc_graph::scheduleDDF() {

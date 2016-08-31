@@ -170,7 +170,9 @@ protected:
   // bind parent port to this port
   void bind(this_type &parent_);
 
-  virtual void finalise();
+  virtual void before_end_of_elaboration();
+
+  virtual void end_of_elaboration();
 
 #ifdef SYSTEMOC_ENABLE_VPC
   virtual void finaliseVpcLink(std::string actorName);

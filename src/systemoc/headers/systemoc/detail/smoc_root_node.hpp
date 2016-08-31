@@ -121,10 +121,12 @@ public:
   };
 
 private:
-  NodeType nodeType;
-
-  /// @brief Current firing state
-  RuntimeState *currentState;
+  /// @brief is this an actor, a graph, or something else.
+  NodeType           nodeType;
+  /// @brief current firing state
+  RuntimeState      *currentState;
+  /// @brief current enabled firing transition
+  RuntimeTransition *ct;
 
 #ifdef SYSTEMOC_ENABLE_VPC
   RuntimeState *commState;
@@ -169,7 +171,9 @@ protected:
   friend class smoc_graph_base;
 
   virtual void setActivation(bool activation);
-  virtual void finalise();
+
+  virtual void before_end_of_elaboration();
+  virtual void end_of_elaboration();
 
 #ifdef SYSTEMOC_ENABLE_VPC
   virtual void finaliseVpcLink() = 0;
@@ -278,7 +282,6 @@ public:
   bool canFire();
 
   bool executing;
-  RuntimeTransition* ct;
 
   // FIXME should not be public 
   smoc::smoc_event_waiter *reset(smoc::smoc_event_listener* el)

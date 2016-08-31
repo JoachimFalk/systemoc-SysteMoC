@@ -133,7 +133,7 @@ public:
   protected:
     access_type *portAccess;
 
-    void finalise() {
+    void end_of_elaboration() {
       assert(getImpl()->portAccesses.size() == 1);
       portAccess = static_cast<access_type *>(getImpl()->portAccesses.front());
     }
@@ -265,7 +265,7 @@ public:
       return Proxy(getImpl()->portAccesses, n);
     }
   protected:
-    void finalise() {
+    void end_of_elaboration() {
     }
   };
 protected:
