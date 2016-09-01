@@ -50,6 +50,7 @@
 
 #include <CoSupport/String/Concat.hpp>
 
+#include <smoc/detail/DebugOStream.hpp>
 #include <smoc/detail/DumpingInterfaces.hpp>
 #include <smoc/detail/NamedIdedObj.hpp>
 
@@ -402,61 +403,79 @@ public:
 
   result_type operator ()(smoc_sysc_port &p) {
 #ifdef SYSTEMOC_DEBUG
-    std::cerr << "DumpPort::operator ()(smoc_sysc_port &) [BEGIN]" << std::endl;
-#endif
+    if (outDbg.isVisible(Debug::Low)) {
+      outDbg << "DumpPort::operator ()(smoc_sysc_port &) [BEGIN]" << std::endl;
+    }
+#endif //defined(SYSTEMOC_DEBUG)
     SGX::Port port(getName(&p), getId(&p));
     port.direction() = p.isInput() ? SGX::Port::In : SGX::Port::Out;
     sassert(psv.ports.insert(std::make_pair(&p, &port)).second);
     psv.proc.ports().push_back(port);
     if (p.getActorPort() == &p) {
 #ifdef SYSTEMOC_DEBUG
-      std::cerr << getName(&p) << " => expectedChannelConnections";
-#endif
+      if (outDbg.isVisible(Debug::Low)) {
+        outDbg << getName(&p) << " => expectedChannelConnections";
+      }
+#endif //defined(SYSTEMOC_DEBUG)
       for (smoc_sysc_port::Interfaces::const_iterator iter = p.get_interfaces().begin();
            iter != p.get_interfaces().end();
            ++iter) {
 #ifdef SYSTEMOC_DEBUG
-        std::cerr << " " << reinterpret_cast<void *>(*iter);
-#endif
+        if (outDbg.isVisible(Debug::Low)) {
+          outDbg << " " << reinterpret_cast<void *>(*iter);
+        }
+#endif //defined(SYSTEMOC_DEBUG)
         sassert(psv.epc.expectedChannelConnections.insert(
           std::make_pair(*iter, &port)).second);
       }
 #ifdef SYSTEMOC_DEBUG
-      std::cerr << std::endl;
-#endif
+      if (outDbg.isVisible(Debug::Low)) {
+        outDbg << std::endl;
+      }
+#endif //defined(SYSTEMOC_DEBUG)
     }
     if (p.getParentPort()) {
 #ifdef SYSTEMOC_DEBUG
-      std::cerr << getName(&p) << " => expectedOuterPorts " << p.getParentPort()->name() << std::endl;
-#endif
+      if (outDbg.isVisible(Debug::Low)) {
+        outDbg << getName(&p) << " => expectedOuterPorts " << p.getParentPort()->name() << std::endl;
+      }
+#endif //defined(SYSTEMOC_DEBUG)
       sassert(psv.epc.expectedOuterPorts.insert(
         std::make_pair(p.getParentPort(), &port)).second);
     }
     SCPortBase2Port::iterator iter = psv.expectedOuterPorts.find(&p);
     if (iter != psv.expectedOuterPorts.end()) {
 #ifdef SYSTEMOC_DEBUG
-      std::cerr << " => handeled expectedOuterPorts " << iter->second->name() << " connected to outer port " << getName(&p) << std::endl;
-#endif
+      if (outDbg.isVisible(Debug::Low)) {
+        outDbg << " => handeled expectedOuterPorts " << iter->second->name() << " connected to outer port " << getName(&p) << std::endl;
+      }
+#endif //defined(SYSTEMOC_DEBUG)
       iter->second->otherPorts().insert(port.toPtr());
       psv.expectedOuterPorts.erase(iter); // handled it!
     }
 #ifdef SYSTEMOC_DEBUG
-    std::cerr << "DumpPort::operator ()(smoc_sysc_port &) [END]" << std::endl;
-#endif
+    if (outDbg.isVisible(Debug::Low)) {
+      outDbg << "DumpPort::operator ()(smoc_sysc_port &) [END]" << std::endl;
+    }
+#endif //defined(SYSTEMOC_DEBUG)
   }
 
   result_type operator ()(sc_core::sc_port_base &p) {
 #ifdef SYSTEMOC_DEBUG
-    std::cerr << "DumpPort::operator ()(sc_port_base &) [BEGIN]" << std::endl;
-#endif
+    if (outDbg.isVisible(Debug::Low)) {
+      outDbg << "DumpPort::operator ()(sc_port_base &) [BEGIN]" << std::endl;
+    }
+#endif //defined(SYSTEMOC_DEBUG)
     ChanAdapterBase *chanAdapterBase = dynamic_cast<ChanAdapterBase *>(p.get_interface());
     if (chanAdapterBase != nullptr) {
       SGX::Port port(p.name());
       sassert(psv.ports.insert(std::make_pair(&p, &port)).second);
       psv.proc.ports().push_back(port);
 #ifdef SYSTEMOC_DEBUG
-      std::cerr << p.name() << " => unclassifiedPorts" << std::endl;
-#endif
+      if (outDbg.isVisible(Debug::Low)) {
+        outDbg << p.name() << " => unclassifiedPorts" << std::endl;
+      }
+#endif //defined(SYSTEMOC_DEBUG)
       sassert(psv.epc.unclassifiedPorts.insert(
         std::make_pair(&chanAdapterBase->getIface(), &port)).second);
       SCInterface2Port::iterator iter =
@@ -467,12 +486,16 @@ public:
       }
     } else {
 #ifdef SYSTEMOC_DEBUG
-      std::cerr << p.name() << " => ignore" << std::endl;
-#endif
+      if (outDbg.isVisible(Debug::Low)) {
+        outDbg << p.name() << " => ignore" << std::endl;
+      }
+#endif //defined(SYSTEMOC_DEBUG)
     }
 #ifdef SYSTEMOC_DEBUG
-    std::cerr << "DumpPort::operator ()(sc_port_base &) [END]" << std::endl;
-#endif
+    if (outDbg.isVisible(Debug::Low)) {
+      outDbg << "DumpPort::operator ()(sc_port_base &) [END]" << std::endl;
+    }
+#endif //defined(SYSTEMOC_DEBUG)
   }
 
 };
@@ -490,8 +513,10 @@ public:
         gsv.expectedChannelConnections.find(sci);
       if (iter != gsv.expectedChannelConnections.end()) {
 #ifdef SYSTEMOC_DEBUG
-        std::cerr << "DumpFifoBase::connectPort handeled expectedChannelConnection " << reinterpret_cast<void *>(iter->first) << std::endl;
-#endif
+        if (outDbg.isVisible(Debug::Low)) {
+          outDbg << "DumpFifoBase::connectPort handeled expectedChannelConnection " << reinterpret_cast<void *>(iter->first) << std::endl;
+        }
+#endif //defined(SYSTEMOC_DEBUG)
         pChan.actorPort() = iter->second;
         gsv.expectedChannelConnections.erase(iter); // handled it!
         return;
@@ -503,8 +528,10 @@ public:
         gsv.unclassifiedPorts.find(sci);
       if (iter != gsv.unclassifiedPorts.end()) {
 #ifdef SYSTEMOC_DEBUG
-        std::cerr << "DumpFifoBase::connectPort handeled unclassifiedPort " << reinterpret_cast<void *>(iter->first) << std::endl;
-#endif
+        if (outDbg.isVisible(Debug::Low)) {
+          outDbg << "DumpFifoBase::connectPort handeled unclassifiedPort " << reinterpret_cast<void *>(iter->first) << std::endl;
+        }
+#endif //defined(SYSTEMOC_DEBUG)
         iter->second->direction() = d;
         pChan.actorPort() = iter->second;
         gsv.unclassifiedPorts.erase(iter); // handled it!
@@ -561,8 +588,10 @@ public:
 
   result_type operator ()(smoc_fifo_chan_base &p) {
 #ifdef SYSTEMOC_DEBUG
-    std::cerr << "DumpFifo::operator ()(...) [BEGIN] for " << getName(&p) << std::endl;
-#endif
+    if (outDbg.isVisible(Debug::Low)) {
+      outDbg << "DumpFifo::operator ()(...) [BEGIN] for " << getName(&p) << std::endl;
+    }
+#endif //defined(SYSTEMOC_DEBUG)
     SGX::Fifo fifo(getName(&p), getId(&p));
     // set some attributes
     fifo.size() = p.depthCount();
@@ -573,8 +602,10 @@ public:
     p.dumpInitialTokens(&itf);
     
 #ifdef SYSTEMOC_DEBUG
-    std::cerr << "DumpFifo::operator ()(...) [END]" << std::endl;
-#endif
+    if (outDbg.isVisible(Debug::Low)) {
+      outDbg << "DumpFifo::operator ()(...) [END]" << std::endl;
+    }
+#endif //defined(SYSTEMOC_DEBUG)
   }
 };
 
@@ -605,8 +636,10 @@ public:
 
   result_type operator ()(smoc_multireader_fifo_chan_base &p) {
 #ifdef SYSTEMOC_DEBUG
-    std::cerr << "DumpMultiportFifo::operator ()(...) [BEGIN] for " << getName(&p) << std::endl;
-#endif
+    if (outDbg.isVisible(Debug::Low)) {
+      outDbg << "DumpMultiportFifo::operator ()(...) [BEGIN] for " << getName(&p) << std::endl;
+    }
+#endif //defined(SYSTEMOC_DEBUG)
     SGX::MultiportFifo fifo(getName(&p), getId(&p));
     // set some attributes
     fifo.size() = p.depthCount();
@@ -617,8 +650,10 @@ public:
     p.dumpInitialTokens(&itf);
     
 #ifdef SYSTEMOC_DEBUG
-    std::cerr << "DumpMultiportFifo::operator ()(...) [END]" << std::endl;
-#endif
+    if (outDbg.isVisible(Debug::Low)) {
+      outDbg << "DumpMultiportFifo::operator ()(...) [END]" << std::endl;
+    }
+#endif //defined(SYSTEMOC_DEBUG)
   }
 };
 
@@ -673,8 +708,10 @@ public:
 
   result_type operator ()(smoc_multiplex_fifo_chan_base &p) {
 #ifdef SYSTEMOC_DEBUG
-    std::cerr << "DumpMultiplexFifo::operator ()(...) [BEGIN] for " << getName(&p) << std::endl;
-#endif
+    if (outDbg.isVisible(Debug::Low)) {
+      outDbg << "DumpMultiplexFifo::operator ()(...) [BEGIN] for " << getName(&p) << std::endl;
+    }
+#endif //defined(SYSTEMOC_DEBUG)
     SGX::MultiplexFifo fifo(getName(&p), getId(&p));
     // set some attributes
     fifo.size() = p.depthCount();
@@ -685,8 +722,10 @@ public:
     p.dumpInitialTokens(&itf);
     
 #ifdef SYSTEMOC_DEBUG
-    std::cerr << "DumpMultiplexFifo::operator ()(...) [END]" << std::endl;
-#endif
+    if (outDbg.isVisible(Debug::Low)) {
+      outDbg << "DumpMultiplexFifo::operator ()(...) [END]" << std::endl;
+    }
+#endif //defined(SYSTEMOC_DEBUG)
   }
 };
 
@@ -701,16 +740,20 @@ public:
 
   result_type operator ()(smoc_reset_chan &p) {
 #ifdef SYSTEMOC_DEBUG
-    std::cerr << "DumpResetNet::operator ()(...) [BEGIN] for " << getName(&p) << std::endl;
-#endif
+    if (outDbg.isVisible(Debug::Low)) {
+      outDbg << "DumpResetNet::operator ()(...) [BEGIN] for " << getName(&p) << std::endl;
+    }
+#endif //defined(SYSTEMOC_DEBUG)
     SGX::ResetNet fifo(getName(&p), getId(&p));
 //  // set some attributes
 //  fifo.size() = p.depthCount();
     gsv.pg.processes().push_back(fifo);
     registerPorts(fifo, p);
 #ifdef SYSTEMOC_DEBUG
-    std::cerr << "DumpResetNet::operator ()(...) [END]" << std::endl;
-#endif
+    if (outDbg.isVisible(Debug::Low)) {
+      outDbg << "DumpResetNet::operator ()(...) [END]" << std::endl;
+    }
+#endif //defined(SYSTEMOC_DEBUG)
   }
 };
 
@@ -730,8 +773,10 @@ public:
 
   result_type operator ()(smoc_actor &a) {
 #ifdef SYSTEMOC_DEBUG
-    std::cerr << "DumpActor::operator ()(...) [BEGIN] for " << getName(&a) << std::endl;
-#endif
+    if (outDbg.isVisible(Debug::Low)) {
+      outDbg << "DumpActor::operator ()(...) [BEGIN] for " << getName(&a) << std::endl;
+    }
+#endif //defined(SYSTEMOC_DEBUG)
     SGX::Actor actor(getName(&a), getId(&a));
     actor.cxxClass() = typeid(a).name();
     ActorSubVisitor sv(gsv.ctx, gsv, actor);
@@ -819,8 +864,10 @@ public:
     }
     gsv.pg.processes().push_back(actor);
 #ifdef SYSTEMOC_DEBUG
-    std::cerr << "DumpActor::operator ()(...) [END]" << std::endl;
-#endif
+    if (outDbg.isVisible(Debug::Low)) {
+      outDbg << "DumpActor::operator ()(...) [END]" << std::endl;
+    }
+#endif //defined(SYSTEMOC_DEBUG)
   }
 };
 
@@ -835,16 +882,20 @@ public:
 
   result_type operator ()(sc_core::sc_module &a) {
 #ifdef SYSTEMOC_DEBUG
-    std::cerr << "DumpSCModule::operator ()(...) [BEGIN] for " << a.name() << std::endl;
-#endif
+    if (outDbg.isVisible(Debug::Low)) {
+      outDbg << "DumpSCModule::operator ()(...) [BEGIN] for " << a.name() << std::endl;
+    }
+#endif //defined(SYSTEMOC_DEBUG)
     SGX::SCModule scModule(a.name());
     scModule.cxxClass() = typeid(a).name();
     gsv.pg.processes().push_back(scModule);
     ProcessSubVisitor sv(gsv.ctx, gsv, scModule);
     recurse(sv, a);
 #ifdef SYSTEMOC_DEBUG
-    std::cerr << "DumpSCModule::operator ()(...) [END]" << std::endl;
-#endif
+    if (outDbg.isVisible(Debug::Low)) {
+      outDbg << "DumpSCModule::operator ()(...) [END]" << std::endl;
+    }
+#endif //defined(SYSTEMOC_DEBUG)
   }
 };
 
@@ -859,8 +910,10 @@ public:
 
   result_type operator ()(smoc_graph_base &g) {
 #ifdef SYSTEMOC_DEBUG
-    std::cerr << "DumpGraph::operator ()(...) [BEGIN] for " << getName(&g) << std::endl;
-#endif
+    if (outDbg.isVisible(Debug::Low)) {
+      outDbg << "DumpGraph::operator ()(...) [BEGIN] for " << getName(&g) << std::endl;
+    }
+#endif //defined(SYSTEMOC_DEBUG)
     SGX::RefinedProcess rp(Concat(getName(&g))("_rp"));
     gsv.pg.processes().push_back(rp);
     SGX::ProblemGraph   pg(getName(&g), getId(&g));
@@ -869,8 +922,10 @@ public:
     GraphSubVisitor sv(gsv.ctx, gsv, rp, pg);
     recurse(sv, g);
 #ifdef SYSTEMOC_DEBUG
-    std::cerr << "DumpGraph::operator ()(...) [END]" << std::endl;
-#endif
+    if (outDbg.isVisible(Debug::Low)) {
+      outDbg << "DumpGraph::operator ()(...) [END]" << std::endl;
+    }
+#endif //defined(SYSTEMOC_DEBUG)
   }
 };
 
