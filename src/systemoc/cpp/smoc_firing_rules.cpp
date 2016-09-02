@@ -102,7 +102,7 @@ struct ModelingError : public std::runtime_error {
 TransitionBase::TransitionBase(
     Guard const &g,
     const smoc_action& f)
-  : guard(g), f(f) {}
+  : guard(g), f(f), ioPattern(NULL) {}
 
 PartialTransition::PartialTransition(
     Guard const &g,
@@ -176,12 +176,6 @@ RuntimeTransition::RuntimeTransition(
 #endif //SYSTEMOC_ENABLE_MAESTRO
   , dest(dest)
 {
-  IOPattern tmp;
-  smoc::Expr::evalTo<smoc::Expr::Sensitivity>(getExpr(), tmp);
-  tmp.finalise();
-  IOPattern* iop = getCachedIOPattern(tmp);
-  transitionImpl->setIOPattern(iop);
-
 #if defined(SYSTEMOC_ENABLE_MAESTRO) && defined(MAESTRO_ENABLE_BRUCKNER)
   //FSMTransition
   this->parent = dynamic_cast<Bruckner::Model::Hierarchical*>(this->parentActor);
@@ -437,18 +431,14 @@ bool RuntimeTransition::evaluateGuard() const {
   }
 }
 
-
-void RuntimeTransition::finaliseRuntimeTransition(smoc_root_node *node) {
-
+void RuntimeTransition::before_end_of_elaboration(smoc_root_node *node) {
 #ifdef SYSTEMOC_NEED_IDS
   // Allocate Id for myself.
   getSimCTX()->getIdPool().addIdedObj(this);
 #endif // SYSTEMOC_NEED_IDS
 #ifdef SYSTEMOC_ENABLE_VPC
-
   smoc_actor * actor = dynamic_cast<smoc_actor *>(node);
   if (actor != nullptr) {
-
     FunctionNames guardNames;
     FunctionNames actionNames;
 
@@ -463,28 +453,27 @@ void RuntimeTransition::finaliseRuntimeTransition(smoc_root_node *node) {
     this->transitionImpl->vpcTask =
       SystemC_VPC::Director::getInstance().registerActor(actor,
                   node->name(), actionNames, guardNames);
+# ifdef SYSTEMOC_DEBUG_VPC_IF
+    this->transitionImpl->actor = node->name();
+# endif // SYSTEMOC_DEBUG_VPC_IF
 #ifdef SYSTEMOC_ENABLE_TRANSITION_TRACE
-  if (getSimCTX()->isTraceDumpingEnabled()){
-    getSimCTX()->getTraceFile() << "<functions transition_id=\"" << getId() << "\">";
-    for(FunctionNames::const_iterator iter = guardNames.begin();
-        iter != guardNames.end();
-        ++iter){
-      getSimCTX()->getTraceFile() << " " << *iter;
+    if (getSimCTX()->isTraceDumpingEnabled()){
+      getSimCTX()->getTraceFile() << "<functions transition_id=\"" << getId() << "\">";
+      for(FunctionNames::const_iterator iter = guardNames.begin();
+          iter != guardNames.end();
+          ++iter){
+        getSimCTX()->getTraceFile() << " " << *iter;
+      }
+      for(FunctionNames::const_iterator iter = actionNames.begin();
+          iter != actionNames.end();
+          ++iter){
+        getSimCTX()->getTraceFile() << " " << *iter;
+      }
+      getSimCTX()->getTraceFile() << "</functions>\n";
     }
-    for(FunctionNames::const_iterator iter = actionNames.begin();
-        iter != actionNames.end();
-        ++iter){
-      getSimCTX()->getTraceFile() << " " << *iter;
-    }
-    getSimCTX()->getTraceFile() << "</functions>\n";
-  }
-#endif // SYSTEMOC_ENABLE_TRANSITION_TRACE
-
-
-
+#endif //SYSTEMOC_ENABLE_TRANSITION_TRACE
   }
 #endif //SYSTEMOC_ENABLE_VPC
-
 #ifdef SYSTEMOC_ENABLE_MAESTRO
   //Fill guardNames
   smoc::dMM::MMGuardNameVisitor gVisitor((this->guardNames));
@@ -492,14 +481,16 @@ void RuntimeTransition::finaliseRuntimeTransition(smoc_root_node *node) {
 
   //Fill actionNames
   boost::apply_visitor(smoc::dMM::MMActionNameVisitor((this->actionNames)), getAction());
-
 #endif //SYSTEMOC_ENABLE_MAESTRO
-
-#ifdef SYSTEMOC_DEBUG_VPC_IF
-  this->transitionImpl->actor = node->name();
-#endif // SYSTEMOC_DEBUG_VPC_IF
 }
 
+void RuntimeTransition::end_of_elaboration() {
+  IOPattern tmp;
+  smoc::Expr::evalTo<smoc::Expr::Sensitivity>(getExpr(), tmp);
+  tmp.finalise();
+  IOPattern* iop = getCachedIOPattern(tmp);
+  transitionImpl->setIOPattern(iop);
+}
  
 static int UnnamedStateCount = 0;
 
@@ -539,11 +530,15 @@ RuntimeTransitionList& RuntimeState::getTransitions()
 void RuntimeState::addTransition(const RuntimeTransition& t,
                                  smoc_root_node *node) {
   tl.push_back(t);
+  tl.back().before_end_of_elaboration(node); // FIXME: Fix this hack!
+}
 
-  RuntimeTransition& tr = tl.back();
-
-  tr.finaliseRuntimeTransition(node);
-  am.insert(tr.getIOPatternWaiter());
+void RuntimeState::end_of_elaboration() {
+  RuntimeTransitionList::iterator iterEnd = getTransitions().end();
+  for (RuntimeTransitionList::iterator iter = getTransitions().begin(); iter != iterEnd; ++iter) {
+    iter->end_of_elaboration();
+    am.insert(iter->getIOPatternWaiter());
+  }
 }
 
 FiringFSMImpl::FiringFSMImpl()
@@ -621,9 +616,9 @@ bool isImplied(const CondMultiState& c, const ProdState& p) {
   return true;
 }
 
-void FiringFSMImpl::finalise(
-    smoc_root_node* actorOrGraphNode,
-    HierarchicalStateImpl* hsinit)
+void FiringFSMImpl::before_end_of_elaboration(
+    smoc_root_node        *actorOrGraphNode,
+    HierarchicalStateImpl *hsinit)
 {
 //  smoc::Detail::outDbg << "FiringFSMImpl::finalise(...) this == " << this << std::endl;
 //  ScopedIndent s0(smoc::Detail::outDbg);
@@ -836,6 +831,15 @@ void FiringFSMImpl::finalise(
             << "; #states: " << nRunStates << "; #trans: " << nRunTrans
             << std::endl;
 #endif // FSM_FINALIZE_BENCHMARK
+}
+
+void FiringFSMImpl::end_of_elaboration(
+    smoc_root_node        *actorOrGraphNode)
+{
+  RuntimeStateSet::iterator iterEnd = getStates().end();
+  for (RuntimeStateSet::iterator iter = getStates().begin(); iter != iterEnd; ++iter) {
+    (*iter)->end_of_elaboration();
+  }
 }
 
 void FiringFSMImpl::addState(FiringStateBaseImpl *state) {
