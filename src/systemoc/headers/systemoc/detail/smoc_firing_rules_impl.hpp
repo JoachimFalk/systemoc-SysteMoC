@@ -307,7 +307,9 @@ public:
 
   void *getID() const;
 
-  void finaliseRuntimeTransition(smoc_root_node* node);
+  void before_end_of_elaboration(smoc_root_node* node);
+
+  void end_of_elaboration();
 
 #ifdef SYSTEMOC_ENABLE_MAESTRO
   virtual bool hasWaitAction();
@@ -345,6 +347,8 @@ public:
 
   void addTransition(const RuntimeTransition& t,
                      smoc_root_node *node);
+
+  void end_of_elaboration();
 
   EventWaiterSet am;
 
@@ -385,10 +389,14 @@ public:
   /// @brief Destructor
   ~FiringFSMImpl();
 
-  /// @brief Hierarchical end-of-elaboration callback
-  void finalise(
+  /// @brief Hierarchical before end-of-elaboration callback
+  void before_end_of_elaboration(
       smoc_root_node        *actor,
       HierarchicalStateImpl *init);
+
+  /// @brief Hierarchical end-of-elaboration callback
+  void end_of_elaboration(
+      smoc_root_node        *actor);
 
   /// @brief Merge firing FSMs
   void unify(this_type *fr);

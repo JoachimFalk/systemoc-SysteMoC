@@ -87,10 +87,13 @@ void smoc_root_node::before_end_of_elaboration() {
   // Allocate Id for myself.
   getSimCTX()->getIdPool().addIdedObj(this);
 #endif // SYSTEMOC_NEED_IDS
-  getFiringFSM()->finalise(this,
+  getFiringFSM()->before_end_of_elaboration(this,
     initialStatePtr
     ? CoSupport::DataTypes::FacadeCoreAccess::getImpl(initialStatePtr)
     : CoSupport::DataTypes::FacadeCoreAccess::getImpl(initialState));
+//#ifdef SYSTEMOC_ENABLE_VPC
+//  getCommState()->before_end_of_elaboration(this);
+//#endif // SYSTEMOC_ENABLE_VPC
 #ifdef SYSTEMOC_DEBUG
   if (smoc::Detail::outDbg.isVisible(smoc::Detail::Debug::High)) {
     smoc::Detail::outDbg << smoc::Detail::Indent::Down << "</smoc_root_node::before_end_of_elaboration>"
@@ -107,6 +110,10 @@ void smoc_root_node::end_of_elaboration() {
   }
 #endif //defined(SYSTEMOC_DEBUG)
   sc_core::sc_module::end_of_elaboration();
+  getFiringFSM()->end_of_elaboration(this);
+#ifdef SYSTEMOC_ENABLE_VPC
+  getCommState()->end_of_elaboration();
+#endif // SYSTEMOC_ENABLE_VPC
   executing    = false;
 #ifdef SYSTEMOC_DEBUG
   if (smoc::Detail::outDbg.isVisible(smoc::Detail::Debug::High)) {
