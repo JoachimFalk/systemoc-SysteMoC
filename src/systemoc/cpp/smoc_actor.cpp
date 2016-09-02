@@ -99,7 +99,7 @@ void smoc_actor::setScheduled(bool set)
 
 void smoc_actor::getCurrentTransition(MetaMap::Transition*& activeTransition)
 {
-  activeTransition = (MetaMap::Transition*) this->ct;
+  smoc_root_node::getCurrentTransition(activeTransition);
 }
 
 void smoc_actor::registerTransitionReadyListener(MetaMap::TransitionReadyListener& listener)
