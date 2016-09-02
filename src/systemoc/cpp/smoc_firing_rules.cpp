@@ -170,11 +170,12 @@ RuntimeTransition::RuntimeTransition(
   , SMoCActor& pActor
 #endif //SYSTEMOC_ENABLE_MAESTRO
   , RuntimeState *dest)
-  : transitionImpl(tip)
+  :
 #ifdef SYSTEMOC_ENABLE_MAESTRO
-  , Transition(pActor)
+    Transition(pActor),
 #endif //SYSTEMOC_ENABLE_MAESTRO
-  , dest(dest)
+    transitionImpl(tip),
+    dest(dest)
 {
 #if defined(SYSTEMOC_ENABLE_MAESTRO) && defined(MAESTRO_ENABLE_BRUCKNER)
   //FSMTransition
