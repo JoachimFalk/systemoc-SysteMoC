@@ -149,6 +149,8 @@ public:
    * Flag to determine if the actor can be executed if its schedulers enables it
    */
   bool scheduled;
+
+  void getCurrentTransition(MetaMap::Transition*& activeTransition);
 #endif //SYSTEMOC_ENABLE_MAESTRO
 
 private:

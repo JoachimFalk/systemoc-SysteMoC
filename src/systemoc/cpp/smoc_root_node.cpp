@@ -392,7 +392,12 @@ bool smoc_root_node::testCanFire()
 {
   return (ct != NULL && !executing);
 }
-#endif
+
+void smoc_root_node::getCurrentTransition(MetaMap::Transition *&activeTransition)
+{
+  activeTransition = static_cast<MetaMap::Transition *>(this->ct);
+}
+#endif //defined(SYSTEMOC_ENABLE_MAESTRO)
 
 void smoc_root_node::setActivation(bool activation){
   if(activation) {
