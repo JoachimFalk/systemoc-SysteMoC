@@ -33,7 +33,8 @@
  * ENHANCEMENTS, OR MODIFICATIONS.
  */
 
-#include <systemoc/smoc_tt.hpp>
+#include <systemoc/smoc_periodic_actor.hpp>
+#include <systemoc/smoc_graph_tt.hpp>
 #include <smoc/detail/DebugOStream.hpp>
 
 smoc_graph_tt::smoc_graph_tt(const sc_core::sc_module_name& name) :

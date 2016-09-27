@@ -1,6 +1,6 @@
 // vim: set sw=2 ts=8:
 /*
- * Copyright (c) 2004-2009 Hardware-Software-CoDesign, University of Erlangen-Nuremberg.
+ * Copyright (c) 2004-2016 Hardware-Software-CoDesign, University of Erlangen-Nuremberg.
  * 
  *   This library is free software; you can redistribute it and/or modify it under
  *   the terms of the GNU Lesser General Public License as published by the Free
@@ -35,7 +35,9 @@
 #ifndef _INCLUDED_SMOC_HPP
 #define _INCLUDED_SMOC_HPP
 
-#include "smoc/SimulationContext.hpp"
+#include "smoc/smoc_event.hpp"
+#include "smoc/smoc_expr.hpp"
+#include "smoc/smoc_graph.hpp"
 #include "smoc/smoc_hooking.hpp"
 
 #endif // _INCLUDED_SMOC_HPP
