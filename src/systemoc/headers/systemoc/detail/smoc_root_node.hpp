@@ -51,12 +51,12 @@
 
 #include <systemoc/smoc_config.h>
 
+#include "../../smoc/detail/NamedIdedObj.hpp"
+#include "../../smoc/detail/SimulationContext.hpp"
+#include "../../smoc/smoc_expr.hpp"
 #include "../smoc_firing_rules.hpp"
 #include "smoc_firing_rules_impl.hpp"
 #include "smoc_sysc_port.hpp"
-#include <smoc/detail/NamedIdedObj.hpp>
-#include <smoc/smoc_simulation_ctx.hpp>
-#include <smoc/smoc_expr.hpp>
 
 #ifdef SYSTEMOC_ENABLE_HOOKING
 # include <smoc/smoc_hooking.hpp>
@@ -88,6 +88,12 @@
 # define SMOC_GUARDI(ins,func)      guardi(ins, &func, #func)
 #endif //SYSTEMOC_ENABLE_MAESTRO
 
+namespace smoc { namespace Detail {
+
+  class GraphBase;
+
+} } // namespace smoc::Detail
+
 /**
  * smoc_root_node is the base class of all systemoc nodes be it
  * actors or graphs! If you derive more stuff from this class
@@ -109,6 +115,7 @@ class smoc_root_node
   friend class RuntimeTransition;
   // To call doReset()
   friend class smoc_reset_chan;
+  friend class smoc::Detail::GraphBase;
 #ifdef SYSTEMOC_ENABLE_HOOKING
   // To manipulate transitionHooks
   friend void smoc::Hook::Detail::addTransitionHook(smoc_actor *, const smoc::Hook::Detail::TransitionHook &);
@@ -170,8 +177,6 @@ private:
 protected:
   smoc_root_node(sc_core::sc_module_name, NodeType nodeType, smoc_hierarchical_state &s);
   
-  friend class smoc_graph_base;
-
   virtual void setActivation(bool activation);
 
   virtual void before_end_of_elaboration();

@@ -231,9 +231,9 @@ ExprNGXVisitor::result_type ExprNGXVisitor::operator()(ASTNodePortIteration &a) 
 */
 
 struct SMXDumpCTX {
-  smoc_simulation_ctx *simCTX;
+  SimulationContext *simCTX;
 
-  SMXDumpCTX(smoc_simulation_ctx *ctx)
+  SMXDumpCTX(SimulationContext *ctx)
     : simCTX(ctx) {}
 };
 
@@ -360,7 +360,7 @@ public:
   GraphSubVisitor(SMXDumpCTX &ctx, ExpectedPortConnections &epc, SGX::RefinedProcess &proc, SGX::ProblemGraph &pg)
     : ProcessSubVisitor(ctx, epc, proc), pg(pg) {}
 
-  void operator ()(smoc_graph_base &obj);
+  void operator ()(GraphBase &obj);
 
   void operator ()(sc_core::sc_module &obj);
 
@@ -908,7 +908,7 @@ public:
   DumpGraph(GraphSubVisitor &gsv)
     : gsv(gsv) {}
 
-  result_type operator ()(smoc_graph_base &g) {
+  result_type operator ()(GraphBase &g) {
 #ifdef SYSTEMOC_DEBUG
     if (outDbg.isVisible(Debug::Low)) {
       outDbg << "DumpGraph::operator ()(...) [BEGIN] for " << getName(&g) << std::endl;
@@ -937,7 +937,7 @@ void ProcessSubVisitor::operator ()(sc_core::sc_port_base &obj) {
   DumpPort(*this)(obj);
 }
 
-void GraphSubVisitor::operator ()(smoc_graph_base &obj) {
+void GraphSubVisitor::operator ()(GraphBase &obj) {
   DumpGraph(*this)(obj);
 }
 
@@ -973,7 +973,7 @@ GraphSubVisitor::~GraphSubVisitor() {
   expectedChannelConnections.clear();
 }
 
-void dumpSMX(std::ostream &file, smoc_simulation_ctx *simCTX, smoc_graph_base &g) {
+void dumpSMX(std::ostream &file, SimulationContext *simCTX, GraphBase &g) {
   SGX::NetworkGraphAccess ngx;
   SMXDumpCTX              ctx(simCTX);
   ExpectedPortConnections epc;

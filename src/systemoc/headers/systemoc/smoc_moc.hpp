@@ -33,8 +33,8 @@
  * ENHANCEMENTS, OR MODIFICATIONS.
  */
 
-#ifndef _INCLUDED_SMOC_MOC_HPP
-#define _INCLUDED_SMOC_MOC_HPP
+#ifndef _INCLUDED_SYSTEMOC_SMOC_MOC_HPP
+#define _INCLUDED_SYSTEMOC_SMOC_MOC_HPP
 
 #include <list>
 
@@ -51,19 +51,18 @@
 # include <Maestro/MetaMap/interface.hpp>
 #endif //SYSTEMOC_ENABLE_MAESTRO
 
-#include <smoc/smoc_simulation_ctx.hpp>
+#include <smoc/detail/SimulationContext.hpp>
 
 #include "smoc_firing_rules.hpp"
 #include "detail/smoc_root_node.hpp"
-
-class smoc_graph_base;
+#include "../smoc/detail/GraphBase.hpp"
 
 class smoc_scheduler_top
 : public sc_core::sc_module,
   public smoc::Detail::SimCTXBase {
 public:
-  smoc_scheduler_top(smoc_graph_base* g);
-  smoc_scheduler_top(smoc_graph_base& g);
+  smoc_scheduler_top(smoc::Detail::GraphBase *g);
+  smoc_scheduler_top(smoc::Detail::GraphBase &g);
   ~smoc_scheduler_top();
 
 protected:
@@ -76,7 +75,7 @@ private:
   typedef CoSupport::SystemC::EventOrList
     <RuntimeTransition> smoc_transition_ready_list;
 
-  smoc_graph_base* g;
+  smoc::Detail::GraphBase *g;
   bool validVpcConfiguration;
   bool simulation_running;
   SC_HAS_PROCESS(smoc_scheduler_top);
@@ -98,7 +97,7 @@ public:
 
   // -jens-
   // FIXME: this copies given parameter and makes it impossible to use
-  //   references in constructor of smoc_graph_base! Copying is evil anyway (much
+  //   references in constructor of GraphBase! Copying is evil anyway (much
   //   data, pointers, references, copy constructor has to exist, ...)
 
   //typedef smoc_module_name sc_module_name;
@@ -123,10 +122,9 @@ public:
   explicit smoc_top_moc(sc_core::sc_module_name name, T1 p1, T2 p2, T3 p3, T4 p4, T5 p5)
     : Graph(name, p1, p2, p3, p4, p5), s(this) {}
 
-  static void beforeSimulation()
-  {
+  static void beforeSimulation() {
 #ifdef SYSTEMOC_ENABLE_MAESTRO
-	  MM::MMAPI::reInit();
+    MM::MMAPI::reInit();
 #endif
   }
 
@@ -134,6 +132,4 @@ private:
   smoc_scheduler_top s;
 };
 
-#endif // _INCLUDED_SMOC_MOC_HPP
-
-#include "smoc_graph_type.hpp"
+#endif // _INCLUDED_SYSTEMOC_SMOC_MOC_HPP

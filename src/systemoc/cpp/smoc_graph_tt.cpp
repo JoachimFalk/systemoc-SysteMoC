@@ -37,7 +37,7 @@
 #include <smoc/detail/DebugOStream.hpp>
 
 smoc_graph_tt::smoc_graph_tt(const sc_core::sc_module_name& name) :
-  smoc_graph_base(name, run),
+  GraphBase(name, run),
   // Prefix all SysteMoC internal modules with __smoc_ to enable filtering out the module on smx dump!
   ttNodeQueue("__smoc_ttEventQueue"),
   run("run")
@@ -46,7 +46,7 @@ smoc_graph_tt::smoc_graph_tt(const sc_core::sc_module_name& name) :
 }
 
 smoc_graph_tt::smoc_graph_tt() :
-  smoc_graph_base(sc_core::sc_gen_unique_name("smoc_graph_tt"), run),
+  GraphBase(sc_core::sc_gen_unique_name("smoc_graph_tt"), run),
   // Prefix all SysteMoC internal modules with __smoc_ to enable filtering out the module on smx dump!
   ttNodeQueue("__smoc_ttNodeQueue"),
   run("run")
@@ -62,7 +62,7 @@ void smoc_graph_tt::before_end_of_elaboration() {
   }
 #endif // SYSTEMOC_DEBUG
   
-  smoc_graph_base::before_end_of_elaboration();
+  GraphBase::before_end_of_elaboration();
   initTT();
 
 #ifdef SYSTEMOC_DEBUG

@@ -47,7 +47,7 @@
 
 #include <systemoc/smoc_config.h>
 
-#include <smoc/smoc_simulation_ctx.hpp>
+#include <smoc/detail/SimulationContext.hpp>
 #include <smoc/detail/DebugOStream.hpp>
 
 #ifdef SYSTEMOC_ENABLE_VPC
@@ -56,15 +56,14 @@
 
 #include <smoc/detail/TraceLog.hpp>
 
+namespace smoc { namespace Detail {
+
 namespace po = boost::program_options;
 
-namespace smoc {
+// This global variable will also be used in <smoc/detail/SimCTXBase.hpp>
+SimulationContext *currentSimCTX = nullptr;
 
-namespace Detail {
-  smoc_simulation_ctx *currentSimCTX = nullptr;
-} // namespace Detail
-
-smoc_simulation_ctx::smoc_simulation_ctx(int _argc, char *_argv[])
+SimulationContext::SimulationContext(int _argc, char *_argv[])
   :
 #ifdef SYSTEMOC_ENABLE_SGX
     dumpPreSimSMXKeepGoing(false),
@@ -173,8 +172,8 @@ smoc_simulation_ctx::smoc_simulation_ctx(int _argc, char *_argv[])
     po::command_line_parser(_argc, _argv).options(od).allow_unregistered().run();
 
 #ifdef SYSTEMOC_DEBUG
-  Detail::outDbg.setLevel(Detail::Debug::None);
-  Detail::outDbg << Detail::Debug::High;
+  outDbg.setLevel(Debug::None);
+  outDbg << Debug::High;
 #endif // !SYSTEMOC_DEBUG
   
   argv.push_back(strdup(_argc >= 1 ? _argv[0] : "???"));
@@ -188,9 +187,9 @@ smoc_simulation_ctx::smoc_simulation_ctx(int _argc, char *_argv[])
     } else if (i->string_key == "systemoc-debug") {
       assert(!i->value.empty());
 #ifdef SYSTEMOC_DEBUG
-      int   debugLevel = Detail::Debug::None.level - atoi(i->value.front().c_str());
-      Detail::outDbg.setLevel(debugLevel < 0 ? 0 : debugLevel);
-      Detail::outDbg << Detail::Debug::High;
+      int   debugLevel = Debug::None.level - atoi(i->value.front().c_str());
+      outDbg.setLevel(debugLevel < 0 ? 0 : debugLevel);
+      outDbg << Debug::High;
 #else  // !SYSTEMOC_DEBUG
       std::ostringstream str;
       str << "SysteMoC configured without debug output support: --" << i->string_key << " option not provided!";
@@ -250,7 +249,7 @@ smoc_simulation_ctx::smoc_simulation_ctx(int _argc, char *_argv[])
 //#ifdef SYSTEMOC_ENABLE_SGX
 //    
 //    CoSupport::Streams::AIStream in(std::cin, i->value.front(), "-");
-//    smoc::Detail::NGXConfig::getInstance().loadNGX(in);
+//    smoc::NGXConfig::getInstance().loadNGX(in);
 //#else  // !SYSTEMOC_ENABLE_SGX
 //    std::ostringstream str;
 //    str << "SysteMoC configured without sgx support: --" << i->string_key << " option not provided!";
@@ -281,7 +280,7 @@ smoc_simulation_ctx::smoc_simulation_ctx(int _argc, char *_argv[])
 # ifdef SYSTEMOC_ENABLE_SGX
       dumpPreSimSMXKeepGoing = true;
 # endif // SYSTEMOC_ENABLE_SGX
-      dataflowTraceLog = new smoc::Detail::TraceLogStream(
+      dataflowTraceLog = new smoc::TraceLogStream(
         new CoSupport::Streams::AOStream(std::cout, i->value.front(), "-"));
       dataflowTraceLog->init();
 #else  // !SYSTEMOC_ENABLE_DATAFLOW_TRACE
@@ -336,21 +335,21 @@ smoc_simulation_ctx::smoc_simulation_ctx(int _argc, char *_argv[])
   SystemC_VPC::Director::getInstance();
 #endif
   
-  if (Detail::currentSimCTX == nullptr)
+  if (currentSimCTX == nullptr)
     defCurrentCTX();
 }
 
-void smoc_simulation_ctx::defCurrentCTX() {
-  assert(Detail::currentSimCTX == nullptr);
-  Detail::currentSimCTX = this;
+void SimulationContext::defCurrentCTX() {
+  assert(currentSimCTX == nullptr);
+  currentSimCTX = this;
 }
 
-void smoc_simulation_ctx::undefCurrentCTX() {
-  assert(Detail::currentSimCTX == this);
-  Detail::currentSimCTX = nullptr;
+void SimulationContext::undefCurrentCTX() {
+  assert(currentSimCTX == this);
+  currentSimCTX = nullptr;
 }
 
-smoc_simulation_ctx::~smoc_simulation_ctx() {
+SimulationContext::~SimulationContext() {
   for (std::vector<char *>::iterator iter = argv.begin();
        iter != argv.end();
        ++iter)
@@ -370,20 +369,20 @@ smoc_simulation_ctx::~smoc_simulation_ctx() {
   delete dataflowTraceLog;
 #endif // SYSTEMOC_ENABLE_DATAFLOW_TRACE
   
-  if (Detail::currentSimCTX == this)
+  if (currentSimCTX == this)
     undefCurrentCTX();
 }
 
-int smoc_simulation_ctx::getArgc() {
+int SimulationContext::getArgc() {
   return argv.size() - 1;
 }
 
-char **smoc_simulation_ctx::getArgv() {
+char **SimulationContext::getArgv() {
   return &argv[0];
 }
 
 // end of simulation call back: clean SystemC related objects here
-void smoc_simulation_ctx::endOfSystemcSimulation(){
+void SimulationContext::endOfSystemcSimulation(){
   static bool called = 0;
   if (!called) {
     called = true;
@@ -398,4 +397,4 @@ void smoc_simulation_ctx::endOfSystemcSimulation(){
   }
 }
 
-} // namespace smoc
+} } // namespace smoc::Detail

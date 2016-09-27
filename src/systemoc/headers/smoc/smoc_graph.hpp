@@ -1,6 +1,7 @@
+//  -*- tab-width:8; intent-tabs-mode:nil;  c-basic-offset:2; -*-
 // vim: set sw=2 ts=8:
 /*
- * Copyright (c) 2004-2009 Hardware-Software-CoDesign, University of Erlangen-Nuremberg.
+ * Copyright (c) 2004-2016 Hardware-Software-CoDesign, University of Erlangen-Nuremberg.
  * 
  *   This library is free software; you can redistribute it and/or modify it under
  *   the terms of the GNU Lesser General Public License as published by the Free
@@ -32,12 +33,54 @@
  * ENHANCEMENTS, OR MODIFICATIONS.
  */
 
-#include <smoc/detail/SimulationContext.hpp>
+#ifndef _INCLUDED_SMOC_SMOC_GRAPH_HPP
+#define _INCLUDED_SMOC_SMOC_GRAPH_HPP
 
-#include <sysc/kernel/sc_cmnhdr.h>
-#include <sysc/kernel/sc_externs.h>
+#include "detail/GraphBase.hpp"
 
-int smoc_elab_and_sim(int _argc, char *_argv[]) {
-  smoc::Detail::SimulationContext ctx(_argc, _argv);
-  return sc_core::sc_elab_and_sim(ctx.getArgc(), ctx.getArgv());  
-}
+namespace smoc {
+
+/**
+ * graph with FSM which schedules children by selecting
+ * any executable transition
+ */
+class smoc_graph : public Detail::GraphBase
+#ifdef SYSTEMOC_ENABLE_MAESTRO
+, public MetaMap::SMoCGraph
+#endif //SYSTEMOC_ENABLE_MAESTRO
+{
+public:
+  // construct graph with name
+  explicit smoc_graph(const sc_core::sc_module_name& name);
+
+  // construct graph with generated name
+  smoc_graph();
+  
+protected:
+  /// @brief See GraphBase
+  virtual void before_end_of_elaboration();
+
+private:
+  // graph scheduler FSM state
+  smoc_firing_state run;
+
+  // common constructor code
+  void constructor();
+
+  void initDDF();
+
+  // schedule children of this graph
+  void scheduleDDF();
+
+  // a list containing the transitions of the graph's children
+  // that may be executed
+
+  typedef CoSupport::SystemC::EventOrList<smoc_root_node>
+          smoc_node_ready_list;
+
+  smoc_node_ready_list ol;
+};
+
+} // namespace smoc
+
+#endif // _INCLUDED_SMOC_SMOC_GRAPH_HPP

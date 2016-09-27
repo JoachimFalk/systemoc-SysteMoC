@@ -45,13 +45,13 @@ nobase_include_HEADERS = \
 	smoc/detail/QueueRWPtr.hpp \
 	smoc/detail/QueueWithStorage.hpp \
 	smoc/detail/SimCTXBase.hpp \
+	smoc/detail/SimulationContext.hpp \
 	smoc/detail/TraceLog.hpp \
 	smoc/detail/TransitionHook.hpp \
 	smoc/detail/VpcInterface.hpp \
 	smoc/smoc_event.hpp \
 	smoc/smoc_expr.hpp \
 	smoc/smoc_hooking.hpp \
-	smoc/smoc_simulation_ctx.hpp \
 	systemoc/detail/smoc_chan_if.hpp \
 	systemoc/detail/smoc_fifo_storage.hpp \
 	systemoc/detail/smoc_firing_rules_impl.hpp \

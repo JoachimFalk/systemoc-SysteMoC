@@ -1,6 +1,6 @@
 // vim: set sw=2 ts=8:
 /*
- * Copyright (c) 2004-2009 Hardware-Software-CoDesign, University of Erlangen-Nuremberg.
+ * Copyright (c) 2004-2016 Hardware-Software-CoDesign, University of Erlangen-Nuremberg.
  * 
  *   This library is free software; you can redistribute it and/or modify it under
  *   the terms of the GNU Lesser General Public License as published by the Free
@@ -32,8 +32,8 @@
  * ENHANCEMENTS, OR MODIFICATIONS.
  */
 
-#ifndef _INCLUDED_SMOC_SIMULATIONCTX_HPP
-#define _INCLUDED_SMOC_SIMULATIONCTX_HPP
+#ifndef _INCLUDED_SMOC_DETAIL_SIMULATIONCONTEXT_HPP
+#define _INCLUDED_SMOC_DETAIL_SIMULATIONCONTEXT_HPP
 
 #include <CoSupport/compatibility-glue/nullptr.h>
 
@@ -42,16 +42,16 @@
 
 #include <systemoc/smoc_config.h>
 
-#include "detail/IdPool.hpp"
-#include "detail/SimCTXBase.hpp"
+#include "IdPool.hpp"
+#include "SimCTXBase.hpp"
 
 #ifdef MAESTRO_ENABLE_POLYPHONIC
 #include <boost/thread/mutex.hpp>
 #endif
 
-namespace smoc {
+namespace smoc { namespace Detail {
 
-class smoc_simulation_ctx {
+class SimulationContext {
 protected:
   std::vector<char *> argv;
 
@@ -73,7 +73,7 @@ protected:
   bool dummy;
   bool vpcScheduling;
 public:
-  smoc_simulation_ctx(int _argc, char *_argv[]);
+  SimulationContext(int _argc, char *_argv[]);
 
 #ifdef MAESTRO_ENABLE_POLYPHONIC
   boost::mutex* event_mutex;
@@ -122,12 +122,12 @@ public:
   // end of simulation call back: clean SystemC related objects here
   void endOfSystemcSimulation();
 
-  ~smoc_simulation_ctx();
+  ~SimulationContext();
 
 private:
-  smoc_simulation_ctx( const smoc_simulation_ctx & toCopy ) {}
+  SimulationContext( const SimulationContext & toCopy ) {}
 };
 
-} // namespace smoc
+} } // namespace smoc::Detail
 
-#endif // _INCLUDED_SMOC_SIMULATIONCTX_HPP
+#endif // _INCLUDED_SMOC_DETAIL_SIMULATIONCONTEXT_HPP

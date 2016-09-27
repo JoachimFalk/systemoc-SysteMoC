@@ -52,8 +52,8 @@
 #include <systemoc/detail/smoc_func_call.hpp>
 #include <smoc/smoc_expr.hpp>
 
-#include <systemoc/smoc_node_types.hpp>
-#include <systemoc/smoc_graph_type.hpp>
+#include <systemoc/smoc_actor.hpp>
+#include <systemoc/smoc_graph.hpp>
 #include <smoc/detail/TraceLog.hpp>
 #include <systemoc/smoc_firing_rules.hpp>
 #include <systemoc/detail/smoc_firing_rules_impl.hpp>

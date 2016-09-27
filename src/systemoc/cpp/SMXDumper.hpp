@@ -41,7 +41,7 @@
 
 namespace smoc { namespace Detail {
 
-void dumpSMX(std::ostream &file, smoc_simulation_ctx *simCTX, smoc_graph_base &g);
+void dumpSMX(std::ostream &file, SimulationContext *simCTX, GraphBase &g);
 
 } } // namespace smoc::Detail
 

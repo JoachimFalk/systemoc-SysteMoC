@@ -44,7 +44,7 @@
 
 #include <smoc/detail/NamedIdedObj.hpp>
 #include <smoc/detail/PortIOBaseIf.hpp>
-#include <smoc/smoc_simulation_ctx.hpp>
+#include <smoc/detail/SimulationContext.hpp>
 #include <smoc/smoc_event.hpp>
 
 #ifdef SYSTEMOC_ENABLE_VPC
