@@ -38,24 +38,20 @@
 
 #include <systemoc/smoc_config.h>
 
-namespace smoc {
-
-  class smoc_simulation_ctx;
-
-} // namespace smoc
-
 namespace smoc { namespace Detail {
+
+  class SimulationContext;
 
 #ifdef SYSTEMOC_ENABLE_DATAFLOW_TRACE
   class TraceLogStream; 
 #endif // SYSTEMOC_ENABLE_DATAFLOW_TRACE
 
-  extern smoc_simulation_ctx *currentSimCTX;
+  extern SimulationContext *currentSimCTX;
 
   struct SimCTXBase {
-    smoc_simulation_ctx       *getSimCTX()
+    SimulationContext       *getSimCTX()
       { return currentSimCTX; }
-    smoc_simulation_ctx const *getSimCTX() const
+    SimulationContext const *getSimCTX() const
       { return currentSimCTX; }
   };
 

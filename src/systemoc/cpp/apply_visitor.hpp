@@ -80,18 +80,18 @@ namespace Detail {
 
 _SMOC_GENERATE_APPLY_VISITOR(smoc_graph)
 
-/* smoc_graph_base */
+/* GraphBase */
 
 namespace Detail {
   template<template <class> class M, class Visitor>
   typename Visitor::result_type
-  apply_visitor_helper(Visitor &visitor, typename M<smoc_graph_base>::type *ptr) {
+  apply_visitor_helper(Visitor &visitor, typename M<GraphBase>::type *ptr) {
     _SMOC_HANDLE_DERIVED_CLASS(smoc_graph);
-    assert(!"WTF?! Unhandled derived class of smoc_graph_base!");
+    assert(!"WTF?! Unhandled derived class of GraphBase!");
   }
 } // namespace Detail
 
-_SMOC_GENERATE_APPLY_VISITOR(smoc_graph_base)
+_SMOC_GENERATE_APPLY_VISITOR(GraphBase)
 
 /* smoc_actor */
 
@@ -111,7 +111,7 @@ namespace Detail {
   typename Visitor::result_type
   apply_visitor_helper(Visitor &visitor, typename M<smoc_root_node>::type *ptr) {
     _SMOC_HANDLE_DERIVED_CLASS(smoc_actor);
-    _SMOC_HANDLE_DERIVED_CLASS(smoc_graph_base);
+    _SMOC_HANDLE_DERIVED_CLASS(GraphBase);
     assert(!"WTF?! Unhandled derived class of smoc_root_node!");
   }
 } // namespace Detail

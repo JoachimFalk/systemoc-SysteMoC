@@ -35,7 +35,7 @@
 #include <systemoc/smoc_config.h>
 
 #include <systemoc/smoc_multireader_fifo.hpp>
-#include <systemoc/smoc_graph_type.hpp>
+#include <systemoc/smoc_graph.hpp>
 #include <smoc/detail/TraceLog.hpp>
 #include <smoc/detail/DebugOStream.hpp>
 

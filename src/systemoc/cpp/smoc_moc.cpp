@@ -38,14 +38,12 @@
 #include <systemoc/smoc_config.h>
 
 #include <systemoc/smoc_moc.hpp>
-#include <systemoc/smoc_graph_type.hpp>
-#include <systemoc/smoc_sr_signal.hpp>
-#include <systemoc/smoc_multicast_sr_signal.hpp>
+//#include <systemoc/smoc_sr_signal.hpp>
+//#include <systemoc/smoc_multicast_sr_signal.hpp>
 #include <smoc/detail/DebugOStream.hpp>
-#include <smoc/smoc_simulation_ctx.hpp>
 
 #ifdef SYSTEMOC_ENABLE_VPC
-#include <systemcvpc/Director.hpp>
+# include <systemcvpc/Director.hpp>
 #endif //SYSTEMOC_ENABLE_VPC
 
 #include "SMXDumper.hpp"
@@ -69,7 +67,7 @@ namespace smoc { namespace Detail {
 } } // smoc::Detail
 #endif //SYSTEMOC_ENABLE_VPC
 
-smoc_scheduler_top::smoc_scheduler_top(smoc_graph_base* g) :
+smoc_scheduler_top::smoc_scheduler_top(smoc::Detail::GraphBase *g) :
   // Prefix all SysteMoC internal modules with __smoc_ to enable filtering out the module on smx dump!
   sc_core::sc_module(sc_core::sc_module_name("__smoc_smoc_scheduler_top")),
   g(g),
@@ -79,7 +77,7 @@ smoc_scheduler_top::smoc_scheduler_top(smoc_graph_base* g) :
   SC_THREAD(schedule);
 }
 
-smoc_scheduler_top::smoc_scheduler_top(smoc_graph_base& g) :
+smoc_scheduler_top::smoc_scheduler_top(smoc::Detail::GraphBase &g) :
   // Prefix all SysteMoC internal modules with __smoc_ to enable filtering out the module on smx dump!
   sc_core::sc_module(sc_core::sc_module_name("__smoc_smoc_scheduler_top")),
   g(&g),

@@ -35,7 +35,7 @@
 #include <systemoc/smoc_config.h>
 
 #include <systemoc/smoc_multiplex_fifo.hpp>
-#include <systemoc/smoc_graph_type.hpp>
+#include <systemoc/smoc_graph.hpp>
 
 #ifdef SYSTEMOC_ENABLE_VPC
 # include <vpc.hpp>

@@ -4,34 +4,35 @@
 
 #include <CoSupport/compatibility-glue/nullptr.h>
 
-#include <systemoc/smoc_graph_type.hpp>
 #include <boost/smart_ptr.hpp>
+
+#include "../smoc/detail/GraphBase.hpp"
 
 class NodeQueue: public sc_core::sc_module, public smoc::smoc_event{
   SC_HAS_PROCESS(NodeQueue);	
 
-/* struct used to store an event with a certain release-time */
-struct TimeNodePair{
-  TimeNodePair(sc_core::sc_time time,  smoc_root_node *node)
-    : time(time), node(node) {}
-  sc_core::sc_time time;
-  smoc_root_node *node;
-};
+  /* struct used to store an event with a certain release-time */
+  struct TimeNodePair{
+    TimeNodePair(sc_core::sc_time time,  smoc_root_node *node)
+      : time(time), node(node) {}
+    sc_core::sc_time time;
+    smoc_root_node *node;
+  };
 
-/* struct used for comparison
- * needed by the priority_queue */
-struct nodeCompare{
-  bool operator()(const TimeNodePair& tnp1,
-                  const TimeNodePair& tnp2) const
-  {
-    sc_core::sc_time p1=tnp1.time;
-    sc_core::sc_time p2=tnp2.time;
-    if (p1 > p2)
-      return true;
-    else
-      return false;
-  }
-};
+  /* struct used for comparison
+   * needed by the priority_queue */
+  struct nodeCompare{
+    bool operator()(const TimeNodePair& tnp1,
+                    const TimeNodePair& tnp2) const
+    {
+      sc_core::sc_time p1=tnp1.time;
+      sc_core::sc_time p2=tnp2.time;
+      if (p1 > p2)
+        return true;
+      else
+        return false;
+    }
+  };
 
 public:
   NodeQueue(sc_core::sc_module_name name): sc_core::sc_module(name), smoc::smoc_event() {
@@ -114,7 +115,7 @@ private:
  * TimeTriggered graph with FSM which schedules children by selecting
  * scheduling is done timetriggered-parameters (offset, period)
  */
-class smoc_graph_tt : public smoc_graph_base {
+class smoc_graph_tt : public smoc::Detail::GraphBase {
 public:
   // construct graph with name
   explicit smoc_graph_tt(const sc_core::sc_module_name& name);
@@ -133,7 +134,7 @@ public:
   void reEnableActor(std::string actor_name);
 
 protected:
-  /// @brief See smoc_graph_base
+  /// @brief See GraphBase
   virtual void before_end_of_elaboration();
 
 private:

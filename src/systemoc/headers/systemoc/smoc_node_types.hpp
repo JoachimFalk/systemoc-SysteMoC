@@ -35,7 +35,15 @@
 #ifndef _INCLUDED_SMOC_NODE_TYPES_HPP
 #define _INCLUDED_SMOC_NODE_TYPES_HPP
 
-#include "smoc_graph_type.hpp"
+#include <CoSupport/commondefs.h>
+
+#ifdef _MSC_VER
+# pragma message COSUPPORT_WARN("This is a deprecated header, please use either systemoc/smoc_graph.hpp or systemoc/smoc_actor.hpp")
+#else //!_MSC_VER
+# warning "This is a deprecated header, please use either systemoc/smoc_graph.hpp or systemoc/smoc_actor.hpp"
+#endif //!_MSC_VER
+
+#include "smoc_graph.hpp"
 #include "smoc_actor.hpp"
 
 #endif // _INCLUDED_SMOC_NODE_TYPES_HPP

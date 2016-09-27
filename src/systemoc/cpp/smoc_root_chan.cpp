@@ -38,7 +38,6 @@
 #include <systemoc/detail/smoc_root_chan.hpp>
 #include <systemoc/detail/smoc_root_node.hpp>
 #include <smoc/detail/DebugOStream.hpp>
-#include <smoc/smoc_simulation_ctx.hpp>
 
 #include <map>
 #include <sstream>

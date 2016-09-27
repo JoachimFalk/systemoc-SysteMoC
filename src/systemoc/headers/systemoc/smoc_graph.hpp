@@ -1,6 +1,7 @@
+//  -*- tab-width:8; intent-tabs-mode:nil;  c-basic-offset:2; -*-
 // vim: set sw=2 ts=8:
 /*
- * Copyright (c) 2004-2009 Hardware-Software-CoDesign, University of Erlangen-Nuremberg.
+ * Copyright (c) 2016-2016 Hardware-Software-CoDesign, University of Erlangen-Nuremberg.
  * 
  *   This library is free software; you can redistribute it and/or modify it under
  *   the terms of the GNU Lesser General Public License as published by the Free
@@ -32,12 +33,11 @@
  * ENHANCEMENTS, OR MODIFICATIONS.
  */
 
-#include <smoc/detail/SimulationContext.hpp>
+#ifndef _INCLUDED_SYSTEMOC_SMOC_GRAPH_HPP
+#define _INCLUDED_SYSTEMOC_SMOC_GRAPH_HPP
 
-#include <sysc/kernel/sc_cmnhdr.h>
-#include <sysc/kernel/sc_externs.h>
+#include "../smoc/smoc_graph.hpp"
 
-int smoc_elab_and_sim(int _argc, char *_argv[]) {
-  smoc::Detail::SimulationContext ctx(_argc, _argv);
-  return sc_core::sc_elab_and_sim(ctx.getArgc(), ctx.getArgv());  
-}
+using smoc::smoc_graph;
+
+#endif // _INCLUDED_SYSTEMOC_SMOC_GRAPH_HPP

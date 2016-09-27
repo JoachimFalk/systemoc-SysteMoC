@@ -47,7 +47,7 @@
 #include <systemoc/smoc_config.h>
 
 #include <smoc/smoc_expr.hpp>
-#include <smoc/smoc_simulation_ctx.hpp>
+#include <smoc/detail/SimulationContext.hpp>
 
 #include <boost/intrusive_ptr.hpp>
 

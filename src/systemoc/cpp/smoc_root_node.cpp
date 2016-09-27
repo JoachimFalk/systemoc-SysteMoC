@@ -41,9 +41,8 @@
 #include <systemoc/detail/smoc_sysc_port.hpp>
 #include <systemoc/detail/smoc_root_node.hpp>
 #include <systemoc/smoc_firing_rules.hpp>
-#include <smoc/smoc_simulation_ctx.hpp>
 #include <smoc/smoc_event.hpp>
-#include <systemoc/smoc_graph_type.hpp>
+#include <systemoc/smoc_graph.hpp>
 #include <smoc/detail/DebugOStream.hpp>
 #ifdef SYSTEMOC_ENABLE_MAESTRO
 # include <Maestro/MetaMap/MAESTRORuntimeException.hpp>

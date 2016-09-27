@@ -35,7 +35,7 @@
 #ifndef _INCLUDED_SMOC_HPP
 #define _INCLUDED_SMOC_HPP
 
-#include "smoc/smoc_simulation_ctx.hpp"
+#include "smoc/SimulationContext.hpp"
 #include "smoc/smoc_hooking.hpp"
 
 #endif // _INCLUDED_SMOC_HPP

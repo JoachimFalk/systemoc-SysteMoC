@@ -57,7 +57,7 @@
 #include "smoc_func_call.hpp"
 #include "../smoc_firing_rules.hpp"
 
-#include <smoc/smoc_simulation_ctx.hpp>
+#include <smoc/detail/SimulationContext.hpp>
 #include <smoc/detail/NamedIdedObj.hpp>
 #include <smoc/detail/IOPattern.hpp>
 

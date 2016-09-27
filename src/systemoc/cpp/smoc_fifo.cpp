@@ -36,7 +36,7 @@
 
 //#include <systemoc/detail/smoc_ngx_sync.hpp>
 #include <systemoc/smoc_fifo.hpp>
-#include <systemoc/smoc_graph_type.hpp>
+#include <systemoc/smoc_graph.hpp>
 
 size_t fsizeMapper(sc_core::sc_object* instance, size_t n);
 

@@ -45,13 +45,18 @@
 #include <systemoc/smoc_config.h>
 
 #include "smoc_sysc_port.hpp"
-#include <smoc/smoc_event.hpp>
-#include "smoc_storage.hpp"
-//#include "smoc_chan_if.hpp"
 #include "smoc_port_registry.hpp"
-#include <smoc/detail/NamedIdedObj.hpp>
-#include <smoc/smoc_simulation_ctx.hpp>
+#include "../../smoc/smoc_event.hpp"
+#include "smoc_storage.hpp"
+#include "../../smoc/detail/NamedIdedObj.hpp"
+#include "../../smoc/detail/SimulationContext.hpp"
 #include "../smoc_port.hpp"
+
+namespace smoc { namespace Detail {
+
+  class GraphBase;
+
+} } // namespace smoc::Detail
 
 class smoc_root_chan
 : public sc_core::sc_prim_channel,
@@ -62,7 +67,7 @@ class smoc_root_chan
   public smoc::Detail::SimCTXBase
 {
   typedef smoc_root_chan this_type;
-  friend class smoc_graph_base; // reset
+  friend class smoc::Detail::GraphBase; // reset
   friend class smoc_reset_chan; // reset
 
 private:
