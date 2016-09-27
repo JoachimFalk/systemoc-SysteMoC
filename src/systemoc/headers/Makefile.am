@@ -46,6 +46,7 @@ nobase_include_HEADERS = \
 	smoc/detail/QueueWithStorage.hpp \
 	smoc/detail/SimCTXBase.hpp \
 	smoc/detail/SimulationContext.hpp \
+	smoc/detail/Storage.hpp \
 	smoc/detail/TraceLog.hpp \
 	smoc/detail/TransitionHook.hpp \
 	smoc/detail/VpcInterface.hpp \
@@ -60,7 +61,6 @@ nobase_include_HEADERS = \
 	systemoc/detail/smoc_ring_access.hpp \
 	systemoc/detail/smoc_root_chan.hpp \
 	systemoc/detail/smoc_root_node.hpp \
-	systemoc/detail/smoc_storage.hpp \
 	systemoc/detail/smoc_sysc_port.hpp \
 	systemoc/smoc_actor.hpp \
 	systemoc/smoc_chan_adapter.hpp \

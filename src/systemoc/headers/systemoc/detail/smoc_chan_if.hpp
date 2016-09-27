@@ -42,8 +42,8 @@
 
 #include <systemoc/smoc_config.h>
 
-#include "smoc_storage.hpp"
-#include "smoc/detail/PortIOBaseIf.hpp"
+#include "../../smoc/detail/Storage.hpp"
+#include "../../smoc/detail/PortIOBaseIf.hpp"
 
 const sc_core::sc_event &smoc_default_event_abort();
 
@@ -56,7 +56,7 @@ class smoc_port_in_if
 public:
   typedef T                                     data_type;
   typedef R<
-    typename smoc_storage_in<T>::return_type>   access_in_type;
+    typename smoc::Detail::StorageTraitsIn<T>::return_type>   access_in_type;
   typedef access_in_type                        access_type;
   typedef this_type                             iface_type;
 protected:
@@ -78,7 +78,7 @@ private:
 template <
   typename T,                                     // data type
   template <typename> class R,                    // ring access type
-  template <typename> class S = smoc_storage_out> // smoc_storage
+  template <typename> class S = smoc::Detail::StorageTraitsOut> // Storage
 class smoc_port_out_if
 : public smoc::Detail::PortOutBaseIf {
   typedef smoc_port_out_if<T,R,S> this_type;

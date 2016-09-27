@@ -36,7 +36,7 @@
 #ifndef _INCLUDED_SMOC_DETAIL_QUEUEWITHSTORAGE_HPP
 #define _INCLUDED_SMOC_DETAIL_QUEUEWITHSTORAGE_HPP
 
-#include <systemoc/detail/smoc_storage.hpp>
+#include "Storage.hpp"
 
 #include <boost/type_traits/is_base_of.hpp>
 
@@ -48,7 +48,7 @@ class QueueWithStorageHelper: public BASE {
   typedef BASE                            base_type;
 public:
   typedef T                               data_type;
-  typedef smoc_storage<data_type>         storage_type;
+  typedef Storage<data_type>              storage_type;
 protected:
   storage_type *storage;
 protected:
