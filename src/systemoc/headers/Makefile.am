@@ -73,7 +73,6 @@ nobase_include_HEADERS = \
 	systemoc/smoc_graph_tt.hpp \
 	systemoc/smoc_graph_type.hpp \
 	systemoc/smoc_moc.hpp \
-	systemoc/smoc_module_name.hpp \
 	systemoc/smoc_multicast_sr_signal.hpp \
 	systemoc/smoc_multiplex_fifo.hpp \
 	systemoc/smoc_multireader_fifo.hpp \
