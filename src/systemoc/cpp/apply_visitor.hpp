@@ -42,12 +42,12 @@
 #include <systemoc/detail/smoc_root_node.hpp>
 #include <systemoc/detail/smoc_root_chan.hpp>
 #include <systemoc/detail/smoc_sysc_port.hpp>
+#include <systemoc/smoc_graph.hpp>
 #include <systemoc/smoc_actor.hpp>
 #include <systemoc/smoc_fifo.hpp>
 #include <systemoc/smoc_multiplex_fifo.hpp>
 #include <systemoc/smoc_multireader_fifo.hpp>
 #include <systemoc/smoc_reset.hpp>
-#include <systemoc/smoc_graph_type.hpp>
 
 namespace smoc {
 
@@ -83,15 +83,17 @@ _SMOC_GENERATE_APPLY_VISITOR(smoc_graph)
 /* GraphBase */
 
 namespace Detail {
+
   template<template <class> class M, class Visitor>
   typename Visitor::result_type
   apply_visitor_helper(Visitor &visitor, typename M<GraphBase>::type *ptr) {
     _SMOC_HANDLE_DERIVED_CLASS(smoc_graph);
-    assert(!"WTF?! Unhandled derived class of GraphBase!");
+    assert(!"WTF?! Unhandled derived class of smoc::Detail::GraphBase!");
   }
-} // namespace Detail
 
-_SMOC_GENERATE_APPLY_VISITOR(GraphBase)
+  _SMOC_GENERATE_APPLY_VISITOR(GraphBase)
+
+} // namespace Detail
 
 /* smoc_actor */
 
