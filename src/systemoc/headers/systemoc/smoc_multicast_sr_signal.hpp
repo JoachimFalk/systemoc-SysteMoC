@@ -49,7 +49,7 @@
 
 #include "detail/smoc_root_chan.hpp"
 #include "detail/smoc_chan_if.hpp"
-#include "detail/smoc_storage.hpp"
+#include "../smoc/detail/Storage.hpp"
 #include "detail/smoc_sysc_port.hpp"
 #include "smoc_chan_adapter.hpp"
 #include <smoc/detail/ConnectProvider.hpp>
@@ -153,11 +153,11 @@ template <typename T>
 class smoc_multicast_outlet
   : public smoc_multicast_outlet_base,
     public smoc_port_in_if<T,::smoc_1d_port_access_if>,
-    public smoc_1d_port_access_if<typename smoc_storage_in<T>::return_type>
+    public smoc_1d_port_access_if<typename smoc::Detail::StorageTraitsIn<T>::return_type>
 {
 public:
   typedef T                                       data_type;
-  typedef smoc_storage<data_type>                 storage_type;
+  typedef smoc::Detail::Storage<data_type>                 storage_type;
   typedef smoc_multicast_outlet<data_type>        this_type;
   typedef typename this_type::access_in_type      ring_in_type;
   typedef typename this_type::return_type         return_type;
@@ -253,12 +253,12 @@ template <typename T>
 class smoc_multicast_entry
 : public smoc_multicast_entry_base,
   public smoc_port_out_if<T,::smoc_1d_port_access_if>,
-  public smoc_1d_port_access_if<typename smoc_storage_out<T>::return_type>
+  public smoc_1d_port_access_if<typename smoc::Detail::StorageTraitsOut<T>::return_type>
 {
 public:
   typedef T                                       data_type;
   typedef smoc_multicast_entry<data_type>         this_type;
-  typedef smoc_storage<data_type>                 storage_type;
+  typedef smoc::Detail::Storage<data_type>                 storage_type;
   typedef typename this_type::access_out_type     ring_out_type;
   typedef typename this_type::return_type         return_type;
   typedef smoc_port_out_if<T,::smoc_1d_port_access_if> iface_type;
@@ -351,7 +351,7 @@ class smoc_multicast_sr_signal_chan
 public:
   typedef T                                         data_type;
   typedef smoc_multicast_sr_signal_chan<data_type>  this_type;
-  typedef smoc_storage<data_type>                   storage_type;
+  typedef smoc::Detail::Storage<data_type>                   storage_type;
   typedef smoc_multicast_outlet<data_type>          outlet_type;
   typedef smoc_multicast_entry<data_type>           entry_type;
   

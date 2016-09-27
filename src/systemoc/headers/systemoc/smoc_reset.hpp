@@ -38,7 +38,7 @@
 
 #include "detail/smoc_root_chan.hpp"
 #include "detail/smoc_chan_if.hpp"
-#include "detail/smoc_storage.hpp"
+//#include "../smoc/detail/Storage.hpp"
 #include "detail/smoc_sysc_port.hpp"
 #include <smoc/smoc_event.hpp>
 #include <smoc/detail/ConnectProvider.hpp>

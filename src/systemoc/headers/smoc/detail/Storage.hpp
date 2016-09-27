@@ -32,8 +32,8 @@
  * ENHANCEMENTS, OR MODIFICATIONS.
  */
 
-#ifndef SMOC_STORAGE_HPP
-#define SMOC_STORAGE_HPP
+#ifndef _INCLUDED_SMOC_DETAIL_STORAGE_HPP
+#define _INCLUDED_SMOC_DETAIL_STORAGE_HPP
 
 #include <cassert>
 #include <new>
@@ -42,8 +42,10 @@
 
 #include <systemoc/smoc_config.h>
 
+namespace smoc { namespace Detail {
+
 template<class T>
-class smoc_storage
+class Storage
   : public CoSupport::SystemC::ChannelModificationSender<T>
 {
 private:
@@ -56,9 +58,9 @@ private:
   T const *ptr() const
     { return reinterpret_cast<T const *>(mem); }
 public:
-  smoc_storage() : valid(false) {}
+  Storage() : valid(false) {}
 
-  smoc_storage(const T& t) : valid(true) { new(mem) T(t); }
+  Storage(const T& t) : valid(true) { new(mem) T(t); }
 
   T &get() {
     assert(valid);
@@ -115,7 +117,7 @@ public:
   void reset()
     { valid = false; }
 
-  ~smoc_storage()
+  ~Storage()
     { invalidate(); }
 };
 
@@ -124,14 +126,14 @@ public:
 
 /// smoc storage with write only memory interface
 template<class T>
-class smoc_storage_wom
+class StorageAccessWOM
 {
 private:
-  typedef smoc_storage_wom<T> this_type;
+  typedef StorageAccessWOM<T> this_type;
 private:
-  smoc_storage<T> &s;
+  Storage<T> &s;
 public:
-  smoc_storage_wom(smoc_storage<T> &_s)
+  StorageAccessWOM(Storage<T> &_s)
     : s(_s) {}
 
   void operator=(const T& t)
@@ -140,14 +142,14 @@ public:
 
 /// smoc storage with read write memory interface
 template<class T>
-class smoc_storage_rw
+class StorageAccessRW
 {
 private:
-  typedef smoc_storage_rw<T> this_type;
+  typedef StorageAccessRW<T> this_type;
 private:
-  smoc_storage<T> &s;
+  Storage<T> &s;
 public:
-  smoc_storage_rw(smoc_storage<T> &_s)
+  StorageAccessRW(Storage<T> &_s)
     : s(_s) {}
  
   operator const T&() const
@@ -157,54 +159,56 @@ public:
     { s.put(t); }  
 };
 
-namespace CoSupport {
-  // provide isType for smoc_storage_rw
-  template <typename T, typename X>
-  static inline
-  bool isType( const smoc_storage_rw<X> &of )
-   { return isType<T>(static_cast<const X &>(of)); }
-};
-
 template<class T>
-struct smoc_storage_in
+struct StorageTraitsIn
 {
-  typedef const smoc_storage<T>  storage_type;
+  typedef const Storage<T>  storage_type;
   typedef const T               &return_type;
 };
 
 template<class T>
-struct smoc_storage_out
+struct StorageTraitsOut
 {
-  typedef smoc_storage<T>        storage_type;
-  typedef smoc_storage_wom<T>    return_type;
+  typedef Storage<T>        storage_type;
+  typedef StorageAccessWOM<T>    return_type;
 };
 
 template<class T>
-struct smoc_storage_inout
+struct StorageTraitsInOut
 {
-  typedef smoc_storage<T>        storage_type;
-  typedef smoc_storage_rw<T>     return_type;
+  typedef Storage<T>        storage_type;
+  typedef StorageAccessRW<T>     return_type;
 };
 
 template<>
-struct smoc_storage_in<void>
+struct StorageTraitsIn<void>
 {
   typedef void storage_type;
   typedef void return_type;
 };
 
 template<>
-struct smoc_storage_out<void>
+struct StorageTraitsOut<void>
 {
   typedef void storage_type;
   typedef void return_type;
 };
 
 template<>
-struct smoc_storage_inout<void>
+struct StorageTraitsInOut<void>
 {
   typedef void storage_type;
   typedef void return_type;
 };
 
-#endif // SMOC_STORAGE_HPP
+} } // namespace smoc::Detail
+
+namespace CoSupport {
+  // provide isType for StorageAccessRW
+  template <typename T, typename X>
+  static inline
+  bool isType(const smoc::Detail::StorageAccessRW<X> &of )
+   { return isType<T>(static_cast<const X &>(of)); }
+};
+
+#endif // _INCLUDED_SMOC_DETAIL_STORAGE_HPP

@@ -60,7 +60,7 @@
 
 #include "detail/smoc_root_chan.hpp"
 #include "detail/smoc_chan_if.hpp"
-#include "detail/smoc_storage.hpp"
+//#include "../smoc/detail/Storage.hpp"
 #include "smoc_chan_adapter.hpp"
 #include "smoc_fifo.hpp"
 #include "detail/smoc_ring_access.hpp"
