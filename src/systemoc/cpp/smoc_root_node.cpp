@@ -114,11 +114,27 @@ void smoc_root_node::end_of_elaboration() {
 #ifdef SYSTEMOC_ENABLE_VPC
   getCommState()->end_of_elaboration();
 #endif // SYSTEMOC_ENABLE_VPC
+#ifdef SYSTEMOC_DEBUG
+  if (smoc::Detail::outDbg.isVisible(smoc::Detail::Debug::High)) {
+    smoc::Detail::outDbg << smoc::Detail::Indent::Down << "</smoc_root_node::end_of_elaboration>"
+         << std::endl;
+  }
+#endif //defined(SYSTEMOC_DEBUG)
+}
+
+void smoc_root_node::start_of_simulation() {
+#ifdef SYSTEMOC_DEBUG
+  if (smoc::Detail::outDbg.isVisible(smoc::Detail::Debug::High)) {
+    smoc::Detail::outDbg << "<smoc_root_node::start_of_simulation name=\"" << this->name() << "\">"
+         << std::endl << smoc::Detail::Indent::Up;
+  }
+#endif //defined(SYSTEMOC_DEBUG)
+  sc_core::sc_module::start_of_simulation();
   // Don't call the virtual function!
   smoc_root_node::doReset();
 #ifdef SYSTEMOC_DEBUG
   if (smoc::Detail::outDbg.isVisible(smoc::Detail::Debug::High)) {
-    smoc::Detail::outDbg << smoc::Detail::Indent::Down << "</smoc_root_node::end_of_elaboration>"
+    smoc::Detail::outDbg << smoc::Detail::Indent::Down << "</smoc_root_node::start_of_simulation>"
          << std::endl;
   }
 #endif //defined(SYSTEMOC_DEBUG)
