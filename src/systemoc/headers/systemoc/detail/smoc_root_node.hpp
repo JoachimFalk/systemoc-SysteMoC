@@ -183,6 +183,7 @@ protected:
 
   virtual void before_end_of_elaboration();
   virtual void end_of_elaboration();
+  virtual void start_of_simulation();
 
   /// @brief User reset method (do not put functionality in there)
   virtual void reset() {};
