@@ -164,6 +164,10 @@ private:
   // (must also return the correct number!!!)
   int  interface_count();
   void add_interface(sc_core::sc_interface *);
+
+#ifdef SYSTEMOC_ENABLE_VPC
+  void finaliseVpcLink(std::string actorName);
+#endif //SYSTEMOC_ENABLE_VPC
 protected:
   smoc_sysc_port(const char* name_, sc_core::sc_port_policy policy);
 
@@ -175,10 +179,6 @@ protected:
   virtual void before_end_of_elaboration();
 
   virtual void end_of_elaboration();
-
-#ifdef SYSTEMOC_ENABLE_VPC
-  virtual void finaliseVpcLink(std::string actorName);
-#endif //SYSTEMOC_ENABLE_VPC
 
   virtual ~smoc_sysc_port();
 

@@ -55,6 +55,7 @@ smoc_root_node::smoc_root_node(sc_core::sc_module_name name, NodeType nodeType, 
   , nodeType(nodeType)
   , currentState(nullptr)
   , ct(nullptr)
+  , executing(false)
 #ifdef SYSTEMOC_ENABLE_VPC
   , commState(new RuntimeState())
   , diiEvent(new smoc::smoc_vpc_event())
@@ -115,7 +116,6 @@ void smoc_root_node::end_of_elaboration() {
 #endif // SYSTEMOC_ENABLE_VPC
   // Don't call the virtual function!
   smoc_root_node::doReset();
-  executing    = false;
 #ifdef SYSTEMOC_DEBUG
   if (smoc::Detail::outDbg.isVisible(smoc::Detail::Debug::High)) {
     smoc::Detail::outDbg << smoc::Detail::Indent::Down << "</smoc_root_node::end_of_elaboration>"

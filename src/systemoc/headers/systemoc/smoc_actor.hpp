@@ -60,14 +60,13 @@ protected:
 #ifdef SYSTEMOC_ENABLE_MAESTRO
   smoc_actor(sc_core::sc_module_name name, smoc_hierarchical_state &s, unsigned int thread_stack_size = 0x20000, bool useLogFile = false);
   smoc_actor(smoc_hierarchical_state &s, unsigned int thread_stack_size = 0x20000, bool useLogFile = false);
-#else
+#else //!SYSTEMOC_ENABLE_MAESTRO
   smoc_actor(sc_core::sc_module_name name, smoc_hierarchical_state &s);
   smoc_actor(smoc_hierarchical_state &s);
-#endif
+#endif //!SYSTEMOC_ENABLE_MAESTRO
 
-#ifdef SYSTEMOC_ENABLE_VPC
-  void finaliseVpcLink();
-#endif //SYSTEMOC_ENABLE_VPC
+  void before_end_of_elaboration();
+
   virtual void setActivation(bool activation);
 #ifdef SYSTEMOC_ENABLE_MAESTRO
   void initMMactor();

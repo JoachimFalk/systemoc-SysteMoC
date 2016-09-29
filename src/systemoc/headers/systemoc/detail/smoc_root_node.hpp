@@ -135,6 +135,8 @@ private:
   /// @brief current enabled firing transition
   RuntimeTransition *ct;
 
+  bool               executing;
+
 #ifdef SYSTEMOC_ENABLE_VPC
   RuntimeState *commState;
 
@@ -181,10 +183,6 @@ protected:
 
   virtual void before_end_of_elaboration();
   virtual void end_of_elaboration();
-
-#ifdef SYSTEMOC_ENABLE_VPC
-  virtual void finaliseVpcLink() = 0;
-#endif //SYSTEMOC_ENABLE_VPC
 
   /// @brief User reset method (do not put functionality in there)
   virtual void reset() {};
@@ -287,8 +285,6 @@ public:
   void schedule();
 
   bool canFire();
-
-  bool executing;
 
   // FIXME should not be public 
   smoc::smoc_event_waiter *reset(smoc::smoc_event_listener* el)

@@ -153,10 +153,6 @@ protected:
   virtual void before_end_of_elaboration();
   virtual void end_of_elaboration();
   
-#ifdef SYSTEMOC_ENABLE_VPC
-  void finaliseVpcLink();
-#endif //SYSTEMOC_ENABLE_VPC
-
   /// @brief Resets given node
   void doReset();
 
