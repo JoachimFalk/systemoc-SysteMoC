@@ -99,23 +99,24 @@ smoc_root_chan::smoc_root_chan(const std::string& name)
   : sc_core::sc_prim_channel(name.empty()
       ? sc_core::sc_gen_unique_name("smoc_unnamed_channel")
       : name.c_str()),
-    myName(name),
-    resetCalled(false)
+    myName(name)
   {}
 #endif
 
-/// @brief Resets FIFOs which are not in the SysteMoC hierarchy
-void smoc_root_chan::start_of_simulation() {
-  if (!resetCalled)
-    doReset();
-}
-
 /// @brief Remember that reset has been called.
-void smoc_root_chan::doReset()
-  { resetCalled = true; }
-
-smoc_root_chan::~smoc_root_chan()
-  {}
+void smoc_root_chan::doReset() {
+#ifdef SYSTEMOC_DEBUG
+  if (smoc::Detail::outDbg.isVisible(smoc::Detail::Debug::High)) {
+    smoc::Detail::outDbg << "<smoc_root_chan::doReset name=\"" << name() << "\">"
+         << std::endl << smoc::Detail::Indent::Up;
+  }
+#endif // SYSTEMOC_DEBUG
+#ifdef SYSTEMOC_DEBUG
+  if (smoc::Detail::outDbg.isVisible(smoc::Detail::Debug::High)) {
+    smoc::Detail::outDbg << smoc::Detail::Indent::Down << "</smoc_root_chan::doReset>" << std::endl;
+  }
+#endif // SYSTEMOC_DEBUG
+}
 
 void smoc_root_chan::before_end_of_elaboration() {
 #ifndef SYSTEMOC_ENABLE_MAESTROMM_SPEEDUP
@@ -139,3 +140,23 @@ void smoc_root_chan::before_end_of_elaboration() {
   }
 #endif //defined(SYSTEMOC_DEBUG)
 }
+
+/// @brief Resets FIFOs which are not in the SysteMoC hierarchy
+void smoc_root_chan::start_of_simulation() {
+#ifdef SYSTEMOC_DEBUG
+  if (smoc::Detail::outDbg.isVisible(smoc::Detail::Debug::High)) {
+    smoc::Detail::outDbg << "<smoc_root_chan::start_of_simulation name=\"" << name() << "\">"
+         << std::endl << smoc::Detail::Indent::Up;
+  }
+#endif //defined(SYSTEMOC_DEBUG)
+  sc_core::sc_prim_channel::start_of_simulation();
+  doReset();
+#ifdef SYSTEMOC_DEBUG
+  if (smoc::Detail::outDbg.isVisible(smoc::Detail::Debug::High)) {
+    smoc::Detail::outDbg << smoc::Detail::Indent::Down << "</smoc_root_chan::start_of_simulation>" << std::endl;
+  }
+#endif //defined(SYSTEMOC_DEBUG)
+}
+
+smoc_root_chan::~smoc_root_chan()
+  {}

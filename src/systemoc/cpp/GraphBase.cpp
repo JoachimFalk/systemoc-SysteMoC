@@ -39,6 +39,7 @@
 
 #include <systemoc/smoc_config.h>
 
+#include <systemoc/smoc_moc.hpp>
 #include <systemoc/smoc_firing_rules.hpp>
 #include <systemoc/detail/smoc_sysc_port.hpp>
 #include <smoc/detail/GraphBase.hpp>
@@ -50,7 +51,8 @@ using CoSupport::String::Concat;
 
 GraphBase::GraphBase(
     const sc_core::sc_module_name &name, smoc_firing_state &init)
-  : smoc_root_node(name, smoc_root_node::NODE_TYPE_GRAPH, init)
+  : smoc_root_node(name, smoc_root_node::NODE_TYPE_GRAPH, init),
+    scheduler(nullptr)
 {}
   
 const smoc_node_list &GraphBase::getNodes() const
@@ -114,9 +116,12 @@ void GraphBase::before_end_of_elaboration() {
 #ifdef SYSTEMOC_DEBUG
   if (smoc::Detail::outDbg.isVisible(smoc::Detail::Debug::High)) {
     smoc::Detail::outDbg << "<GraphBase::before_end_of_elaboration name=\"" << name() << "\">"
-           << std::endl << smoc::Detail::Indent::Up;
+      << std::endl << smoc::Detail::Indent::Up;
   }
 #endif //defined(SYSTEMOC_DEBUG)
+  if (scheduler)
+    scheduler->_before_end_of_elaboration();
+
   smoc_root_node::before_end_of_elaboration();
   
   for (std::vector<sc_core::sc_object *>::const_iterator iter = get_child_objects().begin();
@@ -145,6 +150,25 @@ void GraphBase::before_end_of_elaboration() {
 #endif //defined(SYSTEMOC_DEBUG)
 }
 
+void GraphBase::end_of_elaboration() {
+#ifdef SYSTEMOC_DEBUG
+  if (smoc::Detail::outDbg.isVisible(smoc::Detail::Debug::High)) {
+    smoc::Detail::outDbg << "<GraphBase::end_of_elaboration name=\"" << name() << "\">"
+           << std::endl << smoc::Detail::Indent::Up;
+  }
+#endif //defined(SYSTEMOC_DEBUG)
+  if (scheduler)
+    scheduler->_end_of_elaboration();
+
+  smoc_root_node::end_of_elaboration();
+
+#ifdef SYSTEMOC_DEBUG
+  if (smoc::Detail::outDbg.isVisible(smoc::Detail::Debug::High)) {
+    smoc::Detail::outDbg << smoc::Detail::Indent::Down << "</GraphBase::end_of_elaboration>" << std::endl;
+  }
+#endif //defined(SYSTEMOC_DEBUG)
+}
+
 #ifdef SYSTEMOC_ENABLE_VPC
 void GraphBase::finaliseVpcLink() {
   for(smoc_node_list::iterator iter = nodes.begin();
@@ -155,7 +179,6 @@ void GraphBase::finaliseVpcLink() {
   }
 }
 #endif //SYSTEMOC_ENABLE_VPC
-
 
 void GraphBase::doReset() {
 #ifdef SYSTEMOC_DEBUG
@@ -183,6 +206,11 @@ void GraphBase::doReset() {
     smoc::Detail::outDbg << smoc::Detail::Indent::Down << "</GraphBase::doReset>" << std::endl;
   }
 #endif //SYSTEMOC_DEBUG
+}
+
+void GraphBase::setScheduler(smoc_scheduler_top *scheduler) {
+  assert(!this->scheduler); assert(scheduler);
+  this->scheduler = scheduler;
 }
   
 } } // namespace smoc::Detail

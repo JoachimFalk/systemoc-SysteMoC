@@ -74,6 +74,7 @@ smoc_scheduler_top::smoc_scheduler_top(smoc::Detail::GraphBase *g) :
   validVpcConfiguration(false),
   simulation_running(false)
 {
+  this->g->setScheduler(this);
   SC_THREAD(schedule);
 }
 
@@ -83,6 +84,7 @@ smoc_scheduler_top::smoc_scheduler_top(smoc::Detail::GraphBase &g) :
   g(&g),
   simulation_running(false)
 {
+  this->g->setScheduler(this);
   SC_THREAD(schedule);
 }
 
@@ -92,7 +94,7 @@ smoc_scheduler_top::~smoc_scheduler_top() {
 }
 
 void smoc_scheduler_top::start_of_simulation()
-{ simulation_running = true; }
+  { simulation_running = true; }
 
 void smoc_scheduler_top::end_of_simulation() {
   simulation_running = false;
@@ -104,16 +106,20 @@ void smoc_scheduler_top::end_of_simulation() {
   getSimCTX()->endOfSystemcSimulation();
 }
 
-void smoc_scheduler_top::before_end_of_elaboration() {
+void smoc_scheduler_top::_before_end_of_elaboration() {
 #ifdef SYSTEMOC_DEBUG
   if (smoc::Detail::outDbg.isVisible(smoc::Detail::Debug::High)) {
-    smoc::Detail::outDbg << "<smoc_scheduler_top::before_end_of_elaboration name=\"" << this->name() << "\">"
+    smoc::Detail::outDbg << "<smoc_scheduler_top::_before_end_of_elaboration name=\"" << this->name() << "\">"
          << std::endl << smoc::Detail::Indent::Up;
   }
 #endif //defined(SYSTEMOC_DEBUG)
   try {
 #ifdef SYSTEMOC_ENABLE_VPC
     SystemC_VPC::Director::getInstance().beforeVpcFinalize();
+    //another finalise to patch the vpcCommTask
+    // requires: ports finalised (in root_node::finalise)
+    //           channel names (in root_chan::finalise)
+    g->finaliseVpcLink();
     
     boost::function<void (SystemC_VPC::ScheduledTask *actor)> callExecute
       = &smoc::Detail::systemcVpcExecute;
@@ -127,31 +133,27 @@ void smoc_scheduler_top::before_end_of_elaboration() {
     api->beforeEndOfElaboration();
 #endif //SYSTEMOC_ENABLE_MAESTRO
   } catch (std::exception &e) {
-    std::cerr << "Got exception at smoc_scheduler_top::before_end_of_elaboration():\n\t"
+    std::cerr << "Got exception at smoc_scheduler_top::_before_end_of_elaboration():\n\t"
               << e.what();
     exit(-1);
   }
 #ifdef SYSTEMOC_DEBUG
   if (smoc::Detail::outDbg.isVisible(smoc::Detail::Debug::High)) {
-    smoc::Detail::outDbg << smoc::Detail::Indent::Down << "</smoc_scheduler_top::before_end_of_elaboration>"
+    smoc::Detail::outDbg << smoc::Detail::Indent::Down << "</smoc_scheduler_top::_before_end_of_elaboration>"
          << std::endl;
   }
 #endif //defined(SYSTEMOC_DEBUG)
 }
 
-void smoc_scheduler_top::end_of_elaboration() {
+void smoc_scheduler_top::_end_of_elaboration() {
 #ifdef SYSTEMOC_DEBUG
   if (smoc::Detail::outDbg.isVisible(smoc::Detail::Debug::High)) {
-    smoc::Detail::outDbg << "<smoc_scheduler_top::end_of_elaboration name=\"" << this->name() << "\">"
+    smoc::Detail::outDbg << "<smoc_scheduler_top::_end_of_elaboration name=\"" << this->name() << "\">"
          << std::endl << smoc::Detail::Indent::Up;
   }
 #endif //defined(SYSTEMOC_DEBUG)
   try {
 #ifdef SYSTEMOC_ENABLE_VPC
-    //another finalise to patch the vpcCommTask
-    // requires: ports finalised (in root_node::finalise)
-    //           channel names (in root_chan::finalise)
-    g->finaliseVpcLink();
     SystemC_VPC::Director::getInstance().endOfVpcFinalize();
     validVpcConfiguration = SystemC_VPC::Director::getInstance().hasValidConfig();
 #endif //SYSTEMOC_ENABLE_VPC
@@ -159,7 +161,7 @@ void smoc_scheduler_top::end_of_elaboration() {
     MM::MMAPI* api = MM::MMAPI::getInstance();
     api->endOfElaboration();
 #endif //SYSTEMOC_ENABLE_MAESTRO
-    g->doReset();
+//  g->doReset();
 #ifdef SYSTEMOC_ENABLE_SGX
     if (getSimCTX()->isSMXDumpingPreSimEnabled()) {
       smoc::Detail::dumpSMX(getSimCTX()->getSMXPreSimFile(), getSimCTX(), *g);
@@ -168,13 +170,13 @@ void smoc_scheduler_top::end_of_elaboration() {
     }
 #endif // SYSTEMOC_ENABLE_SGX
   } catch (std::exception &e) {
-    std::cerr << "Got exception at smoc_scheduler_top::end_of_elaboration():\n\t"
+    std::cerr << "Got exception at smoc_scheduler_top::_end_of_elaboration():\n\t"
               << e.what();
     exit(-1);
   }
 #ifdef SYSTEMOC_DEBUG
   if (smoc::Detail::outDbg.isVisible(smoc::Detail::Debug::High)) {
-    smoc::Detail::outDbg << smoc::Detail::Indent::Down << "</smoc_scheduler_top::end_of_elaboration>"
+    smoc::Detail::outDbg << smoc::Detail::Indent::Down << "</smoc_scheduler_top:::_end_of_elaboration>"
          << std::endl;
   }
 #endif //defined(SYSTEMOC_DEBUG)

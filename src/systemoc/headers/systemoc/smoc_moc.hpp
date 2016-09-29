@@ -60,6 +60,8 @@
 class smoc_scheduler_top
 : public sc_core::sc_module,
   public smoc::Detail::SimCTXBase {
+
+  friend class smoc::Detail::GraphBase;
 public:
   smoc_scheduler_top(smoc::Detail::GraphBase *g);
   smoc_scheduler_top(smoc::Detail::GraphBase &g);
@@ -68,8 +70,8 @@ public:
 protected:
   void start_of_simulation();
   void end_of_simulation();
-  void before_end_of_elaboration();
-  void end_of_elaboration();
+  void _before_end_of_elaboration();
+  void _end_of_elaboration();
 
 private:
   typedef CoSupport::SystemC::EventOrList
@@ -83,13 +85,8 @@ private:
 
 };
 
-// for compatibility...
-typedef smoc_scheduler_top smoc_top;
-
-// for the bold ones...
-namespace SysteMoC {
-  typedef smoc_scheduler_top Scheduler;
-}
+//// for compatibility...
+//typedef smoc_scheduler_top smoc_top;
 
 template <typename Graph>
 class smoc_top_moc : public Graph {

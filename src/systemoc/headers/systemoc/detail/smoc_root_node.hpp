@@ -100,13 +100,13 @@ namespace smoc { namespace Detail {
  * you have to change apply_visitor.hpp accordingly.
  */
 class smoc_root_node
-: public sc_core::sc_module,
+: public sc_core::sc_module
 #ifdef SYSTEMOC_NEED_IDS
-  public  smoc::Detail::NamedIdedObj,
+, public  smoc::Detail::NamedIdedObj
 #endif // SYSTEMOC_NEED_IDS
-  public  smoc::Detail::SimCTXBase,
-  private smoc::smoc_event_listener,
-  public  smoc::smoc_event
+, public  smoc::Detail::SimCTXBase
+, private smoc::smoc_event_listener
+, public  smoc::smoc_event
 #ifdef MAESTRO_ENABLE_POLYPHONIC
 , public MAESTRO::PolyphoniC::psmoc_root_node
 #endif

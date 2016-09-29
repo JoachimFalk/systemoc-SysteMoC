@@ -51,12 +51,7 @@ class smoc_sysc_port;
 namespace smoc { namespace Detail {
 
   struct PortInfo {
-    PortInfo(smoc_sysc_port    *port,
-             size_t             numberRequiredTokens,
-             smoc_event_waiter *portEvent)
-      : port(port),
-        numberRequiredTokens(numberRequiredTokens),
-        portEvent(portEvent) {}
+    PortInfo(smoc_sysc_port *port, size_t numberRequiredTokens);
 
     smoc_sysc_port    *port;
     size_t             numberRequiredTokens;
@@ -77,11 +72,9 @@ namespace smoc { namespace Detail {
 
     void finalise();
 
-    void addPortRequirement(smoc_sysc_port    &port,
-                            size_t             numberRequiredTokens,
-                            smoc_event_waiter &portEvent);
+    void addPortRequirement(smoc_sysc_port &port, size_t numberRequiredTokens);
 
-    void addEvent(smoc_event_waiter& plainEvent);
+    void addEvent(smoc_event_waiter &plainEvent);
 
     smoc_event_waiter* getWaiter() const {
       assert(ioPatternWaiter);
