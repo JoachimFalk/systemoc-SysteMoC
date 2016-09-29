@@ -229,14 +229,22 @@ void smoc_actor::localClockWait(double v, sc_core::sc_time_unit tu)
 }
 #endif //defined(SYSTEMOC_ENABLE_MAESTRO)
 
+void smoc_actor::before_end_of_elaboration() {
+#ifdef SYSTEMOC_DEBUG
+  smoc::Detail::outDbg << "<smoc_actor::before_end_of_elaboration name=\"" << this->name() << "\">"
+         << std::endl << smoc::Detail::Indent::Up;
+#endif // SYSTEMOC_DEBUG
+  smoc_root_node::before_end_of_elaboration();
 #ifdef SYSTEMOC_ENABLE_VPC
-void smoc_actor::finaliseVpcLink() {
   smoc_sysc_port_list ports = getPorts();
   for (smoc_sysc_port_list::iterator iter = ports.begin();
       iter != ports.end(); ++iter)
     (*iter)->finaliseVpcLink(this->name());
-}
 #endif //SYSTEMOC_ENABLE_VPC
+#ifdef SYSTEMOC_DEBUG
+  smoc::Detail::outDbg << smoc::Detail::Indent::Down << "</smoc_actor::before_end_of_elaboration>" << std::endl;
+#endif // SYSTEMOC_DEBUG
+}
 
 void smoc_actor::setActivation(bool activation){
   smoc_root_node::setActivation(activation);

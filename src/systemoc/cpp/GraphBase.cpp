@@ -169,17 +169,6 @@ void GraphBase::end_of_elaboration() {
 #endif //defined(SYSTEMOC_DEBUG)
 }
 
-#ifdef SYSTEMOC_ENABLE_VPC
-void GraphBase::finaliseVpcLink() {
-  for(smoc_node_list::iterator iter = nodes.begin();
-      iter != nodes.end();
-      ++iter)
-  {
-    (*iter)->finaliseVpcLink();
-  }
-}
-#endif //SYSTEMOC_ENABLE_VPC
-
 void GraphBase::doReset() {
 #ifdef SYSTEMOC_DEBUG
   if (smoc::Detail::outDbg.isVisible(smoc::Detail::Debug::High)) {

@@ -116,10 +116,6 @@ void smoc_scheduler_top::_before_end_of_elaboration() {
   try {
 #ifdef SYSTEMOC_ENABLE_VPC
     SystemC_VPC::Director::getInstance().beforeVpcFinalize();
-    //another finalise to patch the vpcCommTask
-    // requires: ports finalised (in root_node::finalise)
-    //           channel names (in root_chan::finalise)
-    g->finaliseVpcLink();
     
     boost::function<void (SystemC_VPC::ScheduledTask *actor)> callExecute
       = &smoc::Detail::systemcVpcExecute;

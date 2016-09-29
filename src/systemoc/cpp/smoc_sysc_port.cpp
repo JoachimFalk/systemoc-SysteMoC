@@ -117,7 +117,9 @@ smoc_sysc_port const *smoc_sysc_port::getActorPort() const {
 
 #ifdef SYSTEMOC_ENABLE_VPC
 void smoc_sysc_port::finaliseVpcLink(std::string actorName){
-  assert (this->getActorPort() == this);
+  assert(getActorPort() == this);
+  assert(get_parent_object()->name() == actorName);
+
   for (Interfaces::iterator iter = interfaces.begin();
        iter != interfaces.end();
        ++iter) {
