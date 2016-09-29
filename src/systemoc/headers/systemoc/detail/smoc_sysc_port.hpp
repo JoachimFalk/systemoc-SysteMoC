@@ -54,6 +54,7 @@
 namespace smoc { namespace Detail {
 
   class PortBaseIf;
+  class PortInfo;
 
 } } // namespace smoc::Detail
 
@@ -131,6 +132,7 @@ class smoc_sysc_port
   
   friend class smoc_root_node;
   friend class smoc_actor;
+  friend class smoc::Detail::PortInfo;
   template <class E> friend class smoc::Expr::CommExec;
 #if defined(SYSTEMOC_ENABLE_DEBUG)
   template <class E> friend class smoc::Expr::CommSetup;
@@ -259,7 +261,6 @@ public:
   virtual bool isInput()  const = 0;
   bool         isOutput() const
     { return !isInput(); }
-
 
 //// get the first interface without checking for nil
 //smoc::Detail::PortBaseIf       *get_interface()

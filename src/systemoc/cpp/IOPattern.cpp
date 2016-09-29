@@ -38,36 +38,41 @@
 
 namespace smoc { namespace Detail {
 
+PortInfo::PortInfo(
+      smoc_sysc_port    *port,
+      size_t             numberRequiredTokens)
+  : port(port),
+    numberRequiredTokens(numberRequiredTokens),
+    portEvent(&port->blockEvent(numberRequiredTokens))
+  {}
+
 static
 smoc_event_and_list *getCAP(const smoc_event_and_list &ap) {
   typedef std::set<smoc_event_and_list> Cache;
   static Cache* cache = new Cache();
-  return &const_cast<smoc_event_and_list&>(*cache->insert(ap).first);
+  return &const_cast<smoc_event_and_list &>(*cache->insert(ap).first);
 }
 
 void IOPattern::finalise() {
   smoc_event_and_list tmp;
   
-  for(PortInfos::const_iterator pi = portInfos.begin();
-      pi != portInfos.end();
-      ++pi) {
-    tmp &= *(pi->portEvent);
+  for (PortInfos::const_iterator iter = portInfos.begin();
+       iter != portInfos.end();
+       ++iter) {
+    tmp &= *(iter->portEvent);
   }
   
-  for(PlainEvents::const_iterator pe = plainEvents.begin();
-      pe != plainEvents.end();
-      ++pe) {
-    tmp &= **pe;
+  for (PlainEvents::const_iterator iter = plainEvents.begin();
+       iter != plainEvents.end();
+       ++iter) {
+    tmp &= **iter;
   }
   
   ioPatternWaiter = getCAP(tmp);
 }
 
-void IOPattern::addPortRequirement(
-    smoc_sysc_port    &port,
-    size_t             numberRequiredTokens,
-    smoc_event_waiter &portEvent) {
-  portInfos.push_back(PortInfo(&port, numberRequiredTokens, &portEvent));
+void IOPattern::addPortRequirement(smoc_sysc_port &port, size_t numberRequiredTokens) {
+  portInfos.push_back(PortInfo(&port, numberRequiredTokens));
 }
 
 void IOPattern::addEvent(smoc_event_waiter &plainEvent) {
@@ -80,21 +85,21 @@ std::ostream &operator <<(std::ostream &out, IOPattern const &iop) {
   bool first = true;
   
   out << "[IOP: ";
-  for(PortInfos::const_iterator pi = iop.portInfos.begin();
-      pi != iop.portInfos.end();
-      ++pi) {
+  for (PortInfos::const_iterator iter = iop.portInfos.begin();
+       iter != iop.portInfos.end();
+       ++iter) {
     if (!first)
       out << ", ";
     first = false;
-    out << "#" << pi->port->name() << ">=" << pi->numberRequiredTokens;
+    out << "#" << iter->port->name() << ">=" << iter->numberRequiredTokens << " as " << *iter->portEvent;
   }
-  for(PlainEvents::const_iterator pe = iop.plainEvents.begin();
-      pe != iop.plainEvents.end();
-      ++pe) {
+  for (PlainEvents::const_iterator iter = iop.plainEvents.begin();
+       iter != iop.plainEvents.end();
+       ++iter) {
     if (!first)
       out << ", ";
     first = false;
-    out << "event(" << *pe << ")";
+    out << **iter;
   }
   out << "]";
   return out;

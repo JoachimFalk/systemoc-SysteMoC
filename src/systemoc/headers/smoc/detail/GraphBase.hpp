@@ -148,11 +148,10 @@ public:
 //void getChansRecursive(smoc_chan_list &chans) const;
 
 protected:
-  //typedef smoc_module_name sc_module_name;
-
-  GraphBase(const sc_core::sc_module_name& name, smoc_firing_state& init);
+  GraphBase(const sc_core::sc_module_name &name, smoc_firing_state &init);
 
   virtual void before_end_of_elaboration();
+  virtual void end_of_elaboration();
   
 #ifdef SYSTEMOC_ENABLE_VPC
   void finaliseVpcLink();
@@ -162,8 +161,15 @@ protected:
   void doReset();
 
 private:
-  smoc_node_list nodes;    ///< actor and graph child objects
-  smoc_chan_list channels; ///< channel child objects
+  /// Actor and graph child objects of this graph.
+  smoc_node_list      nodes;
+  /// Channel child objects of this graph.
+  smoc_chan_list      channels;
+  /// Scheduler for this graph. If this variable is NULL, than this graph will
+  /// be scheduled by its parent graph.
+  smoc_scheduler_top *scheduler;
+
+  void setScheduler(smoc_scheduler_top *scheduler);
 };
   
 } } // namespace smoc::Detail

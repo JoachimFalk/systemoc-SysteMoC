@@ -56,7 +56,6 @@
 
 #include "detail/smoc_chan_if.hpp"
 #include "detail/smoc_root_chan.hpp"
-//#include "../smoc/detail/Storage.hpp"
 #include "smoc_chan_adapter.hpp"
 #include "detail/smoc_fifo_storage.hpp"
 #include <smoc/detail/ConnectProvider.hpp>
@@ -111,11 +110,8 @@ protected:
   /// @brief Detail::LatencyQueue callback
   void latencyExpired(size_t n) {
     vpp(n);
+    //inform about new data available;
     emmData.increasedCount(visibleCount());
-
-    //smoc_root_chan::doReset();  // DISABLED (ms):
-    // doReset has an effect during elaboration, but has NO effect during
-    // simulation. latencyExpired is only called during simulation.
   }
 
 #ifdef SYSTEMOC_ENABLE_VPC
@@ -133,16 +129,7 @@ protected:
     emmSpace.increasedCount(freeCount());
   }
 
-  void doReset() {
-    // queue and initial tokens set up by smoc_fifo_storage...
-    emmSpace.reset();
-    emmData.reset();
-
-    emmSpace.increasedCount(freeCount());
-    emmData.increasedCount(visibleCount());
-
-    smoc_root_chan::doReset();
-  }
+  virtual void doReset();
 
   virtual void before_end_of_elaboration();
 public:
@@ -157,7 +144,7 @@ private:
 #ifdef SYSTEMOC_ENABLE_VPC
   smoc::Detail::LatencyQueue  latencyQueue;
   smoc::Detail::DIIQueue      diiQueue;
-#endif
+#endif // SYSTEMOC_ENABLE_VPC
 
   /// @brief The token id of the next commit token
   size_t tokenId;
@@ -169,10 +156,10 @@ private:
               << this->qfSize() << "\t"
               << this->freeCount() << "\t"
               << this->usedCount() << std::endl;
-#ifdef SYSTEMOC_ENABLE_VPC
+# ifdef SYSTEMOC_ENABLE_VPC
     latencyQueue.dump();
     diiQueue.dump();
-#endif //SYSTEMOC_ENABLE_VPC
+# endif // SYSTEMOC_ENABLE_VPC
 #endif // SYSTEMOC_DEBUG
   }
 #ifdef SYSTEMOC_ENABLE_VPC
@@ -204,22 +191,22 @@ protected:
 #ifdef SYSTEMOC_ENABLE_VPC
   void commitRead(size_t consume, smoc::Detail::VpcInterface vpcIf)
   {
-#ifdef SYSTEMOC_ENABLE_DATAFLOW_TRACE
+# ifdef SYSTEMOC_ENABLE_DATAFLOW_TRACE
     this->getSimCTX()->getDataflowTraceLog()->traceCommExecIn(&chan, consume);
-#endif
+# endif //SYSTEMOC_ENABLE_DATAFLOW_TRACE
     chan.rpp(consume);
     chan.emmData.decreasedCount(chan.visibleCount());
 
     // Delayed call of diiExpired(consume);
     chan.diiQueue.addEntry(consume, vpcIf.getTaskDiiEvent(), vpcIf);
   }
-#endif
+#endif //SYSTEMOC_ENABLE_VPC
 
   void commitRead(size_t consume)
   {
 #ifdef SYSTEMOC_ENABLE_DATAFLOW_TRACE
     this->getSimCTX()->getDataflowTraceLog()->traceCommExecIn(&chan, consume);
-#endif
+#endif //SYSTEMOC_ENABLE_DATAFLOW_TRACE
     chan.rpp(consume);
     chan.emmData.decreasedCount(chan.visibleCount());
     chan.diiExpired(consume);
@@ -277,9 +264,9 @@ protected:
 #ifdef SYSTEMOC_ENABLE_VPC
   void commitWrite(size_t produce, smoc::Detail::VpcInterface vpcIf)
   {
-#ifdef SYSTEMOC_ENABLE_DATAFLOW_TRACE
+# ifdef SYSTEMOC_ENABLE_DATAFLOW_TRACE
     this->getSimCTX()->getDataflowTraceLog()->traceCommExecOut(&chan, produce);
-#endif
+# endif // SYSTEMOC_ENABLE_DATAFLOW_TRACE
     chan.tokenId += produce;
     chan.wpp(produce);
     chan.emmSpace.decreasedCount(chan.freeCount());
@@ -287,13 +274,13 @@ protected:
     // Delayed call of latencyExpired(produce);
     chan.latencyQueue.addEntry(produce,vpcIf.getTaskLatEvent(),vpcIf);
   }
-#endif
+#endif // SYSTEMOC_ENABLE_VPC
 
   void commitWrite(size_t produce)
   {
 #ifdef SYSTEMOC_ENABLE_DATAFLOW_TRACE
     this->getSimCTX()->getDataflowTraceLog()->traceCommExecOut(&chan, produce);
-#endif
+#endif // SYSTEMOC_ENABLE_DATAFLOW_TRACE
     chan.tokenId += produce;
     chan.wpp(produce);
     chan.emmSpace.decreasedCount(chan.freeCount());

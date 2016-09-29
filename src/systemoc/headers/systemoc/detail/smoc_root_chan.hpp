@@ -76,7 +76,6 @@ private:
 
   void generateName();
 #endif //!defined(SYSTEMOC_ENABLE_MAESTROMM_SPEEDUP)
-  bool resetCalled;
 public:
 #ifndef SYSTEMOC_ENABLE_MAESTROMM_SPEEDUP
   /// @brief Overwrite SystemC name method to provide our own version of channel names.
@@ -93,9 +92,10 @@ protected:
                              CoSupport::SystemC::ChannelId id,
                              std::string name ) {};
  
+  /// @brief generate channel names
   virtual void before_end_of_elaboration();
 
-  /// @brief Resets FIFOs which are not in the SysteMoC hierarchy
+  /// @brief resets FIFOs
   virtual void start_of_simulation();
 
   virtual void doReset();

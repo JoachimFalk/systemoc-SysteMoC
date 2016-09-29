@@ -62,6 +62,27 @@ void smoc_fifo_chan_base::before_end_of_elaboration() {
   assert(getOutlets().size() == 1);
 }
 
+void smoc_fifo_chan_base::doReset() {
+#ifdef SYSTEMOC_DEBUG
+  if (smoc::Detail::outDbg.isVisible(smoc::Detail::Debug::High)) {
+    smoc::Detail::outDbg << "<smoc_fifo_chan_base::doReset name=\"" << name() << "\">"
+         << std::endl << smoc::Detail::Indent::Up;
+  }
+#endif // SYSTEMOC_DEBUG
+  smoc_root_chan::doReset();
+  // queue and initial tokens set up by smoc_fifo_storage...
+  emmSpace.reset();
+  emmData.reset();
+
+  emmSpace.increasedCount(freeCount());
+  emmData.increasedCount(visibleCount());
+#ifdef SYSTEMOC_DEBUG
+  if (smoc::Detail::outDbg.isVisible(smoc::Detail::Debug::High)) {
+    smoc::Detail::outDbg << smoc::Detail::Indent::Down << "</smoc_fifo_chan_base::doReset>" << std::endl;
+  }
+#endif // SYSTEMOC_DEBUG
+}
+
 size_t fsizeMapper(sc_core::sc_object* instance, size_t n) {
 //FIXME: Reimplememt this!
 /*// SGX --> SystemC

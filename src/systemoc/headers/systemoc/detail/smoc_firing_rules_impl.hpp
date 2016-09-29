@@ -140,12 +140,12 @@ public:
     { return f; }
 
   /// @brief Returns input/output pattern (enough token/free space)
-  const smoc::Detail::IOPattern* getIOPattern () const
+  const smoc::Detail::IOPattern* getIOPattern() const
     { assert(ioPattern); return ioPattern; }
 
   /// @brief Returns input/output pattern (enough token/free space)
-  void setIOPattern (smoc::Detail::IOPattern* iop)
-    { ioPattern = iop; }
+  void setIOPattern(smoc::Detail::IOPattern *iop)
+    { assert(iop); ioPattern = iop; }
 };
 
 class TransitionImpl

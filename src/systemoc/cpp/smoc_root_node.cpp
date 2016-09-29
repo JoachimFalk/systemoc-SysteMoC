@@ -113,6 +113,8 @@ void smoc_root_node::end_of_elaboration() {
 #ifdef SYSTEMOC_ENABLE_VPC
   getCommState()->end_of_elaboration();
 #endif // SYSTEMOC_ENABLE_VPC
+  // Don't call the virtual function!
+  smoc_root_node::doReset();
   executing    = false;
 #ifdef SYSTEMOC_DEBUG
   if (smoc::Detail::outDbg.isVisible(smoc::Detail::Debug::High)) {

@@ -157,12 +157,6 @@ const CondMultiState& ExpandedTransition::getCondStates() const
 const MultiState& ExpandedTransition::getDestStates() const
   { return dest; }
 
-IOPattern *getCachedIOPattern(const IOPattern &iop) {
-  typedef std::set<IOPattern> Cache;
-  static Cache* cache = new Cache();
-  return &const_cast<IOPattern&>(*cache->insert(iop).first);
-}
-
 /// @brief Constructor
 RuntimeTransition::RuntimeTransition(
     const boost::shared_ptr<TransitionImpl> &tip
@@ -485,11 +479,23 @@ void RuntimeTransition::before_end_of_elaboration(smoc_root_node *node) {
 #endif //SYSTEMOC_ENABLE_MAESTRO
 }
 
+static
+IOPattern *getCachedIOPattern(const IOPattern &iop) {
+  typedef std::set<IOPattern> Cache;
+  static Cache* cache = new Cache();
+  return &const_cast<IOPattern&>(*cache->insert(iop).first);
+}
+
 void RuntimeTransition::end_of_elaboration() {
   IOPattern tmp;
   smoc::Expr::evalTo<smoc::Expr::Sensitivity>(getExpr(), tmp);
   tmp.finalise();
-  IOPattern* iop = getCachedIOPattern(tmp);
+#ifdef SYSTEMOC_DEBUG
+  if (smoc::Detail::outDbg.isVisible(smoc::Detail::Debug::Low)) {
+    smoc::Detail::outDbg << "=> " << tmp << std::endl;
+  }
+#endif //defined(SYSTEMOC_DEBUG)
+  IOPattern *iop = getCachedIOPattern(tmp);
   transitionImpl->setIOPattern(iop);
 }
  
@@ -536,7 +542,9 @@ void RuntimeState::addTransition(const RuntimeTransition& t,
 
 void RuntimeState::end_of_elaboration() {
   RuntimeTransitionList::iterator iterEnd = getTransitions().end();
-  for (RuntimeTransitionList::iterator iter = getTransitions().begin(); iter != iterEnd; ++iter) {
+  for (RuntimeTransitionList::iterator iter = getTransitions().begin();
+       iter != iterEnd;
+       ++iter) {
     iter->end_of_elaboration();
     am.insert(iter->getIOPatternWaiter());
   }
