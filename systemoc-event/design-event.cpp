@@ -36,6 +36,7 @@
 
 #include <iostream>
 
+#include <systemoc/smoc_moc.hpp>
 #include <systemoc/smoc_event.hpp>
 #include <systemoc/smoc_port.hpp>
 #include <systemoc/smoc_fifo.hpp>
