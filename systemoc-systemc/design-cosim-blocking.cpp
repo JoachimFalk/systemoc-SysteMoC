@@ -167,7 +167,7 @@ int sc_main (int argc, char **argv) {
   
   GTop gtop("gtop");
 
-  smoc_top top(&gtop);
+  smoc_scheduler_top top(&gtop);
   sc_core::sc_start();
   return 0;
 }

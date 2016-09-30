@@ -96,7 +96,7 @@ private:
 
 int sc_main (int argc, char **argv) { 
   Graph g("g");
-  smoc_top top(g);
+  smoc_scheduler_top top(g);
   sc_core::sc_start();
   return 0;
 }
