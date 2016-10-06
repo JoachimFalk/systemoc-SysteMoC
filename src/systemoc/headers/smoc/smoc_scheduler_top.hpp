@@ -1,7 +1,7 @@
 //  -*- tab-width:8; intent-tabs-mode:nil;  c-basic-offset:2; -*-
 // vim: set sw=2 ts=8:
 /*
- * Copyright (c) 2004-2016 Hardware-Software-CoDesign, University of Erlangen-Nuremberg.
+ * Copyright (c) 2004-2009 Hardware-Software-CoDesign, University of Erlangen-Nuremberg.
  * 
  *   This library is free software; you can redistribute it and/or modify it under
  *   the terms of the GNU Lesser General Public License as published by the Free
@@ -33,60 +33,45 @@
  * ENHANCEMENTS, OR MODIFICATIONS.
  */
 
-#ifndef _INCLUDED_SMOC_SMOC_GRAPH_HPP
-#define _INCLUDED_SMOC_SMOC_GRAPH_HPP
+#ifndef _INCLUDED_SMOC_SMOC_SCHEDULER_TOP_HPP
+#define _INCLUDED_SMOC_SMOC_SCHEDULER_TOP_HPP
 
-#include "detail/GraphBase.hpp"
+#include <systemc>
 
-#include <systemoc/smoc_config.h>
-
-#ifdef SYSTEMOC_ENABLE_MAESTRO
-# include <Maestro/MetaMap/SMoCGraph.hpp>
-#endif //SYSTEMOC_ENABLE_MAESTRO
+#include "detail/SimulationContext.hpp"
 
 namespace smoc {
 
-/**
- * graph with FSM which schedules children by selecting
- * any executable transition
- */
-class smoc_graph : public Detail::GraphBase
-#ifdef SYSTEMOC_ENABLE_MAESTRO
-, public MetaMap::SMoCGraph
-#endif //SYSTEMOC_ENABLE_MAESTRO
-{
-public:
-  // construct graph with name
-  explicit smoc_graph(const sc_core::sc_module_name& name);
+namespace Detail {
+  class GraphBase;
+} // namespace Detail
 
-  // construct graph with generated name
-  smoc_graph();
-  
+class smoc_scheduler_top
+: public sc_core::sc_module,
+  public Detail::SimCTXBase {
+
+  friend class Detail::GraphBase;
+public:
+  smoc_scheduler_top(Detail::GraphBase *g);
+  smoc_scheduler_top(Detail::GraphBase &g);
+  ~smoc_scheduler_top();
+
 protected:
-  /// @brief See GraphBase
-  virtual void before_end_of_elaboration();
+  void start_of_simulation();
+  void end_of_simulation();
+  void _before_end_of_elaboration();
+  void _end_of_elaboration();
 
 private:
-  // graph scheduler FSM state
-  smoc_firing_state run;
+  SC_HAS_PROCESS(smoc_scheduler_top);
 
-  // common constructor code
-  void constructor();
+  Detail::GraphBase *g;
+  bool               validVpcConfiguration;
+  bool               simulation_running;
 
-  void initDDF();
-
-  // schedule children of this graph
-  void scheduleDDF();
-
-  // a list containing the transitions of the graph's children
-  // that may be executed
-
-  typedef CoSupport::SystemC::EventOrList<smoc_root_node>
-          smoc_node_ready_list;
-
-  smoc_node_ready_list ol;
+  void schedule();
 };
 
 } // namespace smoc
 
-#endif // _INCLUDED_SMOC_SMOC_GRAPH_HPP
+#endif // _INCLUDED_SMOC_SMOC_SCHEDULER_TOP_HPP

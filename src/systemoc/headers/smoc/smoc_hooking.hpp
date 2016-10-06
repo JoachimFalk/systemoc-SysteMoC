@@ -32,8 +32,8 @@
  * ENHANCEMENTS, OR MODIFICATIONS.
  */
 
-#ifndef _INCLUDED_SMOC_HOOKING_HPP
-#define _INCLUDED_SMOC_HOOKING_HPP
+#ifndef _INCLUDED_SMOC_SMOC_HOOKING_HPP
+#define _INCLUDED_SMOC_SMOC_HOOKING_HPP
 
 #include <systemoc/smoc_config.h>
 
@@ -58,4 +58,4 @@ namespace smoc {
 
 #endif // SYSTEMOC_ENABLE_HOOKING
 
-#endif // _INCLUDED_SMOC_HOOKING_HPP
+#endif // _INCLUDED_SMOC_SMOC_HOOKING_HPP

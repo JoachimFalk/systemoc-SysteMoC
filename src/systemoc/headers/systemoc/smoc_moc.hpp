@@ -1,7 +1,7 @@
 //  -*- tab-width:8; intent-tabs-mode:nil;  c-basic-offset:2; -*-
 // vim: set sw=2 ts=8:
 /*
- * Copyright (c) 2004-2009 Hardware-Software-CoDesign, University of Erlangen-Nuremberg.
+ * Copyright (c) 2004-2016 Hardware-Software-CoDesign, University of Erlangen-Nuremberg.
  * 
  *   This library is free software; you can redistribute it and/or modify it under
  *   the terms of the GNU Lesser General Public License as published by the Free
@@ -36,54 +36,17 @@
 #ifndef _INCLUDED_SYSTEMOC_SMOC_MOC_HPP
 #define _INCLUDED_SYSTEMOC_SMOC_MOC_HPP
 
-#include <list>
-
 #include <systemc>
 
 #include <systemoc/smoc_config.h>
 
-#ifdef SYSTEMOC_ENABLE_VPC
-# include <systemcvpc/ScheduledTask.hpp>
-#endif //SYSTEMOC_ENABLE_VPC
-
-#ifdef SYSTEMOC_ENABLE_MAESTRO
-# include <Maestro/MetaMap/Elements.hpp>
-# include <Maestro/MetaMap/interface.hpp>
-#endif //SYSTEMOC_ENABLE_MAESTRO
-
-#include <smoc/detail/SimulationContext.hpp>
-
-#include "smoc_firing_rules.hpp"
-#include "detail/smoc_root_node.hpp"
-#include "../smoc/detail/GraphBase.hpp"
-
-class smoc_scheduler_top
-: public sc_core::sc_module,
-  public smoc::Detail::SimCTXBase {
-
-  friend class smoc::Detail::GraphBase;
-public:
-  smoc_scheduler_top(smoc::Detail::GraphBase *g);
-  smoc_scheduler_top(smoc::Detail::GraphBase &g);
-  ~smoc_scheduler_top();
-
-protected:
-  void start_of_simulation();
-  void end_of_simulation();
-  void _before_end_of_elaboration();
-  void _end_of_elaboration();
-
-private:
-  typedef CoSupport::SystemC::EventOrList
-    <RuntimeTransition> smoc_transition_ready_list;
-
-  smoc::Detail::GraphBase *g;
-  bool validVpcConfiguration;
-  bool simulation_running;
-  SC_HAS_PROCESS(smoc_scheduler_top);
-  void schedule();
-
-};
+// This should be the main header for SysteMoC without smoc namespace.
+// If there are additional headers required, please add them here.
+#include <systemoc/smoc_port.hpp>
+#include <systemoc/smoc_fifo.hpp>
+#include <systemoc/smoc_actor.hpp>
+#include <systemoc/smoc_graph.hpp>
+#include <systemoc/smoc_scheduler_top.hpp>
 
 //// for compatibility...
 //typedef smoc_scheduler_top smoc_top;
@@ -96,8 +59,6 @@ public:
   // FIXME: this copies given parameter and makes it impossible to use
   //   references in constructor of GraphBase! Copying is evil anyway (much
   //   data, pointers, references, copy constructor has to exist, ...)
-
-  //typedef smoc_module_name sc_module_name;
 
   smoc_top_moc()
     : Graph(), s(this) {}
@@ -118,12 +79,13 @@ public:
   template <typename T1, typename T2, typename T3, typename T4, typename T5>
   explicit smoc_top_moc(sc_core::sc_module_name name, T1 p1, T2 p2, T3 p3, T4 p4, T5 p5)
     : Graph(name, p1, p2, p3, p4, p5), s(this) {}
-
+/*
   static void beforeSimulation() {
 #ifdef SYSTEMOC_ENABLE_MAESTRO
     MM::MMAPI::reInit();
 #endif
   }
+ */
 
 private:
   smoc_scheduler_top s;
