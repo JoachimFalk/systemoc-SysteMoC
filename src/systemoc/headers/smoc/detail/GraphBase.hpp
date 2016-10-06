@@ -36,13 +36,11 @@
 #ifndef _INCLUDED_SMOC_DETAIL_GRAPHBASE_HPP
 #define _INCLUDED_SMOC_DETAIL_GRAPHBASE_HPP
 
-#include <list>
-#include <map>
-
 #include <systemc>
 
-#include <systemoc/smoc_config.h>
-#include "SimulationContext.hpp"
+//#include "SimulationContext.hpp"
+
+#include "../smoc_scheduler_top.hpp"
 
 // FIXME: Migrate these incldues to smoc
 #include "../../systemoc/smoc_port.hpp"
@@ -50,12 +48,6 @@
 #include "../../systemoc/smoc_multicast_sr_signal.hpp"
 #include "../../systemoc/smoc_actor.hpp"
 #include "../../systemoc/smoc_chan_adapter.hpp"
-
-#ifdef SYSTEMOC_ENABLE_MAESTRO
-# include <Maestro/MetaMap/SMoCGraph.hpp>
-#endif //SYSTEMOC_ENABLE_MAESTRO
-
-class smoc_scheduler_top;
 
 namespace smoc { namespace Detail {
 
@@ -69,7 +61,7 @@ class GraphBase: public smoc_root_node {
   friend class smoc_multireader_fifo_chan_base;
   friend class smoc_reset_chan;
   friend class smoc_root_node;
-  friend class ::smoc_scheduler_top; // doReset
+  friend class smoc::smoc_scheduler_top; // doReset
 
   typedef GraphBase this_type;
 public:  

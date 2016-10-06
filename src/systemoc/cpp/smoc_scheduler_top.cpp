@@ -1,7 +1,7 @@
 //  -*- tab-width:8; intent-tabs-mode:nil;  c-basic-offset:2; -*-
 // vim: set sw=2 ts=8:
 /*
- * Copyright (c) 2004-2009 Hardware-Software-CoDesign, University of Erlangen-Nuremberg.
+ * Copyright (c) 2004-2016 Hardware-Software-CoDesign, University of Erlangen-Nuremberg.
  * 
  *   This library is free software; you can redistribute it and/or modify it under
  *   the terms of the GNU Lesser General Public License as published by the Free
@@ -33,23 +33,25 @@
  * ENHANCEMENTS, OR MODIFICATIONS.
  */
 
+#include <smoc/smoc_scheduler_top.hpp>
+
 #include <CoSupport/compatibility-glue/nullptr.h>
 
 #include <systemoc/smoc_config.h>
-
-#include <systemoc/smoc_moc.hpp>
-//#include <systemoc/smoc_sr_signal.hpp>
-//#include <systemoc/smoc_multicast_sr_signal.hpp>
-#include <smoc/detail/DebugOStream.hpp>
 
 #ifdef SYSTEMOC_ENABLE_VPC
 # include <systemcvpc/Director.hpp>
 #endif //SYSTEMOC_ENABLE_VPC
 
+#include <smoc/detail/DebugOStream.hpp>
+#include <smoc/detail/GraphBase.hpp>
+
 #include "SMXDumper.hpp"
 
+namespace smoc {
+
 #ifdef SYSTEMOC_ENABLE_VPC
-namespace smoc { namespace Detail {
+namespace Detail {
 
   static
   bool systemcVpcCanExecute(SystemC_VPC::ScheduledTask *actor) {
@@ -64,10 +66,10 @@ namespace smoc { namespace Detail {
     static_cast<smoc_actor*>(actor)->schedule();
   }
 
-} } // smoc::Detail
+} // Detail
 #endif //SYSTEMOC_ENABLE_VPC
 
-smoc_scheduler_top::smoc_scheduler_top(smoc::Detail::GraphBase *g) :
+smoc_scheduler_top::smoc_scheduler_top(Detail::GraphBase *g) :
   // Prefix all SysteMoC internal modules with __smoc_ to enable filtering out the module on smx dump!
   sc_core::sc_module(sc_core::sc_module_name("__smoc_smoc_scheduler_top")),
   g(g),
@@ -78,7 +80,7 @@ smoc_scheduler_top::smoc_scheduler_top(smoc::Detail::GraphBase *g) :
   SC_THREAD(schedule);
 }
 
-smoc_scheduler_top::smoc_scheduler_top(smoc::Detail::GraphBase &g) :
+smoc_scheduler_top::smoc_scheduler_top(Detail::GraphBase &g) :
   // Prefix all SysteMoC internal modules with __smoc_ to enable filtering out the module on smx dump!
   sc_core::sc_module(sc_core::sc_module_name("__smoc_smoc_scheduler_top")),
   g(&g),
@@ -100,7 +102,7 @@ void smoc_scheduler_top::end_of_simulation() {
   simulation_running = false;
 #ifdef SYSTEMOC_ENABLE_SGX
   if (getSimCTX()->isSMXDumpingPostSimEnabled()) {
-    smoc::Detail::dumpSMX(getSimCTX()->getSMXPostSimFile(), getSimCTX(), *g);
+    Detail::dumpSMX(getSimCTX()->getSMXPostSimFile(), getSimCTX(), *g);
   }
 #endif // SYSTEMOC_ENABLE_SGX
   getSimCTX()->endOfSystemcSimulation();
@@ -108,9 +110,9 @@ void smoc_scheduler_top::end_of_simulation() {
 
 void smoc_scheduler_top::_before_end_of_elaboration() {
 #ifdef SYSTEMOC_DEBUG
-  if (smoc::Detail::outDbg.isVisible(smoc::Detail::Debug::High)) {
-    smoc::Detail::outDbg << "<smoc_scheduler_top::_before_end_of_elaboration name=\"" << this->name() << "\">"
-         << std::endl << smoc::Detail::Indent::Up;
+  if (Detail::outDbg.isVisible(Detail::Debug::High)) {
+    Detail::outDbg << "<smoc_scheduler_top::_before_end_of_elaboration name=\"" << this->name() << "\">"
+         << std::endl << Detail::Indent::Up;
   }
 #endif //defined(SYSTEMOC_DEBUG)
   try {
@@ -118,9 +120,9 @@ void smoc_scheduler_top::_before_end_of_elaboration() {
     SystemC_VPC::Director::getInstance().beforeVpcFinalize();
     
     boost::function<void (SystemC_VPC::ScheduledTask *actor)> callExecute
-      = &smoc::Detail::systemcVpcExecute;
+      = &Detail::systemcVpcExecute;
     boost::function<bool (SystemC_VPC::ScheduledTask *actor)> callCanExecute
-      = &smoc::Detail::systemcVpcCanExecute;
+      = &Detail::systemcVpcCanExecute;
     SystemC_VPC::Director::getInstance().
       registerSysteMoCCallBacks(callExecute, callCanExecute);
 #endif //SYSTEMOC_ENABLE_VPC
@@ -134,8 +136,8 @@ void smoc_scheduler_top::_before_end_of_elaboration() {
     exit(-1);
   }
 #ifdef SYSTEMOC_DEBUG
-  if (smoc::Detail::outDbg.isVisible(smoc::Detail::Debug::High)) {
-    smoc::Detail::outDbg << smoc::Detail::Indent::Down << "</smoc_scheduler_top::_before_end_of_elaboration>"
+  if (Detail::outDbg.isVisible(Detail::Debug::High)) {
+    Detail::outDbg << Detail::Indent::Down << "</smoc_scheduler_top::_before_end_of_elaboration>"
          << std::endl;
   }
 #endif //defined(SYSTEMOC_DEBUG)
@@ -143,9 +145,9 @@ void smoc_scheduler_top::_before_end_of_elaboration() {
 
 void smoc_scheduler_top::_end_of_elaboration() {
 #ifdef SYSTEMOC_DEBUG
-  if (smoc::Detail::outDbg.isVisible(smoc::Detail::Debug::High)) {
-    smoc::Detail::outDbg << "<smoc_scheduler_top::_end_of_elaboration name=\"" << this->name() << "\">"
-         << std::endl << smoc::Detail::Indent::Up;
+  if (Detail::outDbg.isVisible(Detail::Debug::High)) {
+    Detail::outDbg << "<smoc_scheduler_top::_end_of_elaboration name=\"" << this->name() << "\">"
+         << std::endl << Detail::Indent::Up;
   }
 #endif //defined(SYSTEMOC_DEBUG)
   try {
@@ -160,7 +162,7 @@ void smoc_scheduler_top::_end_of_elaboration() {
 //  g->doReset();
 #ifdef SYSTEMOC_ENABLE_SGX
     if (getSimCTX()->isSMXDumpingPreSimEnabled()) {
-      smoc::Detail::dumpSMX(getSimCTX()->getSMXPreSimFile(), getSimCTX(), *g);
+      Detail::dumpSMX(getSimCTX()->getSMXPreSimFile(), getSimCTX(), *g);
       if (!getSimCTX()->isSMXDumpingPreSimKeepGoing())
         sc_core::sc_stop();
     }
@@ -171,8 +173,8 @@ void smoc_scheduler_top::_end_of_elaboration() {
     exit(-1);
   }
 #ifdef SYSTEMOC_DEBUG
-  if (smoc::Detail::outDbg.isVisible(smoc::Detail::Debug::High)) {
-    smoc::Detail::outDbg << smoc::Detail::Indent::Down << "</smoc_scheduler_top:::_end_of_elaboration>"
+  if (Detail::outDbg.isVisible(Detail::Debug::High)) {
+    Detail::outDbg << Detail::Indent::Down << "</smoc_scheduler_top:::_end_of_elaboration>"
          << std::endl;
   }
 #endif //defined(SYSTEMOC_DEBUG)
@@ -190,20 +192,22 @@ void smoc_scheduler_top::schedule() {
 #endif //SYSTEMOC_ENABLE_VPC
   // plain old smoc scheduler
   while (true) {
-    smoc::smoc_wait(*g);
+    smoc_wait(*g);
     while (*g) {
 #ifdef SYSTEMOC_DEBUG
-      if (smoc::Detail::outDbg.isVisible(smoc::Detail::Debug::Medium)) {
-        smoc::Detail::outDbg << "<node name=\"" << g->name() << "\">" << std::endl
-             << smoc::Detail::Indent::Up;
+      if (Detail::outDbg.isVisible(Detail::Debug::Medium)) {
+        Detail::outDbg << "<node name=\"" << g->name() << "\">" << std::endl
+             << Detail::Indent::Up;
       }
 #endif // SYSTEMOC_DEBUG
       g->schedule();
 #ifdef SYSTEMOC_DEBUG
-      if (smoc::Detail::outDbg.isVisible(smoc::Detail::Debug::Medium)) {
-        smoc::Detail::outDbg << smoc::Detail::Indent::Down << "</node>" << std::endl;
+      if (Detail::outDbg.isVisible(Detail::Debug::Medium)) {
+        Detail::outDbg << Detail::Indent::Down << "</node>" << std::endl;
       }
 #endif // SYSTEMOC_DEBUG
     }
   }
 }
+
+} // namespace smoc

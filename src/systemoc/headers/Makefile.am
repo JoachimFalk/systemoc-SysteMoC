@@ -26,12 +26,19 @@ SUBDIRS=
 
 nobase_include_HEADERS = \
 	smoc.hpp \
+	smoc/smoc_event.hpp \
+	smoc/smoc_expr.hpp \
+	smoc/smoc_graph.hpp \
+	smoc/smoc_hooking.hpp \
+	smoc/smoc_scheduler_top.hpp \
 	smoc/detail/ConnectProvider.hpp \
 	smoc/detail/DebugOStream.hpp \
 	smoc/detail/DIIQueue.hpp \
 	smoc/detail/DumpingInterfaces.hpp \
 	smoc/detail/EventMapManager.hpp \
 	smoc/detail/EventQueue.hpp \
+	smoc/detail/export_config.h \
+	smoc/detail/GraphBase.hpp \
 	smoc/detail/IdedObj.hpp \
 	smoc/detail/IdPool.hpp \
 	smoc/detail/IdTAllocRequest.hpp \
@@ -50,18 +57,8 @@ nobase_include_HEADERS = \
 	smoc/detail/TraceLog.hpp \
 	smoc/detail/TransitionHook.hpp \
 	smoc/detail/VpcInterface.hpp \
-	smoc/smoc_event.hpp \
-	smoc/smoc_expr.hpp \
-	smoc/smoc_hooking.hpp \
-	systemoc/detail/smoc_chan_if.hpp \
-	systemoc/detail/smoc_fifo_storage.hpp \
-	systemoc/detail/smoc_firing_rules_impl.hpp \
-	systemoc/detail/smoc_func_call.hpp \
-	systemoc/detail/smoc_port_registry.hpp \
-	systemoc/detail/smoc_ring_access.hpp \
-	systemoc/detail/smoc_root_chan.hpp \
-	systemoc/detail/smoc_root_node.hpp \
-	systemoc/detail/smoc_sysc_port.hpp \
+	\
+	systemoc/smoc_moc.hpp \
 	systemoc/smoc_actor.hpp \
 	systemoc/smoc_chan_adapter.hpp \
 	systemoc/smoc_config.h \
@@ -70,9 +67,9 @@ nobase_include_HEADERS = \
 	systemoc/smoc_expr.hpp \
 	systemoc/smoc_fifo.hpp \
 	systemoc/smoc_firing_rules.hpp \
+	systemoc/smoc_graph.hpp \
 	systemoc/smoc_graph_tt.hpp \
 	systemoc/smoc_graph_type.hpp \
-	systemoc/smoc_moc.hpp \
 	systemoc/smoc_multicast_sr_signal.hpp \
 	systemoc/smoc_multiplex_fifo.hpp \
 	systemoc/smoc_multireader_fifo.hpp \
@@ -81,5 +78,15 @@ nobase_include_HEADERS = \
 	systemoc/smoc_port.hpp \
 	systemoc/smoc_register.hpp \
 	systemoc/smoc_reset.hpp \
+	systemoc/smoc_scheduler_top.hpp \
 	systemoc/smoc_sr_signal.hpp \
-	systemoc/smoc_tt.hpp
+	systemoc/smoc_tt.hpp \
+	systemoc/detail/smoc_chan_if.hpp \
+	systemoc/detail/smoc_fifo_storage.hpp \
+	systemoc/detail/smoc_firing_rules_impl.hpp \
+	systemoc/detail/smoc_func_call.hpp \
+	systemoc/detail/smoc_port_registry.hpp \
+	systemoc/detail/smoc_ring_access.hpp \
+	systemoc/detail/smoc_root_chan.hpp \
+	systemoc/detail/smoc_root_node.hpp \
+	systemoc/detail/smoc_sysc_port.hpp
