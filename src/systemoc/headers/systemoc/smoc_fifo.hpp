@@ -132,6 +132,7 @@ protected:
   virtual void doReset();
 
   virtual void before_end_of_elaboration();
+  virtual void end_of_simulation();
 public:
 #ifdef SYSTEMOC_ENABLE_SGX
   // FIXME: This should be protected for the SysteMoC user but accessible
@@ -149,19 +150,6 @@ private:
   /// @brief The token id of the next commit token
   size_t tokenId;
 
-  virtual void end_of_simulation(){
-#ifdef SYSTEMOC_DEBUG
-    std::cerr << this->name() << "\t"
-              << this->visibleCount() << "\t"
-              << this->qfSize() << "\t"
-              << this->freeCount() << "\t"
-              << this->usedCount() << std::endl;
-# ifdef SYSTEMOC_ENABLE_VPC
-    latencyQueue.dump();
-    diiQueue.dump();
-# endif // SYSTEMOC_ENABLE_VPC
-#endif // SYSTEMOC_DEBUG
-  }
 #ifdef SYSTEMOC_ENABLE_VPC
  virtual void invalidateToken(size_t n) = 0;
 #endif //defined(SYSTEMOC_ENABLE_VPC)

@@ -59,6 +59,24 @@ void smoc_fifo_chan_base::before_end_of_elaboration() {
   assert(getOutlets().size() == 1);
 }
 
+void smoc_fifo_chan_base::end_of_simulation() {
+  smoc_root_chan::end_of_simulation();
+#ifdef SYSTEMOC_DEBUG
+  if (smoc::Detail::outDbg.isVisible(smoc::Detail::Debug::High)) {
+    smoc::Detail::outDbg
+            << this->name() << "\t"
+            << this->visibleCount() << "\t"
+            << this->qfSize() << "\t"
+            << this->freeCount() << "\t"
+            << this->usedCount() << std::endl;
+# ifdef SYSTEMOC_ENABLE_VPC
+    latencyQueue.dump();
+    diiQueue.dump();
+# endif // SYSTEMOC_ENABLE_VPC
+  }
+#endif // SYSTEMOC_DEBUG
+}
+
 void smoc_fifo_chan_base::doReset() {
 #ifdef SYSTEMOC_DEBUG
   if (smoc::Detail::outDbg.isVisible(smoc::Detail::Debug::High)) {
