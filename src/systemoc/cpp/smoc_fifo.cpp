@@ -34,11 +34,8 @@
 
 #include <systemoc/smoc_config.h>
 
-//#include <systemoc/detail/smoc_ngx_sync.hpp>
 #include <systemoc/smoc_fifo.hpp>
 #include <systemoc/smoc_graph.hpp>
-
-size_t fsizeMapper(sc_core::sc_object* instance, size_t n);
 
 smoc_fifo_chan_base::smoc_fifo_chan_base(const chan_init& i)
 : smoc_root_chan(
@@ -47,11 +44,11 @@ smoc_fifo_chan_base::smoc_fifo_chan_base(const chan_init& i)
 #endif //!defined(SYSTEMOC_ENABLE_MAESTROMM_SPEEDUP)
   ),
 #ifdef SYSTEMOC_ENABLE_VPC
-  QueueFRVWPtr(fsizeMapper(this, i.n)),
+  QueueFRVWPtr(i.n),
   latencyQueue(std::bind1st(std::mem_fun(&this_type::latencyExpired), this), this, std::bind1st(std::mem_fun(&this_type::latencyExpired_dropped), this)),
   diiQueue(std::bind1st(std::mem_fun(&this_type::diiExpired), this)),
 #else
-  QueueRWPtr(fsizeMapper(this, i.n)),
+  QueueRWPtr(i.n),
 #endif
   tokenId(0)
 {}
@@ -82,19 +79,3 @@ void smoc_fifo_chan_base::doReset() {
   }
 #endif // SYSTEMOC_DEBUG
 }
-
-size_t fsizeMapper(sc_core::sc_object* instance, size_t n) {
-//FIXME: Reimplememt this!
-/*// SGX --> SystemC
-  if (smoc::Detail::NGXConfig::getInstance().hasNGX()) {
-    SystemCoDesigner::SGX::Fifo::ConstPtr fifo =
-      objAs<SystemCoDesigner::SGX::Fifo>(smoc::Detail::NGXCache::getInstance().get(instance));
-    if (fifo) {
-      n = fifo->size().get();
-    } else {
-      // XML node missing or no Fifo
-    }
-  }*/
-  return n;
-}
-

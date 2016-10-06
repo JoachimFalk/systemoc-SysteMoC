@@ -51,11 +51,11 @@ smoc_multireader_fifo_chan_base::smoc_multireader_fifo_chan_base(const chan_init
 #endif
   
 #ifdef SYSTEMOC_ENABLE_VPC
-  QueueFRVWPtr(fsizeMapper(this, i.n)),
+  QueueFRVWPtr(i.n),
   latencyQueue(std::bind1st(std::mem_fun(&this_type::latencyExpired), this), this),
   diiQueue(std::bind1st(std::mem_fun(&this_type::diiExpired), this)),
 #else
-  QueueRWPtr(fsizeMapper(this, i.n)),
+  QueueRWPtr(i.n),
 #endif
   tokenId(0),
   schedOutlets(i.so ? i.so : &schedDefault)
