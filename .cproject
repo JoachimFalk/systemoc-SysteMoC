@@ -2,7 +2,7 @@
 <?fileVersion 4.0.0?><cproject storage_type_id="org.eclipse.cdt.core.XmlProjectDescriptionStorage">
 	<storageModule moduleId="org.eclipse.cdt.core.settings">
 		<cconfiguration id="org.eclipse.linuxtools.cdt.autotools.core.configuration.build.1662713534">
-			<storageModule buildSystemId="org.eclipse.cdt.managedbuilder.core.configurationDataProvider" id="org.eclipse.linuxtools.cdt.autotools.core.configuration.build.1662713534" moduleId="org.eclipse.cdt.core.settings" name="Build (GNU)">
+			<storageModule buildSystemId="org.eclipse.cdt.managedbuilder.core.configurationDataProvider" id="org.eclipse.linuxtools.cdt.autotools.core.configuration.build.1662713534" moduleId="org.eclipse.cdt.core.settings" name="SysteMoC + SystemC-VPC">
 				<externalSettings>
 					<externalSetting>
 						<entry flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="includePath" name="/SysteMoC/obj/pkginclude"/>
@@ -22,11 +22,11 @@
 				</extensions>
 			</storageModule>
 			<storageModule moduleId="cdtBuildSystem" version="4.0.0">
-				<configuration artifactName="${ProjName}" buildArtefactType="org.eclipse.linuxtools.cdt.autotools.core.buildArtefactType.autotools" buildProperties="org.eclipse.cdt.build.core.buildArtefactType=org.eclipse.linuxtools.cdt.autotools.core.buildArtefactType.autotools" cleanCommand="rm -rf" description="" errorParsers="org.eclipse.cdt.core.MakeErrorParser;org.eclipse.cdt.core.GCCErrorParser;org.eclipse.cdt.core.GLDErrorParser;org.eclipse.cdt.core.GASErrorParser" id="org.eclipse.linuxtools.cdt.autotools.core.configuration.build.1662713534" name="Build (GNU)" parent="org.eclipse.linuxtools.cdt.autotools.core.configuration.build">
+				<configuration artifactName="${ProjName}" buildArtefactType="org.eclipse.linuxtools.cdt.autotools.core.buildArtefactType.autotools" buildProperties="org.eclipse.cdt.build.core.buildArtefactType=org.eclipse.linuxtools.cdt.autotools.core.buildArtefactType.autotools" cleanCommand="rm -rf" description="" errorParsers="org.eclipse.cdt.core.MakeErrorParser;org.eclipse.cdt.core.GCCErrorParser;org.eclipse.cdt.core.GLDErrorParser;org.eclipse.cdt.core.GASErrorParser" id="org.eclipse.linuxtools.cdt.autotools.core.configuration.build.1662713534" name="SysteMoC + SystemC-VPC" parent="org.eclipse.linuxtools.cdt.autotools.core.configuration.build">
 					<folderInfo id="org.eclipse.linuxtools.cdt.autotools.core.configuration.build.1662713534." name="/" resourcePath="">
 						<toolChain id="org.eclipse.linuxtools.cdt.autotools.core.toolChain.65146102" name="GNU Autotools Toolchain" superClass="org.eclipse.linuxtools.cdt.autotools.core.toolChain">
 							<targetPlatform id="org.eclipse.linuxtools.cdt.autotools.core.toolchain.targetPlatform.197701288" isAbstract="false" name="GNU Autotools Target Platform" superClass="org.eclipse.linuxtools.cdt.autotools.core.toolchain.targetPlatform"/>
-							<builder arguments="-j8" buildPath="${workspace_loc:/SysteMoC}/../obj/${ProjName}" command="make" id="org.eclipse.linuxtools.cdt.autotools.core.toolchain.builder.451301301" keepEnvironmentInBuildfile="false" managedBuildOn="true" superClass="org.eclipse.linuxtools.cdt.autotools.core.toolchain.builder">
+							<builder arguments="-j8" buildPath="${workspace_loc}/obj/${ProjName}" command="make" id="org.eclipse.linuxtools.cdt.autotools.core.toolchain.builder.451301301" keepEnvironmentInBuildfile="false" managedBuildOn="true" superClass="org.eclipse.linuxtools.cdt.autotools.core.toolchain.builder">
 								<outputEntries>
 									<entry flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="outputPath" name="obj"/>
 								</outputEntries>
@@ -37,6 +37,8 @@
 							<tool id="org.eclipse.linuxtools.cdt.autotools.core.toolchain.tool.autogen.371165766" name="autogen.sh" superClass="org.eclipse.linuxtools.cdt.autotools.core.toolchain.tool.autogen"/>
 							<tool id="org.eclipse.linuxtools.cdt.autotools.core.toolchain.tool.gcc.1247508200" name="GCC C Compiler" superClass="org.eclipse.linuxtools.cdt.autotools.core.toolchain.tool.gcc">
 								<option id="gnu.c.compiler.option.include.paths.1305063895" name="Include paths (-I)" superClass="gnu.c.compiler.option.include.paths" valueType="includePath">
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/SystemC-VPC/obj/pkginclude}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/SystemC-VPC/pkginclude}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/Support/obj/pkginclude}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/Support/pkginclude}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/Support/obj/src/cosupport-base/headers}&quot;"/>
@@ -63,6 +65,8 @@
 							</tool>
 							<tool id="org.eclipse.linuxtools.cdt.autotools.core.toolchain.tool.gpp.674389529" name="GCC C++ Compiler" superClass="org.eclipse.linuxtools.cdt.autotools.core.toolchain.tool.gpp">
 								<option id="gnu.cpp.compiler.option.include.paths.576002964" name="Include paths (-I)" superClass="gnu.cpp.compiler.option.include.paths" valueType="includePath">
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/SystemC-VPC/obj/pkginclude}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/SystemC-VPC/pkginclude}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/Support/obj/pkginclude}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/Support/pkginclude}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/Support/obj/src/cosupport-base/headers}&quot;"/>
@@ -117,6 +121,132 @@
 						<entry flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="includePath" name="/Support/src/cosupport-xerces/headers"/>
 					</externalSetting>
 				</externalSettings>
+				<externalSettings containerId="SystemC-VPC;" factoryId="org.eclipse.cdt.core.cfg.export.settings.sipplier">
+					<externalSetting>
+						<entry flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="includePath" name="/SystemC-VPC/obj/pkginclude"/>
+						<entry flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="includePath" name="/SystemC-VPC/pkginclude"/>
+					</externalSetting>
+				</externalSettings>
+			</storageModule>
+		</cconfiguration>
+		<cconfiguration id="org.eclipse.linuxtools.cdt.autotools.core.configuration.build.1662713534.191262153">
+			<storageModule buildSystemId="org.eclipse.cdt.managedbuilder.core.configurationDataProvider" id="org.eclipse.linuxtools.cdt.autotools.core.configuration.build.1662713534.191262153" moduleId="org.eclipse.cdt.core.settings" name="SysteMoC + Maestro">
+				<externalSettings>
+					<externalSetting>
+						<entry flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="includePath" name="/SysteMoC/obj/pkginclude"/>
+						<entry flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="includePath" name="/SysteMoC/pkginclude"/>
+					</externalSetting>
+				</externalSettings>
+				<extensions>
+					<extension id="org.eclipse.cdt.core.MakeErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
+					<extension id="org.eclipse.cdt.core.GCCErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
+					<extension id="org.eclipse.cdt.core.GASErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
+					<extension id="org.eclipse.cdt.core.GLDErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
+					<extension id="org.eclipse.cdt.core.MachO64" point="org.eclipse.cdt.core.BinaryParser"/>
+					<extension id="org.eclipse.cdt.core.ELF" point="org.eclipse.cdt.core.BinaryParser"/>
+					<extension id="org.eclipse.cdt.core.PE" point="org.eclipse.cdt.core.BinaryParser"/>
+					<extension id="org.eclipse.cdt.core.Cygwin_PE" point="org.eclipse.cdt.core.BinaryParser"/>
+					<extension id="org.eclipse.cdt.core.GNU_ELF" point="org.eclipse.cdt.core.BinaryParser"/>
+				</extensions>
+			</storageModule>
+			<storageModule moduleId="cdtBuildSystem" version="4.0.0">
+				<configuration artifactName="${ProjName}" buildArtefactType="org.eclipse.linuxtools.cdt.autotools.core.buildArtefactType.autotools" buildProperties="org.eclipse.cdt.build.core.buildArtefactType=org.eclipse.linuxtools.cdt.autotools.core.buildArtefactType.autotools" cleanCommand="rm -rf" description="" errorParsers="org.eclipse.cdt.core.MakeErrorParser;org.eclipse.cdt.core.GCCErrorParser;org.eclipse.cdt.core.GLDErrorParser;org.eclipse.cdt.core.GASErrorParser" id="org.eclipse.linuxtools.cdt.autotools.core.configuration.build.1662713534.191262153" name="SysteMoC + Maestro" parent="org.eclipse.linuxtools.cdt.autotools.core.configuration.build">
+					<folderInfo id="org.eclipse.linuxtools.cdt.autotools.core.configuration.build.1662713534.191262153." name="/" resourcePath="">
+						<toolChain id="org.eclipse.linuxtools.cdt.autotools.core.toolChain.1199375871" name="GNU Autotools Toolchain" superClass="org.eclipse.linuxtools.cdt.autotools.core.toolChain">
+							<targetPlatform id="org.eclipse.linuxtools.cdt.autotools.core.toolchain.targetPlatform.1267146343" isAbstract="false" name="GNU Autotools Target Platform" superClass="org.eclipse.linuxtools.cdt.autotools.core.toolchain.targetPlatform"/>
+							<builder arguments="-j8" buildPath="${workspace_loc}/obj/${ProjName}" command="make" id="org.eclipse.linuxtools.cdt.autotools.core.toolchain.builder.1772937402" keepEnvironmentInBuildfile="false" managedBuildOn="true" superClass="org.eclipse.linuxtools.cdt.autotools.core.toolchain.builder">
+								<outputEntries>
+									<entry flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="outputPath" name="obj"/>
+								</outputEntries>
+							</builder>
+							<tool id="org.eclipse.linuxtools.cdt.autotools.core.gnu.toolchain.tool.configure.945837218" name="configure" superClass="org.eclipse.linuxtools.cdt.autotools.core.gnu.toolchain.tool.configure">
+								<option id="org.eclipse.linuxtools.cdt.autotools.core.option.configure.name.1590498591" name="Name" superClass="org.eclipse.linuxtools.cdt.autotools.core.option.configure.name" value="org.eclipse.linuxtools.cdt.autotools.core.configuration.build.1662713534.191262153" valueType="string"/>
+							</tool>
+							<tool id="org.eclipse.linuxtools.cdt.autotools.core.toolchain.tool.autogen.1224470073" name="autogen.sh" superClass="org.eclipse.linuxtools.cdt.autotools.core.toolchain.tool.autogen"/>
+							<tool id="org.eclipse.linuxtools.cdt.autotools.core.toolchain.tool.gcc.1307180695" name="GCC C Compiler" superClass="org.eclipse.linuxtools.cdt.autotools.core.toolchain.tool.gcc">
+								<option id="gnu.c.compiler.option.include.paths.1006096639" name="Include paths (-I)" superClass="gnu.c.compiler.option.include.paths" valueType="includePath">
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/Support/obj/pkginclude}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/Support/pkginclude}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/Support/obj/src/cosupport-base/headers}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/Support/src/cosupport-allocators/headers}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/Support/src/cosupport-base/headers}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/Support/src/cosupport-initializer/headers}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/Support/src/cosupport-math/headers}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/Support/src/cosupport-path/headers}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/Support/src/cosupport-random/headers}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/Support/src/cosupport-smartptr/headers}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/Support/src/cosupport-streams/headers}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/Support/src/cosupport-string/headers}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/Support/src/cosupport-systemc/headers}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/Support/src/cosupport-tracing/headers}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/Support/src/cosupport-xerces/headers}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/LibSGX/obj/pkginclude}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/LibSGX/pkginclude}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/SysteMoC/obj}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/SysteMoC/obj/pkginclude}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/SysteMoC/pkginclude}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/SysteMoC/smoc-core}&quot;"/>
+								</option>
+								<inputType id="cdt.managedbuild.tool.gnu.c.compiler.input.436432725" superClass="cdt.managedbuild.tool.gnu.c.compiler.input"/>
+							</tool>
+							<tool id="org.eclipse.linuxtools.cdt.autotools.core.toolchain.tool.gpp.603720522" name="GCC C++ Compiler" superClass="org.eclipse.linuxtools.cdt.autotools.core.toolchain.tool.gpp">
+								<option id="gnu.cpp.compiler.option.include.paths.515189667" name="Include paths (-I)" superClass="gnu.cpp.compiler.option.include.paths" valueType="includePath">
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/Support/obj/pkginclude}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/Support/pkginclude}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/Support/obj/src/cosupport-base/headers}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/Support/src/cosupport-allocators/headers}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/Support/src/cosupport-base/headers}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/Support/src/cosupport-initializer/headers}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/Support/src/cosupport-math/headers}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/Support/src/cosupport-path/headers}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/Support/src/cosupport-random/headers}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/Support/src/cosupport-smartptr/headers}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/Support/src/cosupport-streams/headers}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/Support/src/cosupport-string/headers}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/Support/src/cosupport-systemc/headers}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/Support/src/cosupport-tracing/headers}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/Support/src/cosupport-xerces/headers}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/LibSGX/obj/pkginclude}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/LibSGX/pkginclude}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/SysteMoC/obj}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/SysteMoC/obj/pkginclude}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/SysteMoC/pkginclude}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/SysteMoC/smoc-core}&quot;"/>
+								</option>
+								<inputType id="cdt.managedbuild.tool.gnu.cpp.compiler.input.1188526209" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.input"/>
+							</tool>
+						</toolChain>
+					</folderInfo>
+				</configuration>
+			</storageModule>
+			<storageModule moduleId="org.eclipse.cdt.core.externalSettings">
+				<externalSettings containerId="LibSGX;" factoryId="org.eclipse.cdt.core.cfg.export.settings.sipplier">
+					<externalSetting>
+						<entry flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="includePath" name="/LibSGX/obj/pkginclude"/>
+						<entry flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="includePath" name="/LibSGX/pkginclude"/>
+					</externalSetting>
+				</externalSettings>
+				<externalSettings containerId="Support;" factoryId="org.eclipse.cdt.core.cfg.export.settings.sipplier">
+					<externalSetting>
+						<entry flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="includePath" name="/Support/obj/pkginclude"/>
+						<entry flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="includePath" name="/Support/pkginclude"/>
+						<entry flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="includePath" name="/Support/obj/src/cosupport-base/headers"/>
+						<entry flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="includePath" name="/Support/src/cosupport-allocators/headers"/>
+						<entry flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="includePath" name="/Support/src/cosupport-base/headers"/>
+						<entry flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="includePath" name="/Support/src/cosupport-initializer/headers"/>
+						<entry flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="includePath" name="/Support/src/cosupport-math/headers"/>
+						<entry flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="includePath" name="/Support/src/cosupport-path/headers"/>
+						<entry flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="includePath" name="/Support/src/cosupport-random/headers"/>
+						<entry flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="includePath" name="/Support/src/cosupport-smartptr/headers"/>
+						<entry flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="includePath" name="/Support/src/cosupport-streams/headers"/>
+						<entry flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="includePath" name="/Support/src/cosupport-string/headers"/>
+						<entry flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="includePath" name="/Support/src/cosupport-systemc/headers"/>
+						<entry flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="includePath" name="/Support/src/cosupport-tracing/headers"/>
+						<entry flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="includePath" name="/Support/src/cosupport-xerces/headers"/>
+					</externalSetting>
+				</externalSettings>
+				<externalSettings containerId="Maestro-Bruckner;" factoryId="org.eclipse.cdt.core.cfg.export.settings.sipplier"/>
+				<externalSettings containerId="Maestro-MetaMap;" factoryId="org.eclipse.cdt.core.cfg.export.settings.sipplier"/>
 			</storageModule>
 		</cconfiguration>
 	</storageModule>
@@ -124,20 +254,760 @@
 		<project id="SysteMoC.org.eclipse.linuxtools.cdt.autotools.core.projectType.1943311422" name="GNU Autotools" projectType="org.eclipse.linuxtools.cdt.autotools.core.projectType"/>
 	</storageModule>
 	<storageModule moduleId="org.eclipse.cdt.core.LanguageSettingsProviders"/>
+	<storageModule moduleId="refreshScope" versionNumber="2">
+		<configuration configurationName="SysteMoC + Maestro">
+			<resource resourceType="PROJECT" workspacePath="/SysteMoC"/>
+		</configuration>
+		<configuration configurationName="Build (GNU)">
+			<resource resourceType="PROJECT" workspacePath="/SysteMoC"/>
+		</configuration>
+	</storageModule>
+	<storageModule moduleId="org.eclipse.cdt.internal.ui.text.commentOwnerProjectMappings"/>
 	<storageModule moduleId="scannerConfiguration">
 		<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId=""/>
+		<scannerConfigBuildInfo instanceId="org.eclipse.linuxtools.cdt.autotools.core.configuration.build.1662713534.191262153;org.eclipse.linuxtools.cdt.autotools.core.configuration.build.1662713534.191262153.;org.eclipse.linuxtools.cdt.autotools.core.toolchain.tool.gpp.603720522;cdt.managedbuild.tool.gnu.cpp.compiler.input.1188526209">
+			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId=""/>
+		</scannerConfigBuildInfo>
 		<scannerConfigBuildInfo instanceId="org.eclipse.linuxtools.cdt.autotools.core.configuration.build.1662713534;org.eclipse.linuxtools.cdt.autotools.core.configuration.build.1662713534.;org.eclipse.linuxtools.cdt.autotools.core.toolchain.tool.gcc.1247508200;cdt.managedbuild.tool.gnu.c.compiler.input.1996450220">
 			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId="org.eclipse.cdt.managedbuilder.core.GCCManagedMakePerProjectProfileC"/>
 		</scannerConfigBuildInfo>
 		<scannerConfigBuildInfo instanceId="org.eclipse.linuxtools.cdt.autotools.core.configuration.build.1662713534;org.eclipse.linuxtools.cdt.autotools.core.configuration.build.1662713534.;org.eclipse.linuxtools.cdt.autotools.core.toolchain.tool.gpp.674389529;cdt.managedbuild.tool.gnu.cpp.compiler.input.2024020195">
 			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId="org.eclipse.cdt.managedbuilder.core.GCCManagedMakePerProjectProfileCPP"/>
 		</scannerConfigBuildInfo>
+		<scannerConfigBuildInfo instanceId="org.eclipse.linuxtools.cdt.autotools.core.configuration.build.1662713534.191262153;org.eclipse.linuxtools.cdt.autotools.core.configuration.build.1662713534.191262153.;org.eclipse.linuxtools.cdt.autotools.core.toolchain.tool.gcc.1307180695;cdt.managedbuild.tool.gnu.c.compiler.input.436432725">
+			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId=""/>
+		</scannerConfigBuildInfo>
 	</storageModule>
-	<storageModule moduleId="refreshScope" versionNumber="2">
-		<configuration configurationName="Build (GNU)">
-			<resource resourceType="PROJECT" workspacePath="/SysteMoC"/>
-		</configuration>
+	<storageModule moduleId="org.eclipse.cdt.make.core.buildtargets">
+		<buildTargets>
+			<target name="%.pc" path="" targetID="org.eclipse.cdt.build.MakeTargetBuilder">
+				<buildCommand>make</buildCommand>
+				<buildArguments>-j8</buildArguments>
+				<buildTarget>%.pc</buildTarget>
+				<stopOnError>true</stopOnError>
+				<useDefaultCommand>true</useDefaultCommand>
+				<runAllBuilders>false</runAllBuilders>
+			</target>
+			<target name="all" path="" targetID="org.eclipse.cdt.build.MakeTargetBuilder">
+				<buildCommand>make</buildCommand>
+				<buildArguments>-j8</buildArguments>
+				<buildTarget>all</buildTarget>
+				<stopOnError>true</stopOnError>
+				<useDefaultCommand>true</useDefaultCommand>
+				<runAllBuilders>false</runAllBuilders>
+			</target>
+			<target name="am--refresh" path="" targetID="org.eclipse.cdt.build.MakeTargetBuilder">
+				<buildCommand>make</buildCommand>
+				<buildArguments>-j8</buildArguments>
+				<buildTarget>am--refresh</buildTarget>
+				<stopOnError>true</stopOnError>
+				<useDefaultCommand>true</useDefaultCommand>
+				<runAllBuilders>false</runAllBuilders>
+			</target>
+			<target name="check" path="" targetID="org.eclipse.cdt.build.MakeTargetBuilder">
+				<buildCommand>make</buildCommand>
+				<buildArguments>-j8</buildArguments>
+				<buildTarget>check</buildTarget>
+				<stopOnError>true</stopOnError>
+				<useDefaultCommand>true</useDefaultCommand>
+				<runAllBuilders>false</runAllBuilders>
+			</target>
+			<target name="clean" path="" targetID="org.eclipse.cdt.build.MakeTargetBuilder">
+				<buildCommand>make</buildCommand>
+				<buildArguments>-j8</buildArguments>
+				<buildTarget>clean</buildTarget>
+				<stopOnError>true</stopOnError>
+				<useDefaultCommand>true</useDefaultCommand>
+				<runAllBuilders>false</runAllBuilders>
+			</target>
+			<target name="clean-cscope" path="" targetID="org.eclipse.cdt.build.MakeTargetBuilder">
+				<buildCommand>make</buildCommand>
+				<buildArguments>-j8</buildArguments>
+				<buildTarget>clean-cscope</buildTarget>
+				<stopOnError>true</stopOnError>
+				<useDefaultCommand>true</useDefaultCommand>
+				<runAllBuilders>false</runAllBuilders>
+			</target>
+			<target name="clean-libLTLIBRARIES" path="" targetID="org.eclipse.cdt.build.MakeTargetBuilder">
+				<buildCommand>make</buildCommand>
+				<buildArguments>-j8</buildArguments>
+				<buildTarget>clean-libLTLIBRARIES</buildTarget>
+				<stopOnError>true</stopOnError>
+				<useDefaultCommand>true</useDefaultCommand>
+				<runAllBuilders>false</runAllBuilders>
+			</target>
+			<target name="clean-libtool" path="" targetID="org.eclipse.cdt.build.MakeTargetBuilder">
+				<buildCommand>make</buildCommand>
+				<buildArguments>-j8</buildArguments>
+				<buildTarget>clean-libtool</buildTarget>
+				<stopOnError>true</stopOnError>
+				<useDefaultCommand>true</useDefaultCommand>
+				<runAllBuilders>false</runAllBuilders>
+			</target>
+			<target name="config.h" path="" targetID="org.eclipse.cdt.build.MakeTargetBuilder">
+				<buildCommand>make</buildCommand>
+				<buildArguments>-j8</buildArguments>
+				<buildTarget>config.h</buildTarget>
+				<stopOnError>true</stopOnError>
+				<useDefaultCommand>true</useDefaultCommand>
+				<runAllBuilders>false</runAllBuilders>
+			</target>
+			<target name="cscope" path="" targetID="org.eclipse.cdt.build.MakeTargetBuilder">
+				<buildCommand>make</buildCommand>
+				<buildArguments>-j8</buildArguments>
+				<buildTarget>cscope</buildTarget>
+				<stopOnError>true</stopOnError>
+				<useDefaultCommand>true</useDefaultCommand>
+				<runAllBuilders>false</runAllBuilders>
+			</target>
+			<target name="cscope.files" path="" targetID="org.eclipse.cdt.build.MakeTargetBuilder">
+				<buildCommand>make</buildCommand>
+				<buildArguments>-j8</buildArguments>
+				<buildTarget>cscope.files</buildTarget>
+				<stopOnError>true</stopOnError>
+				<useDefaultCommand>true</useDefaultCommand>
+				<runAllBuilders>false</runAllBuilders>
+			</target>
+			<target name="cscopelist" path="" targetID="org.eclipse.cdt.build.MakeTargetBuilder">
+				<buildCommand>make</buildCommand>
+				<buildArguments>-j8</buildArguments>
+				<buildTarget>cscopelist</buildTarget>
+				<stopOnError>true</stopOnError>
+				<useDefaultCommand>true</useDefaultCommand>
+				<runAllBuilders>false</runAllBuilders>
+			</target>
+			<target name="ctags" path="" targetID="org.eclipse.cdt.build.MakeTargetBuilder">
+				<buildCommand>make</buildCommand>
+				<buildArguments>-j8</buildArguments>
+				<buildTarget>ctags</buildTarget>
+				<stopOnError>true</stopOnError>
+				<useDefaultCommand>true</useDefaultCommand>
+				<runAllBuilders>false</runAllBuilders>
+			</target>
+			<target name="dist" path="" targetID="org.eclipse.cdt.build.MakeTargetBuilder">
+				<buildCommand>make</buildCommand>
+				<buildArguments>-j8</buildArguments>
+				<buildTarget>dist</buildTarget>
+				<stopOnError>true</stopOnError>
+				<useDefaultCommand>true</useDefaultCommand>
+				<runAllBuilders>false</runAllBuilders>
+			</target>
+			<target name="dist-all" path="" targetID="org.eclipse.cdt.build.MakeTargetBuilder">
+				<buildCommand>make</buildCommand>
+				<buildArguments>-j8</buildArguments>
+				<buildTarget>dist-all</buildTarget>
+				<stopOnError>true</stopOnError>
+				<useDefaultCommand>true</useDefaultCommand>
+				<runAllBuilders>false</runAllBuilders>
+			</target>
+			<target name="dist-bzip2" path="" targetID="org.eclipse.cdt.build.MakeTargetBuilder">
+				<buildCommand>make</buildCommand>
+				<buildArguments>-j8</buildArguments>
+				<buildTarget>dist-bzip2</buildTarget>
+				<stopOnError>true</stopOnError>
+				<useDefaultCommand>true</useDefaultCommand>
+				<runAllBuilders>false</runAllBuilders>
+			</target>
+			<target name="dist-gzip" path="" targetID="org.eclipse.cdt.build.MakeTargetBuilder">
+				<buildCommand>make</buildCommand>
+				<buildArguments>-j8</buildArguments>
+				<buildTarget>dist-gzip</buildTarget>
+				<stopOnError>true</stopOnError>
+				<useDefaultCommand>true</useDefaultCommand>
+				<runAllBuilders>false</runAllBuilders>
+			</target>
+			<target name="dist-lzip" path="" targetID="org.eclipse.cdt.build.MakeTargetBuilder">
+				<buildCommand>make</buildCommand>
+				<buildArguments>-j8</buildArguments>
+				<buildTarget>dist-lzip</buildTarget>
+				<stopOnError>true</stopOnError>
+				<useDefaultCommand>true</useDefaultCommand>
+				<runAllBuilders>false</runAllBuilders>
+			</target>
+			<target name="dist-shar" path="" targetID="org.eclipse.cdt.build.MakeTargetBuilder">
+				<buildCommand>make</buildCommand>
+				<buildArguments>-j8</buildArguments>
+				<buildTarget>dist-shar</buildTarget>
+				<stopOnError>true</stopOnError>
+				<useDefaultCommand>true</useDefaultCommand>
+				<runAllBuilders>false</runAllBuilders>
+			</target>
+			<target name="dist-tarZ" path="" targetID="org.eclipse.cdt.build.MakeTargetBuilder">
+				<buildCommand>make</buildCommand>
+				<buildArguments>-j8</buildArguments>
+				<buildTarget>dist-tarZ</buildTarget>
+				<stopOnError>true</stopOnError>
+				<useDefaultCommand>true</useDefaultCommand>
+				<runAllBuilders>false</runAllBuilders>
+			</target>
+			<target name="dist-xz" path="" targetID="org.eclipse.cdt.build.MakeTargetBuilder">
+				<buildCommand>make</buildCommand>
+				<buildArguments>-j8</buildArguments>
+				<buildTarget>dist-xz</buildTarget>
+				<stopOnError>true</stopOnError>
+				<useDefaultCommand>true</useDefaultCommand>
+				<runAllBuilders>false</runAllBuilders>
+			</target>
+			<target name="dist-zip" path="" targetID="org.eclipse.cdt.build.MakeTargetBuilder">
+				<buildCommand>make</buildCommand>
+				<buildArguments>-j8</buildArguments>
+				<buildTarget>dist-zip</buildTarget>
+				<stopOnError>true</stopOnError>
+				<useDefaultCommand>true</useDefaultCommand>
+				<runAllBuilders>false</runAllBuilders>
+			</target>
+			<target name="distcheck" path="" targetID="org.eclipse.cdt.build.MakeTargetBuilder">
+				<buildCommand>make</buildCommand>
+				<buildArguments>-j8</buildArguments>
+				<buildTarget>distcheck</buildTarget>
+				<stopOnError>true</stopOnError>
+				<useDefaultCommand>true</useDefaultCommand>
+				<runAllBuilders>false</runAllBuilders>
+			</target>
+			<target name="distclean" path="" targetID="org.eclipse.cdt.build.MakeTargetBuilder">
+				<buildCommand>make</buildCommand>
+				<buildArguments>-j8</buildArguments>
+				<buildTarget>distclean</buildTarget>
+				<stopOnError>true</stopOnError>
+				<useDefaultCommand>true</useDefaultCommand>
+				<runAllBuilders>false</runAllBuilders>
+			</target>
+			<target name="distclean-compile" path="" targetID="org.eclipse.cdt.build.MakeTargetBuilder">
+				<buildCommand>make</buildCommand>
+				<buildArguments>-j8</buildArguments>
+				<buildTarget>distclean-compile</buildTarget>
+				<stopOnError>true</stopOnError>
+				<useDefaultCommand>true</useDefaultCommand>
+				<runAllBuilders>false</runAllBuilders>
+			</target>
+			<target name="distclean-hdr" path="" targetID="org.eclipse.cdt.build.MakeTargetBuilder">
+				<buildCommand>make</buildCommand>
+				<buildArguments>-j8</buildArguments>
+				<buildTarget>distclean-hdr</buildTarget>
+				<stopOnError>true</stopOnError>
+				<useDefaultCommand>true</useDefaultCommand>
+				<runAllBuilders>false</runAllBuilders>
+			</target>
+			<target name="distclean-libtool" path="" targetID="org.eclipse.cdt.build.MakeTargetBuilder">
+				<buildCommand>make</buildCommand>
+				<buildArguments>-j8</buildArguments>
+				<buildTarget>distclean-libtool</buildTarget>
+				<stopOnError>true</stopOnError>
+				<useDefaultCommand>true</useDefaultCommand>
+				<runAllBuilders>false</runAllBuilders>
+			</target>
+			<target name="distclean-tags" path="" targetID="org.eclipse.cdt.build.MakeTargetBuilder">
+				<buildCommand>make</buildCommand>
+				<buildArguments>-j8</buildArguments>
+				<buildTarget>distclean-tags</buildTarget>
+				<stopOnError>true</stopOnError>
+				<useDefaultCommand>true</useDefaultCommand>
+				<runAllBuilders>false</runAllBuilders>
+			</target>
+			<target name="distcleancheck" path="" targetID="org.eclipse.cdt.build.MakeTargetBuilder">
+				<buildCommand>make</buildCommand>
+				<buildArguments>-j8</buildArguments>
+				<buildTarget>distcleancheck</buildTarget>
+				<stopOnError>true</stopOnError>
+				<useDefaultCommand>true</useDefaultCommand>
+				<runAllBuilders>false</runAllBuilders>
+			</target>
+			<target name="distdir" path="" targetID="org.eclipse.cdt.build.MakeTargetBuilder">
+				<buildCommand>make</buildCommand>
+				<buildArguments>-j8</buildArguments>
+				<buildTarget>distdir</buildTarget>
+				<stopOnError>true</stopOnError>
+				<useDefaultCommand>true</useDefaultCommand>
+				<runAllBuilders>false</runAllBuilders>
+			</target>
+			<target name="distuninstallcheck" path="" targetID="org.eclipse.cdt.build.MakeTargetBuilder">
+				<buildCommand>make</buildCommand>
+				<buildArguments>-j8</buildArguments>
+				<buildTarget>distuninstallcheck</buildTarget>
+				<stopOnError>true</stopOnError>
+				<useDefaultCommand>true</useDefaultCommand>
+				<runAllBuilders>false</runAllBuilders>
+			</target>
+			<target name="dvi" path="" targetID="org.eclipse.cdt.build.MakeTargetBuilder">
+				<buildCommand>make</buildCommand>
+				<buildArguments>-j8</buildArguments>
+				<buildTarget>dvi</buildTarget>
+				<stopOnError>true</stopOnError>
+				<useDefaultCommand>true</useDefaultCommand>
+				<runAllBuilders>false</runAllBuilders>
+			</target>
+			<target name="html" path="" targetID="org.eclipse.cdt.build.MakeTargetBuilder">
+				<buildCommand>make</buildCommand>
+				<buildArguments>-j8</buildArguments>
+				<buildTarget>html</buildTarget>
+				<stopOnError>true</stopOnError>
+				<useDefaultCommand>true</useDefaultCommand>
+				<runAllBuilders>false</runAllBuilders>
+			</target>
+			<target name="info" path="" targetID="org.eclipse.cdt.build.MakeTargetBuilder">
+				<buildCommand>make</buildCommand>
+				<buildArguments>-j8</buildArguments>
+				<buildTarget>info</buildTarget>
+				<stopOnError>true</stopOnError>
+				<useDefaultCommand>true</useDefaultCommand>
+				<runAllBuilders>false</runAllBuilders>
+			</target>
+			<target name="install" path="" targetID="org.eclipse.cdt.build.MakeTargetBuilder">
+				<buildCommand>make</buildCommand>
+				<buildArguments>-j8</buildArguments>
+				<buildTarget>install</buildTarget>
+				<stopOnError>true</stopOnError>
+				<useDefaultCommand>true</useDefaultCommand>
+				<runAllBuilders>false</runAllBuilders>
+			</target>
+			<target name="install-data" path="" targetID="org.eclipse.cdt.build.MakeTargetBuilder">
+				<buildCommand>make</buildCommand>
+				<buildArguments>-j8</buildArguments>
+				<buildTarget>install-data</buildTarget>
+				<stopOnError>true</stopOnError>
+				<useDefaultCommand>true</useDefaultCommand>
+				<runAllBuilders>false</runAllBuilders>
+			</target>
+			<target name="install-dvi" path="" targetID="org.eclipse.cdt.build.MakeTargetBuilder">
+				<buildCommand>make</buildCommand>
+				<buildArguments>-j8</buildArguments>
+				<buildTarget>install-dvi</buildTarget>
+				<stopOnError>true</stopOnError>
+				<useDefaultCommand>true</useDefaultCommand>
+				<runAllBuilders>false</runAllBuilders>
+			</target>
+			<target name="install-exec" path="" targetID="org.eclipse.cdt.build.MakeTargetBuilder">
+				<buildCommand>make</buildCommand>
+				<buildArguments>-j8</buildArguments>
+				<buildTarget>install-exec</buildTarget>
+				<stopOnError>true</stopOnError>
+				<useDefaultCommand>true</useDefaultCommand>
+				<runAllBuilders>false</runAllBuilders>
+			</target>
+			<target name="install-html" path="" targetID="org.eclipse.cdt.build.MakeTargetBuilder">
+				<buildCommand>make</buildCommand>
+				<buildArguments>-j8</buildArguments>
+				<buildTarget>install-html</buildTarget>
+				<stopOnError>true</stopOnError>
+				<useDefaultCommand>true</useDefaultCommand>
+				<runAllBuilders>false</runAllBuilders>
+			</target>
+			<target name="install-info" path="" targetID="org.eclipse.cdt.build.MakeTargetBuilder">
+				<buildCommand>make</buildCommand>
+				<buildArguments>-j8</buildArguments>
+				<buildTarget>install-info</buildTarget>
+				<stopOnError>true</stopOnError>
+				<useDefaultCommand>true</useDefaultCommand>
+				<runAllBuilders>false</runAllBuilders>
+			</target>
+			<target name="install-libLTLIBRARIES" path="" targetID="org.eclipse.cdt.build.MakeTargetBuilder">
+				<buildCommand>make</buildCommand>
+				<buildArguments>-j8</buildArguments>
+				<buildTarget>install-libLTLIBRARIES</buildTarget>
+				<stopOnError>true</stopOnError>
+				<useDefaultCommand>true</useDefaultCommand>
+				<runAllBuilders>false</runAllBuilders>
+			</target>
+			<target name="install-man" path="" targetID="org.eclipse.cdt.build.MakeTargetBuilder">
+				<buildCommand>make</buildCommand>
+				<buildArguments>-j8</buildArguments>
+				<buildTarget>install-man</buildTarget>
+				<stopOnError>true</stopOnError>
+				<useDefaultCommand>true</useDefaultCommand>
+				<runAllBuilders>false</runAllBuilders>
+			</target>
+			<target name="install-nodist_pkgconfigDATA" path="" targetID="org.eclipse.cdt.build.MakeTargetBuilder">
+				<buildCommand>make</buildCommand>
+				<buildArguments>-j8</buildArguments>
+				<buildTarget>install-nodist_pkgconfigDATA</buildTarget>
+				<stopOnError>true</stopOnError>
+				<useDefaultCommand>true</useDefaultCommand>
+				<runAllBuilders>false</runAllBuilders>
+			</target>
+			<target name="install-pdf" path="" targetID="org.eclipse.cdt.build.MakeTargetBuilder">
+				<buildCommand>make</buildCommand>
+				<buildArguments>-j8</buildArguments>
+				<buildTarget>install-pdf</buildTarget>
+				<stopOnError>true</stopOnError>
+				<useDefaultCommand>true</useDefaultCommand>
+				<runAllBuilders>false</runAllBuilders>
+			</target>
+			<target name="install-ps" path="" targetID="org.eclipse.cdt.build.MakeTargetBuilder">
+				<buildCommand>make</buildCommand>
+				<buildArguments>-j8</buildArguments>
+				<buildTarget>install-ps</buildTarget>
+				<stopOnError>true</stopOnError>
+				<useDefaultCommand>true</useDefaultCommand>
+				<runAllBuilders>false</runAllBuilders>
+			</target>
+			<target name="install-strip" path="" targetID="org.eclipse.cdt.build.MakeTargetBuilder">
+				<buildCommand>make</buildCommand>
+				<buildArguments>-j8</buildArguments>
+				<buildTarget>install-strip</buildTarget>
+				<stopOnError>true</stopOnError>
+				<useDefaultCommand>true</useDefaultCommand>
+				<runAllBuilders>false</runAllBuilders>
+			</target>
+			<target name="installcheck" path="" targetID="org.eclipse.cdt.build.MakeTargetBuilder">
+				<buildCommand>make</buildCommand>
+				<buildArguments>-j8</buildArguments>
+				<buildTarget>installcheck</buildTarget>
+				<stopOnError>true</stopOnError>
+				<useDefaultCommand>true</useDefaultCommand>
+				<runAllBuilders>false</runAllBuilders>
+			</target>
+			<target name="installdirs" path="" targetID="org.eclipse.cdt.build.MakeTargetBuilder">
+				<buildCommand>make</buildCommand>
+				<buildArguments>-j8</buildArguments>
+				<buildTarget>installdirs</buildTarget>
+				<stopOnError>true</stopOnError>
+				<useDefaultCommand>true</useDefaultCommand>
+				<runAllBuilders>false</runAllBuilders>
+			</target>
+			<target name="libsystemoc.la" path="" targetID="org.eclipse.cdt.build.MakeTargetBuilder">
+				<buildCommand>make</buildCommand>
+				<buildArguments>-j8</buildArguments>
+				<buildTarget>libsystemoc.la</buildTarget>
+				<stopOnError>true</stopOnError>
+				<useDefaultCommand>true</useDefaultCommand>
+				<runAllBuilders>false</runAllBuilders>
+			</target>
+			<target name="maintainer-clean" path="" targetID="org.eclipse.cdt.build.MakeTargetBuilder">
+				<buildCommand>make</buildCommand>
+				<buildArguments>-j8</buildArguments>
+				<buildTarget>maintainer-clean</buildTarget>
+				<stopOnError>true</stopOnError>
+				<useDefaultCommand>true</useDefaultCommand>
+				<runAllBuilders>false</runAllBuilders>
+			</target>
+			<target name="Makefile" path="" targetID="org.eclipse.cdt.build.MakeTargetBuilder">
+				<buildCommand>make</buildCommand>
+				<buildArguments>-j8</buildArguments>
+				<buildTarget>Makefile</buildTarget>
+				<stopOnError>true</stopOnError>
+				<useDefaultCommand>true</useDefaultCommand>
+				<runAllBuilders>false</runAllBuilders>
+			</target>
+			<target name="mostlyclean" path="" targetID="org.eclipse.cdt.build.MakeTargetBuilder">
+				<buildCommand>make</buildCommand>
+				<buildArguments>-j8</buildArguments>
+				<buildTarget>mostlyclean</buildTarget>
+				<stopOnError>true</stopOnError>
+				<useDefaultCommand>true</useDefaultCommand>
+				<runAllBuilders>false</runAllBuilders>
+			</target>
+			<target name="mostlyclean-compile" path="" targetID="org.eclipse.cdt.build.MakeTargetBuilder">
+				<buildCommand>make</buildCommand>
+				<buildArguments>-j8</buildArguments>
+				<buildTarget>mostlyclean-compile</buildTarget>
+				<stopOnError>true</stopOnError>
+				<useDefaultCommand>true</useDefaultCommand>
+				<runAllBuilders>false</runAllBuilders>
+			</target>
+			<target name="mostlyclean-libtool" path="" targetID="org.eclipse.cdt.build.MakeTargetBuilder">
+				<buildCommand>make</buildCommand>
+				<buildArguments>-j8</buildArguments>
+				<buildTarget>mostlyclean-libtool</buildTarget>
+				<stopOnError>true</stopOnError>
+				<useDefaultCommand>true</useDefaultCommand>
+				<runAllBuilders>false</runAllBuilders>
+			</target>
+			<target name="pdf" path="" targetID="org.eclipse.cdt.build.MakeTargetBuilder">
+				<buildCommand>make</buildCommand>
+				<buildArguments>-j8</buildArguments>
+				<buildTarget>pdf</buildTarget>
+				<stopOnError>true</stopOnError>
+				<useDefaultCommand>true</useDefaultCommand>
+				<runAllBuilders>false</runAllBuilders>
+			</target>
+			<target name="pkgconfig/libsystemoc.pc" path="" targetID="org.eclipse.cdt.build.MakeTargetBuilder">
+				<buildCommand>make</buildCommand>
+				<buildArguments>-j8</buildArguments>
+				<buildTarget>pkgconfig/libsystemoc.pc</buildTarget>
+				<stopOnError>true</stopOnError>
+				<useDefaultCommand>true</useDefaultCommand>
+				<runAllBuilders>false</runAllBuilders>
+			</target>
+			<target name="ps" path="" targetID="org.eclipse.cdt.build.MakeTargetBuilder">
+				<buildCommand>make</buildCommand>
+				<buildArguments>-j8</buildArguments>
+				<buildTarget>ps</buildTarget>
+				<stopOnError>true</stopOnError>
+				<useDefaultCommand>true</useDefaultCommand>
+				<runAllBuilders>false</runAllBuilders>
+			</target>
+			<target name="src/systemoc/cpp/libsystemoc_la-DebugOStream.lo" path="" targetID="org.eclipse.cdt.build.MakeTargetBuilder">
+				<buildCommand>make</buildCommand>
+				<buildArguments>-j8</buildArguments>
+				<buildTarget>src/systemoc/cpp/libsystemoc_la-DebugOStream.lo</buildTarget>
+				<stopOnError>true</stopOnError>
+				<useDefaultCommand>true</useDefaultCommand>
+				<runAllBuilders>false</runAllBuilders>
+			</target>
+			<target name="src/systemoc/cpp/libsystemoc_la-GraphBase.lo" path="" targetID="org.eclipse.cdt.build.MakeTargetBuilder">
+				<buildCommand>make</buildCommand>
+				<buildArguments>-j8</buildArguments>
+				<buildTarget>src/systemoc/cpp/libsystemoc_la-GraphBase.lo</buildTarget>
+				<stopOnError>true</stopOnError>
+				<useDefaultCommand>true</useDefaultCommand>
+				<runAllBuilders>false</runAllBuilders>
+			</target>
+			<target name="src/systemoc/cpp/libsystemoc_la-IdPool.lo" path="" targetID="org.eclipse.cdt.build.MakeTargetBuilder">
+				<buildCommand>make</buildCommand>
+				<buildArguments>-j8</buildArguments>
+				<buildTarget>src/systemoc/cpp/libsystemoc_la-IdPool.lo</buildTarget>
+				<stopOnError>true</stopOnError>
+				<useDefaultCommand>true</useDefaultCommand>
+				<runAllBuilders>false</runAllBuilders>
+			</target>
+			<target name="src/systemoc/cpp/libsystemoc_la-IOPattern.lo" path="" targetID="org.eclipse.cdt.build.MakeTargetBuilder">
+				<buildCommand>make</buildCommand>
+				<buildArguments>-j8</buildArguments>
+				<buildTarget>src/systemoc/cpp/libsystemoc_la-IOPattern.lo</buildTarget>
+				<stopOnError>true</stopOnError>
+				<useDefaultCommand>true</useDefaultCommand>
+				<runAllBuilders>false</runAllBuilders>
+			</target>
+			<target name="src/systemoc/cpp/libsystemoc_la-LatencyQueue.lo" path="" targetID="org.eclipse.cdt.build.MakeTargetBuilder">
+				<buildCommand>make</buildCommand>
+				<buildArguments>-j8</buildArguments>
+				<buildTarget>src/systemoc/cpp/libsystemoc_la-LatencyQueue.lo</buildTarget>
+				<stopOnError>true</stopOnError>
+				<useDefaultCommand>true</useDefaultCommand>
+				<runAllBuilders>false</runAllBuilders>
+			</target>
+			<target name="src/systemoc/cpp/libsystemoc_la-SimulationContext.lo" path="" targetID="org.eclipse.cdt.build.MakeTargetBuilder">
+				<buildCommand>make</buildCommand>
+				<buildArguments>-j8</buildArguments>
+				<buildTarget>src/systemoc/cpp/libsystemoc_la-SimulationContext.lo</buildTarget>
+				<stopOnError>true</stopOnError>
+				<useDefaultCommand>true</useDefaultCommand>
+				<runAllBuilders>false</runAllBuilders>
+			</target>
+			<target name="src/systemoc/cpp/libsystemoc_la-smoc_actor.lo" path="" targetID="org.eclipse.cdt.build.MakeTargetBuilder">
+				<buildCommand>make</buildCommand>
+				<buildArguments>-j8</buildArguments>
+				<buildTarget>src/systemoc/cpp/libsystemoc_la-smoc_actor.lo</buildTarget>
+				<stopOnError>true</stopOnError>
+				<useDefaultCommand>true</useDefaultCommand>
+				<runAllBuilders>false</runAllBuilders>
+			</target>
+			<target name="src/systemoc/cpp/libsystemoc_la-smoc_chan_if.lo" path="" targetID="org.eclipse.cdt.build.MakeTargetBuilder">
+				<buildCommand>make</buildCommand>
+				<buildArguments>-j8</buildArguments>
+				<buildTarget>src/systemoc/cpp/libsystemoc_la-smoc_chan_if.lo</buildTarget>
+				<stopOnError>true</stopOnError>
+				<useDefaultCommand>true</useDefaultCommand>
+				<runAllBuilders>false</runAllBuilders>
+			</target>
+			<target name="src/systemoc/cpp/libsystemoc_la-smoc_elab_and_sim.lo" path="" targetID="org.eclipse.cdt.build.MakeTargetBuilder">
+				<buildCommand>make</buildCommand>
+				<buildArguments>-j8</buildArguments>
+				<buildTarget>src/systemoc/cpp/libsystemoc_la-smoc_elab_and_sim.lo</buildTarget>
+				<stopOnError>true</stopOnError>
+				<useDefaultCommand>true</useDefaultCommand>
+				<runAllBuilders>false</runAllBuilders>
+			</target>
+			<target name="src/systemoc/cpp/libsystemoc_la-smoc_fifo.lo" path="" targetID="org.eclipse.cdt.build.MakeTargetBuilder">
+				<buildCommand>make</buildCommand>
+				<buildArguments>-j8</buildArguments>
+				<buildTarget>src/systemoc/cpp/libsystemoc_la-smoc_fifo.lo</buildTarget>
+				<stopOnError>true</stopOnError>
+				<useDefaultCommand>true</useDefaultCommand>
+				<runAllBuilders>false</runAllBuilders>
+			</target>
+			<target name="src/systemoc/cpp/libsystemoc_la-smoc_firing_rules.lo" path="" targetID="org.eclipse.cdt.build.MakeTargetBuilder">
+				<buildCommand>make</buildCommand>
+				<buildArguments>-j8</buildArguments>
+				<buildTarget>src/systemoc/cpp/libsystemoc_la-smoc_firing_rules.lo</buildTarget>
+				<stopOnError>true</stopOnError>
+				<useDefaultCommand>true</useDefaultCommand>
+				<runAllBuilders>false</runAllBuilders>
+			</target>
+			<target name="src/systemoc/cpp/libsystemoc_la-smoc_func_call.lo" path="" targetID="org.eclipse.cdt.build.MakeTargetBuilder">
+				<buildCommand>make</buildCommand>
+				<buildArguments>-j8</buildArguments>
+				<buildTarget>src/systemoc/cpp/libsystemoc_la-smoc_func_call.lo</buildTarget>
+				<stopOnError>true</stopOnError>
+				<useDefaultCommand>true</useDefaultCommand>
+				<runAllBuilders>false</runAllBuilders>
+			</target>
+			<target name="src/systemoc/cpp/libsystemoc_la-smoc_graph.lo" path="" targetID="org.eclipse.cdt.build.MakeTargetBuilder">
+				<buildCommand>make</buildCommand>
+				<buildArguments>-j8</buildArguments>
+				<buildTarget>src/systemoc/cpp/libsystemoc_la-smoc_graph.lo</buildTarget>
+				<stopOnError>true</stopOnError>
+				<useDefaultCommand>true</useDefaultCommand>
+				<runAllBuilders>false</runAllBuilders>
+			</target>
+			<target name="src/systemoc/cpp/libsystemoc_la-smoc_graph_tt.lo" path="" targetID="org.eclipse.cdt.build.MakeTargetBuilder">
+				<buildCommand>make</buildCommand>
+				<buildArguments>-j8</buildArguments>
+				<buildTarget>src/systemoc/cpp/libsystemoc_la-smoc_graph_tt.lo</buildTarget>
+				<stopOnError>true</stopOnError>
+				<useDefaultCommand>true</useDefaultCommand>
+				<runAllBuilders>false</runAllBuilders>
+			</target>
+			<target name="src/systemoc/cpp/libsystemoc_la-smoc_hooking.lo" path="" targetID="org.eclipse.cdt.build.MakeTargetBuilder">
+				<buildCommand>make</buildCommand>
+				<buildArguments>-j8</buildArguments>
+				<buildTarget>src/systemoc/cpp/libsystemoc_la-smoc_hooking.lo</buildTarget>
+				<stopOnError>true</stopOnError>
+				<useDefaultCommand>true</useDefaultCommand>
+				<runAllBuilders>false</runAllBuilders>
+			</target>
+			<target name="src/systemoc/cpp/libsystemoc_la-smoc_main.lo" path="" targetID="org.eclipse.cdt.build.MakeTargetBuilder">
+				<buildCommand>make</buildCommand>
+				<buildArguments>-j8</buildArguments>
+				<buildTarget>src/systemoc/cpp/libsystemoc_la-smoc_main.lo</buildTarget>
+				<stopOnError>true</stopOnError>
+				<useDefaultCommand>true</useDefaultCommand>
+				<runAllBuilders>false</runAllBuilders>
+			</target>
+			<target name="src/systemoc/cpp/libsystemoc_la-smoc_multicast_sr_signal.lo" path="" targetID="org.eclipse.cdt.build.MakeTargetBuilder">
+				<buildCommand>make</buildCommand>
+				<buildArguments>-j8</buildArguments>
+				<buildTarget>src/systemoc/cpp/libsystemoc_la-smoc_multicast_sr_signal.lo</buildTarget>
+				<stopOnError>true</stopOnError>
+				<useDefaultCommand>true</useDefaultCommand>
+				<runAllBuilders>false</runAllBuilders>
+			</target>
+			<target name="src/systemoc/cpp/libsystemoc_la-smoc_multiplex_fifo.lo" path="" targetID="org.eclipse.cdt.build.MakeTargetBuilder">
+				<buildCommand>make</buildCommand>
+				<buildArguments>-j8</buildArguments>
+				<buildTarget>src/systemoc/cpp/libsystemoc_la-smoc_multiplex_fifo.lo</buildTarget>
+				<stopOnError>true</stopOnError>
+				<useDefaultCommand>true</useDefaultCommand>
+				<runAllBuilders>false</runAllBuilders>
+			</target>
+			<target name="src/systemoc/cpp/libsystemoc_la-smoc_multireader_fifo.lo" path="" targetID="org.eclipse.cdt.build.MakeTargetBuilder">
+				<buildCommand>make</buildCommand>
+				<buildArguments>-j8</buildArguments>
+				<buildTarget>src/systemoc/cpp/libsystemoc_la-smoc_multireader_fifo.lo</buildTarget>
+				<stopOnError>true</stopOnError>
+				<useDefaultCommand>true</useDefaultCommand>
+				<runAllBuilders>false</runAllBuilders>
+			</target>
+			<target name="src/systemoc/cpp/libsystemoc_la-smoc_reset.lo" path="" targetID="org.eclipse.cdt.build.MakeTargetBuilder">
+				<buildCommand>make</buildCommand>
+				<buildArguments>-j8</buildArguments>
+				<buildTarget>src/systemoc/cpp/libsystemoc_la-smoc_reset.lo</buildTarget>
+				<stopOnError>true</stopOnError>
+				<useDefaultCommand>true</useDefaultCommand>
+				<runAllBuilders>false</runAllBuilders>
+			</target>
+			<target name="src/systemoc/cpp/libsystemoc_la-smoc_root_chan.lo" path="" targetID="org.eclipse.cdt.build.MakeTargetBuilder">
+				<buildCommand>make</buildCommand>
+				<buildArguments>-j8</buildArguments>
+				<buildTarget>src/systemoc/cpp/libsystemoc_la-smoc_root_chan.lo</buildTarget>
+				<stopOnError>true</stopOnError>
+				<useDefaultCommand>true</useDefaultCommand>
+				<runAllBuilders>false</runAllBuilders>
+			</target>
+			<target name="src/systemoc/cpp/libsystemoc_la-smoc_root_node.lo" path="" targetID="org.eclipse.cdt.build.MakeTargetBuilder">
+				<buildCommand>make</buildCommand>
+				<buildArguments>-j8</buildArguments>
+				<buildTarget>src/systemoc/cpp/libsystemoc_la-smoc_root_node.lo</buildTarget>
+				<stopOnError>true</stopOnError>
+				<useDefaultCommand>true</useDefaultCommand>
+				<runAllBuilders>false</runAllBuilders>
+			</target>
+			<target name="src/systemoc/cpp/libsystemoc_la-smoc_scheduler_top.lo" path="" targetID="org.eclipse.cdt.build.MakeTargetBuilder">
+				<buildCommand>make</buildCommand>
+				<buildArguments>-j8</buildArguments>
+				<buildTarget>src/systemoc/cpp/libsystemoc_la-smoc_scheduler_top.lo</buildTarget>
+				<stopOnError>true</stopOnError>
+				<useDefaultCommand>true</useDefaultCommand>
+				<runAllBuilders>false</runAllBuilders>
+			</target>
+			<target name="src/systemoc/cpp/libsystemoc_la-smoc_sysc_port.lo" path="" targetID="org.eclipse.cdt.build.MakeTargetBuilder">
+				<buildCommand>make</buildCommand>
+				<buildArguments>-j8</buildArguments>
+				<buildTarget>src/systemoc/cpp/libsystemoc_la-smoc_sysc_port.lo</buildTarget>
+				<stopOnError>true</stopOnError>
+				<useDefaultCommand>true</useDefaultCommand>
+				<runAllBuilders>false</runAllBuilders>
+			</target>
+			<target name="src/systemoc/cpp/libsystemoc_la-SMXDumper.lo" path="" targetID="org.eclipse.cdt.build.MakeTargetBuilder">
+				<buildCommand>make</buildCommand>
+				<buildArguments>-j8</buildArguments>
+				<buildTarget>src/systemoc/cpp/libsystemoc_la-SMXDumper.lo</buildTarget>
+				<stopOnError>true</stopOnError>
+				<useDefaultCommand>true</useDefaultCommand>
+				<runAllBuilders>false</runAllBuilders>
+			</target>
+			<target name="src/systemoc/cpp/libsystemoc_la-TraceLog.lo" path="" targetID="org.eclipse.cdt.build.MakeTargetBuilder">
+				<buildCommand>make</buildCommand>
+				<buildArguments>-j8</buildArguments>
+				<buildTarget>src/systemoc/cpp/libsystemoc_la-TraceLog.lo</buildTarget>
+				<stopOnError>true</stopOnError>
+				<useDefaultCommand>true</useDefaultCommand>
+				<runAllBuilders>false</runAllBuilders>
+			</target>
+			<target name="src/systemoc/cpp/libsystemoc_la-VpcInterface.lo" path="" targetID="org.eclipse.cdt.build.MakeTargetBuilder">
+				<buildCommand>make</buildCommand>
+				<buildArguments>-j8</buildArguments>
+				<buildTarget>src/systemoc/cpp/libsystemoc_la-VpcInterface.lo</buildTarget>
+				<stopOnError>true</stopOnError>
+				<useDefaultCommand>true</useDefaultCommand>
+				<runAllBuilders>false</runAllBuilders>
+			</target>
+			<target name="src/systemoc/headers/systemoc/smoc_config.h" path="" targetID="org.eclipse.cdt.build.MakeTargetBuilder">
+				<buildCommand>make</buildCommand>
+				<buildArguments>-j8</buildArguments>
+				<buildTarget>src/systemoc/headers/systemoc/smoc_config.h</buildTarget>
+				<stopOnError>true</stopOnError>
+				<useDefaultCommand>true</useDefaultCommand>
+				<runAllBuilders>false</runAllBuilders>
+			</target>
+			<target name="src/systemoc/headers/systemoc/stamp-h2" path="" targetID="org.eclipse.cdt.build.MakeTargetBuilder">
+				<buildCommand>make</buildCommand>
+				<buildArguments>-j8</buildArguments>
+				<buildTarget>src/systemoc/headers/systemoc/stamp-h2</buildTarget>
+				<stopOnError>true</stopOnError>
+				<useDefaultCommand>true</useDefaultCommand>
+				<runAllBuilders>false</runAllBuilders>
+			</target>
+			<target name="stamp-h1" path="" targetID="org.eclipse.cdt.build.MakeTargetBuilder">
+				<buildCommand>make</buildCommand>
+				<buildArguments>-j8</buildArguments>
+				<buildTarget>stamp-h1</buildTarget>
+				<stopOnError>true</stopOnError>
+				<useDefaultCommand>true</useDefaultCommand>
+				<runAllBuilders>false</runAllBuilders>
+			</target>
+			<target name="tags" path="" targetID="org.eclipse.cdt.build.MakeTargetBuilder">
+				<buildCommand>make</buildCommand>
+				<buildArguments>-j8</buildArguments>
+				<buildTarget>tags</buildTarget>
+				<stopOnError>true</stopOnError>
+				<useDefaultCommand>true</useDefaultCommand>
+				<runAllBuilders>false</runAllBuilders>
+			</target>
+			<target name="uninstall" path="" targetID="org.eclipse.cdt.build.MakeTargetBuilder">
+				<buildCommand>make</buildCommand>
+				<buildArguments>-j8</buildArguments>
+				<buildTarget>uninstall</buildTarget>
+				<stopOnError>true</stopOnError>
+				<useDefaultCommand>true</useDefaultCommand>
+				<runAllBuilders>false</runAllBuilders>
+			</target>
+			<target name="uninstall-libLTLIBRARIES" path="" targetID="org.eclipse.cdt.build.MakeTargetBuilder">
+				<buildCommand>make</buildCommand>
+				<buildArguments>-j8</buildArguments>
+				<buildTarget>uninstall-libLTLIBRARIES</buildTarget>
+				<stopOnError>true</stopOnError>
+				<useDefaultCommand>true</useDefaultCommand>
+				<runAllBuilders>false</runAllBuilders>
+			</target>
+			<target name="uninstall-nodist_pkgconfigDATA" path="" targetID="org.eclipse.cdt.build.MakeTargetBuilder">
+				<buildCommand>make</buildCommand>
+				<buildArguments>-j8</buildArguments>
+				<buildTarget>uninstall-nodist_pkgconfigDATA</buildTarget>
+				<stopOnError>true</stopOnError>
+				<useDefaultCommand>true</useDefaultCommand>
+				<runAllBuilders>false</runAllBuilders>
+			</target>
+		</buildTargets>
 	</storageModule>
-	<storageModule moduleId="org.eclipse.cdt.internal.ui.text.commentOwnerProjectMappings"/>
-	<storageModule moduleId="org.eclipse.cdt.make.core.buildtargets"/>
 </cproject>
