@@ -59,6 +59,7 @@ libsystemoc_la_SOURCES = \
 	src/systemoc/cpp/smoc_actor.cpp \
 	src/systemoc/cpp/smoc_chan_if.cpp \
 	src/systemoc/cpp/smoc_elab_and_sim.cpp \
+	src/systemoc/cpp/smoc_expr.cpp \
 	src/systemoc/cpp/smoc_fifo.cpp \
 	src/systemoc/cpp/smoc_firing_rules.cpp \
 	src/systemoc/cpp/smoc_func_call.cpp \
