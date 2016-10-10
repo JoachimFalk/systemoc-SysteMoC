@@ -35,7 +35,6 @@
 #include <systemoc/smoc_config.h>
 
 #include <systemoc/smoc_expr.hpp>
-#include <smoc/SimulationContext.hpp>
 
 namespace smoc { namespace Detail {
 
