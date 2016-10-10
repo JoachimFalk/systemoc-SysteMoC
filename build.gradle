@@ -19,6 +19,8 @@ class GenerateSysteMoCConfigH extends DefaultTask {
   @InputFile       File templateFile
   @OutputDirectory File headerDir
   @OutputDirectory File sourceDir
+  // The associated binary for the generated config header.
+  Binary                binary;
 
   @TaskAction
   void generateSysteMoCConfigH() {
@@ -28,9 +30,53 @@ class GenerateSysteMoCConfigH extends DefaultTask {
     File output = new File(headerDir, m.group(1))
     output.parentFile.mkdirs()
     output.text = '';
+    println binary.flavor
     templateFile.eachLine { line ->
+      def mline = line =~ /#undef ([^ ]*)/;
 //    String quotedLine = line.replaceAll(/["\\]/) { c -> '\\'+c }
-      output.append(line+"\n")
+      if (mline) {
+/* unknown definition #undef SYSTEMOC_VERSION */
+/* unknown definition #undef SYSTEMOC_MAJOR_VERSION */
+/* unknown definition #undef SYSTEMOC_MINOR_VERSION */
+/* unknown definition #undef SYSTEMOC_MICRO_VERSION */
+        if (mline.group(1) == 'SYSTEMOC_VERSION') {
+          output.append("#define "+mline.group(1)+" \"1.0\"\n")
+        } else if (mline.group(1) == 'SYSTEMOC_MAJOR_VERSION') {
+          output.append("#define "+mline.group(1)+" \"1\"\n")
+        } else if (mline.group(1) == 'SYSTEMOC_MINOR_VERSION') {
+          output.append("#define "+mline.group(1)+" \"0\"\n")
+        } else if (mline.group(1) == 'SYSTEMOC_MICRO_VERSION') {
+          output.append("#define "+mline.group(1)+" \"0\"\n")
+        } else if (mline.group(1) == 'SYSTEMOC_ENABLE_DEBUG') {
+          if (binary.buildType.name == 'debug') {
+            output.append("#define "+mline.group(1)+" yes\n")
+          } else {
+            output.append("/* #undef "+mline.group(1)+" */\n")
+          }
+        } else if (mline.group(1) == 'SYSTEMOC_ENABLE_SGX') {
+          if (binary.flavor.name.matches('(?i).*sgx.*')) {
+            output.append("#define "+mline.group(1)+" yes\n")
+          } else {
+            output.append("/* #undef "+mline.group(1)+" */\n")
+          }
+        } else if (mline.group(1) == 'SYSTEMOC_ENABLE_VPC') {
+          if (binary.flavor.name.matches('(?i).*vpc.*')) {
+            output.append("#define "+mline.group(1)+" yes\n")
+          } else {
+            output.append("/* #undef "+mline.group(1)+" */\n")
+          }
+        } else if (mline.group(1) == 'SYSTEMOC_ENABLE_MAESTRO') {
+          if (binary.flavor.name.matches('(?i).*maestro.*')) {
+            output.append("#define "+mline.group(1)+" yes\n")
+          } else {
+            output.append("/* #undef "+mline.group(1)+" */\n")
+          }
+        } else {
+          output.append("/* unknown definition "+line+" */\n")
+        }
+      } else {
+        output.append(line+"\n")
+      }
     }
   }
 }
@@ -97,6 +143,7 @@ model {
           task.templateFile = project.file("src/systemoc/headers/systemoc/smoc_config.h.in")
           task.headerDir    = configHeaderDir
           task.sourceDir    = configHeaderDir
+          task.binary       = binary
         }
 //      tasks.withType(CppCompile) {
 //        includes "src/systemoc/headers-connfig"
