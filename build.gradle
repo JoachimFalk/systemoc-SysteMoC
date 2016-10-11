@@ -35,10 +35,6 @@ class GenerateSysteMoCConfigH extends DefaultTask {
       def mline = line =~ /#undef ([^ ]*)/;
 //    String quotedLine = line.replaceAll(/["\\]/) { c -> '\\'+c }
       if (mline) {
-/* unknown definition #undef SYSTEMOC_VERSION */
-/* unknown definition #undef SYSTEMOC_MAJOR_VERSION */
-/* unknown definition #undef SYSTEMOC_MINOR_VERSION */
-/* unknown definition #undef SYSTEMOC_MICRO_VERSION */
         if (mline.group(1) == 'SYSTEMOC_VERSION') {
           output.append("#define "+mline.group(1)+" \"1.0\"\n")
         } else if (mline.group(1) == 'SYSTEMOC_MAJOR_VERSION') {
@@ -134,6 +130,9 @@ model {
             lib project: ':Support', library: "cosupport-allocators", flavor: "default"
             lib project: ':Support', library: "cosupport-math", flavor: "default"
             lib project: ':Support', library: "cosupport-string", flavor: "default"
+            if (binary.flavor.name.matches('(?i).*sgx.*')) {
+              lib project: ':LibSGX', library: "libsgx", flavor: "default"
+            }
             exportedCompilerArgs.define "FLIMMY_DEFINE=4711"
           }
         }
