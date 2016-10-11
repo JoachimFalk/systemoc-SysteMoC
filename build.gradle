@@ -30,7 +30,7 @@ class GenerateSysteMoCConfigH extends DefaultTask {
     File output = new File(headerDir, m.group(1))
     output.parentFile.mkdirs()
     output.text = '';
-    println binary.flavor
+//  println binary.flavor
     templateFile.eachLine { line ->
       def mline = line =~ /#undef ([^ ]*)/;
 //    String quotedLine = line.replaceAll(/["\\]/) { c -> '\\'+c }
@@ -89,6 +89,7 @@ model {
     maestro
     create('sgx-vpc')
     create('sgx-maestro')
+    create('sgx-maestro-crescendo')
   }
   components {
     "systemoc"(JFNativeLibrarySpec) {
@@ -132,6 +133,11 @@ model {
             lib project: ':Support', library: "cosupport-string", flavor: "default"
             if (binary.flavor.name.matches('(?i).*sgx.*')) {
               lib project: ':LibSGX', library: "libsgx", flavor: "default"
+            }
+            if (binary.flavor.name.matches('(?i).*maestro-crescendo.*')) {
+              lib project: ':Maestro:MetaMap', library: "libmaestro-metamap", flavor: "bruckner"
+            } else if (binary.flavor.name.matches('(?i).*maestro.*')) {
+              lib project: ':Maestro:MetaMap', library: "libmaestro-metamap", flavor: "default"
             }
             exportedCompilerArgs.define "FLIMMY_DEFINE=4711"
           }
