@@ -190,6 +190,10 @@
       <Project>{91715099-4be0-45a5-8922-8c3285a42b59}</Project>
       <LinkLibraryDependencies>true</LinkLibraryDependencies>
     </ProjectReference>
+    <ProjectReference Include="..\..\..\Support\msvc90\CoSupport\libcosupport-path\libcosupport-path.vcxproj">
+      <Project>{eebccc85-5b95-4317-aa6f-eaf182daa8ea}</Project>
+      <LinkLibraryDependencies>true</LinkLibraryDependencies>
+    </ProjectReference>
     <ProjectReference Include="..\..\..\Support\msvc90\CoSupport\libcosupport-smartptr\libcosupport-smartptr.vcxproj">
       <Project>{24f59074-9196-4240-8516-cd88c5b85689}</Project>
       <LinkLibraryDependencies>true</LinkLibraryDependencies>
