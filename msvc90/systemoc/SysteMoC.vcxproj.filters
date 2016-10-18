@@ -1,207 +1,293 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <ClCompile Include="..\..\smoc-core\IdPool.cpp" />
-    <ClCompile Include="..\..\smoc-core\IOPattern.cpp" />
-    <ClCompile Include="..\..\smoc-core\smoc_actor.cpp" />
-    <ClCompile Include="..\..\smoc-core\smoc_chan_if.cpp" />
-    <ClCompile Include="..\..\smoc-core\smoc_debug_stream.cpp" />
-    <ClCompile Include="..\..\smoc-core\smoc_elab_and_sim.cpp" />
-    <ClCompile Include="..\..\smoc-core\smoc_expr.cpp" />
-    <ClCompile Include="..\..\smoc-core\smoc_fifo.cpp" />
-    <ClCompile Include="..\..\smoc-core\smoc_firing_rules.cpp" />
-    <ClCompile Include="..\..\smoc-core\smoc_func_call.cpp" />
-    <ClCompile Include="..\..\smoc-core\smoc_graph_tt.cpp" />
-    <ClCompile Include="..\..\smoc-core\smoc_graph_type.cpp" />
-    <ClCompile Include="..\..\smoc-core\smoc_hooking.cpp" />
-    <ClCompile Include="..\..\smoc-core\smoc_main.cpp" />
-    <ClCompile Include="..\..\smoc-core\smoc_moc.cpp" />
-    <ClCompile Include="..\..\smoc-core\smoc_multicast_sr_signal.cpp" />
-    <ClCompile Include="..\..\smoc-core\smoc_multiplex_fifo.cpp" />
-    <ClCompile Include="..\..\smoc-core\smoc_multireader_fifo.cpp" />
-    <ClCompile Include="..\..\smoc-core\smoc_reset.cpp" />
-    <ClCompile Include="..\..\smoc-core\smoc_root_chan.cpp" />
-    <ClCompile Include="..\..\smoc-core\smoc_root_node.cpp" />
-    <ClCompile Include="..\..\smoc-core\smoc_simulation_ctx.cpp" />
-    <ClCompile Include="..\..\smoc-core\smoc_sysc_port.cpp" />
-    <ClCompile Include="..\..\smoc-core\SMXDumper.cpp" />
-    <ClCompile Include="..\..\smoc-core\TraceLog.cpp" />
-    <ClCompile Include="..\..\smoc-core\VpcInterface.cpp" />
-    <ClCompile Include="..\..\smoc-core\LatencyQueue.cpp" />
-  </ItemGroup>
-  <ItemGroup>
     <Filter Include="Headers">
       <UniqueIdentifier>{b2002503-a76c-42e3-88d0-b7a91638f543}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Sources">
+      <UniqueIdentifier>{52bf325a-99a6-4071-8c04-79a78f2c6eb5}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\pkginclude\systemoc\smoc_actor.hpp">
+    <ClCompile Include="..\..\src\systemoc\cpp\DebugOStream.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\systemoc\cpp\GraphBase.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\systemoc\cpp\IdPool.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\systemoc\cpp\IOPattern.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\systemoc\cpp\LatencyQueue.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\systemoc\cpp\SimulationContext.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\systemoc\cpp\smoc_actor.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\systemoc\cpp\smoc_chan_if.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\systemoc\cpp\smoc_elab_and_sim.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\systemoc\cpp\smoc_expr.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\systemoc\cpp\smoc_fifo.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\systemoc\cpp\smoc_firing_rules.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\systemoc\cpp\smoc_func_call.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\systemoc\cpp\smoc_graph.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\systemoc\cpp\smoc_graph_tt.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\systemoc\cpp\smoc_hooking.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\systemoc\cpp\smoc_main.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\systemoc\cpp\smoc_multicast_sr_signal.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\systemoc\cpp\smoc_multiplex_fifo.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\systemoc\cpp\smoc_multireader_fifo.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\systemoc\cpp\smoc_reset.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\systemoc\cpp\smoc_root_chan.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\systemoc\cpp\smoc_root_node.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\systemoc\cpp\smoc_scheduler_top.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\systemoc\cpp\smoc_sysc_port.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\systemoc\cpp\SMXDumper.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\systemoc\cpp\TraceLog.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\systemoc\cpp\VpcInterface.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\src\systemoc\headers\smoc.hpp">
       <Filter>Headers</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\pkginclude\systemoc\smoc_graph_type.hpp">
+    <ClInclude Include="..\..\src\systemoc\headers\smoc\smoc_event.hpp">
       <Filter>Headers</Filter>
     </ClInclude>
-    <ClInclude Include="..\config-wo-vpc\systemoc\smoc_config.h">
+    <ClInclude Include="..\..\src\systemoc\headers\smoc\smoc_expr.hpp">
       <Filter>Headers</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\pkginclude\systemoc\detail\smoc_root_node.hpp">
+    <ClInclude Include="..\..\src\systemoc\headers\smoc\smoc_graph.hpp">
       <Filter>Headers</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\pkginclude\systemoc\detail\ConnectProvider.hpp">
+    <ClInclude Include="..\..\src\systemoc\headers\smoc\smoc_hooking.hpp">
       <Filter>Headers</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\pkginclude\systemoc\detail\EventMapManager.hpp">
+    <ClInclude Include="..\..\src\systemoc\headers\smoc\smoc_scheduler_top.hpp">
       <Filter>Headers</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\pkginclude\systemoc\detail\QueueFRVWPtr.hpp">
+    <ClInclude Include="..\..\src\systemoc\headers\smoc\detail\ConnectProvider.hpp">
       <Filter>Headers</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\pkginclude\systemoc\detail\QueueRVWPtr.hpp">
+    <ClInclude Include="..\..\src\systemoc\headers\smoc\detail\DebugOStream.hpp">
       <Filter>Headers</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\pkginclude\systemoc\detail\QueueRWPtr.hpp">
+    <ClInclude Include="..\..\src\systemoc\headers\smoc\detail\DIIQueue.hpp">
       <Filter>Headers</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\pkginclude\systemoc\detail\smoc_chan_if.hpp">
+    <ClInclude Include="..\..\src\systemoc\headers\smoc\detail\DumpingInterfaces.hpp">
       <Filter>Headers</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\pkginclude\systemoc\detail\smoc_debug_stream.hpp">
+    <ClInclude Include="..\..\src\systemoc\headers\smoc\detail\EventMapManager.hpp">
       <Filter>Headers</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\pkginclude\systemoc\detail\smoc_event_decls.hpp">
+    <ClInclude Include="..\..\src\systemoc\headers\smoc\detail\EventQueue.hpp">
       <Filter>Headers</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\pkginclude\systemoc\detail\smoc_fifo_storage.hpp">
+    <ClInclude Include="..\..\src\systemoc\headers\smoc\detail\export_config.h">
       <Filter>Headers</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\pkginclude\systemoc\detail\smoc_firing_rules_impl.hpp">
+    <ClInclude Include="..\..\src\systemoc\headers\smoc\detail\GraphBase.hpp">
       <Filter>Headers</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\pkginclude\systemoc\detail\smoc_latency_queues.hpp">
+    <ClInclude Include="..\..\src\systemoc\headers\smoc\detail\IdedObj.hpp">
       <Filter>Headers</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\pkginclude\systemoc\detail\smoc_port_registry.hpp">
+    <ClInclude Include="..\..\src\systemoc\headers\smoc\detail\IdPool.hpp">
       <Filter>Headers</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\pkginclude\systemoc\detail\smoc_ring_access.hpp">
+    <ClInclude Include="..\..\src\systemoc\headers\smoc\detail\IdTAllocRequest.hpp">
       <Filter>Headers</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\pkginclude\systemoc\detail\smoc_root_chan.hpp">
+    <ClInclude Include="..\..\src\systemoc\headers\smoc\detail\IOPattern.hpp">
       <Filter>Headers</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\pkginclude\systemoc\detail\smoc_storage.hpp">
+    <ClInclude Include="..\..\src\systemoc\headers\smoc\detail\LatencyQueue.hpp">
       <Filter>Headers</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\pkginclude\systemoc\detail\smoc_sysc_port.hpp">
+    <ClInclude Include="..\..\src\systemoc\headers\smoc\detail\NamedIdedObj.hpp">
       <Filter>Headers</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\pkginclude\systemoc\smoc_chan_adapter.hpp">
+    <ClInclude Include="..\..\src\systemoc\headers\smoc\detail\PortBaseIf.hpp">
       <Filter>Headers</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\pkginclude\systemoc\smoc_elab_and_sim.hpp">
+    <ClInclude Include="..\..\src\systemoc\headers\smoc\detail\PortIOBaseIf.hpp">
       <Filter>Headers</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\pkginclude\systemoc\smoc_event.hpp">
+    <ClInclude Include="..\..\src\systemoc\headers\smoc\detail\QueueFRVWPtr.hpp">
       <Filter>Headers</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\pkginclude\systemoc\smoc_expr.hpp">
+    <ClInclude Include="..\..\src\systemoc\headers\smoc\detail\QueueRVWPtr.hpp">
       <Filter>Headers</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\pkginclude\systemoc\smoc_fifo.hpp">
+    <ClInclude Include="..\..\src\systemoc\headers\smoc\detail\QueueRWPtr.hpp">
       <Filter>Headers</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\pkginclude\systemoc\smoc_firing_rules.hpp">
+    <ClInclude Include="..\..\src\systemoc\headers\smoc\detail\QueueWithStorage.hpp">
       <Filter>Headers</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\pkginclude\systemoc\smoc_func_call.hpp">
+    <ClInclude Include="..\..\src\systemoc\headers\smoc\detail\SimCTXBase.hpp">
       <Filter>Headers</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\pkginclude\systemoc\smoc_graph_tt.hpp">
+    <ClInclude Include="..\..\src\systemoc\headers\smoc\detail\SimulationContext.hpp">
       <Filter>Headers</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\pkginclude\systemoc\smoc_guard.hpp">
+    <ClInclude Include="..\..\src\systemoc\headers\smoc\detail\Storage.hpp">
       <Filter>Headers</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\pkginclude\systemoc\smoc_moc.hpp">
+    <ClInclude Include="..\..\src\systemoc\headers\smoc\detail\TraceLog.hpp">
       <Filter>Headers</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\pkginclude\systemoc\smoc_module_name.hpp">
+    <ClInclude Include="..\..\src\systemoc\headers\smoc\detail\TransitionHook.hpp">
       <Filter>Headers</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\pkginclude\systemoc\smoc_multicast_sr_signal.hpp">
+    <ClInclude Include="..\..\src\systemoc\headers\smoc\detail\VpcInterface.hpp">
       <Filter>Headers</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\pkginclude\systemoc\smoc_multiplex_fifo.hpp">
+    <ClInclude Include="..\..\src\systemoc\headers\systemoc\smoc_actor.hpp">
       <Filter>Headers</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\pkginclude\systemoc\smoc_multireader_fifo.hpp">
+    <ClInclude Include="..\..\src\systemoc\headers\systemoc\smoc_chan_adapter.hpp">
       <Filter>Headers</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\pkginclude\systemoc\smoc_node_types.hpp">
+    <ClInclude Include="..\..\src\systemoc\headers\systemoc\smoc_elab_and_sim.hpp">
       <Filter>Headers</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\pkginclude\systemoc\smoc_periodic_actor.hpp">
+    <ClInclude Include="..\..\src\systemoc\headers\systemoc\smoc_event.hpp">
       <Filter>Headers</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\pkginclude\systemoc\smoc_pggen.hpp">
+    <ClInclude Include="..\..\src\systemoc\headers\systemoc\smoc_expr.hpp">
       <Filter>Headers</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\pkginclude\systemoc\smoc_port.hpp">
+    <ClInclude Include="..\..\src\systemoc\headers\systemoc\smoc_fifo.hpp">
       <Filter>Headers</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\pkginclude\systemoc\smoc_register.hpp">
+    <ClInclude Include="..\..\src\systemoc\headers\systemoc\smoc_firing_rules.hpp">
       <Filter>Headers</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\pkginclude\systemoc\smoc_reset.hpp">
+    <ClInclude Include="..\..\src\systemoc\headers\systemoc\smoc_graph.hpp">
       <Filter>Headers</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\pkginclude\systemoc\smoc_sr_signal.hpp">
+    <ClInclude Include="..\..\src\systemoc\headers\systemoc\smoc_graph_tt.hpp">
       <Filter>Headers</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\pkginclude\systemoc\smoc_tt.hpp">
+    <ClInclude Include="..\..\src\systemoc\headers\systemoc\smoc_graph_type.hpp">
       <Filter>Headers</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\pkginclude\smoc\smoc_hooking.hpp">
+    <ClInclude Include="..\..\src\systemoc\headers\systemoc\smoc_moc.hpp">
       <Filter>Headers</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\pkginclude\smoc\smoc_simulation_ctx.hpp">
+    <ClInclude Include="..\..\src\systemoc\headers\systemoc\smoc_multicast_sr_signal.hpp">
       <Filter>Headers</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\pkginclude\smoc\detail\DumpingInterfaces.hpp">
+    <ClInclude Include="..\..\src\systemoc\headers\systemoc\smoc_multiplex_fifo.hpp">
       <Filter>Headers</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\pkginclude\smoc\detail\IdedObj.hpp">
+    <ClInclude Include="..\..\src\systemoc\headers\systemoc\smoc_multireader_fifo.hpp">
       <Filter>Headers</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\pkginclude\smoc\detail\IdPool.hpp">
+    <ClInclude Include="..\..\src\systemoc\headers\systemoc\smoc_node_types.hpp">
       <Filter>Headers</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\pkginclude\smoc\detail\IdTAllocRequest.hpp">
+    <ClInclude Include="..\..\src\systemoc\headers\systemoc\smoc_periodic_actor.hpp">
       <Filter>Headers</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\pkginclude\smoc\detail\IOPattern.hpp">
+    <ClInclude Include="..\..\src\systemoc\headers\systemoc\smoc_port.hpp">
       <Filter>Headers</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\pkginclude\smoc\detail\NamedIdedObj.hpp">
+    <ClInclude Include="..\..\src\systemoc\headers\systemoc\smoc_register.hpp">
       <Filter>Headers</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\pkginclude\smoc\detail\TraceLog.hpp">
+    <ClInclude Include="..\..\src\systemoc\headers\systemoc\smoc_reset.hpp">
       <Filter>Headers</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\pkginclude\smoc\detail\VpcInterface.hpp">
+    <ClInclude Include="..\..\src\systemoc\headers\systemoc\smoc_scheduler_top.hpp">
       <Filter>Headers</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\pkginclude\smoc.hpp">
+    <ClInclude Include="..\..\src\systemoc\headers\systemoc\smoc_sr_signal.hpp">
       <Filter>Headers</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\smoc-core\apply_visitor.hpp">
+    <ClInclude Include="..\..\src\systemoc\headers\systemoc\smoc_tt.hpp">
       <Filter>Headers</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\smoc-core\smoc_graph_synth.hpp">
+    <ClInclude Include="..\..\src\systemoc\headers\systemoc\detail\smoc_chan_if.hpp">
       <Filter>Headers</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\smoc-core\SMXDumper.hpp">
+    <ClInclude Include="..\..\src\systemoc\headers\systemoc\detail\smoc_fifo_storage.hpp">
       <Filter>Headers</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\src\systemoc\headers\systemoc\detail\smoc_firing_rules_impl.hpp">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\systemoc\headers\systemoc\detail\smoc_func_call.hpp">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\systemoc\headers\systemoc\detail\smoc_port_registry.hpp">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\systemoc\headers\systemoc\detail\smoc_ring_access.hpp">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\systemoc\headers\systemoc\detail\smoc_root_chan.hpp">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\systemoc\headers\systemoc\detail\smoc_root_node.hpp">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\systemoc\headers\systemoc\detail\smoc_sysc_port.hpp">
+      <Filter>Headers</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\..\src\systemoc\headers\systemoc\smoc_config.h.in">
+      <Filter>Headers</Filter>
+    </None>
   </ItemGroup>
 </Project>
