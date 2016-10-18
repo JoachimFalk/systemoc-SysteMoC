@@ -88,7 +88,7 @@
     <ClCompile>
       <AdditionalOptions>/MP20  /vmg /Zo %(AdditionalOptions)</AdditionalOptions>
       <Optimization>Disabled</Optimization>
-      <AdditionalIncludeDirectories>..\..\..\Maestro\MetaMap\src\maestro-metamap\headers\Maestro\MetaMap\pkginclude;..\..\..\Maestro\MetaMap\src\maestro-metamap\headers\Maestro\MetaMap\pkginclude\MM;..\..\..\Maestro\MetaMap\src\maestro-metamap\headers\;..\..\..\Maestro\MetaMap\src\maestro-metamap\headers\Maestro\MetaMap\pkginclude\MetaMap;..\config-wo-vpc;..\..\pkginclude;..\..\..\CoSupport\pkginclude;..\..\..\CoSupport\msvc90\config;..\..\..\SystemC-VPC\msvc90\config-wo-vcd;..\..\..\SystemC-VPC\pkginclude\systemcvpc;..\..\..\SystemC-VPC\pkginclude;..\..\..\..\libs\include;..\..\..\Maestro\Bruckner\src\maestro-bruckner\headers\Maestro\Bruckner\Model;..\..\..\Maestro\Bruckner\src\maestro-bruckner\headers;$(ProjectDir)..\..\..\..\systemoc-top\Maestro;..\..\..\Support\src\cosupport-allocators\headers;..\..\..\Support\src\cosupport-base\headers;..\..\..\Support\src\cosupport-initializer\headers;..\..\..\Support\src\cosupport-math\headers;..\..\..\Support\src\cosupport-path\headers;..\..\..\Support\src\cosupport-random\headers;..\..\..\Support\src\cosupport-smartptr\headers;..\..\..\Support\src\cosupport-streams\headers;..\..\..\Support\src\cosupport-string\headers;..\..\..\Support\src\cosupport-systemc\headers;..\..\..\Support\src\cosupport-tracing\headers;..\..\..\Support\src\cosupport-xerces\headers;..\..\..\Support\src\test_dbgstream\headers;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)..\..\..\PrebuiltLibraries\x86_64-msvc140-win\libboost-1_59\include;$(ProjectDir)..\..\..\PrebuiltLibraries\x86_64-msvc140-win\libsystemc-2_3_1\include;$(ProjectDir)..\..\..\PrebuiltLibraries\x86_64-msvc140-win\libxerces-c-3_1_1\include;$(ProjectDir)..\..\..\PrebuiltLibraries\x86_64-msvc140-win\libspdlog-1_6\include;$(ProjectDir)..\..\..\SysteMoC\src\systemoc\headers;$(ProjectDir)..\..\..\Maestro\msvc90\MaestroRuntimeFramework;..\..\..\Maestro\MetaMap\src\maestro-metamap\headers\Maestro\MetaMap\pkginclude;..\..\..\Maestro\MetaMap\src\maestro-metamap\headers\Maestro\MetaMap\pkginclude\MM;..\..\..\Maestro\MetaMap\src\maestro-metamap\headers\;..\..\..\Maestro\MetaMap\src\maestro-metamap\headers\Maestro\MetaMap\pkginclude\MetaMap;..\config-wo-vpc;..\..\pkginclude;..\..\..\CoSupport\pkginclude;..\..\..\CoSupport\msvc90\config;..\..\..\SystemC-VPC\msvc90\config-wo-vcd;..\..\..\SystemC-VPC\pkginclude\systemcvpc;..\..\..\SystemC-VPC\pkginclude;..\..\..\..\libs\include;..\..\..\Maestro\Bruckner\src\maestro-bruckner\headers\Maestro\Bruckner\Model;..\..\..\Maestro\Bruckner\src\maestro-bruckner\headers;$(ProjectDir)..\..\..\..\systemoc-top\Maestro;..\..\..\Support\src\cosupport-allocators\headers;..\..\..\Support\src\cosupport-base\headers;..\..\..\Support\src\cosupport-initializer\headers;..\..\..\Support\src\cosupport-math\headers;..\..\..\Support\src\cosupport-path\headers;..\..\..\Support\src\cosupport-random\headers;..\..\..\Support\src\cosupport-smartptr\headers;..\..\..\Support\src\cosupport-streams\headers;..\..\..\Support\src\cosupport-string\headers;..\..\..\Support\src\cosupport-systemc\headers;..\..\..\Support\src\cosupport-tracing\headers;..\..\..\Support\src\cosupport-xerces\headers;..\..\..\Support\src\test_dbgstream\headers;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN64;_DEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <BasicRuntimeChecks>Default</BasicRuntimeChecks>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
@@ -183,35 +183,6 @@
     </ClCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\smoc-core\IdPool.cpp" />
-    <ClCompile Include="..\..\smoc-core\IOPattern.cpp" />
-    <ClCompile Include="..\..\smoc-core\LatencyQueue.cpp" />
-    <ClCompile Include="..\..\smoc-core\smoc_actor.cpp" />
-    <ClCompile Include="..\..\smoc-core\smoc_chan_if.cpp" />
-    <ClCompile Include="..\..\smoc-core\smoc_debug_stream.cpp" />
-    <ClCompile Include="..\..\smoc-core\smoc_elab_and_sim.cpp" />
-    <ClCompile Include="..\..\smoc-core\smoc_expr.cpp" />
-    <ClCompile Include="..\..\smoc-core\smoc_fifo.cpp" />
-    <ClCompile Include="..\..\smoc-core\smoc_firing_rules.cpp" />
-    <ClCompile Include="..\..\smoc-core\smoc_func_call.cpp" />
-    <ClCompile Include="..\..\smoc-core\smoc_graph_tt.cpp" />
-    <ClCompile Include="..\..\smoc-core\smoc_graph_type.cpp" />
-    <ClCompile Include="..\..\smoc-core\smoc_hooking.cpp" />
-    <ClCompile Include="..\..\smoc-core\smoc_main.cpp" />
-    <ClCompile Include="..\..\smoc-core\smoc_moc.cpp" />
-    <ClCompile Include="..\..\smoc-core\smoc_multicast_sr_signal.cpp" />
-    <ClCompile Include="..\..\smoc-core\smoc_multiplex_fifo.cpp" />
-    <ClCompile Include="..\..\smoc-core\smoc_multireader_fifo.cpp" />
-    <ClCompile Include="..\..\smoc-core\smoc_reset.cpp" />
-    <ClCompile Include="..\..\smoc-core\smoc_root_chan.cpp" />
-    <ClCompile Include="..\..\smoc-core\smoc_root_node.cpp" />
-    <ClCompile Include="..\..\smoc-core\smoc_simulation_ctx.cpp" />
-    <ClCompile Include="..\..\smoc-core\smoc_sysc_port.cpp" />
-    <ClCompile Include="..\..\smoc-core\SMXDumper.cpp" />
-    <ClCompile Include="..\..\smoc-core\TraceLog.cpp" />
-    <ClCompile Include="..\..\smoc-core\VpcInterface.cpp" />
-  </ItemGroup>
-  <ItemGroup>
     <ProjectReference Include="..\..\..\Maestro\msvc90\MaestroRuntimeFramework\MaestroRuntimeFramework.vcxproj">
       <Project>{5dd4db9d-1224-41bd-af8a-e2c8e1ef602b}</Project>
     </ProjectReference>
@@ -225,62 +196,102 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\pkginclude\smoc.hpp" />
-    <ClInclude Include="..\..\pkginclude\smoc\detail\DumpingInterfaces.hpp" />
-    <ClInclude Include="..\..\pkginclude\smoc\detail\IdedObj.hpp" />
-    <ClInclude Include="..\..\pkginclude\smoc\detail\IdPool.hpp" />
-    <ClInclude Include="..\..\pkginclude\smoc\detail\IdTAllocRequest.hpp" />
-    <ClInclude Include="..\..\pkginclude\smoc\detail\IOPattern.hpp" />
-    <ClInclude Include="..\..\pkginclude\smoc\detail\NamedIdedObj.hpp" />
-    <ClInclude Include="..\..\pkginclude\smoc\detail\TraceLog.hpp" />
-    <ClInclude Include="..\..\pkginclude\smoc\detail\VpcInterface.hpp" />
-    <ClInclude Include="..\..\pkginclude\smoc\smoc_hooking.hpp" />
-    <ClInclude Include="..\..\pkginclude\smoc\smoc_simulation_ctx.hpp" />
-    <ClInclude Include="..\..\pkginclude\systemoc\detail\ConnectProvider.hpp" />
-    <ClInclude Include="..\..\pkginclude\systemoc\detail\EventMapManager.hpp" />
-    <ClInclude Include="..\..\pkginclude\systemoc\detail\QueueFRVWPtr.hpp" />
-    <ClInclude Include="..\..\pkginclude\systemoc\detail\QueueRVWPtr.hpp" />
-    <ClInclude Include="..\..\pkginclude\systemoc\detail\QueueRWPtr.hpp" />
-    <ClInclude Include="..\..\pkginclude\systemoc\detail\smoc_chan_if.hpp" />
-    <ClInclude Include="..\..\pkginclude\systemoc\detail\smoc_debug_stream.hpp" />
-    <ClInclude Include="..\..\pkginclude\systemoc\detail\smoc_event_decls.hpp" />
-    <ClInclude Include="..\..\pkginclude\systemoc\detail\smoc_fifo_storage.hpp" />
-    <ClInclude Include="..\..\pkginclude\systemoc\detail\smoc_firing_rules_impl.hpp" />
-    <ClInclude Include="..\..\pkginclude\systemoc\detail\smoc_latency_queues.hpp" />
-    <ClInclude Include="..\..\pkginclude\systemoc\detail\smoc_port_registry.hpp" />
-    <ClInclude Include="..\..\pkginclude\systemoc\detail\smoc_ring_access.hpp" />
-    <ClInclude Include="..\..\pkginclude\systemoc\detail\smoc_root_chan.hpp" />
-    <ClInclude Include="..\..\pkginclude\systemoc\detail\smoc_root_node.hpp" />
-    <ClInclude Include="..\..\pkginclude\systemoc\detail\smoc_storage.hpp" />
-    <ClInclude Include="..\..\pkginclude\systemoc\detail\smoc_sysc_port.hpp" />
-    <ClInclude Include="..\..\pkginclude\systemoc\smoc_actor.hpp" />
-    <ClInclude Include="..\..\pkginclude\systemoc\smoc_chan_adapter.hpp" />
-    <ClInclude Include="..\..\pkginclude\systemoc\smoc_elab_and_sim.hpp" />
-    <ClInclude Include="..\..\pkginclude\systemoc\smoc_event.hpp" />
-    <ClInclude Include="..\..\pkginclude\systemoc\smoc_expr.hpp" />
-    <ClInclude Include="..\..\pkginclude\systemoc\smoc_fifo.hpp" />
-    <ClInclude Include="..\..\pkginclude\systemoc\smoc_firing_rules.hpp" />
-    <ClInclude Include="..\..\pkginclude\systemoc\smoc_func_call.hpp" />
-    <ClInclude Include="..\..\pkginclude\systemoc\smoc_graph_tt.hpp" />
-    <ClInclude Include="..\..\pkginclude\systemoc\smoc_graph_type.hpp" />
-    <ClInclude Include="..\..\pkginclude\systemoc\smoc_guard.hpp" />
-    <ClInclude Include="..\..\pkginclude\systemoc\smoc_moc.hpp" />
-    <ClInclude Include="..\..\pkginclude\systemoc\smoc_module_name.hpp" />
-    <ClInclude Include="..\..\pkginclude\systemoc\smoc_multicast_sr_signal.hpp" />
-    <ClInclude Include="..\..\pkginclude\systemoc\smoc_multiplex_fifo.hpp" />
-    <ClInclude Include="..\..\pkginclude\systemoc\smoc_multireader_fifo.hpp" />
-    <ClInclude Include="..\..\pkginclude\systemoc\smoc_node_types.hpp" />
-    <ClInclude Include="..\..\pkginclude\systemoc\smoc_periodic_actor.hpp" />
-    <ClInclude Include="..\..\pkginclude\systemoc\smoc_pggen.hpp" />
-    <ClInclude Include="..\..\pkginclude\systemoc\smoc_port.hpp" />
-    <ClInclude Include="..\..\pkginclude\systemoc\smoc_register.hpp" />
-    <ClInclude Include="..\..\pkginclude\systemoc\smoc_reset.hpp" />
-    <ClInclude Include="..\..\pkginclude\systemoc\smoc_sr_signal.hpp" />
-    <ClInclude Include="..\..\pkginclude\systemoc\smoc_tt.hpp" />
-    <ClInclude Include="..\..\smoc-core\apply_visitor.hpp" />
-    <ClInclude Include="..\..\smoc-core\smoc_graph_synth.hpp" />
-    <ClInclude Include="..\..\smoc-core\SMXDumper.hpp" />
-    <ClInclude Include="..\config-wo-vpc\systemoc\smoc_config.h" />
+    <ClCompile Include="..\..\src\systemoc\cpp\DebugOStream.cpp" />
+    <ClCompile Include="..\..\src\systemoc\cpp\GraphBase.cpp" />
+    <ClCompile Include="..\..\src\systemoc\cpp\IdPool.cpp" />
+    <ClCompile Include="..\..\src\systemoc\cpp\IOPattern.cpp" />
+    <ClCompile Include="..\..\src\systemoc\cpp\LatencyQueue.cpp" />
+    <ClCompile Include="..\..\src\systemoc\cpp\SimulationContext.cpp" />
+    <ClCompile Include="..\..\src\systemoc\cpp\smoc_actor.cpp" />
+    <ClCompile Include="..\..\src\systemoc\cpp\smoc_chan_if.cpp" />
+    <ClCompile Include="..\..\src\systemoc\cpp\smoc_elab_and_sim.cpp" />
+    <ClCompile Include="..\..\src\systemoc\cpp\smoc_expr.cpp" />
+    <ClCompile Include="..\..\src\systemoc\cpp\smoc_fifo.cpp" />
+    <ClCompile Include="..\..\src\systemoc\cpp\smoc_firing_rules.cpp" />
+    <ClCompile Include="..\..\src\systemoc\cpp\smoc_func_call.cpp" />
+    <ClCompile Include="..\..\src\systemoc\cpp\smoc_graph.cpp" />
+    <ClCompile Include="..\..\src\systemoc\cpp\smoc_graph_tt.cpp" />
+    <ClCompile Include="..\..\src\systemoc\cpp\smoc_hooking.cpp" />
+    <ClCompile Include="..\..\src\systemoc\cpp\smoc_main.cpp" />
+    <ClCompile Include="..\..\src\systemoc\cpp\smoc_multicast_sr_signal.cpp" />
+    <ClCompile Include="..\..\src\systemoc\cpp\smoc_multiplex_fifo.cpp" />
+    <ClCompile Include="..\..\src\systemoc\cpp\smoc_multireader_fifo.cpp" />
+    <ClCompile Include="..\..\src\systemoc\cpp\smoc_reset.cpp" />
+    <ClCompile Include="..\..\src\systemoc\cpp\smoc_root_chan.cpp" />
+    <ClCompile Include="..\..\src\systemoc\cpp\smoc_root_node.cpp" />
+    <ClCompile Include="..\..\src\systemoc\cpp\smoc_scheduler_top.cpp" />
+    <ClCompile Include="..\..\src\systemoc\cpp\smoc_sysc_port.cpp" />
+    <ClCompile Include="..\..\src\systemoc\cpp\SMXDumper.cpp" />
+    <ClCompile Include="..\..\src\systemoc\cpp\TraceLog.cpp" />
+    <ClCompile Include="..\..\src\systemoc\cpp\VpcInterface.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\src\systemoc\headers\smoc.hpp" />
+    <ClInclude Include="..\..\src\systemoc\headers\smoc\detail\ConnectProvider.hpp" />
+    <ClInclude Include="..\..\src\systemoc\headers\smoc\detail\DebugOStream.hpp" />
+    <ClInclude Include="..\..\src\systemoc\headers\smoc\detail\DIIQueue.hpp" />
+    <ClInclude Include="..\..\src\systemoc\headers\smoc\detail\DumpingInterfaces.hpp" />
+    <ClInclude Include="..\..\src\systemoc\headers\smoc\detail\EventMapManager.hpp" />
+    <ClInclude Include="..\..\src\systemoc\headers\smoc\detail\EventQueue.hpp" />
+    <ClInclude Include="..\..\src\systemoc\headers\smoc\detail\export_config.h" />
+    <ClInclude Include="..\..\src\systemoc\headers\smoc\detail\GraphBase.hpp" />
+    <ClInclude Include="..\..\src\systemoc\headers\smoc\detail\IdedObj.hpp" />
+    <ClInclude Include="..\..\src\systemoc\headers\smoc\detail\IdPool.hpp" />
+    <ClInclude Include="..\..\src\systemoc\headers\smoc\detail\IdTAllocRequest.hpp" />
+    <ClInclude Include="..\..\src\systemoc\headers\smoc\detail\IOPattern.hpp" />
+    <ClInclude Include="..\..\src\systemoc\headers\smoc\detail\LatencyQueue.hpp" />
+    <ClInclude Include="..\..\src\systemoc\headers\smoc\detail\NamedIdedObj.hpp" />
+    <ClInclude Include="..\..\src\systemoc\headers\smoc\detail\PortBaseIf.hpp" />
+    <ClInclude Include="..\..\src\systemoc\headers\smoc\detail\PortIOBaseIf.hpp" />
+    <ClInclude Include="..\..\src\systemoc\headers\smoc\detail\QueueFRVWPtr.hpp" />
+    <ClInclude Include="..\..\src\systemoc\headers\smoc\detail\QueueRVWPtr.hpp" />
+    <ClInclude Include="..\..\src\systemoc\headers\smoc\detail\QueueRWPtr.hpp" />
+    <ClInclude Include="..\..\src\systemoc\headers\smoc\detail\QueueWithStorage.hpp" />
+    <ClInclude Include="..\..\src\systemoc\headers\smoc\detail\SimCTXBase.hpp" />
+    <ClInclude Include="..\..\src\systemoc\headers\smoc\detail\SimulationContext.hpp" />
+    <ClInclude Include="..\..\src\systemoc\headers\smoc\detail\Storage.hpp" />
+    <ClInclude Include="..\..\src\systemoc\headers\smoc\detail\TraceLog.hpp" />
+    <ClInclude Include="..\..\src\systemoc\headers\smoc\detail\TransitionHook.hpp" />
+    <ClInclude Include="..\..\src\systemoc\headers\smoc\detail\VpcInterface.hpp" />
+    <ClInclude Include="..\..\src\systemoc\headers\smoc\smoc_event.hpp" />
+    <ClInclude Include="..\..\src\systemoc\headers\smoc\smoc_expr.hpp" />
+    <ClInclude Include="..\..\src\systemoc\headers\smoc\smoc_graph.hpp" />
+    <ClInclude Include="..\..\src\systemoc\headers\smoc\smoc_hooking.hpp" />
+    <ClInclude Include="..\..\src\systemoc\headers\smoc\smoc_scheduler_top.hpp" />
+    <ClInclude Include="..\..\src\systemoc\headers\systemoc\detail\smoc_chan_if.hpp" />
+    <ClInclude Include="..\..\src\systemoc\headers\systemoc\detail\smoc_fifo_storage.hpp" />
+    <ClInclude Include="..\..\src\systemoc\headers\systemoc\detail\smoc_firing_rules_impl.hpp" />
+    <ClInclude Include="..\..\src\systemoc\headers\systemoc\detail\smoc_func_call.hpp" />
+    <ClInclude Include="..\..\src\systemoc\headers\systemoc\detail\smoc_port_registry.hpp" />
+    <ClInclude Include="..\..\src\systemoc\headers\systemoc\detail\smoc_ring_access.hpp" />
+    <ClInclude Include="..\..\src\systemoc\headers\systemoc\detail\smoc_root_chan.hpp" />
+    <ClInclude Include="..\..\src\systemoc\headers\systemoc\detail\smoc_root_node.hpp" />
+    <ClInclude Include="..\..\src\systemoc\headers\systemoc\detail\smoc_sysc_port.hpp" />
+    <ClInclude Include="..\..\src\systemoc\headers\systemoc\smoc_actor.hpp" />
+    <ClInclude Include="..\..\src\systemoc\headers\systemoc\smoc_chan_adapter.hpp" />
+    <ClInclude Include="..\..\src\systemoc\headers\systemoc\smoc_elab_and_sim.hpp" />
+    <ClInclude Include="..\..\src\systemoc\headers\systemoc\smoc_event.hpp" />
+    <ClInclude Include="..\..\src\systemoc\headers\systemoc\smoc_expr.hpp" />
+    <ClInclude Include="..\..\src\systemoc\headers\systemoc\smoc_fifo.hpp" />
+    <ClInclude Include="..\..\src\systemoc\headers\systemoc\smoc_firing_rules.hpp" />
+    <ClInclude Include="..\..\src\systemoc\headers\systemoc\smoc_graph.hpp" />
+    <ClInclude Include="..\..\src\systemoc\headers\systemoc\smoc_graph_tt.hpp" />
+    <ClInclude Include="..\..\src\systemoc\headers\systemoc\smoc_graph_type.hpp" />
+    <ClInclude Include="..\..\src\systemoc\headers\systemoc\smoc_moc.hpp" />
+    <ClInclude Include="..\..\src\systemoc\headers\systemoc\smoc_multicast_sr_signal.hpp" />
+    <ClInclude Include="..\..\src\systemoc\headers\systemoc\smoc_multiplex_fifo.hpp" />
+    <ClInclude Include="..\..\src\systemoc\headers\systemoc\smoc_multireader_fifo.hpp" />
+    <ClInclude Include="..\..\src\systemoc\headers\systemoc\smoc_node_types.hpp" />
+    <ClInclude Include="..\..\src\systemoc\headers\systemoc\smoc_periodic_actor.hpp" />
+    <ClInclude Include="..\..\src\systemoc\headers\systemoc\smoc_port.hpp" />
+    <ClInclude Include="..\..\src\systemoc\headers\systemoc\smoc_register.hpp" />
+    <ClInclude Include="..\..\src\systemoc\headers\systemoc\smoc_reset.hpp" />
+    <ClInclude Include="..\..\src\systemoc\headers\systemoc\smoc_scheduler_top.hpp" />
+    <ClInclude Include="..\..\src\systemoc\headers\systemoc\smoc_sr_signal.hpp" />
+    <ClInclude Include="..\..\src\systemoc\headers\systemoc\smoc_tt.hpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\..\src\systemoc\headers\systemoc\smoc_config.h.in" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
