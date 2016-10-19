@@ -51,9 +51,6 @@ namespace smoc {
  * any executable transition
  */
 class smoc_graph : public Detail::GraphBase
-#ifdef SYSTEMOC_ENABLE_MAESTRO
-, public MetaMap::SMoCGraph
-#endif //SYSTEMOC_ENABLE_MAESTRO
 {
 public:
   // construct graph with name
