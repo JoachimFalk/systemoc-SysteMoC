@@ -83,7 +83,7 @@ public:
   template<class P>
   struct PortTraits {
     static const bool isSpecialized = false;
-    typedef void data_type;
+	typedef void data_type;
   };
 
   /**
@@ -92,7 +92,7 @@ public:
   template<class T>
   struct PortTraits< smoc_port_in<T> > { 
     static const bool isSpecialized = true;
-    typedef T data_type;
+	typedef T data_type;
   };
 
   /**
@@ -101,7 +101,7 @@ public:
   template<class T>
   struct PortTraits< smoc_port_out<T> > {
     static const bool isSpecialized = true;
-    typedef T data_type;
+	typedef T data_type;
   };
 
   /// connect ports using the specified channel initializer
@@ -114,17 +114,69 @@ public:
   void connectNodePorts(PortA &a, PortB &b, ChanInit i)
     { i.connect(a).connect(b); }
 
+#ifdef SYSTEMOC_ENABLE_MAESTRO
+
   /// connect ports using the default channel initializer
   template<class PortA, class PortB>
   void connectNodePorts(PortA &a, PortB &b) {
-    connectNodePorts(a, b, smoc_fifo<
-      typename smoc::Detail::Select<
-        PortTraits<PortA>::isSpecialized,
-        typename PortTraits<PortA>::data_type,
-        typename PortTraits<PortB>::data_type
-      >::result_type
-    >());
+
+	  MM::MMAPI* api = MM::MMAPI::getInstance();
+
+	  //get name of the actor of port a
+	  string srcActorName = string(a.get_parent()->name());
+	  //get name of the actor of port b
+	  string dstActorName = string(b.get_parent()->name());
+
+	  //get name of port a
+	  string srcPortName = string(a.name());
+	  //get name of port b
+	  string dstPortName = string(b.name());
+
+	  bool isActorCommRouted = api->isActorCommunicationRouted(srcActorName, srcPortName);
+
+	  if (isActorCommRouted)
+	  {
+		connectRoutedPortsF(a, b);
+	  }
+	  else
+	  {
+		  connectNodePorts(a, b, smoc_fifo<
+			  typename smoc::Detail::Select<
+			  PortTraits<PortA>::isSpecialized,
+			  typename PortTraits<PortA>::data_type,
+			  typename PortTraits<PortB>::data_type
+			  >::result_type
+		  >());
+	  }
+
   }
+
+  /// connect ports using the default channel initializer
+  template<class PortA, class PortB>
+  void connectNodePortsB(PortA &a, PortB &b) {
+	  connectNodePorts(a, b, smoc_fifo<
+		  typename smoc::Detail::Select<
+		  PortTraits<PortA>::isSpecialized,
+		  typename PortTraits<PortA>::data_type,
+		  typename PortTraits<PortB>::data_type
+		  >::result_type
+	  >());
+  }
+#else
+  /// connect ports using the default channel initializer
+  template<class PortA, class PortB>
+  void connectNodePorts(PortA &a, PortB &b) {
+	  connectNodePorts(a, b, smoc_fifo<
+		  typename smoc::Detail::Select<
+		  PortTraits<PortA>::isSpecialized,
+		  typename PortTraits<PortA>::data_type,
+		  typename PortTraits<PortB>::data_type
+		  >::result_type
+	  >());
+  }
+#endif
+  
+  
 
   /// connect ports using the default channel initializer
   template<int s, class PortA, class PortB>
@@ -150,12 +202,18 @@ public:
 
 #ifdef SYSTEMOC_ENABLE_MAESTRO
 
+  template<class PortA, class PortB>
+  void connectRoutedPortsI(PortA &a, PortB &b)
+  {
+	  connectRoutedPortsF(b, a);
+  }
+
 /**
 * Method to map the routing of communication channels into the architecture communication components
 * input file: routings.xml
 */
   template<class PortA, class PortB>
-  void connectRoutedPorts(PortA &a, PortB &b)
+  void connectRoutedPortsF(PortA &a, PortB &b)
   {
 
 	  MM::MMAPI* api = MM::MMAPI::getInstance();
@@ -238,7 +296,7 @@ public:
 		  }
 
 
-		  connectNodePorts(*outputPort, *inputPort);
+		  connectNodePortsB(*outputPort, *inputPort);
 
 	  }
 
