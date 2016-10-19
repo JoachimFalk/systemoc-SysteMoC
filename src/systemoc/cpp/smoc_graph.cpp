@@ -48,9 +48,6 @@ using CoSupport::String::Concat;
 
 smoc_graph::smoc_graph(const sc_core::sc_module_name &name)
   : smoc::Detail::GraphBase(name, run)
-#ifdef SYSTEMOC_ENABLE_MAESTRO
-  , MetaMap::SMoCGraph(name.operator const char *())
-#endif //SYSTEMOC_ENABLE_MAESTRO
   , run("run")
 {
 #ifdef SYSTEMOC_ENABLE_MAESTRO

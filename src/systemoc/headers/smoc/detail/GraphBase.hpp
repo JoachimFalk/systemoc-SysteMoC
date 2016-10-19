@@ -49,6 +49,11 @@
 #include "../../systemoc/smoc_actor.hpp"
 #include "../../systemoc/smoc_chan_adapter.hpp"
 
+#ifdef SYSTEMOC_ENABLE_MAESTRO
+#include <Maestro/MetaMap/SMoCGraph.hpp>
+#include <Maestro/MetaMap/CommunicationComponent.hpp>
+#endif //SYSTEMOC_ENABLE_MAESTRO
+
 namespace smoc { namespace Detail {
 
 /**
@@ -56,7 +61,11 @@ namespace smoc { namespace Detail {
  * derive from this class and build FSM!). If you derive more stuff
  * from this class you have to change apply_visitor.hpp accordingly.
  */
-class GraphBase: public smoc_root_node {
+class GraphBase: public smoc_root_node 
+#ifdef SYSTEMOC_ENABLE_MAESTRO
+	, public MetaMap::SMoCGraph
+#endif //SYSTEMOC_ENABLE_MAESTRO
+{
   // need to call *StateChange
   friend class smoc_multireader_fifo_chan_base;
   friend class smoc_reset_chan;
@@ -138,6 +147,104 @@ public:
   const smoc_chan_list &getChans() const;
 //void getNodesRecursive(smoc_node_list &nodes) const;
 //void getChansRecursive(smoc_chan_list &chans) const;
+
+#ifdef SYSTEMOC_ENABLE_MAESTRO
+
+/**
+* Method to map the routing of communication channels into the architecture communication components
+* input file: routings.xml
+*/
+  template<class PortA, class PortB>
+  void connectRoutedPorts(PortA &a, PortB &b)
+  {
+
+	  MM::MMAPI* api = MM::MMAPI::getInstance();
+
+	  //get name of the actor of port a
+	  string srcActorName = string(a.get_parent()->name());
+	  //get name of the actor of port b
+	  string dstActorName = string(b.get_parent()->name());
+
+	  //get name of port a
+	  string srcPortName = string(a.name());
+	  //get name of port b
+	  string dstPortName = string(b.name());
+
+	  vector<tuple<string, string, string> > hops = api->getHopsOfMappedCommunication(srcActorName, srcPortName);
+
+	  for (int i = 0; i <= hops.size(); i++)
+	  {
+		  string currentHop;
+		  string nextHop;
+
+		  if (i > 0)
+		  {
+			  currentHop = get<0>(hops[i - 1]);
+		  }
+		  else
+		  {
+			  currentHop = api->getComponentForActor(srcActorName);
+		  }
+
+		  if (i < hops.size())
+		  {
+			  nextHop = get<0>(hops[i]);
+		  }
+		  else
+		  {
+			  nextHop = api->getComponentForActor(dstActorName);
+		  }
+
+		  smoc_port_out<PortA::data_type>* outputPort;
+		  smoc_port_in<PortB::data_type>* inputPort;
+
+		  //src is computation actor
+		  if (i == 0)
+		  {
+			  outputPort = &a;
+		  }
+		  else //src is communication actor
+		  {
+			  //get port to connect from
+			  string communicationPseudportToConnectFrom = api->getCommunicationComponentOutputPort(srcActorName, srcPortName, currentHop); //**
+
+																																			//get instance of actor to connect from
+			  smoc_actor* sourceCommunicationActorInstance = dynamic_cast<smoc_actor*>(api->getActor(currentHop));
+
+			  //get instance of ports to connect from
+			  CommunicationComponent* sourceCommunicationActor = dynamic_cast<CommunicationComponent*>(sourceCommunicationActorInstance);
+			  outputPort = dynamic_cast<smoc_port_out<PortA::data_type>*>(sourceCommunicationActor->getPortByName(communicationPseudportToConnectFrom));
+
+
+		  }
+
+		  // dst is computation actor
+		  if (i == hops.size())
+		  {
+			  inputPort = &b;
+		  }
+		  else //dst is communication actor
+		  {
+			  //get port to connect to
+			  string communicationPseudportToConnectTo = api->getCommunicationComponentInputPort(srcActorName, srcPortName, nextHop); //**
+
+																																	  //get instance of actor to connect to
+			  smoc_actor* destinationCommunicationActorInstance = dynamic_cast<smoc_actor*>(api->getActor(nextHop));
+
+			  //get instance of ports to connect to
+			  CommunicationComponent* destinationCommunicationActor = dynamic_cast<CommunicationComponent*>(destinationCommunicationActorInstance);
+			  inputPort = dynamic_cast<smoc_port_in<PortB::data_type>*>(destinationCommunicationActor->getPortByName(communicationPseudportToConnectTo));
+
+		  }
+
+
+		  connectNodePorts(*outputPort, *inputPort);
+
+	  }
+
+
+  }
+#endif
 
 protected:
   GraphBase(const sc_core::sc_module_name &name, smoc_firing_state &init);
