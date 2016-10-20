@@ -79,13 +79,13 @@ public:
   template <typename T1, typename T2, typename T3, typename T4, typename T5>
   explicit smoc_top_moc(sc_core::sc_module_name name, T1 p1, T2 p2, T3 p3, T4 p4, T5 p5)
     : Graph(name, p1, p2, p3, p4, p5), s(this) {}
-/*
-  static void beforeSimulation() {
+
 #ifdef SYSTEMOC_ENABLE_MAESTRO
+  static void beforeSimulation() {
     MM::MMAPI::reInit();
-#endif
   }
- */
+#endif
+ 
 
 private:
   smoc_scheduler_top s;
