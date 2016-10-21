@@ -73,8 +73,10 @@
 #define CALL(func)          call(&func, #func)
 #define GUARD(func)         guard(&func, #func)
 #ifdef SYSTEMOC_ENABLE_MAESTRO
-# define CALLI(ins,func)    calli(ins, &func, #func)
-# define GUARDI(ins,func)   guardi(ins, &func, #func)
+#define CALLIO(ins,func)   callio(ins, &func, #func)
+#define GUARDIO(ins,func)  guardio(ins, &func, #func)
+#define CALLI(ins,func)    calli(ins, &func, #func)
+#define GUARDI(ins,func)   guardi(ins, &func, #func)
 #endif //SYSTEMOC_ENABLE_MAESTRO
 
 #define SMOC_REGISTER_CPARAM(name)  registerParam(#name,name)
@@ -296,6 +298,19 @@ public:
     { return smoc::smoc_event::reset(el); }
 
 };
+
+#ifdef SYSTEMOC_ENABLE_MAESTRO
+template<typename F, typename X>
+typename CoSupport::Lambda::ParamAccumulator<smoc_member_func, CoSupport::Lambda::Functor<void, F> >::accumulated_type
+callio(X* ins, const F &f, const char *name = "") {
+	return typename CoSupport::Lambda::ParamAccumulator<smoc_member_func, CoSupport::Lambda::Functor<void, F> >::accumulated_type
+	(CoSupport::Lambda::Functor<void, F>(ins, f, name));
+}
+template<typename F, typename X>
+typename smoc::Expr::MemGuard<F>::type guardio(const X* ins, const F &f, const char *name = "") {
+	return smoc::Expr::guard(ins, f, name);
+}
+#endif
 
 typedef std::list<smoc_root_node *> smoc_node_list;
 
