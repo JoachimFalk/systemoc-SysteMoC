@@ -1510,7 +1510,23 @@ const std::string& smoc_hierarchical_state::getName() const
 std::string smoc_hierarchical_state::getHierarchicalName() const
   { return getImpl()->getHierarchicalName(); }
 
+#ifdef SYSTEMOC_ENABLE_MAESTRO
+/**
+* @rosales: Clone method to enable the reassigment of the initial state
+*			Rationale: States have a overloaded assignment operator
+*/
+smoc_hierarchical_state& smoc_hierarchical_state::clone(const smoc_hierarchical_state &st) {
 
+	HierarchicalStateImpl* copyImp = st.getImpl();
+	HierarchicalStateImpl* thisImp = this->getImpl();
+
+	*thisImp = *copyImp;
+	this->pImpl = st.pImpl;
+
+
+	return *this;
+}
+#endif
 
 
 

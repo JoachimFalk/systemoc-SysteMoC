@@ -149,6 +149,10 @@ private:
   std::list<smoc::Hook::Detail::TransitionHook> transitionHooks;
 #endif //SYSTEMOC_ENABLE_HOOKING
 
+
+#ifdef SYSTEMOC_ENABLE_MAESTRO
+public:
+#endif
   /// @brief Initial firing state
   smoc_hierarchical_state      &initialState;
   smoc_hierarchical_state::Ptr  initialStatePtr;
