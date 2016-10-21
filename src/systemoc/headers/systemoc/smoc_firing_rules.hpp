@@ -138,6 +138,11 @@ protected:
   this_type& operator=(const this_type &);
 
 public:
+
+#ifdef SYSTEMOC_ENABLE_MAESTRO
+	this_type& clone(const this_type &);
+#endif
+
   ImplType *getImpl() const;
   using smoc_firing_state_base::operator=;
 
