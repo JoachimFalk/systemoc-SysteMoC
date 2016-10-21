@@ -353,10 +353,10 @@ void smoc_root_node::schedule() {
   // ct may be nullptr if t->evaluateIOP() holds and t->evaluateGuard() fails
   // for all transitions t
   if (ct != nullptr) {
-//#ifndef SYSTEMOC_ENABLE_MAESTRO
+#ifndef SYSTEMOC_ENABLE_MAESTRO
     assert(ct->evaluateIOP());
     assert(ct->evaluateGuard());
-//#endif //SYSTEMOC_ENABLE_MAESTRO
+#endif //SYSTEMOC_ENABLE_MAESTRO
     ct->execute(this);
   }
   // also del/add me as listener
