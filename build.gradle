@@ -1,0 +1,189 @@
+// vim: set syntax=groovy sts=2 ts=8 et:
+
+apply plugin: 'de.jfalk.gradle.cpp'
+
+apply plugin: 'visual-studio'
+//apply plugin: 'eclipse'
+
+// Here, ``this'' is the current org.gradle.api.Project
+this.buildDir = 'obj'
+
+//task VisualStudio(dependsOn: 'libsgxVisualStudio')
+
+model {
+  buildTypes {
+    debug
+    release
+  }
+  platforms {
+    "linux_x86" {
+      architecture "x86"
+      operatingSystem "linux"
+    }
+    "linux_x86-64" {
+      architecture "x86-64"
+      operatingSystem "linux"
+    }
+    "windows_x86" {
+      architecture "x86"
+      operatingSystem "windows"
+    }
+    "windows_x86-64" {
+      architecture "x86-64"
+      operatingSystem "windows"
+    }
+  }
+  flavors {
+    create('default')
+    create('Sgx')
+    create('Vpc')
+    create('Maestro')
+    create('SgxVpc')
+    create('SgxMaestro')
+    create('SgxMaestroCrescendo')
+  }
+  components {
+    "test-cluster-example"(JFNativeExecutableSpec) {
+      sources.cpp.lib project: ':SysteMoC', library: 'systemoc'
+    }
+
+    "test-dynamic-fsm"(JFNativeExecutableSpec) {
+      sources.cpp.lib project: ':SysteMoC', library: 'systemoc'
+    }
+
+    "test-event"(JFNativeExecutableSpec) {
+      sources.cpp.lib project: ':SysteMoC', library: 'systemoc'
+    }
+
+    "test-fir"(JFNativeExecutableSpec) {
+      sources.cpp.lib project: ':SysteMoC', library: 'systemoc'
+    }
+
+    "test-fsm-and-composition"(JFNativeExecutableSpec) {
+      sources.cpp.lib project: ':SysteMoC', library: 'systemoc'
+    }
+
+    "test-fsm-and-composition-diss-falk"(JFNativeExecutableSpec) {
+      sources.cpp.lib project: ':SysteMoC', library: 'systemoc'
+    }
+
+    "test-fsm-junction-state"(JFNativeExecutableSpec) {
+      sources.cpp.lib project: ':SysteMoC', library: 'systemoc'
+    }
+
+    "test-fsm-xor-composition"(JFNativeExecutableSpec) {
+      sources.cpp.lib project: ':SysteMoC', library: 'systemoc'
+    }
+
+    "test-fsm-xor-composition-diss-falk"(JFNativeExecutableSpec) {
+      sources.cpp.lib project: ':SysteMoC', library: 'systemoc'
+    }
+
+    "test-getValueAt"(JFNativeExecutableSpec) {
+      sources.cpp.lib project: ':SysteMoC', library: 'systemoc'
+    }
+
+    "test-periodic"(JFNativeExecutableSpec) {
+      sources.cpp.lib project: ':SysteMoC', library: 'systemoc'
+    }
+
+    "test-sdf"(JFNativeExecutableSpec) {
+      sources.cpp.lib project: ':SysteMoC', library: 'systemoc'
+    }
+
+    "test-select"(JFNativeExecutableSpec) {
+      sources.cpp.lib project: ':SysteMoC', library: 'systemoc'
+    }
+
+    "test-sqr"(JFNativeExecutableSpec) {
+      sources.cpp.lib project: ':SysteMoC', library: 'systemoc'
+    }
+
+    "test-sqr-int"(JFNativeExecutableSpec) {
+      sources.cpp.lib project: ':SysteMoC', library: 'systemoc'
+    }
+
+    "test-src-snk"(JFNativeExecutableSpec) {
+      sources.cpp.lib project: ':SysteMoC', library: 'systemoc'
+    }
+
+    "test-src-snk-hierarchy"(JFNativeExecutableSpec) {
+      sources.cpp.lib project: ':SysteMoC', library: 'systemoc'
+    }
+
+    "test-src-snk-multicast"(JFNativeExecutableSpec) {
+      sources.cpp.lib project: ':SysteMoC', library: 'systemoc'
+    }
+
+    "test-src-snk-multiplex"(JFNativeExecutableSpec) {
+      sources.cpp.lib project: ':SysteMoC', library: 'systemoc'
+    }
+
+    "test-src-snk-multireader"(JFNativeExecutableSpec) {
+      sources.cpp.lib project: ':SysteMoC', library: 'systemoc'
+    }
+
+    "test-src-snk-multireader-sched"(JFNativeExecutableSpec) {
+      sources.cpp.lib project: ':SysteMoC', library: 'systemoc'
+    }
+
+    "test-src-snk-multiwriter"(JFNativeExecutableSpec) {
+      sources.cpp.lib project: ':SysteMoC', library: 'systemoc'
+    }
+
+    "test-src-snk-noconsume"(JFNativeExecutableSpec) {
+      sources.cpp.lib project: ':SysteMoC', library: 'systemoc'
+    }
+
+    "test-src-snk-void"(JFNativeExecutableSpec) {
+      sources.cpp.lib project: ':SysteMoC', library: 'systemoc'
+    }
+
+    "test-systemc-blocking-cosim"(JFNativeExecutableSpec) {
+      sources.cpp.lib project: ':SysteMoC', library: 'systemoc'
+    }
+
+    "test-systemc-nonblocking-cosim"(JFNativeExecutableSpec) {
+      sources.cpp.lib project: ':SysteMoC', library: 'systemoc'
+    }
+  }
+  binaries {
+    all {
+//    analysis("binary", it)
+//    println "TOOLCHAIN: " + toolChain
+      // Specify toolchain-agnostic stuff
+      if (buildType.name == 'release') {
+        cppCompiler.define "NDEBUG"
+      }
+      // Define toolchain-specific compiler and linker options
+      if (toolChain in VisualCpp) {
+        // Enable standard C++ exception for visual studio
+        cppCompiler.args "/EHsc" //, '/I"C:/Program Files (x86)/Windows Kits/10/Include/10.0.10586.0/ucrt/"'
+        linker.args "/LIBPATH:" + rootProject.childProjects.get('PrebuiltLibraries').projectDir + "\\i686-msvc120-win\\libboost-1_55\\lib"
+        if (buildType.name == 'debug') {
+          cppCompiler.args "/Z7", "/MDd"
+          linker.args "/DEBUG"
+        } else {
+          cppCompiler.args "/MD"
+        }
+      } else if (toolChain in Gcc) {
+        cppCompiler.args "-Wall", "-std=gnu++11"
+        cCompiler.args "-Wall", "-std=gnu99"
+        linker.args "-Xlinker", "-S"
+        if (buildType.name == 'debug') {
+          cppCompiler.args "-ggdb"
+          cCompiler.args "-ggdb"
+        } else {
+          cppCompiler.args "-O2"
+          cCompiler.args "-O2"
+        }
+      }
+    }
+    // For any executable built with Visual C++, use the console subsystem of windows!
+    withType(NativeExecutableBinarySpec) {
+      if (toolChain in VisualCpp) {
+        linker.args "/SUBSYSTEM:CONSOLE"
+      }
+    }
+  }
+}
