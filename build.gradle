@@ -84,12 +84,12 @@ model {
   }
   flavors {
     create('default')
-    sgx
-    vpc
-    maestro
-    create('sgx-vpc')
-    create('sgx-maestro')
-    create('sgx-maestro-crescendo')
+    create('Sgx')
+    create('Vpc')
+    create('Maestro')
+    create('SgxVpc')
+    create('SgxMaestro')
+    create('SgxMaestroCrescendo')
   }
   components {
     "systemoc"(JFNativeLibrarySpec) {
@@ -124,19 +124,20 @@ model {
 //          }
             lib project: ':PrebuiltLibraries', library: "boost_headers", flavor: "default", exportHeaders: true
             lib project: ':PrebuiltLibraries', library: "boost_program_options", flavor: "default"
-            lib project: ':Support', library: "cosupport-systemc", flavor: "default"
+            lib project: ':Support', library: "cosupport-base", flavor: "default", exportHeaders: true
+            lib project: ':Support', library: "cosupport-systemc", flavor: "default", exportHeaders: true
             lib project: ':Support', library: "cosupport-tracing", flavor: "default"
-            lib project: ':Support', library: "cosupport-streams", flavor: "default"
+            lib project: ':Support', library: "cosupport-streams", flavor: "default", exportHeaders: true
             lib project: ':Support', library: "cosupport-smartptr", flavor: "default"
             lib project: ':Support', library: "cosupport-allocators", flavor: "default"
             lib project: ':Support', library: "cosupport-math", flavor: "default"
-            lib project: ':Support', library: "cosupport-string", flavor: "default"
-            if (binary.flavor.name.matches('(?i).*sgx.*')) {
+            lib project: ':Support', library: "cosupport-string", flavor: "default", exportHeaders: true
+            if (binary.flavor.name.matches('(?i).*Sgx.*')) {
               lib project: ':LibSGX', library: "libsgx", flavor: "default"
             }
-            if (binary.flavor.name.matches('(?i).*maestro-crescendo.*')) {
+            if (binary.flavor.name.matches('(?i).*MaestroCrescendo.*')) {
               lib project: ':Maestro:MetaMap', library: "libmaestro-metamap", flavor: "bruckner"
-            } else if (binary.flavor.name.matches('(?i).*maestro.*')) {
+            } else if (binary.flavor.name.matches('(?i).*Maestro.*')) {
               lib project: ':Maestro:MetaMap', library: "libmaestro-metamap", flavor: "default"
             }
             exportedCompilerArgs.define "FLIMMY_DEFINE=4711"
@@ -153,13 +154,13 @@ model {
 //      tasks.withType(CppCompile) {
 //        includes "src/systemoc/headers-connfig"
 //      }
-        if (flavor == flavors.vpc) {
+        if (flavor == flavors.Vpc) {
           cppCompiler.define "FLOMMY_DEFINE=\"vpc\""
-        } else if (flavor == flavors.maestro) {
+        } else if (flavor == flavors.Maestro) {
           cppCompiler.define "FLOMMY_DEFINE=\"maestro\""
-        } else if (flavor == flavors.'sgx-vpc') {
+        } else if (flavor == flavors.'SgxVpc') {
           cppCompiler.define "FLOMMY_DEFINE=\"sgx-vpc\""
-        } else if (flavor == flavors.'sgx-maestro') {
+        } else if (flavor == flavors.'SgxMaestro') {
           cppCompiler.define "FLOMMY_DEFINE=\"sgx-maestro\""
         }
       }
