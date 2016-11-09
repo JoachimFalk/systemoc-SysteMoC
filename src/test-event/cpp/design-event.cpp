@@ -40,7 +40,8 @@
 #include <systemoc/smoc_event.hpp>
 #include <systemoc/smoc_port.hpp>
 #include <systemoc/smoc_fifo.hpp>
-#include <systemoc/smoc_node_types.hpp>
+#include <systemoc/smoc_graph.hpp>
+#include <systemoc/smoc_actor.hpp>
 #include <systemoc/smoc_expr.hpp>
 
 #include <cmath>

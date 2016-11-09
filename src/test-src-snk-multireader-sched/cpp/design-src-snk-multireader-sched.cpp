@@ -37,8 +37,8 @@
 
 #include <systemoc/smoc_moc.hpp>
 #include <systemoc/smoc_port.hpp>
-#include <systemoc/smoc_graph_type.hpp>
-#include <systemoc/smoc_node_types.hpp>
+#include <systemoc/smoc_graph.hpp>
+#include <systemoc/smoc_actor.hpp>
 #include <systemoc/smoc_multireader_fifo.hpp>
 
 template <typename T,size_t N>

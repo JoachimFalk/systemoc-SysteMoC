@@ -5,7 +5,7 @@
 #define _INCLUDED_UPSAMPLE
 
 #include <systemoc/smoc_port.hpp>
-#include <systemoc/smoc_node_types.hpp>
+#include <systemoc/smoc_actor.hpp>
 
 class Upsample
   : public smoc_actor {
