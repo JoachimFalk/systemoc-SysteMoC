@@ -5,7 +5,9 @@
 #define _INCLUDED_DYN_SWITCH
 
 #include <systemoc/smoc_port.hpp>
-#include <systemoc/smoc_node_types.hpp>
+#include <systemoc/smoc_actor.hpp>
+
+#include <CoSupport/commondefs.h>
 
 #ifndef XILINX_EDK_RUNTIME
 #include <iostream>
@@ -77,7 +79,7 @@ private:
 #endif
 #endif
 
-    int dummy = in2[0];
+    int dummy COSUPPORT_ATTRIBUTE_UNUSED = in2[0];
     out1[0] = 0;
     out1[1] = 1;
 
@@ -113,7 +115,7 @@ private:
 #endif
 #endif
 
-    int dummy = in2[0];
+    int dummy COSUPPORT_ATTRIBUTE_UNUSED = in2[0];
     out2[0] = 0;
   }
 
@@ -131,7 +133,7 @@ private:
     //update path selector
     calc_next_selector();
 
-    int dummy = in1[0]+in1[1];
+    int dummy COSUPPORT_ATTRIBUTE_UNUSED = in1[0]+in1[1];
     out2[0] = 0;
   }
 
@@ -149,7 +151,7 @@ private:
     //update path selector
     calc_next_selector();
 
-    int dummy = in2[0];
+    int dummy COSUPPORT_ATTRIBUTE_UNUSED = in2[0];
     out1[0] = 0;
     out1[1] = 1;
   }
@@ -165,7 +167,7 @@ private:
 #endif
 #endif
 
-    int dummy = in2[0];
+    int dummy COSUPPORT_ATTRIBUTE_UNUSED = in2[0];
     out2[0] = 0;
   }
 
@@ -180,7 +182,7 @@ private:
 #endif
 #endif
 
-    int dummy = in1[0] + in1[1];
+    int dummy COSUPPORT_ATTRIBUTE_UNUSED = in1[0] + in1[1];
     out2[0] = 0;
   }
 

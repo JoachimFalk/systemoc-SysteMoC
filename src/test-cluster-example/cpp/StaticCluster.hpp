@@ -11,8 +11,7 @@
 #include <systemoc/smoc_moc.hpp>
 #include <systemoc/smoc_port.hpp>
 #include <systemoc/smoc_fifo.hpp>
-#include <systemoc/smoc_node_types.hpp>
-#include <systemoc/smoc_graph_type.hpp>
+#include <systemoc/smoc_graph.hpp>
 
 #include "Upsample.hpp"
 #include "Downsample.hpp"

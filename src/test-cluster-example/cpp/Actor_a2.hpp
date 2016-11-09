@@ -5,7 +5,7 @@
 #define _INCLUDED_ACTOR_A2
 
 #include <systemoc/smoc_port.hpp>
-#include <systemoc/smoc_node_types.hpp>
+#include <systemoc/smoc_actor.hpp>
 
 class Actor_a2
   : public smoc_actor {
