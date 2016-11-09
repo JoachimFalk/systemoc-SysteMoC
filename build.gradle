@@ -133,19 +133,21 @@ model {
             lib project: ':Support', library: "cosupport-math", flavor: "default"
             lib project: ':Support', library: "cosupport-string", flavor: "default", exportHeaders: true
             if (binary.flavor.name.matches('(?i).*Sgx.*')) {
-              lib project: ':LibSGX', library: "libsgx", flavor: "default"
+              lib project: ':LibSGX', library: "libsgx", flavor: "default", exportHeaders: true
             }
             if (binary.flavor.name.matches('(?i).*MaestroCrescendo.*')) {
-              lib project: ':Maestro:MetaMap', library: "libmaestro-metamap", flavor: "bruckner"
+              lib project: ':Maestro:MetaMap', library: "libmaestro-metamap", flavor: "bruckner", exportHeaders: true
             } else if (binary.flavor.name.matches('(?i).*Maestro.*')) {
-              lib project: ':Maestro:MetaMap', library: "libmaestro-metamap", flavor: "default"
+              lib project: ':Maestro:MetaMap', library: "libmaestro-metamap", flavor: "default", exportHeaders: true
+            } else if (binary.flavor.name.matches('(?i).*Vpc.*')) {
+              lib project: ':SystemC-VPC', library: "systemcvpc", flavor: "default", exportHeaders: true
             }
             exportedCompilerArgs.define "FLIMMY_DEFINE=4711"
           }
         }
         tasks.create(tasks.taskName('configHeaderGeneration'), GenerateSysteMoCConfigH.class) { task ->
           sources.cpp.generatedBy task
-          task.description  = "Wrap xsd and dtd files in testlog/xerces into c files for consumption by the test_xerces application."
+          task.description  = "Generate smoc_config.h for the selected configuration of the libsystemoc binary."
           task.templateFile = project.file("src/systemoc/headers/systemoc/smoc_config.h.in")
           task.headerDir    = configHeaderDir
           task.sourceDir    = configHeaderDir
