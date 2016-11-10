@@ -104,20 +104,6 @@ public:
 
 namespace smoc { namespace Detail {
 
-  /// select type A or B based on predicate P
-  template<bool P, class A, class B>
-  struct Select;
-
-  /// specialization: select type A
-  template<class A,class B>
-  struct Select<true,A,B>
-    { typedef A result_type; };
-
-  /// specialization: select type B
-  template<class A,class B>
-  struct Select<false,A,B>
-    { typedef B result_type; };
-
   class ChanAdapterBase
   : public virtual sc_core::sc_interface {
   private:
