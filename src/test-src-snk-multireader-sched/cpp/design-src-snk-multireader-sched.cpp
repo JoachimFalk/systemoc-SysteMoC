@@ -112,7 +112,7 @@ public:
   {
     smoc_multireader_fifo<int> f(4,&os); f << -1;
 
-    connector(f) << src.out << snk1.in << snk2.in << snk3.in;
+    f.connect(src.out).connect(snk1.in).connect(snk2.in).connect(snk3.in);
 
   }
 };
