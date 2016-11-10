@@ -40,6 +40,9 @@
 #include <systemoc/smoc_port.hpp>
 #include <systemoc/smoc_chan_adapter.hpp>
 
+#include <boost/mpl/if.hpp>
+#include <boost/mpl/bool.hpp>
+
 namespace smoc { namespace Detail {
 
 template <typename DERIVED, typename CHANTYPE>
@@ -90,16 +93,13 @@ public:
     typedef smoc_chan_adapter<outlet_iface_type,IFACE>  OutletAdapter;
     
     // try to get adapter (utilize Tags for simpler implementation)
-    typedef
-      typename Select<
-        EntryAdapter::isAdapter,
-        std::pair<EntryAdapter,smoc_port_registry::EntryTag>,
-        typename Select<
-          OutletAdapter::isAdapter,
-          std::pair<OutletAdapter,smoc_port_registry::OutletTag>,
-          No_Channel_Adapter_Found__Please_Use_Other_Interface
-        >::result_type
-      >::result_type P;
+    typedef typename boost::mpl::if_<boost::mpl::bool_<EntryAdapter::isAdapter>,
+      std::pair<EntryAdapter, smoc_port_registry::EntryTag>,
+      typename boost::mpl::if_<boost::mpl::bool_<OutletAdapter::isAdapter>,
+        std::pair<OutletAdapter, smoc_port_registry::OutletTag>,
+        No_Channel_Adapter_Found__Please_Use_Other_Interface
+      >::type
+    >::type P;
 
     // corresponding types
     typedef typename P::first_type  Adapter;
