@@ -54,6 +54,9 @@
 #include <Maestro/MetaMap/CommunicationComponent.hpp>
 #endif //SYSTEMOC_ENABLE_MAESTRO
 
+#include <boost/mpl/if.hpp>
+#include <boost/mpl/bool.hpp>
+
 namespace smoc { namespace Detail {
 
 /**
@@ -61,9 +64,10 @@ namespace smoc { namespace Detail {
  * derive from this class and build FSM!). If you derive more stuff
  * from this class you have to change apply_visitor.hpp accordingly.
  */
-class GraphBase: public smoc_root_node 
+class GraphBase
+  : public smoc_root_node 
 #ifdef SYSTEMOC_ENABLE_MAESTRO
-	, public MetaMap::SMoCGraph
+  , public MetaMap::SMoCGraph
 #endif //SYSTEMOC_ENABLE_MAESTRO
 {
   // need to call *StateChange
@@ -73,127 +77,135 @@ class GraphBase: public smoc_root_node
   friend class smoc::smoc_scheduler_top; // doReset
 
   typedef GraphBase this_type;
-public:  
-//protected:
+protected:
  
   /**
    * Helper class for determining the data type from ports
    * (Not needed if adapter classes exist)
    */ 
   template<class P>
-  struct PortTraits {
-    static const bool isSpecialized = false;
-	typedef void data_type;
-  };
+  struct PortTraits: public boost::mpl::bool_<false>
+    { typedef void data_type; };
 
   /**
    * Specialization of PortTraits for smoc_port_in
    */
   template<class T>
-  struct PortTraits< smoc_port_in<T> > { 
-    static const bool isSpecialized = true;
-	typedef T data_type;
-  };
+  struct PortTraits<smoc_port_in<T> >: public boost::mpl::bool_<true>
+    { typedef T data_type; };
 
   /**
    * Specialization of PortTraits for smoc_port_out
    */
   template<class T>
-  struct PortTraits< smoc_port_out<T> > {
-    static const bool isSpecialized = true;
-	typedef T data_type;
-  };
+  struct PortTraits<smoc_port_out<T> >: public boost::mpl::bool_<true>
+    { typedef T data_type; };
 
-  /// connect ports using the specified channel initializer
-  template<class Init>
-  Init connector(const Init &i)
-    { return i; }
+public:  
+///// connect ports using the specified channel initializer
+//template<class Init>
+//Init connector(const Init &i)
+//  { return i; }
+
+  // FIXME: We should really store these in a list and delete them one GraphBase destruction.
+  template<typename T>
+  T &registerNode(T* node)
+    { return *node; }
 
   /// connect ports using the specified channel initializer
   template<class PortA, class PortB, class ChanInit>
-  void connectNodePorts(PortA &a, PortB &b, ChanInit i)
-    { i.connect(a).connect(b); }
-
+  void connectNodePorts(PortA &a, PortB &b, ChanInit chanInit) {
 #ifdef SYSTEMOC_ENABLE_MAESTRO
-
-  /// connect ports using the default channel initializer
-  template<class PortA, class PortB>
-  void connectNodePorts(PortA &a, PortB &b) {
-
-	  MM::MMAPI* api = MM::MMAPI::getInstance();
-
-	  //get name of the actor of port a
-	  string srcActorName = string(a.get_parent()->name());
-	  //get name of the actor of port b
-	  string dstActorName = string(b.get_parent()->name());
-
-	  //get name of port a
-	  string srcPortName = string(a.name());
-	  //get name of port b
-	  string dstPortName = string(b.name());
-
-	  bool isActorCommRouted = api->isActorCommunicationRouted(srcActorName, srcPortName);
-
-	  if (isActorCommRouted)
-	  {
-		connectRoutedPortsF(a, b);
-	  }
-	  else
-	  {
-		  connectNodePorts(a, b, smoc_fifo<
-			  typename smoc::Detail::Select<
-			  PortTraits<PortA>::isSpecialized,
-			  typename PortTraits<PortA>::data_type,
-			  typename PortTraits<PortB>::data_type
-			  >::result_type
-		  >());
-	  }
-
+    MM::MMAPI *api = MM::MMAPI::getInstance();
+    
+    //get name of the actor of port a
+    std::string srcActorName = string(a.get_parent()->name());
+//  //get name of the actor of port b
+//  std::string dstActorName = string(b.get_parent()->name());
+    
+    //get name of port a
+    std::string srcPortName = string(a.name());
+//  //get name of port b
+//  std::string dstPortName = string(b.name());
+    
+    bool isActorCommRouted = api->isActorCommunicationRouted(srcActorName, srcPortName);
+    
+    if (isActorCommRouted) {
+      assert(!"FIXME: Implement routed communication supporting channel initializers!");
+    } else
+#endif // SYSTEMOC_ENABLE_MAESTRO
+    {
+      chanInit.connect(a).connect(b);
+    }
   }
-
-  /// connect ports using the default channel initializer
-  template<class PortA, class PortB>
-  void connectNodePortsB(PortA &a, PortB &b) {
-	  connectNodePorts(a, b, smoc_fifo<
-		  typename smoc::Detail::Select<
-		  PortTraits<PortA>::isSpecialized,
-		  typename PortTraits<PortA>::data_type,
-		  typename PortTraits<PortB>::data_type
-		  >::result_type
-	  >());
-  }
-#else
-  /// connect ports using the default channel initializer
-  template<class PortA, class PortB>
-  void connectNodePorts(PortA &a, PortB &b) {
-	  connectNodePorts(a, b, smoc_fifo<
-		  typename smoc::Detail::Select<
-		  PortTraits<PortA>::isSpecialized,
-		  typename PortTraits<PortA>::data_type,
-		  typename PortTraits<PortB>::data_type
-		  >::result_type
-	  >());
-  }
-#endif
-  
-  
 
   /// connect ports using the default channel initializer
   template<int s, class PortA, class PortB>
   void connectNodePorts(PortA &a, PortB &b) {
-    connectNodePorts(a, b, smoc_fifo<
-      typename smoc::Detail::Select<
-        PortTraits<PortA>::isSpecialized,
+    typedef typename boost::mpl::if_<PortTraits<PortA>,
         typename PortTraits<PortA>::data_type,
         typename PortTraits<PortB>::data_type
-      >::result_type
-    >(s));
+      >::type data_type;
+    
+#ifdef SYSTEMOC_ENABLE_MAESTRO
+    MM::MMAPI *api = MM::MMAPI::getInstance();
+    
+    //get name of the actor of port a
+    std::string srcActorName = string(a.get_parent()->name());
+//  //get name of the actor of port b
+//  std::string dstActorName = string(b.get_parent()->name());
+    
+    //get name of port a
+    std::string srcPortName = string(a.name());
+//  //get name of port b
+//  std::string dstPortName = string(b.name());
+    
+    bool isActorCommRouted = api->isActorCommunicationRouted(srcActorName, srcPortName);
+    
+    if (isActorCommRouted) {
+      assert(!"FIXME: Implement routed communication supporting channel initializers!");
+    } else
+#endif // SYSTEMOC_ENABLE_MAESTRO
+    {
+      smoc_fifo<data_type> chanInit(s);
+      chanInit.connect(a).connect(b);
+    }
   }
-public:
 
-  template<typename T>
-  T& registerNode(T* node)
-    { return *node; }
+  /// connect ports using the default channel initializer
+  template<class PortA, class PortB>
+  void connectNodePorts(PortA &a, PortB &b) {
+    typedef typename boost::mpl::if_<PortTraits<PortA>,
+        typename PortTraits<PortA>::data_type,
+        typename PortTraits<PortB>::data_type
+      >::type data_type;
+    
+#ifdef SYSTEMOC_ENABLE_MAESTRO
+    MM::MMAPI *api = MM::MMAPI::getInstance();
+    
+    //get name of the actor of port a
+    std::string srcActorName = string(a.get_parent()->name());
+//  //get name of the actor of port b
+//  std::string dstActorName = string(b.get_parent()->name());
+    
+    //get name of port a
+    std::string srcPortName = string(a.name());
+//  //get name of port b
+//  std::string dstPortName = string(b.name());
+    
+    bool isActorCommRouted = api->isActorCommunicationRouted(srcActorName, srcPortName);
+    
+    if (isActorCommRouted) {
+      connectRoutedPortsF(a, b);
+    } else
+#endif // SYSTEMOC_ENABLE_MAESTRO
+    {
+      smoc_fifo<data_type> chanInit;
+      chanInit.connect(a).connect(b);
+    }
+  }
+
+protected:
 
   const smoc_node_list &getNodes() const;
   const smoc_chan_list &getChans() const;
@@ -201,9 +213,9 @@ public:
 //void getChansRecursive(smoc_chan_list &chans) const;
 
 #ifdef SYSTEMOC_ENABLE_MAESTRO
-  template<class PortA, class PortB>
-  void connectRoutedPortsI(PortA &a, PortB &b)
-    { connectRoutedPortsF(b, a); }
+//template<class PortA, class PortB>
+//void connectRoutedPortsI(PortA &a, PortB &b)
+//  { connectRoutedPortsF(b, a); }
 
   /**
    * Method to map the routing of communication channels into the architecture communication components
@@ -211,45 +223,48 @@ public:
    */
   template<class PortA, class PortB>
   void connectRoutedPortsF(PortA &a, PortB &b) {
+    typedef typename boost::mpl::if_<PortTraits<PortA>,
+        typename PortTraits<PortA>::data_type,
+        typename PortTraits<PortB>::data_type
+      >::type data_type;
+    
     MM::MMAPI* api = MM::MMAPI::getInstance();
-
+    
     //get name of the actor of port a
     string srcActorName = string(a.get_parent()->name());
     //get name of the actor of port b
     string dstActorName = string(b.get_parent()->name());
-
+    
     //get name of port a
     string srcPortName = string(a.name());
     //get name of port b
     string dstPortName = string(b.name());
-
+    
     vector<tuple<string, string, string> > hops = api->getHopsOfMappedCommunication(srcActorName, srcPortName);
-
+    
     for (int i = 0; i <= hops.size(); i++) {
       string currentHop;
       string nextHop;
-
+      
       if (i > 0) {
         currentHop = get<0>(hops[i - 1]);
       } else {
         currentHop = api->getComponentForActor(srcActorName);
       }
-
+      
       if (i < hops.size()) {
         nextHop = get<0>(hops[i]);
       } else {
         nextHop = api->getComponentForActor(dstActorName);
       }
-
-      smoc_port_out<typename PortA::data_type> *outputPort;
-      smoc_port_in<typename PortB::data_type>  *inputPort;
-
+      
+      smoc_fifo<data_type> chanInit;
       
       if (i == 0) {
-        //src is computation actor
-        outputPort = &a;
+        // src is computation actor
+        chanInit.connect(a);
       } else {
-        //src is communication actor
+        // src is communication actor
         //get port to connect from
         string communicationPseudportToConnectFrom = api->getCommunicationComponentOutputPort(srcActorName, srcPortName, currentHop);
         //get instance of actor to connect from
@@ -257,12 +272,13 @@ public:
 
         //get instance of ports to connect from
         CommunicationComponent* sourceCommunicationActor = dynamic_cast<CommunicationComponent*>(sourceCommunicationActorInstance);
-        outputPort = dynamic_cast<smoc_port_out<typename PortA::data_type> *>(sourceCommunicationActor->getPortByName(communicationPseudportToConnectFrom));
+        smoc_port_out<data_type> *outputPort = dynamic_cast<smoc_port_out<data_type> *>(sourceCommunicationActor->getPortByName(communicationPseudportToConnectFrom));
+        chanInit.connect(*outputPort);
       }
-
+      
       if (i == hops.size()) {
         // dst is computation actor
-        inputPort = &b;
+        chanInit.connect(b);
       } else {
         //dst is communication actor
         //get port to connect to
@@ -273,10 +289,9 @@ public:
 
         //get instance of ports to connect to
         CommunicationComponent* destinationCommunicationActor = dynamic_cast<CommunicationComponent*>(destinationCommunicationActorInstance);
-        inputPort = dynamic_cast<smoc_port_in<typename PortB::data_type> *>(destinationCommunicationActor->getPortByName(communicationPseudportToConnectTo));
+        smoc_port_in<data_type>  *inputPort = dynamic_cast<smoc_port_in<data_type> *>(destinationCommunicationActor->getPortByName(communicationPseudportToConnectTo));
+        chanInit.connect(*inputPort);
       }
-
-      connectNodePortsB(*outputPort, *inputPort);
     }
   }
 #endif // SYSTEMOC_ENABLE_MAESTRO
