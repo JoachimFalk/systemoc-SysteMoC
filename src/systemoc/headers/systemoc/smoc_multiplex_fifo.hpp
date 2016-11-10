@@ -923,9 +923,9 @@ public:
     this_type &operator <<(add_param_ty x)
       { add(x); return *this; }
 
-    using smoc::Detail::ConnectProvider<
-      smoc_multiplex_vfifo<T,A>,
-      smoc_multiplex_vfifo_chan<T,A> >::operator<<;
+//  using smoc::Detail::ConnectProvider<
+//    smoc_multiplex_vfifo<T,A>,
+//    smoc_multiplex_vfifo_chan<T,A> >::operator<<;
 
     size_t getFifoId() const
       { return fifoId; }
@@ -1026,9 +1026,9 @@ public:
     return *this;
   }
 
-  using smoc::Detail::ConnectProvider<
-    smoc_multiplex_fifo<T,A>,
-    smoc_multiplex_fifo_chan<T,A> >::operator<<;
+//using smoc::Detail::ConnectProvider<
+//  smoc_multiplex_fifo<T,A>,
+//  smoc_multiplex_fifo_chan<T,A> >::operator<<;
 
 private:
   chan_type *getChan() {

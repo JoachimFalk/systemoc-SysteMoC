@@ -111,7 +111,7 @@ public:
     assert(iface); p(*(new Adapter(*iface)));
     return *getDerived();
   }
-  
+/*
   DERIVED &operator <<(smoc_port_out<data_type> &p)
     { return connect(p); }
   
@@ -121,6 +121,7 @@ public:
   template<class IFACE>
   DERIVED &operator <<(sc_core::sc_port<IFACE> &p)
     { return connect(p); }
+ */
 };
 
 } } // namespace smoc::Detail
