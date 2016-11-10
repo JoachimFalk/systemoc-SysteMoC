@@ -55,6 +55,7 @@ libsystemoc_la_SOURCES = \
 	src/systemoc/cpp/IdPool.cpp \
 	src/systemoc/cpp/IOPattern.cpp \
 	src/systemoc/cpp/LatencyQueue.cpp \
+	src/systemoc/cpp/NodeQueue.cpp \
 	src/systemoc/cpp/SimulationContext.cpp \
 	src/systemoc/cpp/smoc_actor.cpp \
 	src/systemoc/cpp/smoc_chan_if.cpp \
