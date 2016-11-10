@@ -415,8 +415,8 @@ public:
     return *this;
   }
 
-  //using this_type::con_type::operator<<;
-  using smoc::Detail::ConnectProvider<smoc_multireader_fifo<T>, smoc_multireader_fifo_chan<T> >::operator<<;
+////using this_type::con_type::operator<<;
+//using smoc::Detail::ConnectProvider<smoc_multireader_fifo<T>, smoc_multireader_fifo_chan<T> >::operator<<;
 
 private:
   chan_type *getChan() {
