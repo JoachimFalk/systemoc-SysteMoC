@@ -73,6 +73,7 @@ noinst_PROGRAMS= \
 	test-sdf \
 	test-select \
 	test-sqr \
+	test-systemc-sqr \
 	test-sqr-int \
 	test-src-snk \
 	test-src-snk-hierarchy \
@@ -162,6 +163,11 @@ test_sqr_LDADD					= $(SYSTEMOC_LIBS)
 test_sqr_DEPENDENCIES				= $(SYSTEMOC_DEPENDENCIES)
 test_sqr_SOURCES				= \
 	src/test-sqr/cpp/design-sqr.cpp
+
+test_systemc_sqr_LDADD				= $(SYSTEMC_LIBS)
+test_systemc_sqr_DEPENDENCIES			= $(SYSTEMC_DEPENDENCIES)
+test_systemc_sqr_SOURCES			= \
+	src/test-systemc-sqr/cpp/systemc-sqr.cpp
 
 # More integration required! check and synthesis
 test_sqr_int_LDADD				= $(SYSTEMOC_LIBS)
