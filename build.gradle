@@ -139,6 +139,11 @@ model {
       sources.cpp.lib project: ':SysteMoC', library: 'systemoc'
     }
 
+    "test-systemc-sqr"(JFNativeExecutableSpec) {
+      targetFlavors 'default';
+      sources.cpp.lib project: ':PrebuiltLibraries', library: 'systemc'
+    }
+
     "test-systemc-blocking-cosim"(JFNativeExecutableSpec) {
       sources.cpp.lib project: ':SysteMoC', library: 'systemoc'
     }
