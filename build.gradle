@@ -11,7 +11,7 @@ apply plugin: 'visual-studio'
 //apply plugin: 'eclipse-cdt' <= This does not really work at the moment
 
 // Here, ``this'' is the current org.gradle.api.Project
-this.buildDir = 'obj'
+//this.buildDir = 'obj-gradle'
 
 import java.util.regex.Matcher 
 
