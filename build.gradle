@@ -6,7 +6,7 @@ apply plugin: 'visual-studio'
 //apply plugin: 'eclipse'
 
 // Here, ``this'' is the current org.gradle.api.Project
-this.buildDir = 'obj'
+//this.buildDir = 'obj-gradle'
 
 //task VisualStudio(dependsOn: 'libsgxVisualStudio')
 
