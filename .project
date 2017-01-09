@@ -5,7 +5,6 @@
 	<projects>
 		<project>BuildSystem</project>
 		<project>LibSGX</project>
-		<project>Maestro-Bruckner</project>
 		<project>Maestro-MetaMap</project>
 		<project>Support</project>
 	</projects>
