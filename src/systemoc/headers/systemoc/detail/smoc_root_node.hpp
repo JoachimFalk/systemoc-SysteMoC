@@ -80,15 +80,17 @@
 #endif //SYSTEMOC_ENABLE_MAESTRO
 
 #define SMOC_REGISTER_CPARAM(name)  registerParam(#name,name)
-#define SMOC_CALL(func)             call(&func, #func)
-#define SMOC_GUARD(func)            guard(&func, #func)
+#define SMOC_CALL(func)             calli(this, &func, #func)
+#define SMOC_GUARD(func)            guardi(this, &func, #func)
 #define SMOC_VAR(variable)          var(variable, #variable)
 #define SMOC_TILL(event)            till(event, #event)
 #define SMOC_LITERAL(lit)           literal(lit)
+/*
 #ifdef SYSTEMOC_ENABLE_MAESTRO
 # define SMOC_CALLI(ins,func)       calli(ins, &func, #func)
 # define SMOC_GUARDI(ins,func)      guardi(ins, &func, #func)
 #endif //SYSTEMOC_ENABLE_MAESTRO
+ */
 
 namespace smoc { namespace Detail {
 
@@ -201,30 +203,26 @@ public:
       (CoSupport::Lambda::Functor<void, F>(this, f, name));
   }
 
-#ifdef SYSTEMOC_ENABLE_MAESTRO
   template<typename F, typename X>
   typename CoSupport::Lambda::ParamAccumulator<smoc_member_func, CoSupport::Lambda::Functor<void, F> >::accumulated_type
 	  calli(X* ins, const F &f, const char *name = "") {
     return typename CoSupport::Lambda::ParamAccumulator<smoc_member_func, CoSupport::Lambda::Functor<void, F> >::accumulated_type
       (CoSupport::Lambda::Functor<void, F>(ins, f, name));
   }
-#endif
 
 protected:
-
   template<typename F>
   typename smoc::Expr::MemGuard<F>::type guard(const F &f, const char *name = "") const {
     return smoc::Expr::guard(this, f, name);
   }
-
-public:
 	
-#ifdef SYSTEMOC_ENABLE_MAESTRO
   template<typename F, typename X>
   typename smoc::Expr::MemGuard<F>::type guardi(const X* ins, const F &f, const char *name = "") const {
 	  return smoc::Expr::guard(ins, f, name);
   }
 
+public:
+#ifdef SYSTEMOC_ENABLE_MAESTRO
   bool testCanFire();
 #endif //SYSTEMOC_ENABLE_MAESTRO
   
