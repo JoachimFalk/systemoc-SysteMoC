@@ -40,19 +40,19 @@ SUBDIRS= @SUBDIRS@
 
 if SYNTH_SW
   SW_SYNTH_SUBDIR = synthesis-sw
-  include $(pkg_synthesis_sw_builddir)/mk/Rules-Synth-II.mk
+  -include $(pkg_synthesis_sw_builddir)/mk/Rules-Synth-II.mk
 endif
 if SYNTH_PTHREAD
   PTHREAD_SYNTH_SUBDIR = synthesis-pthread
-  include $(pkg_synthesis_pthread_builddir)/mk/Rules-Synth-II.mk
+  -include $(pkg_synthesis_pthread_builddir)/mk/Rules-Synth-II.mk
 endif
 if SYNTH_CYN
   CYN_SYNTH_SUBDIR = synthesis-cyn
-  include $(pkg_synthesis_cynthesizer_builddir)/mk/Rules-Synth-II.mk
+  -include $(pkg_synthesis_cynthesizer_builddir)/mk/Rules-Synth-II.mk
 endif
 if SYNTH_TLM
   TLM_SYNTH_SUBDIR = synthesis-tlm
-  include $(pkg_synthesis_tlm_builddir)/mk/Rules-Synth-II.mk
+  -include $(pkg_synthesis_tlm_builddir)/mk/Rules-Synth-II.mk
 endif
 
 AM_CPPFLAGS= @AM_CPPFLAGS@ @SYSTEMOC_INCLUDE@
