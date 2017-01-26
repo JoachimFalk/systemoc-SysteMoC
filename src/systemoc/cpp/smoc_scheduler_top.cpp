@@ -95,8 +95,17 @@ smoc_scheduler_top::~smoc_scheduler_top() {
     sc_core::sc_stop();
 }
 
-void smoc_scheduler_top::start_of_simulation()
-  { simulation_running = true; }
+void smoc_scheduler_top::start_of_simulation() {
+#ifdef SYSTEMOC_ENABLE_SGX
+  if (getSimCTX()->isSMXDumpingPreSimEnabled()) {
+    // Note that doReset() of each actor, graph, and channel must have been done before starting the dumping.
+    Detail::dumpSMX(getSimCTX()->getSMXPreSimFile(), getSimCTX(), *g);
+    if (!getSimCTX()->isSMXDumpingPreSimKeepGoing())
+      sc_core::sc_stop();
+  }
+#endif // SYSTEMOC_ENABLE_SGX
+  simulation_running = true;
+}
 
 void smoc_scheduler_top::end_of_simulation() {
   simulation_running = false;
@@ -159,14 +168,6 @@ void smoc_scheduler_top::_end_of_elaboration() {
     MM::MMAPI* api = MM::MMAPI::getInstance();
     api->endOfElaboration();
 #endif //SYSTEMOC_ENABLE_MAESTRO
-//  g->doReset();
-#ifdef SYSTEMOC_ENABLE_SGX
-    if (getSimCTX()->isSMXDumpingPreSimEnabled()) {
-      Detail::dumpSMX(getSimCTX()->getSMXPreSimFile(), getSimCTX(), *g);
-      if (!getSimCTX()->isSMXDumpingPreSimKeepGoing())
-        sc_core::sc_stop();
-    }
-#endif // SYSTEMOC_ENABLE_SGX
   } catch (std::exception &e) {
     std::cerr << "Got exception at smoc_scheduler_top::_end_of_elaboration():\n\t"
               << e.what();
