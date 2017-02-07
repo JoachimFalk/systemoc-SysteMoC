@@ -5,8 +5,8 @@
 	<projects>
 		<project>BuildSystem</project>
 		<project>LibSGX</project>
-		<project>Maestro-MetaMap</project>
 		<project>Support</project>
+		<project>SystemC-VPC</project>
 	</projects>
 	<buildSpec>
 		<buildCommand>
