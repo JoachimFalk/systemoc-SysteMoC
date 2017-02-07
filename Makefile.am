@@ -39,19 +39,18 @@ ACLOCAL_AMFLAGS=-I ../BuildSystem/m4
 SUBDIRS= @SUBDIRS@
 
 if SYNTH_SW
-  SW_SYNTH_SUBDIR = synthesis-sw
+  SW_SYNTH_SUBDIR     = synthesis-sw
+  SW_SYNTH_INST_FLAGS = --no-preprocess-macros
   -include $(pkg_synthesis_sw_builddir)/mk/Rules-Synth-II.mk
 endif
 if SYNTH_PTHREAD
-  PTHREAD_SYNTH_SUBDIR = synthesis-pthread
+  PTHREAD_SYNTH_SUBDIR     = synthesis-pthread
+  PTHREAD_SYNTH_INST_FLAGS = --no-preprocess-macros
   -include $(pkg_synthesis_pthread_builddir)/mk/Rules-Synth-II.mk
 endif
-if SYNTH_CYN
-  CYN_SYNTH_SUBDIR = synthesis-cyn
-  -include $(pkg_synthesis_cynthesizer_builddir)/mk/Rules-Synth-II.mk
-endif
 if SYNTH_TLM
-  TLM_SYNTH_SUBDIR = synthesis-tlm
+  TLM_SYNTH_SUBDIR     = synthesis-tlm
+  TLM_SYNTH_INST_FLAGS = --no-preprocess-macros
   -include $(pkg_synthesis_tlm_builddir)/mk/Rules-Synth-II.mk
 endif
 
@@ -86,6 +85,9 @@ noinst_PROGRAMS= \
 	test-src-snk-void \
 	test-systemc-blocking-cosim \
 	test-systemc-nonblocking-cosim
+
+%.smx: %
+	./'$<' --systemoc-export-smx='$@'
 
 test_cluster_example_LDADD			= $(SYSTEMOC_LIBS)
 test_cluster_example_DEPENDENCIES		= $(SYSTEMOC_DEPENDENCIES)
@@ -164,6 +166,16 @@ test_sqr_DEPENDENCIES				= $(SYSTEMOC_DEPENDENCIES)
 test_sqr_SOURCES				= \
 	src/test-sqr/cpp/design-sqr.cpp
 
+if SYNTH_SW
+SW_SYNTH_TEST_SQR_CPPFLAGS = -I$(srcdir)/src/test-sqr/cpp
+
+test-sqr.cpp: $(test_sqr_SOURCES)
+	{ for i in $^; do echo "#include \"$$i\""; done; } > $@
+
+synth-sw-sqr: test-sqr-$(SW_SYNTH_SUBDIR)/top
+.PHONY: synth-sw-sqr
+endif
+
 test_systemc_sqr_LDADD				= $(SYSTEMC_LIBS)
 test_systemc_sqr_DEPENDENCIES			= $(SYSTEMC_DEPENDENCIES)
 test_systemc_sqr_SOURCES			= \
@@ -232,3 +244,8 @@ test_systemc_nonblocking_cosim_LDADD		= $(SYSTEMOC_LIBS)
 test_systemc_nonblocking_cosim_DEPENDENCIES	= $(SYSTEMOC_DEPENDENCIES)
 test_systemc_nonblocking_cosim_SOURCES		= \
 	src/test-systemc-nonblocking-cosim/cpp/design-cosim-nonblocking.cpp
+
+clean-local:
+	for i in $(noinst_PROGRAMS); do \
+	  rm -f $${i}.cpp $${i}.smx; \
+	done
