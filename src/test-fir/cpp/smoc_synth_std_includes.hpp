@@ -35,13 +35,14 @@
 #ifndef _INCLUDED_SMOC_SYNTH_STD_INCLUDES_HPP
 #define _INCLUDED_SMOC_SYNTH_STD_INCLUDES_HPP
 
+#include <cmath>
+#include <cstdlib>
+
 #include <iostream>
+#include <limits>
+#include <vector>
 using namespace std;
 
-#include <math.h>
-#include <limits.h>
-
-#include <vector>
 
 namespace initializer{
 

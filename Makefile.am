@@ -53,6 +53,9 @@ if SYNTH_TLM
   TLM_SYNTH_INST_FLAGS = --no-preprocess-macros
   -include $(pkg_synthesis_tlm_builddir)/mk/Rules-Synth-II.mk
 endif
+if CLUSTERING
+  -include $(pkg_clustering_builddir)/mk/Rules-Synth-II.mk
+endif
 
 AM_CPPFLAGS= @AM_CPPFLAGS@ @SYSTEMOC_INCLUDE@
 AM_LDFLAGS = @AM_LDFLAGS@  @SYSTEMOC_LDFLAGS@
@@ -110,6 +113,20 @@ test_fir_DEPENDENCIES				= $(SYSTEMOC_DEPENDENCIES)
 test_fir_SOURCES				= \
 	src/test-fir/cpp/design-fir.cpp
 
+# Needed by all synthesis targets for sqr
+test-fir.cpp: $(test_fir_SOURCES)
+	{ for i in $^; do echo "#include \"$$i\""; done; } > $@
+# .PHONY is outside conditionals to make automake happy
+.PHONY: synth-sw-fir synth-pthread-fir
+if SYNTH_SW
+SW_SYNTH_TEST_FIR_CPPFLAGS = -I$(srcdir)/src/test-fir/cpp
+synth-sw-fir: test-fir-$(SW_SYNTH_SUBDIR)/top
+endif
+if SYNTH_PTHREAD
+PTHREAD_SYNTH_TEST_FIR_CPPFLAGS = -I$(srcdir)/src/test-fir/cpp
+synth-pthread-fir: test-fir-$(PTHREAD_SYNTH_SUBDIR)/top
+endif
+
 # More integration required! check
 test_fsm_and_composition_LDADD			= $(SYSTEMOC_LIBS)
 test_fsm_and_composition_DEPENDENCIES		= $(SYSTEMOC_DEPENDENCIES)
@@ -166,14 +183,18 @@ test_sqr_DEPENDENCIES				= $(SYSTEMOC_DEPENDENCIES)
 test_sqr_SOURCES				= \
 	src/test-sqr/cpp/design-sqr.cpp
 
-if SYNTH_SW
-SW_SYNTH_TEST_SQR_CPPFLAGS = -I$(srcdir)/src/test-sqr/cpp
-
+# Needed by all synthesis targets for sqr
 test-sqr.cpp: $(test_sqr_SOURCES)
 	{ for i in $^; do echo "#include \"$$i\""; done; } > $@
-
+# .PHONY is outside conditionals to make automake happy
+.PHONY: synth-sw-sqr synth-pthread-sqr
+if SYNTH_SW
+SW_SYNTH_TEST_SQR_CPPFLAGS = -I$(srcdir)/src/test-sqr/cpp
 synth-sw-sqr: test-sqr-$(SW_SYNTH_SUBDIR)/top
-.PHONY: synth-sw-sqr
+endif
+if SYNTH_PTHREAD
+PTHREAD_SYNTH_TEST_SQR_CPPFLAGS = -I$(srcdir)/src/test-sqr/cpp
+synth-pthread-sqr: test-sqr-$(PTHREAD_SYNTH_SUBDIR)/top
 endif
 
 test_systemc_sqr_LDADD				= $(SYSTEMC_LIBS)
@@ -186,6 +207,20 @@ test_sqr_int_LDADD				= $(SYSTEMOC_LIBS)
 test_sqr_int_DEPENDENCIES			= $(SYSTEMOC_DEPENDENCIES)
 test_sqr_int_SOURCES				= \
 	src/test-sqr-int/cpp/design-sqr.cpp
+
+# Needed by all synthesis targets for sqr-int
+test-sqr-int.cpp: $(test_sqr_int_SOURCES)
+	{ for i in $^; do echo "#include \"$$i\""; done; } > $@
+# .PHONY is outside conditionals to make automake happy
+.PHONY: synth-sw-sqr-int synth-pthread-sqr-int
+if SYNTH_SW
+SW_SYNTH_TEST_SQR_INT_CPPFLAGS = -I$(srcdir)/src/test-sqr-int/cpp
+synth-sw-sqr-int: test-sqr-int-$(SW_SYNTH_SUBDIR)/top
+endif
+if SYNTH_PTHREAD
+PTHREAD_SYNTH_TEST_SQR_INT_CPPFLAGS = -I$(srcdir)/src/test-sqr-int/cpp
+synth-pthread-sqr-int: test-sqr-int-$(PTHREAD_SYNTH_SUBDIR)/top
+endif
 
 # More integration required! Maybe check for VPC?
 test_src_snk_LDADD				= $(SYSTEMOC_LIBS)
@@ -249,3 +284,15 @@ clean-local:
 	for i in $(noinst_PROGRAMS); do \
 	  rm -f $${i}.cpp $${i}.smx; \
 	done
+
+# .PHONY is outside conditionals to make automake happy
+.PHONY: synth-sw synth-pthread synth
+if SYNTH_SW
+synth-sw: synth-sw-fir synth-sw-sqr synth-sw-sqr-int
+synth: synth-sw
+endif
+if SYNTH_PTHREAD
+synth-pthread: synth-pthread-fir synth-pthread-sqr synth-pthread-sqr-int
+.PHONY: synth-pthread
+synth: synth-pthread
+endif
