@@ -44,36 +44,38 @@ noinst_PROGRAMS=		\
 	vpc-src-sink		\
 	vpc-src-sink-config-api
 
-if PKG_SYSTEMOC_USE_SRCDIR_VERSION
-SYSTEMOC_LINKFLAGS = $(SYSTEMOC_LIBPATH)/libsystemoc.la
-else
-# SYSTEMOC_LIBPATH may not be defined for external libraries
-SYSTEMOC_LINKFLAGS = -lsystemoc
-endif
-
+hello_LDADD  		= $(SYSTEMOC_LIBS)
+hello_DEPENDENCIES	= $(SYSTEMOC_DEPENDENCIES)
 hello_SOURCES		= hello-systemoc.cpp
-hello_LDADD  		= $(SYSTEMOC_LINKFLAGS)
 
+src_sink_LDADD		= $(SYSTEMOC_LIBS)
+src_sink_DEPENDENCIES	= $(SYSTEMOC_DEPENDENCIES)
 src_sink_SOURCES	= source-sink.cpp
-src_sink_LDADD		= $(SYSTEMOC_LINKFLAGS)
 
+guards_LDADD		= $(SYSTEMOC_LIBS)
+guards_DEPENDENCIES	= $(SYSTEMOC_DEPENDENCIES)
 guards_SOURCES		= guards.cpp
-guards_LDADD		= $(SYSTEMOC_LINKFLAGS)
 
+rates_LDADD		= $(SYSTEMOC_LIBS)
+rates_DEPENDENCIES	= $(SYSTEMOC_DEPENDENCIES)
 rates_SOURCES		= rates.cpp
-rates_LDADD		= $(SYSTEMOC_LINKFLAGS)
 
+data_flow_LDADD		= $(SYSTEMOC_LIBS)
+data_flow_DEPENDENCIES	= $(SYSTEMOC_DEPENDENCIES)
 data_flow_SOURCES	= data-flow.cpp
-data_flow_LDADD		= $(SYSTEMOC_LINKFLAGS)
 
+ping_LDADD		= $(SYSTEMOC_LIBS)
+ping_DEPENDENCIES	= $(SYSTEMOC_DEPENDENCIES)
 ping_SOURCES		= ping.cpp
-ping_LDADD		= $(SYSTEMOC_LINKFLAGS)
 
+mini_filter_LDADD	= $(SYSTEMOC_LIBS)
+mini_filter_DEPENDENCIES= $(SYSTEMOC_DEPENDENCIES)
 mini_filter_SOURCES	= mini-filter.cpp
-mini_filter_LDADD	= $(SYSTEMOC_LINKFLAGS)
 
-vpc_src_sink_SOURCES	= vpc-source-sink.cpp
-vpc_src_sink_LDADD	= $(SYSTEMOC_LINKFLAGS)
+vpc_src_sink_LDADD		= $(SYSTEMOC_LIBS)
+vpc_src_sink_DEPENDENCIES	= $(SYSTEMOC_DEPENDENCIES)
+vpc_src_sink_SOURCES		= vpc-source-sink.cpp
 
-vpc_src_sink_config_api_SOURCES	= vpc-source-sink-config-api.cpp
-vpc_src_sink_config_api_LDADD	= $(SYSTEMOC_LINKFLAGS)
+vpc_src_sink_config_api_LDADD		= $(SYSTEMOC_LIBS)
+vpc_src_sink_config_api_DEPENDENCIES	= $(SYSTEMOC_DEPENDENCIES)
+vpc_src_sink_config_api_SOURCES		= vpc-source-sink-config-api.cpp
