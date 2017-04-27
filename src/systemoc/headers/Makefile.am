@@ -45,6 +45,7 @@ nobase_include_HEADERS = \
 	smoc/detail/IOPattern.hpp \
 	smoc/detail/LatencyQueue.hpp \
 	smoc/detail/NamedIdedObj.hpp \
+	smoc/detail/NodeQueue.hpp \
 	smoc/detail/PortBaseIf.hpp \
 	smoc/detail/PortIOBaseIf.hpp \
 	smoc/detail/QueueFRVWPtr.hpp \
