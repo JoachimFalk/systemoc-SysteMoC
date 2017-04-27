@@ -12,17 +12,17 @@ void PeriodicActor::notify(){
   smoc_notify(getEvent());
   //count the cycles
   counter++;
-  sc_time mobility = sc_time(0,SC_US);
+  sc_core::sc_time mobility = sc_core::sc_time(0,sc_core::SC_US);
   if(mobility_factor != 0.0){ 
     mobility = mobility_factor * randfloat() * period;
-    //cerr<<"WAIT-Time / Mobility: "<< mobility <<" @ "<<sc_time_stamp()<< endl;
+    //cerr<<"WAIT-Time / Mobility: "<< mobility <<" @ "<<sc_core::sc_time_stamp()<< endl;
   }
   //re-register Event at the EventQueue
-  eq->registerEvent(this, sc_time_stamp() + period + mobility );
+  eq->registerEvent(this, sc_core::sc_time_stamp() + period + mobility );
 	
 }
 
-void EventQueue::registerEvent(Event* event, sc_time time){
+void EventQueue::registerEvent(Event* event, sc_core::sc_time time){
   //create a new element and add it to the queue
   TimeEventPair tep(time, event);
   pqueue.push(tep);	
@@ -43,14 +43,14 @@ void EventQueue::waiter(){
       TimeEventPair pair = pqueue.top();
       current=&pair;
       //			pqueue.pop();
-      sc_time toWait=current->time-sc_time_stamp();
+      sc_core::sc_time toWait=current->time-sc_core::sc_time_stamp();
 
       // if not, something very strange happend
-      assert(toWait >= sc_time(0,SC_NS));
+      assert(toWait >= sc_core::sc_time(0,SC_NS));
 
       wait(toWait, wait_interrupt);
 			
-      while(current->time == sc_time_stamp()){
+      while(current->time == sc_core::sc_time_stamp()){
         //now we are at the releasetime, so let's notify the event
         pqueue.pop();
         current->event->notify();

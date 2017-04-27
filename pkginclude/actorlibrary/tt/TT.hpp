@@ -7,9 +7,9 @@
 
 /*struct used to store an event with a certain release-time*/
 struct TimeEventPair{
-  TimeEventPair(sc_time time,  Event *event)
+  TimeEventPair(sc_core::sc_time time,  Event *event)
     : time(time), event(event) {}
-  sc_time time;
+  sc_core::sc_time time;
   Event *event;
 };
 
@@ -20,8 +20,8 @@ struct eventCompare{
   bool operator()(const TimeEventPair& tep1,
                   const TimeEventPair& tep2) const
   {
-    sc_time p1=tep1.time;
-    sc_time p2=tep2.time;
+    sc_core::sc_time p1=tep1.time;
+    sc_core::sc_time p2=tep2.time;
     if (p1 >= p2)
       return true;
     else
@@ -31,23 +31,23 @@ struct eventCompare{
 
 /*Class EventQueue stores Events and notifies them 
  * if their releasetime has been arrived */
-class EventQueue : public sc_module{
+class EventQueue : public sc_core::sc_module{
   SC_HAS_PROCESS(EventQueue);	
 	
 public:		
   //SystemC-Prozess, der die queue topped und die notwendige Zeit wartet.
   void waiter();
 		
-  EventQueue(sc_module_name name): sc_module(name), current(nullptr) {
+  EventQueue(sc_core::sc_module_name name): sc_core::sc_module(name), current(nullptr) {
     SC_THREAD(waiter);
   };
 
   // register an event with its next releasetime in the EventQueue
-  void registerEvent(Event* event, sc_time time);	
+  void registerEvent(Event* event, sc_core::sc_time time);	
 
 private:
   TimeEventPair* current;
-  sc_event wait_interrupt;
+  sc_core::sc_event wait_interrupt;
   typedef std::priority_queue <TimeEventPair,
                                std::vector<TimeEventPair>,
                                eventCompare>                  TimedQueue;
@@ -69,14 +69,14 @@ class PeriodicActor: public smoc_actor, public Event{
 	
 public:
   //constructor sets the period, offset and EventQueue
-  PeriodicActor(sc_module_name name,
+  PeriodicActor(sc_core::sc_module_name name,
                 smoc_firing_state & start_state,
-                sc_time per,
-                sc_time off,
+                sc_core::sc_time per,
+                sc_core::sc_time off,
                 EventQueue* eventQueue,
                 float mobility_fact=0.0) :
     smoc_actor(name, start_state),
-    Event(),
+    ::Event(),
     counter(0),
     period(per),
     offset(off),
@@ -95,8 +95,8 @@ public:
   }
 	
 protected:
-  sc_time period;
-  sc_time offset;
+  sc_core::sc_time period;
+  sc_core::sc_time offset;
   EventQueue* eq;
   float mobility_factor;
 };
