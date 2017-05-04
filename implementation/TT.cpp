@@ -46,7 +46,7 @@ void EventQueue::waiter(){
       sc_core::sc_time toWait=current->time-sc_core::sc_time_stamp();
 
       // if not, something very strange happend
-      assert(toWait >= sc_core::sc_time(0,SC_NS));
+      assert(toWait >= sc_core::sc_time(0,sc_core::SC_NS));
 
       wait(toWait, wait_interrupt);
 			
