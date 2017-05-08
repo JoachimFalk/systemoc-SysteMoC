@@ -115,22 +115,6 @@ public:
     return ep;
   }
 
-  void releaseTask() {
-# ifdef SYSTEMOC_DEBUG_VPC_IF
-    outDbg << "[" << this << "] " << actor
-           << " release @ " << sc_time_stamp() << std::endl;
-# endif // SYSTEMOC_DEBUG_VPC_IF
-    
-    // prevent from unecessary event_and_list evaluation
-    dynamicReadEvents.clear();
-    
-    SystemC_VPC::EventPair ep(diiEvent, latEvent);
-    vpcTask.compute(ep);
-    
-    // reset events from last iteration
-    latEvent = new smoc_vpc_event();
-  }
-
   smoc_vpc_event_p getLatEvent() const
     { assert(latEvent != nullptr); return latEvent; }
   smoc_vpc_event_p getDiiEvent() const
@@ -165,6 +149,22 @@ protected:
   }
 
 private:
+  void releaseTask() {
+# ifdef SYSTEMOC_DEBUG_VPC_IF
+    outDbg << "[" << this << "] " << actor
+           << " release @ " << sc_time_stamp() << std::endl;
+# endif // SYSTEMOC_DEBUG_VPC_IF
+
+    // prevent from unecessary event_and_list evaluation
+    dynamicReadEvents.clear();
+
+    SystemC_VPC::EventPair ep(diiEvent, latEvent);
+    vpcTask.compute(ep);
+
+    // reset events from last iteration
+    latEvent = new smoc_vpc_event();
+  }
+
   /// latEvent is created new for each compute
   smoc_vpc_event_p latEvent;
 };
