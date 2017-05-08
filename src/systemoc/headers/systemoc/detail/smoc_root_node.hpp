@@ -109,6 +109,13 @@ class smoc_root_node
 , public  smoc::Detail::NamedIdedObj
 #endif // SYSTEMOC_NEED_IDS
 , public  smoc::Detail::SimCTXBase
+/// This smoc_event_listener base class is used to listen for events
+/// denoting sufficient available tokens and free spaces for at least
+/// one outgoing transition of the current state <currentState>.
+/// If sufficient tokens and free places are available, the
+/// signaled method of smoc_event_listener is called. This
+/// Method is overwritten in this class to maybe schedule the
+/// actor or graph if the guard of the transition is also satisfied.
 , private smoc::smoc_event_listener
 , public  smoc::smoc_event
 #ifdef MAESTRO_ENABLE_POLYPHONIC
