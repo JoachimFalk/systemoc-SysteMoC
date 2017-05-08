@@ -147,8 +147,6 @@ SimulationContext::SimulationContext(int _argc, char *_argv[])
     ("systemoc-vpc-config",
      po::value<std::string>(),
      "use specified SystemC-VPC configuration file")
-    ("systemoc-vpc-scheduling",
-     po::value(&vpcScheduling)->zero_tokens())
     ;
   
   // Backward compatibility cruft
@@ -304,14 +302,6 @@ SimulationContext::SimulationContext(int _argc, char *_argv[])
       str << "SysteMoC configured without vpc support: --" << i->string_key << " option not provided!";
       throw std::runtime_error(str.str().c_str());
 #endif // !SYSTEMOC_ENABLE_VPC
-    } else if (i->string_key == "systemoc-vpc-scheduling" ) {
-#ifdef SYSTEMOC_ENABLE_VPC
-      vpcScheduling = true;
-#else  // !SYSTEMOC_ENABLE_VPC
-      std::ostringstream str;
-      str << "SysteMoC configured without vpc support: --" << i->string_key << " option not provided!";
-      throw std::runtime_error(str.str().c_str());
-#endif // !SYSTEMOC_ENABLE_VPC
     } else if (i->unregistered || i->position_key != -1) {
       for(std::vector<std::string>::const_iterator j = i->original_tokens.begin();
           j != i->original_tokens.end();
@@ -322,9 +312,20 @@ SimulationContext::SimulationContext(int _argc, char *_argv[])
     }
   }
   if (getenv("VPCCONFIGURATION") != nullptr) {
-#ifndef SYSTEMOC_ENABLE_VPC
+#ifdef SYSTEMOC_ENABLE_VPC
+    vpcScheduling = SystemC_VPC::Director::getInstance().hasValidConfig();
+# ifdef SYSTEMOC_DEBUG
+    if (outDbg.isVisible(Debug::High)) {
+      if (vpcScheduling) {
+        outDbg << "SystemC_VPC has valid configuration " << getenv("VPCCONFIGURATION") << " => turning VPC on" << std::endl;
+      } else {
+        outDbg << "SystemC_VPC has invalid configuration " << getenv("VPCCONFIGURATION") << " => VPC still off" << std::endl;
+      }
+    }
+# endif // !SYSTEMOC_DEBUG
+#else  // !SYSTEMOC_ENABLE_VPC
     std::ostringstream str;
-    str << "SysteMoC configured without vpc support: Support for VPCCONFIGURATION env variable not provided!";
+    str << "SysteMoC configured without VPC support: Support for VPCCONFIGURATION environment variable is not provided!";
     throw std::runtime_error(str.str().c_str());
 #endif // !SYSTEMOC_ENABLE_VPC
   }

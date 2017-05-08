@@ -66,7 +66,6 @@ private:
   SC_HAS_PROCESS(smoc_scheduler_top);
 
   Detail::GraphBase *g;
-  bool               validVpcConfiguration;
   bool               simulation_running;
 
   void schedule();
