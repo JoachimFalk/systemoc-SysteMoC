@@ -73,7 +73,6 @@ smoc_scheduler_top::smoc_scheduler_top(Detail::GraphBase *g) :
   // Prefix all SysteMoC internal modules with __smoc_ to enable filtering out the module on smx dump!
   sc_core::sc_module(sc_core::sc_module_name("__smoc_smoc_scheduler_top")),
   g(g),
-  validVpcConfiguration(false),
   simulation_running(false)
 {
   this->g->setScheduler(this);
@@ -162,7 +161,6 @@ void smoc_scheduler_top::_end_of_elaboration() {
   try {
 #ifdef SYSTEMOC_ENABLE_VPC
     SystemC_VPC::Director::getInstance().endOfVpcFinalize();
-    validVpcConfiguration = SystemC_VPC::Director::getInstance().hasValidConfig();
 #endif //SYSTEMOC_ENABLE_VPC
 #ifdef SYSTEMOC_ENABLE_MAESTRO
     MM::MMAPI* api = MM::MMAPI::getInstance();
@@ -188,7 +186,7 @@ void smoc_scheduler_top::schedule() {
 #ifdef SYSTEMOC_ENABLE_VPC
   // enable VPC scheduling if the VPC configuration is valid
   // or if forced by command line option
-  if (validVpcConfiguration || getSimCTX()->isVpcSchedulingEnabled())
+  if (getSimCTX()->isVpcSchedulingEnabled())
     return;
 #endif //SYSTEMOC_ENABLE_VPC
   // plain old smoc scheduler

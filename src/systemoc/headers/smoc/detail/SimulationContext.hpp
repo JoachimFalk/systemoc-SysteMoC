@@ -52,7 +52,7 @@
 namespace smoc { namespace Detail {
 
 class SimulationContext {
-protected:
+private: //protected:
   std::vector<char *> argv;
 
 #ifdef SYSTEMOC_ENABLE_SGX
