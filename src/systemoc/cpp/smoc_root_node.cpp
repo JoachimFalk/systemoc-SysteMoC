@@ -274,9 +274,9 @@ void smoc_root_node::signaled(smoc::smoc_event_waiter *e) {
 #endif // SYSTEMOC_ENABLE_DEBUG
       
       if (ct) {
-          #ifdef SYSTEMOC_ENABLE_MAESTRO
-          ct->notifyListenersTransitionReady();
-          #endif
+#ifdef SYSTEMOC_ENABLE_MAESTRO
+        ct->notifyListenersTransitionReady();
+#endif //SYSTEMOC_ENABLE_MAESTRO
         setActivation(true);
       }
     } else if (!e->isActive() && ct != nullptr && !ct->evaluateIOP()) {
