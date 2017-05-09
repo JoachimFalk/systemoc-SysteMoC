@@ -39,24 +39,32 @@
 
 #include <systemc>
 
+const int NUM_MAX_ITERATIONS = 1000000;
+
 class Src: public sc_core::sc_module {
 public:
   // Declaration of fifo output port
   sc_core::sc_fifo_out<double> out;
 private:
+  int i;
+
   // SystemC thread process
   void src() {
-    int i = 1;
-    while (true) {
+    while (i <= NUM_MAX_ITERATIONS) {
       std::cout << "src: " << i << std::endl;
       out.write(i++);
     }
   }
 public:
   SC_HAS_PROCESS(Src);
-  Src(sc_core::sc_module_name name)
-      : sc_core::sc_module(name)
-    { SC_THREAD(src); }
+  Src(sc_core::sc_module_name name, int from)
+    : sc_core::sc_module(name), i(from)
+  {
+    char *init = getenv("SRC_ITERS");
+    if (init)
+      i = NUM_MAX_ITERATIONS - atoll(init);
+    SC_THREAD(src);
+  }
 };
 
 // Definition of the SqrLoop actor class
@@ -157,9 +165,9 @@ protected:
   sc_core::sc_fifo<double> fifoDup2Approx;
   sc_core::sc_fifo<double> fifoDup2SqrLoop;
 public:
-  SqrRoot(sc_core::sc_module_name name)
+  SqrRoot(sc_core::sc_module_name name, const int from = 1)
     : sc_core::sc_module(name),
-      src("src"),
+      src("src", from),
       sqrLoop("sqrLoop"),
       approx("approx"),
       dup("dup"),
@@ -176,7 +184,13 @@ public:
 };
 
 int sc_main (int argc, char **argv) {
-  SqrRoot sqrRoot("sqrRoot");
+  int from = 1;
+  if (argc == 2) {
+    const int iterations = atoi(argv[1]);
+    assert(iterations < NUM_MAX_ITERATIONS);
+    from = NUM_MAX_ITERATIONS - iterations;
+  }
+  SqrRoot sqrRoot("sqrRoot", from);
   sc_core::sc_start();
   return 0;
 }

@@ -49,17 +49,23 @@ class Src : public smoc_actor {
 public:
   smoc_port_out<void> out;
 
-  Src(sc_core::sc_module_name name) :
-    smoc_actor(name, run)
+  Src(sc_core::sc_module_name name, size_t iter)
+    : smoc_actor(name, run), iter(iter)
   {
-    run = out(1) >> CALL(Src::src) >> run;
+    run =
+        (out(1) && (SMOC_VAR(this->iter) != 0U)) >>
+        CALL(Src::src) >> run
+     ;
   }
 
   void src() {
     std::cout << "Src::src()" << std::endl;
+    --iter;
   }
 
 private:
+  size_t iter;
+
   smoc_firing_state run;
 };
 
@@ -83,10 +89,10 @@ private:
 
 class Graph : public smoc_graph {
 public:
-  Graph(sc_core::sc_module_name name) :
-    smoc_graph(name),
-    src("src"),
-    snk("snk")
+  Graph(sc_core::sc_module_name name, size_t iter)
+    : smoc_graph(name),
+      src("src", iter),
+      snk("snk")
   {
     connectNodePorts(src.out,snk.in);
   }
@@ -96,7 +102,12 @@ private:
 };
 
 int sc_main (int argc, char **argv) { 
-  Graph g("g");
+  size_t iter = static_cast<size_t>(-1);
+  
+  if (argc >= 2)
+    iter = atol(argv[1]);
+
+  Graph g("g", iter);
   smoc_scheduler_top top(g);
   sc_core::sc_start();
   return 0;
