@@ -41,7 +41,7 @@ smoc_periodic_actor::smoc_periodic_actor(
     sc_core::sc_time per, sc_core::sc_time off, float jitter)
   : smoc_actor(name, start_state)
   , period_counter(0)
-  , period(per), offset(off), nextReleaseTime_(off), jitter(jitter), reexecute(false)
+  , period(per), offset(off), nextReleaseTime(off), jitter(jitter), reexecute(false)
   , periodicActorActive(true)
 {
   // TODO: negative mobility values may result in negative release times
@@ -56,39 +56,35 @@ sc_core::sc_time smoc_periodic_actor::calculateMobility() const {
   return mobility;
 }
 
-sc_core::sc_time smoc_periodic_actor::updateReleaseTime() {
-  while (nextReleaseTime_ <= sc_core::sc_time_stamp()) {
+void smoc_periodic_actor::updateReleaseTime() {
+  while (nextReleaseTime <= sc_core::sc_time_stamp()) {
     period_counter++; // increment first, initial execution is scheduled @ offset
-    nextReleaseTime_ = period_counter * period + offset + calculateMobility();
-  }
-  return nextReleaseTime_;
-}
-
-// override getNextReleaseTime from ScheduledTask
-sc_core::sc_time smoc_periodic_actor::getNextReleaseTime() {
-  if (reexecute) {
-    reexecute = false;
-    return sc_core::sc_time_stamp();
-  } else {
-    if (periodicActorActive) {
-      return updateReleaseTime();
-    } else {
-      periodicActorActive = true;
-      return sc_core::sc_time_stamp();
-   }
+    nextReleaseTime = period_counter * period + offset + calculateMobility();
   }
 }
 
-void smoc_periodic_actor::setActivation(bool activation, sc_core::sc_time const &delta) {
-  if (activation
+void smoc_periodic_actor::schedule() {
+  reexecute           = false;
+  periodicActorActive = true;
+  smoc_actor::schedule();
+  if (!reexecute && periodicActorActive
 #ifdef SYSTEMOC_ENABLE_VPC
       && !this->inCommState()
 #endif //SYSTEMOC_ENABLE_VPC
-     )
-    smoc_actor::setActivation(activation,
-        getNextReleaseTime() - sc_core::sc_time_stamp());
+      )
+    updateReleaseTime();
+}
+
+// Override getNextReleaseTime from ScheduleInterface
+sc_core::sc_time const &smoc_periodic_actor::getNextReleaseTime() const {
+  if (reexecute || !periodicActorActive
+#ifdef SYSTEMOC_ENABLE_VPC
+      || this->inCommState()
+#endif //SYSTEMOC_ENABLE_VPC
+      )
+    return sc_core::sc_time_stamp();
   else
-    smoc_actor::setActivation(activation, delta);
+    return nextReleaseTime;
 }
 
 } // namesdpace smoc

@@ -37,10 +37,6 @@
 
 #include <systemoc/smoc_config.h>
 
-#ifdef SYSTEMOC_ENABLE_VPC
-# include <systemcvpc/ScheduledTask.hpp>
-#endif //SYSTEMOC_ENABLE_VPC
-
 #ifdef SYSTEMOC_ENABLE_MAESTRO
 # include <Maestro/MetaMap/SMoCActor.hpp>
 # include <Maestro/MetaMap/includes.hpp>
@@ -51,12 +47,6 @@
 namespace smoc {
 
 class smoc_actor :
-#ifdef SYSTEMOC_ENABLE_VPC
-  public SystemC_VPC::ScheduledTask,
-#endif //SYSTEMOC_ENABLE_VPC
-#ifdef SYSTEMOC_ENABLE_MAESTRO
-  public MetaMap::SMoCActor,
-#endif //SYSTEMOC_ENABLE_MAESTRO
   public smoc_root_node {
 protected:
 #ifdef SYSTEMOC_ENABLE_MAESTRO
@@ -69,25 +59,12 @@ protected:
 
   void before_end_of_elaboration();
 
-  virtual void setActivation(bool activation, sc_core::sc_time const &delta);
 #ifdef SYSTEMOC_ENABLE_MAESTRO
   void initMMactor();
 
   double getLocalTimeDiff();
 #endif //SYSTEMOC_ENABLE_MAESTRO
-private:
-#ifndef SYSTEMOC_ENABLE_VPC
-  bool activeFlag;
-#endif //!defined(SYSTEMOC_ENABLE_VPC)
 public:
-
-#ifndef SYSTEMOC_ENABLE_VPC
-  void setActive(bool active)
-    { assert(!"Implement this"); activeFlag = active; }
-
-  bool getActive()
-    { return activeFlag; }
-#endif //!defined(SYSTEMOC_ENABLE_VPC)
 
 #ifdef SYSTEMOC_ENABLE_MAESTRO
   /**
