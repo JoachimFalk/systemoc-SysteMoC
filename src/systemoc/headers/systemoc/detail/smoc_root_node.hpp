@@ -200,6 +200,8 @@ private:
   /// enable SysteMoC self scheduling of the actor.
   sc_core::sc_event scheduleRequest;
 
+  void scheduleRequestMethod();
+
 protected:
   smoc_root_node(sc_core::sc_module_name, NodeType nodeType, smoc_hierarchical_state &s);
   
