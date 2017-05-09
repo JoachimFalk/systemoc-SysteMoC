@@ -98,7 +98,7 @@ test_cluster_example_SOURCES			= \
 	src/test-cluster-example/cpp/cluster_ex.cpp
 
 test-cluster-example.log: test-cluster-example
-	./'$<' > $@
+	./'$<' > "$@" || { rm -f "$@"; exit 1; }
 
 test_dynamic_fsm_LDADD				= $(SYSTEMOC_LIBS)
 test_dynamic_fsm_DEPENDENCIES			= $(SYSTEMOC_DEPENDENCIES)
@@ -106,7 +106,7 @@ test_dynamic_fsm_SOURCES			= \
 	src/test-dynamic-fsm/cpp/design-dynamic-fsm.cpp
 
 test-dynamic-fsm.log: test-dynamic-fsm
-	./'$<' 100 > $@
+	./'$<' 100 > "$@" || { rm -f "$@"; exit 1; }
 
 test_event_LDADD				= $(SYSTEMOC_LIBS)
 test_event_DEPENDENCIES				= $(SYSTEMOC_DEPENDENCIES)
@@ -114,7 +114,7 @@ test_event_SOURCES				= \
 	src/test-event/cpp/design-event.cpp
 
 test-event.log: test-event
-	./'$<' 100 > $@
+	./'$<' 100 > "$@" || { rm -f "$@"; exit 1; }
 
 # More integration required! check and synthesis
 test_fir_LDADD					= $(SYSTEMOC_LIBS)
@@ -123,7 +123,7 @@ test_fir_SOURCES				= \
 	src/test-fir/cpp/design-fir.cpp
 
 test-fir.log: test-fir
-	./'$<' 100 > $@
+	./'$<' 100 > "$@" || { rm -f "$@"; exit 1; }
 
 # Needed by all synthesis targets for sqr
 test-fir.cpp: $(test_fir_SOURCES)
@@ -146,7 +146,7 @@ test_fsm_and_composition_SOURCES		= \
 	src/test-fsm-and-composition/cpp/design-and-comp.cpp
 
 test-fsm-and-composition.log: test-fsm-and-composition
-	./'$<' 100 > $@
+	./'$<' 100 > "$@" || { rm -f "$@"; exit 1; }
 
 # More integration required! check
 test_fsm_and_composition_diss_falk_LDADD	= $(SYSTEMOC_LIBS)
@@ -155,7 +155,7 @@ test_fsm_and_composition_diss_falk_SOURCES	= \
 	src/test-fsm-and-composition-diss-falk/cpp/design-and-comp.cpp
 
 test-fsm-and-composition-diss-falk.log: test-fsm-and-composition-diss-falk
-	./'$<' 100 > $@
+	./'$<' 100 > "$@" || { rm -f "$@"; exit 1; }
 
 # More integration required! check
 test_fsm_junction_state_LDADD			= $(SYSTEMOC_LIBS)
@@ -164,7 +164,7 @@ test_fsm_junction_state_SOURCES			= \
 	src/test-fsm-junction-state/cpp/design-junction-state.cpp
 
 test-fsm-junction-state.log: test-fsm-junction-state
-	./'$<' 100 > $@
+	./'$<' 100 > "$@" || { rm -f "$@"; exit 1; }
 
 # More integration required! check
 test_fsm_xor_composition_LDADD			= $(SYSTEMOC_LIBS)
@@ -173,7 +173,7 @@ test_fsm_xor_composition_SOURCES		= \
 	src/test-fsm-xor-composition/cpp/design-xor-comp.cpp
 
 test-fsm-xor-composition.log: test-fsm-xor-composition
-	./'$<' 100 > $@
+	./'$<' 100 > "$@" || { rm -f "$@"; exit 1; }
 
 # More integration required! check
 test_fsm_xor_composition_diss_falk_LDADD	= $(SYSTEMOC_LIBS)
@@ -182,7 +182,7 @@ test_fsm_xor_composition_diss_falk_SOURCES	= \
 	src/test-fsm-xor-composition-diss-falk/cpp/design-xor-comp.cpp
 
 test-fsm-xor-composition-diss-falk.log: test-fsm-xor-composition-diss-falk
-	./'$<' 100 > $@
+	./'$<' 100 > "$@" || { rm -f "$@"; exit 1; }
 
 test_getValueAt_LDADD				= $(SYSTEMOC_LIBS)
 test_getValueAt_DEPENDENCIES			= $(SYSTEMOC_DEPENDENCIES)
@@ -190,7 +190,7 @@ test_getValueAt_SOURCES				= \
 	src/test-getValueAt/cpp/design-getValueAt.cpp
 
 test-getValueAt.log: test-getValueAt
-	./'$<' 100 > $@
+	./'$<' 100 > "$@" || { rm -f "$@"; exit 1; }
 
 test_periodic_LDADD				= $(SYSTEMOC_LIBS)
 test_periodic_DEPENDENCIES			= $(SYSTEMOC_DEPENDENCIES)
@@ -198,7 +198,7 @@ test_periodic_SOURCES				= \
 	src/test-periodic/cpp/design-periodic.cpp
 
 test-periodic.log: test-periodic
-	./'$<' 100 > $@
+	./'$<' 100 > "$@" || { rm -f "$@"; exit 1; }
 
 test_sdf_LDADD					= $(SYSTEMOC_LIBS)
 test_sdf_DEPENDENCIES				= $(SYSTEMOC_DEPENDENCIES)
@@ -206,7 +206,7 @@ test_sdf_SOURCES				= \
 	src/test-sdf/cpp/design-sdf.cpp
 
 test-sdf.log: test-sdf
-	./'$<' 100 > $@
+	./'$<' 100 > "$@" || { rm -f "$@"; exit 1; }
 
 test_select_LDADD				= $(SYSTEMOC_LIBS)
 test_select_DEPENDENCIES			= $(SYSTEMOC_DEPENDENCIES)
@@ -214,7 +214,7 @@ test_select_SOURCES				= \
 	src/test-select/cpp/design-select.cpp
 
 test-select.log: test-select
-	./'$<' 100 > $@
+	./'$<' 100 > "$@" || { rm -f "$@"; exit 1; }
 
 # More integration required! check and synthesis
 test_sqr_LDADD					= $(SYSTEMOC_LIBS)
@@ -223,7 +223,7 @@ test_sqr_SOURCES				= \
 	src/test-sqr/cpp/design-sqr.cpp
 
 test-sqr.log: test-sqr
-	./'$<' 100 > $@
+	./'$<' 100 > "$@" || { rm -f "$@"; exit 1; }
 
 # Needed by all synthesis targets for sqr
 test-sqr.cpp: $(test_sqr_SOURCES)
@@ -245,7 +245,7 @@ test_systemc_sqr_SOURCES			= \
 	src/test-systemc-sqr/cpp/systemc-sqr.cpp
 
 test-systemc-sqr.log: test-systemc-sqr
-	./'$<' 100 > $@
+	./'$<' 100 > "$@" || { rm -f "$@"; exit 1; }
 
 # More integration required! check and synthesis
 test_sqr_int_LDADD				= $(SYSTEMOC_LIBS)
@@ -254,7 +254,7 @@ test_sqr_int_SOURCES				= \
 	src/test-sqr-int/cpp/design-sqr.cpp
 
 test-sqr-int.log: test-sqr-int
-	./'$<' 100 > $@
+	./'$<' 100 > "$@" || { rm -f "$@"; exit 1; }
 
 # Needed by all synthesis targets for sqr-int
 test-sqr-int.cpp: $(test_sqr_int_SOURCES)
@@ -277,7 +277,7 @@ test_src_snk_SOURCES				= \
 	src/test-src-snk/cpp/design-src-snk.cpp
 
 test-src-snk.log: test-src-snk
-	./'$<' 100 > $@
+	./'$<' 100 > "$@" || { rm -f "$@"; exit 1; }
 
 test_src_snk_hierarchy_LDADD			= $(SYSTEMOC_LIBS)
 test_src_snk_hierarchy_DEPENDENCIES		= $(SYSTEMOC_DEPENDENCIES)
@@ -285,7 +285,7 @@ test_src_snk_hierarchy_SOURCES			= \
 	src/test-src-snk-hierarchy/cpp/design-src-snk-hierarchy.cpp
 
 test-src-snk-hierarchy.log: test-src-snk-hierarchy
-	./'$<' 100 > $@
+	./'$<' 100 > "$@" || { rm -f "$@"; exit 1; }
 
 test_src_snk_multicast_LDADD			= $(SYSTEMOC_LIBS)
 test_src_snk_multicast_DEPENDENCIES		= $(SYSTEMOC_DEPENDENCIES)
@@ -293,7 +293,7 @@ test_src_snk_multicast_SOURCES			= \
 	src/test-src-snk-multicast/cpp/design-src-snk-multicast.cpp
 
 test-src-snk-multicast.log: test-src-snk-multicast
-	./'$<' 100 > $@
+	./'$<' 100 > "$@" || { rm -f "$@"; exit 1; }
 
 # More integration required! check
 test_src_snk_multiplex_LDADD			= $(SYSTEMOC_LIBS)
@@ -302,7 +302,7 @@ test_src_snk_multiplex_SOURCES			= \
 	src/test-src-snk-multiplex/cpp/design-src-snk-multiplex.cpp
 
 test-src-snk-multiplex.log: test-src-snk-multiplex
-	./'$<' 1000 10 20 5 0 2 > $@
+	./'$<' 1000 10 20 5 0 2 > "$@" || { rm -f "$@"; exit 1; }
 
 test_src_snk_multireader_LDADD			= $(SYSTEMOC_LIBS)
 test_src_snk_multireader_DEPENDENCIES		= $(SYSTEMOC_DEPENDENCIES)
@@ -310,7 +310,7 @@ test_src_snk_multireader_SOURCES		= \
 	src/test-src-snk-multireader/cpp/design-src-snk-multireader.cpp
 
 test-src-snk-multireader.log: test-src-snk-multireader
-	./'$<' 100 > $@
+	./'$<' 100 > "$@" || { rm -f "$@"; exit 1; }
 
 test_src_snk_multireader_sched_LDADD		= $(SYSTEMOC_LIBS)
 test_src_snk_multireader_sched_DEPENDENCIES	= $(SYSTEMOC_DEPENDENCIES)
@@ -318,7 +318,7 @@ test_src_snk_multireader_sched_SOURCES		= \
 	src/test-src-snk-multireader-sched/cpp/design-src-snk-multireader-sched.cpp
 
 test-src-snk-multireader-sched.log: test-src-snk-multireader-sched
-	./'$<' 100 > $@
+	./'$<' 100 > "$@" || { rm -f "$@"; exit 1; }
 
 test_src_snk_multiwriter_LDADD			= $(SYSTEMOC_LIBS)
 test_src_snk_multiwriter_DEPENDENCIES		= $(SYSTEMOC_DEPENDENCIES)
@@ -326,7 +326,7 @@ test_src_snk_multiwriter_SOURCES		= \
 	src/test-src-snk-multiwriter/cpp/design-src-snk-multiwriter.cpp
 
 test-src-snk-multiwriter.log: test-src-snk-multiwriter
-	./'$<' 100 > $@
+	./'$<' 100 > "$@" || { rm -f "$@"; exit 1; }
 
 # More integration required! check
 test_src_snk_noconsume_LDADD			= $(SYSTEMOC_LIBS)
@@ -335,7 +335,7 @@ test_src_snk_noconsume_SOURCES			= \
 	src/test-src-snk-noconsume/cpp/design-src-snk-noconsume.cpp
 
 test-src-snk-noconsume.log: test-src-snk-noconsume
-	./'$<' 100 > $@
+	./'$<' 100 > "$@" || { rm -f "$@"; exit 1; }
 
 test_src_snk_void_LDADD				= $(SYSTEMOC_LIBS)
 test_src_snk_void_DEPENDENCIES			= $(SYSTEMOC_DEPENDENCIES)
@@ -343,7 +343,7 @@ test_src_snk_void_SOURCES			= \
 	src/test-src-snk-void/cpp/design-src-snk-void.cpp
 
 test-src-snk-void.log: test-src-snk-void
-	./'$<' 100 > $@
+	./'$<' 100 > "$@" || { rm -f "$@"; exit 1; }
 
 test_systemc_blocking_cosim_LDADD		= $(SYSTEMOC_LIBS)
 test_systemc_blocking_cosim_DEPENDENCIES	= $(SYSTEMOC_DEPENDENCIES)
@@ -351,7 +351,7 @@ test_systemc_blocking_cosim_SOURCES		= \
 	src/test-systemc-blocking-cosim/cpp/design-cosim-blocking.cpp
 
 test-systemc-blocking-cosim.log: test-systemc-blocking-cosim
-	./'$<' > $@
+	./'$<' > "$@" || { rm -f "$@"; exit 1; }
 
 test_systemc_nonblocking_cosim_LDADD		= $(SYSTEMOC_LIBS)
 test_systemc_nonblocking_cosim_DEPENDENCIES	= $(SYSTEMOC_DEPENDENCIES)
@@ -359,7 +359,7 @@ test_systemc_nonblocking_cosim_SOURCES		= \
 	src/test-systemc-nonblocking-cosim/cpp/design-cosim-nonblocking.cpp
 
 test-systemc-nonblocking-cosim.log: test-systemc-nonblocking-cosim
-	./'$<' > $@
+	./'$<' > "$@" || { rm -f "$@"; exit 1; }
 
 clean-local:
 	for i in $(noinst_PROGRAMS); do \
