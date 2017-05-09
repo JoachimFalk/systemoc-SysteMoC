@@ -55,7 +55,7 @@ SC_MODULE(A) {
   }
 
   void main() {
-    while(true) {
+    for(size_t i = 0; i < 10000; ++i) {
       int x = in->get();
       std::cout << "A: got " << x << std::endl;
       out->put(x);

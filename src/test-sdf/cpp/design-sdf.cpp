@@ -124,7 +124,7 @@ class m_source: public smoc_actor {
   public:
     smoc_port_out<int> out;
   private:
-    int i;
+    size_t i;
     
     void process() {
 #ifndef NDEBUG
@@ -135,9 +135,9 @@ class m_source: public smoc_actor {
 
     smoc_firing_state start;
   public:
-    m_source( sc_core::sc_module_name name )
+    m_source(sc_core::sc_module_name name, size_t iter)
       :smoc_actor( name, start ), i(0) {
-      start =  out(1) >> (VAR(i) < 1000000) >> CALL(m_source::process) >> start;
+      start =  out(1) >> (VAR(i) < iter) >> CALL(m_source::process) >> start;
     }
 };
 
@@ -162,11 +162,11 @@ class m_sink: public smoc_actor {
 class m_top
 : public smoc_graph {
   public:
-    m_top( sc_core::sc_module_name name )
+    m_top( sc_core::sc_module_name name, size_t iter)
       : smoc_graph(name) {
       m_top2        &top2 = registerNode(new m_top2("top2"));
-      m_source      &src1 = registerNode(new m_source("src1"));
-      m_source      &src2 = registerNode(new m_source("src2"));
+      m_source      &src1 = registerNode(new m_source("src1", iter));
+      m_source      &src2 = registerNode(new m_source("src2", iter));
       m_sink        &sink = registerNode(new m_sink("sink"));
 #ifndef KASCPAR_PARSING      
       connectNodePorts( src1.out, top2.in1, smoc_fifo<int>(2) );
@@ -177,7 +177,12 @@ class m_top
 };
 
 int sc_main (int argc, char **argv) {
-  smoc_top_moc<m_top> top("top");
+  size_t iter = static_cast<size_t>(-1);
+  
+  if (argc >= 2)
+    iter = atol(argv[1]);
+  
+  smoc_top_moc<m_top> top("top", iter);
   sc_core::sc_start();
   return 0;
 }

@@ -61,15 +61,16 @@ private:
     std::cout << "src@" << sc_core::sc_time_stamp() << ": " << i <<  std::endl;
     out[0] = i++;
     ev.reset();
+    e.notify(10, sc_core::SC_NS);
   }
 
   smoc_firing_state start;
 
   smoc_event        ev;
-  sc_core::sc_clock clk;
+  sc_core::sc_event e;
 public:
   Src(sc_core::sc_module_name name)
-    : smoc_actor(name, start), i(0), clk("clk", 10, sc_core::SC_NS)
+    : smoc_actor(name, start), i(0)
   {
     start =
          TILL(ev)
@@ -78,8 +79,7 @@ public:
       >> start
     ;
     SC_METHOD(notifier);
-    sensitive << clk.posedge_event();
-    dont_initialize();
+    sensitive << e;
   }
 
   void notifier() {
@@ -93,20 +93,24 @@ public:
   smoc_port_in<double> in2;
   smoc_port_in<double> in3;
 private:
+  size_t  iter;
+
   void sink() {
-    std::cout << "sink@" << sc_core::sc_time_stamp() << ": " << in1[0] << ", " << in2[0] << ", " << in3[0] <<  std::endl;
+    std::cout << "sink@" << sc_core::sc_time_stamp() << " " << iter << ": " << in1[0] << ", " << in2[0] << ", " << in3[0] <<  std::endl;
+    --iter;
   }
   
-  smoc_firing_state start;
+  smoc_firing_state start, end;
 public:
-  Sink(sc_core::sc_module_name name)
-    : smoc_actor(name, start)
+  Sink(sc_core::sc_module_name name, size_t iter)
+    : smoc_actor(name, start), iter(iter)
   {
     start =
-         (in1(1) && in2(1) && in3(1))
-      >> CALL(Sink::sink)
-      >> start
-    ;
+         (in1(1) && in2(1) && in3(1) && (SMOC_VAR(this->iter) > 0U)) >>
+         CALL(Sink::sink) >> start
+      |
+         (SMOC_VAR(this->iter) == 0U) >> end
+      ;
   }
 };
 
@@ -116,9 +120,9 @@ protected:
   Src      src1, src2, src3;
   Sink     snk;
 public:
-  Graph(sc_core::sc_module_name name)
+  Graph(sc_core::sc_module_name name, size_t iter)
     : smoc_graph(name),
-      src1("src1"), src2("src2"), src3("src3"), snk("snk")
+      src1("src1"), src2("src2"), src3("src3"), snk("snk", iter)
   {
     // Connect with fifo of size 3 and one initial token '-13'
     connectNodePorts(src1.out, snk.in1, smoc_fifo<double>(3) << -13); 
@@ -130,7 +134,12 @@ public:
 };
 
 int sc_main (int argc, char **argv) {
-  smoc_top_moc<Graph> graph("graph");
+  size_t iter = static_cast<size_t>(-1);
+  
+  if (argc >= 2)
+    iter = atol(argv[1]);
+  
+  smoc_top_moc<Graph> graph("graph", iter);
   sc_core::sc_start();
   return 0;
 }

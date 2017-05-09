@@ -133,15 +133,23 @@ class m_h_sink: public smoc_actor {
 public:
   smoc_port_in<T> in;
 private:
-  int i;
+  size_t iter;
   
-  void sink(void) { std::cout << name() << ": " << in[0] << std::endl; }
+  void sink(void) {
+    std::cout << name() << ": " << in[0] << std::endl;
+    --iter;
+  }
   
-  smoc_firing_state start;
+  smoc_firing_state start, end;
 public:
-  m_h_sink(sc_core::sc_module_name name)
-    : smoc_actor(name, start) {
-    start = in(1) >> call(&m_h_sink::sink) >> start;
+  m_h_sink(sc_core::sc_module_name name, size_t iter)
+    : smoc_actor(name, start), iter(iter) {
+    start =
+         (in(1) && (SMOC_VAR(this->iter) > 0U)) >>
+         CALL(m_h_sink::sink) >> start
+      |
+         (SMOC_VAR(this->iter) == 0U) >> end
+      ;
   }
 };
 
@@ -152,12 +160,12 @@ protected:
   SelectX<double>      select;
   m_h_sink<double>    sink;
 public:
-  m_h_top( sc_core::sc_module_name name )
+  m_h_top(sc_core::sc_module_name name, size_t iter)
     : smoc_graph(name),
       srcbool("srcbool"),
       src1("src1"), src2("src2"),
       select("select"),
-      sink("sink") {
+      sink("sink", iter) {
     connectNodePorts(srcbool.out, select.Control);
     connectNodePorts(src1.out, select.Data0);
     connectNodePorts(src2.out, select.Data1);
@@ -166,7 +174,12 @@ public:
 };
 
 int sc_main (int argc, char **argv) {
-  smoc_top_moc<m_h_top> top("top");
+  size_t iter = static_cast<size_t>(-1);
+  
+  if (argc >= 2)
+    iter = atol(argv[1]);
+
+  smoc_top_moc<m_h_top> top("top", iter);
   sc_core::sc_start();
   return 0;
 }

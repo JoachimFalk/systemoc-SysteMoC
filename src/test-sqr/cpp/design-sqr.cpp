@@ -62,15 +62,15 @@ public:
   Src(sc_core::sc_module_name name, int from)
     : smoc_actor(name, start), i(from)
   {
-      SMOC_REGISTER_CPARAM(from);
-      char *init = getenv("SRC_ITERS");
-      if (init)
-        i = NUM_MAX_ITERATIONS - atoll(init);
-      start =
-        (VAR(i) <= NUM_MAX_ITERATIONS) >>
-        out(1)                         >>
-        CALL(Src::src)                 >> start
-      ;
+    SMOC_REGISTER_CPARAM(from);
+    char *init = getenv("SRC_ITERS");
+    if (init)
+      i = NUM_MAX_ITERATIONS - atoll(init);
+    start =
+       (VAR(i) <= NUM_MAX_ITERATIONS) >>
+       out(1)                         >>
+       CALL(Src::src)                 >> start
+     ;
   }
 };
 

@@ -1,0 +1,408 @@
+src@0 s: 0
+src@0 s: 0
+src@0 s: 0
+sink@0 s 100: -13, 0, 0
+src@10 ns: 1
+src@10 ns: 1
+src@10 ns: 1
+sink@10 ns 99: 0, 1, 1
+src@20 ns: 2
+src@20 ns: 2
+src@20 ns: 2
+sink@20 ns 98: 1, 2, 2
+src@30 ns: 3
+src@30 ns: 3
+src@30 ns: 3
+sink@30 ns 97: 2, 3, 3
+src@40 ns: 4
+src@40 ns: 4
+src@40 ns: 4
+sink@40 ns 96: 3, 4, 4
+src@50 ns: 5
+src@50 ns: 5
+src@50 ns: 5
+sink@50 ns 95: 4, 5, 5
+src@60 ns: 6
+src@60 ns: 6
+src@60 ns: 6
+sink@60 ns 94: 5, 6, 6
+src@70 ns: 7
+src@70 ns: 7
+src@70 ns: 7
+sink@70 ns 93: 6, 7, 7
+src@80 ns: 8
+src@80 ns: 8
+src@80 ns: 8
+sink@80 ns 92: 7, 8, 8
+src@90 ns: 9
+src@90 ns: 9
+src@90 ns: 9
+sink@90 ns 91: 8, 9, 9
+src@100 ns: 10
+src@100 ns: 10
+src@100 ns: 10
+sink@100 ns 90: 9, 10, 10
+src@110 ns: 11
+src@110 ns: 11
+src@110 ns: 11
+sink@110 ns 89: 10, 11, 11
+src@120 ns: 12
+src@120 ns: 12
+src@120 ns: 12
+sink@120 ns 88: 11, 12, 12
+src@130 ns: 13
+src@130 ns: 13
+src@130 ns: 13
+sink@130 ns 87: 12, 13, 13
+src@140 ns: 14
+src@140 ns: 14
+src@140 ns: 14
+sink@140 ns 86: 13, 14, 14
+src@150 ns: 15
+src@150 ns: 15
+src@150 ns: 15
+sink@150 ns 85: 14, 15, 15
+src@160 ns: 16
+src@160 ns: 16
+src@160 ns: 16
+sink@160 ns 84: 15, 16, 16
+src@170 ns: 17
+src@170 ns: 17
+src@170 ns: 17
+sink@170 ns 83: 16, 17, 17
+src@180 ns: 18
+src@180 ns: 18
+src@180 ns: 18
+sink@180 ns 82: 17, 18, 18
+src@190 ns: 19
+src@190 ns: 19
+src@190 ns: 19
+sink@190 ns 81: 18, 19, 19
+src@200 ns: 20
+src@200 ns: 20
+src@200 ns: 20
+sink@200 ns 80: 19, 20, 20
+src@210 ns: 21
+src@210 ns: 21
+src@210 ns: 21
+sink@210 ns 79: 20, 21, 21
+src@220 ns: 22
+src@220 ns: 22
+src@220 ns: 22
+sink@220 ns 78: 21, 22, 22
+src@230 ns: 23
+src@230 ns: 23
+src@230 ns: 23
+sink@230 ns 77: 22, 23, 23
+src@240 ns: 24
+src@240 ns: 24
+src@240 ns: 24
+sink@240 ns 76: 23, 24, 24
+src@250 ns: 25
+src@250 ns: 25
+src@250 ns: 25
+sink@250 ns 75: 24, 25, 25
+src@260 ns: 26
+src@260 ns: 26
+src@260 ns: 26
+sink@260 ns 74: 25, 26, 26
+src@270 ns: 27
+src@270 ns: 27
+src@270 ns: 27
+sink@270 ns 73: 26, 27, 27
+src@280 ns: 28
+src@280 ns: 28
+src@280 ns: 28
+sink@280 ns 72: 27, 28, 28
+src@290 ns: 29
+src@290 ns: 29
+src@290 ns: 29
+sink@290 ns 71: 28, 29, 29
+src@300 ns: 30
+src@300 ns: 30
+src@300 ns: 30
+sink@300 ns 70: 29, 30, 30
+src@310 ns: 31
+src@310 ns: 31
+src@310 ns: 31
+sink@310 ns 69: 30, 31, 31
+src@320 ns: 32
+src@320 ns: 32
+src@320 ns: 32
+sink@320 ns 68: 31, 32, 32
+src@330 ns: 33
+src@330 ns: 33
+src@330 ns: 33
+sink@330 ns 67: 32, 33, 33
+src@340 ns: 34
+src@340 ns: 34
+src@340 ns: 34
+sink@340 ns 66: 33, 34, 34
+src@350 ns: 35
+src@350 ns: 35
+src@350 ns: 35
+sink@350 ns 65: 34, 35, 35
+src@360 ns: 36
+src@360 ns: 36
+src@360 ns: 36
+sink@360 ns 64: 35, 36, 36
+src@370 ns: 37
+src@370 ns: 37
+src@370 ns: 37
+sink@370 ns 63: 36, 37, 37
+src@380 ns: 38
+src@380 ns: 38
+src@380 ns: 38
+sink@380 ns 62: 37, 38, 38
+src@390 ns: 39
+src@390 ns: 39
+src@390 ns: 39
+sink@390 ns 61: 38, 39, 39
+src@400 ns: 40
+src@400 ns: 40
+src@400 ns: 40
+sink@400 ns 60: 39, 40, 40
+src@410 ns: 41
+src@410 ns: 41
+src@410 ns: 41
+sink@410 ns 59: 40, 41, 41
+src@420 ns: 42
+src@420 ns: 42
+src@420 ns: 42
+sink@420 ns 58: 41, 42, 42
+src@430 ns: 43
+src@430 ns: 43
+src@430 ns: 43
+sink@430 ns 57: 42, 43, 43
+src@440 ns: 44
+src@440 ns: 44
+src@440 ns: 44
+sink@440 ns 56: 43, 44, 44
+src@450 ns: 45
+src@450 ns: 45
+src@450 ns: 45
+sink@450 ns 55: 44, 45, 45
+src@460 ns: 46
+src@460 ns: 46
+src@460 ns: 46
+sink@460 ns 54: 45, 46, 46
+src@470 ns: 47
+src@470 ns: 47
+src@470 ns: 47
+sink@470 ns 53: 46, 47, 47
+src@480 ns: 48
+src@480 ns: 48
+src@480 ns: 48
+sink@480 ns 52: 47, 48, 48
+src@490 ns: 49
+src@490 ns: 49
+src@490 ns: 49
+sink@490 ns 51: 48, 49, 49
+src@500 ns: 50
+src@500 ns: 50
+src@500 ns: 50
+sink@500 ns 50: 49, 50, 50
+src@510 ns: 51
+src@510 ns: 51
+src@510 ns: 51
+sink@510 ns 49: 50, 51, 51
+src@520 ns: 52
+src@520 ns: 52
+src@520 ns: 52
+sink@520 ns 48: 51, 52, 52
+src@530 ns: 53
+src@530 ns: 53
+src@530 ns: 53
+sink@530 ns 47: 52, 53, 53
+src@540 ns: 54
+src@540 ns: 54
+src@540 ns: 54
+sink@540 ns 46: 53, 54, 54
+src@550 ns: 55
+src@550 ns: 55
+src@550 ns: 55
+sink@550 ns 45: 54, 55, 55
+src@560 ns: 56
+src@560 ns: 56
+src@560 ns: 56
+sink@560 ns 44: 55, 56, 56
+src@570 ns: 57
+src@570 ns: 57
+src@570 ns: 57
+sink@570 ns 43: 56, 57, 57
+src@580 ns: 58
+src@580 ns: 58
+src@580 ns: 58
+sink@580 ns 42: 57, 58, 58
+src@590 ns: 59
+src@590 ns: 59
+src@590 ns: 59
+sink@590 ns 41: 58, 59, 59
+src@600 ns: 60
+src@600 ns: 60
+src@600 ns: 60
+sink@600 ns 40: 59, 60, 60
+src@610 ns: 61
+src@610 ns: 61
+src@610 ns: 61
+sink@610 ns 39: 60, 61, 61
+src@620 ns: 62
+src@620 ns: 62
+src@620 ns: 62
+sink@620 ns 38: 61, 62, 62
+src@630 ns: 63
+src@630 ns: 63
+src@630 ns: 63
+sink@630 ns 37: 62, 63, 63
+src@640 ns: 64
+src@640 ns: 64
+src@640 ns: 64
+sink@640 ns 36: 63, 64, 64
+src@650 ns: 65
+src@650 ns: 65
+src@650 ns: 65
+sink@650 ns 35: 64, 65, 65
+src@660 ns: 66
+src@660 ns: 66
+src@660 ns: 66
+sink@660 ns 34: 65, 66, 66
+src@670 ns: 67
+src@670 ns: 67
+src@670 ns: 67
+sink@670 ns 33: 66, 67, 67
+src@680 ns: 68
+src@680 ns: 68
+src@680 ns: 68
+sink@680 ns 32: 67, 68, 68
+src@690 ns: 69
+src@690 ns: 69
+src@690 ns: 69
+sink@690 ns 31: 68, 69, 69
+src@700 ns: 70
+src@700 ns: 70
+src@700 ns: 70
+sink@700 ns 30: 69, 70, 70
+src@710 ns: 71
+src@710 ns: 71
+src@710 ns: 71
+sink@710 ns 29: 70, 71, 71
+src@720 ns: 72
+src@720 ns: 72
+src@720 ns: 72
+sink@720 ns 28: 71, 72, 72
+src@730 ns: 73
+src@730 ns: 73
+src@730 ns: 73
+sink@730 ns 27: 72, 73, 73
+src@740 ns: 74
+src@740 ns: 74
+src@740 ns: 74
+sink@740 ns 26: 73, 74, 74
+src@750 ns: 75
+src@750 ns: 75
+src@750 ns: 75
+sink@750 ns 25: 74, 75, 75
+src@760 ns: 76
+src@760 ns: 76
+src@760 ns: 76
+sink@760 ns 24: 75, 76, 76
+src@770 ns: 77
+src@770 ns: 77
+src@770 ns: 77
+sink@770 ns 23: 76, 77, 77
+src@780 ns: 78
+src@780 ns: 78
+src@780 ns: 78
+sink@780 ns 22: 77, 78, 78
+src@790 ns: 79
+src@790 ns: 79
+src@790 ns: 79
+sink@790 ns 21: 78, 79, 79
+src@800 ns: 80
+src@800 ns: 80
+src@800 ns: 80
+sink@800 ns 20: 79, 80, 80
+src@810 ns: 81
+src@810 ns: 81
+src@810 ns: 81
+sink@810 ns 19: 80, 81, 81
+src@820 ns: 82
+src@820 ns: 82
+src@820 ns: 82
+sink@820 ns 18: 81, 82, 82
+src@830 ns: 83
+src@830 ns: 83
+src@830 ns: 83
+sink@830 ns 17: 82, 83, 83
+src@840 ns: 84
+src@840 ns: 84
+src@840 ns: 84
+sink@840 ns 16: 83, 84, 84
+src@850 ns: 85
+src@850 ns: 85
+src@850 ns: 85
+sink@850 ns 15: 84, 85, 85
+src@860 ns: 86
+src@860 ns: 86
+src@860 ns: 86
+sink@860 ns 14: 85, 86, 86
+src@870 ns: 87
+src@870 ns: 87
+src@870 ns: 87
+sink@870 ns 13: 86, 87, 87
+src@880 ns: 88
+src@880 ns: 88
+src@880 ns: 88
+sink@880 ns 12: 87, 88, 88
+src@890 ns: 89
+src@890 ns: 89
+src@890 ns: 89
+sink@890 ns 11: 88, 89, 89
+src@900 ns: 90
+src@900 ns: 90
+src@900 ns: 90
+sink@900 ns 10: 89, 90, 90
+src@910 ns: 91
+src@910 ns: 91
+src@910 ns: 91
+sink@910 ns 9: 90, 91, 91
+src@920 ns: 92
+src@920 ns: 92
+src@920 ns: 92
+sink@920 ns 8: 91, 92, 92
+src@930 ns: 93
+src@930 ns: 93
+src@930 ns: 93
+sink@930 ns 7: 92, 93, 93
+src@940 ns: 94
+src@940 ns: 94
+src@940 ns: 94
+sink@940 ns 6: 93, 94, 94
+src@950 ns: 95
+src@950 ns: 95
+src@950 ns: 95
+sink@950 ns 5: 94, 95, 95
+src@960 ns: 96
+src@960 ns: 96
+src@960 ns: 96
+sink@960 ns 4: 95, 96, 96
+src@970 ns: 97
+src@970 ns: 97
+src@970 ns: 97
+sink@970 ns 3: 96, 97, 97
+src@980 ns: 98
+src@980 ns: 98
+src@980 ns: 98
+sink@980 ns 2: 97, 98, 98
+src@990 ns: 99
+src@990 ns: 99
+src@990 ns: 99
+sink@990 ns 1: 98, 99, 99
+src@1 us: 100
+src@1 us: 100
+src@1 us: 100
+src@1010 ns: 101
+src@1010 ns: 101
+src@1010 ns: 101
+
+Info: /OSCI/SystemC: Simulation stopped by user.
