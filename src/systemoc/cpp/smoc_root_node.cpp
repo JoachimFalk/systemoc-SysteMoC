@@ -74,10 +74,15 @@ smoc_root_node::smoc_root_node(sc_core::sc_module_name name, NodeType nodeType, 
       this);
 #endif // SYSTEMOC_ENABLE_VPC
   if (!getSimCTX()->isVpcSchedulingEnabled()) {
-    SC_METHOD(schedule);
+    SC_METHOD(scheduleRequestMethod);
     sensitive << scheduleRequest;
     dont_initialize();
   }
+}
+
+void smoc_root_node::scheduleRequestMethod() {
+  if (ct)
+    schedule();
 }
 
 void smoc_root_node::before_end_of_elaboration() {
@@ -362,7 +367,10 @@ void smoc_root_node::getCurrentTransition(MetaMap::Transition *&activeTransition
 #endif //defined(SYSTEMOC_ENABLE_MAESTRO)
 
 void smoc_root_node::setActivation(bool activation, sc_core::sc_time const &delta) {
-  if (activation
-      && !getSimCTX()->isVpcSchedulingEnabled())
-    scheduleRequest.notify(delta);
+  if (!getSimCTX()->isVpcSchedulingEnabled()) {
+    if (activation)
+      scheduleRequest.notify(delta);
+    else
+      scheduleRequest.cancel();
+  }
 }
