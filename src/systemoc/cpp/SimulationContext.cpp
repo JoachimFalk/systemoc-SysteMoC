@@ -64,21 +64,22 @@ namespace po = boost::program_options;
 SimulationContext *currentSimCTX = nullptr;
 
 SimulationContext::SimulationContext(int _argc, char *_argv[])
-  :
+  : argv()
 #ifdef SYSTEMOC_ENABLE_SGX
-    dumpPreSimSMXKeepGoing(false),
-    dumpSMXAST(true),
-    dumpPreSimSMXFile(nullptr),
-    dumpPostSimSMXFile(nullptr),
+  , dumpPreSimSMXKeepGoing(false)
+  , dumpSMXAST(true)
+  , dumpPreSimSMXFile(nullptr)
+  , dumpPostSimSMXFile(nullptr)
 #endif // SYSTEMOC_ENABLE_SGX
 #ifdef SYSTEMOC_ENABLE_TRANSITION_TRACE
-    dumpTraceFile(nullptr),
+  , dumpTraceFile(nullptr)
 #endif // SYSTEMOC_ENABLE_TRANSITION_TRACE
 #ifdef SYSTEMOC_ENABLE_DATAFLOW_TRACE
-    dataflowTraceLog(nullptr),
+  , dataflowTraceLog(nullptr)
 #endif // SYSTEMOC_ENABLE_DATAFLOW_TRACE
-    dummy(false),
-    vpcScheduling(false)
+#ifdef SYSTEMOC_ENABLE_VPC
+  , vpcScheduling(false)
+#endif //SYSTEMOC_ENABLE_VPC
 {
 #ifdef MAESTRO_ENABLE_POLYPHONIC
 	event_mutex = new boost::mutex();

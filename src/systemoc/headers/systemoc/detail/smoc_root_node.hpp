@@ -117,7 +117,7 @@ class smoc_root_node
 /// Method is overwritten in this class to maybe schedule the
 /// actor or graph if the guard of the transition is also satisfied.
 , private smoc::smoc_event_listener
-, public  smoc::smoc_event
+//, public  smoc::smoc_event
 #ifdef MAESTRO_ENABLE_POLYPHONIC
 , public MAESTRO::PolyphoniC::psmoc_root_node
 #endif
@@ -131,6 +131,8 @@ class smoc_root_node
   // To manipulate transitionHooks
   friend void smoc::Hook::Detail::addTransitionHook(smoc_actor *, const smoc::Hook::Detail::TransitionHook &);
 #endif //SYSTEMOC_ENABLE_HOOKING
+
+  SC_HAS_PROCESS(smoc_root_node);
 public:
   enum NodeType {
     NODE_TYPE_UNKNOWN = 0,
@@ -191,10 +193,17 @@ private:
   void eventDestroyed(smoc::smoc_event_waiter *e);
   void renotified(smoc::smoc_event_waiter *e);
 
+  void setCurrentState(RuntimeState *s);
+
+  /// This event will be notified by setActivation if
+  /// no VPC or Maestro scheduling is activated to
+  /// enable SysteMoC self scheduling of the actor.
+  sc_core::sc_event scheduleRequest;
+
 protected:
   smoc_root_node(sc_core::sc_module_name, NodeType nodeType, smoc_hierarchical_state &s);
   
-  virtual void setActivation(bool activation);
+  virtual void setActivation(bool activation, sc_core::sc_time const &delta = sc_core::SC_ZERO_TIME);
 
   virtual void before_end_of_elaboration();
   virtual void end_of_elaboration();
@@ -275,8 +284,6 @@ public:
   RuntimeState *getCurrentState() const
     { return currentState; }
 
-  void setCurrentState(RuntimeState *s);
-
 #ifdef SYSTEMOC_ENABLE_VPC
   RuntimeState *getCommState() const
     { return commState; }
@@ -298,9 +305,9 @@ public:
 
   bool canFire();
 
-  // FIXME should not be public 
-  smoc::smoc_event_waiter *reset(smoc::smoc_event_listener* el)
-    { return smoc::smoc_event::reset(el); }
+//// FIXME should not be public
+//smoc::smoc_event_waiter *reset(smoc::smoc_event_listener* el)
+//  { return smoc::smoc_event::reset(el); }
 
 };
 

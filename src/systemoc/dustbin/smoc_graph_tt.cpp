@@ -34,8 +34,10 @@
  */
 
 #include <systemoc/smoc_periodic_actor.hpp>
-#include <systemoc/smoc_graph_tt.hpp>
 #include <smoc/detail/DebugOStream.hpp>
+
+#include "smoc_graph_tt.hpp"
+
 
 smoc_graph_tt::smoc_graph_tt(const sc_core::sc_module_name& name) :
   GraphBase(name, run),

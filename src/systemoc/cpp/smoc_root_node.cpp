@@ -73,6 +73,11 @@ smoc_root_node::smoc_root_node(sc_core::sc_module_name name, NodeType nodeType, 
           smoc_func_call_list()))),
       this);
 #endif // SYSTEMOC_ENABLE_VPC
+  if (!getSimCTX()->isVpcSchedulingEnabled()) {
+    SC_METHOD(schedule);
+    sensitive << scheduleRequest;
+    dont_initialize();
+  }
 }
 
 void smoc_root_node::before_end_of_elaboration() {
@@ -174,43 +179,9 @@ void smoc_root_node::doReset() {
 
   // call user-defined reset code (->re-evaluate guards!!!)
   reset();
-  
-  RuntimeState* oldState = currentState;
-
   // will re-evaluate guards
   setCurrentState(getFiringFSM()->getInitialState());
-  
-  if(!executing) {
-
-    // also del/add me as listener
-    if (currentState != oldState) {
-      if (oldState) {
-        EventWaiterSet& am = oldState->am;
-
-        for(EventWaiterSet::iterator i = am.begin();
-            i != am.end(); ++i)
-        {
-          (*i)->delListener(this);
-        }
-      }
-      {
-        EventWaiterSet& am = currentState->am;
-
-        for(EventWaiterSet::iterator i = am.begin();
-            i != am.end(); ++i)
-        {
-          (*i)->addListener(this);
-        }
-      }
-    }
-
-    // notify parent
-    if(ct) {
-      setActivation(true);
-    } else {
-      setActivation(false);
-    }
-  }
+  setActivation(canFire());
 
 #ifdef SYSTEMOC_DEBUG
   if (smoc::Detail::outDbg.isVisible(smoc::Detail::Debug::High)) {
@@ -252,23 +223,11 @@ void smoc_root_node::signaled(smoc::smoc_event_waiter *e) {
     // availablility is worse than the availablitity denoted by the activation
     // patterns while for activated events the actual availablility is better.
     if (e->isActive()) {
-      assert(currentState);
-      RuntimeTransitionList &tl     = currentState->getTransitions();
 #ifdef SYSTEMOC_ENABLE_DEBUG
       RuntimeTransition      *oldct = ct;
 #endif // SYSTEMOC_ENABLE_DEBUG
-      
       ct = nullptr;
-      
-      for (RuntimeTransitionList::iterator t = tl.begin();
-           t != tl.end();
-           ++t) {
-        if (t->evaluateIOP() && t->evaluateGuard()) {
-          ct = &*t;
-          break;
-        }
-      }
-      
+      canFire();
 #ifdef SYSTEMOC_ENABLE_DEBUG
       assert(!(oldct != nullptr && ct == nullptr) && "WTF?! Event was enabled but transition vanished!");
 #endif // SYSTEMOC_ENABLE_DEBUG
@@ -279,7 +238,7 @@ void smoc_root_node::signaled(smoc::smoc_event_waiter *e) {
 #endif //SYSTEMOC_ENABLE_MAESTRO
         setActivation(true);
       }
-    } else if (!e->isActive() && ct != nullptr && !ct->evaluateIOP()) {
+    } else if (ct != nullptr && (!ct->evaluateIOP() || !ct->evaluateGuard())) {
       ct = nullptr;
     }
   }
@@ -299,7 +258,7 @@ void smoc_root_node::setInitialState(smoc_hierarchical_state &s) {
   initialStatePtr = s.toPtr();
 }
 
-void smoc_root_node::setCurrentState(RuntimeState *s) {
+void smoc_root_node::setCurrentState(RuntimeState *newState) {
 #ifdef SYSTEMOC_DEBUG
   if (smoc::Detail::outDbg.isVisible(smoc::Detail::Debug::High)) {
     smoc::Detail::outDbg << "<smoc_root_node::setCurrentState name=\"" << name() << "\">"
@@ -307,24 +266,36 @@ void smoc_root_node::setCurrentState(RuntimeState *s) {
   }
 #endif // SYSTEMOC_DEBUG
 #ifdef SYSTEMOC_ENABLE_MAESTRO
-  if (s == NULL)
+  if (newState == NULL)
     throw MAESTRORuntimeException(std::string("Error while trying to set the new state to NULL on actor: ") + this->name());
 #endif //SYSTEMOC_ENABLE_MAESTRO
-  assert(s);
+  assert(newState);
   
-  currentState = s;
-  
-  RuntimeTransitionList &tl = currentState->getTransitions();
-  
-  ct = nullptr;
-  for (RuntimeTransitionList::iterator t = tl.begin();
-       t != tl.end();
-       ++t) {
-    if (t->evaluateIOP() && t->evaluateGuard()) {
-      ct = &*t;
-      break;
+  if (!getSimCTX()->isVpcSchedulingEnabled()) {
+    // also del/add me as listener
+    if (currentState != newState) {
+      if (currentState) {
+        EventWaiterSet &am = currentState->am;
+
+        for (EventWaiterSet::iterator iter = am.begin();
+             iter != am.end();
+             ++iter)
+          (*iter)->delListener(this);
+      }
+      {
+        EventWaiterSet &am = newState->am;
+
+        for (EventWaiterSet::iterator iter = am.begin();
+             iter != am.end();
+             ++iter)
+          (*iter)->addListener(this);
+      }
+      currentState = newState;
     }
-  }
+  } else
+    currentState = newState;
+  ct = nullptr;
+
 
 #ifdef SYSTEMOC_DEBUG
   if (smoc::Detail::outDbg.isVisible(smoc::Detail::Debug::High)) {
@@ -342,49 +313,12 @@ void smoc_root_node::schedule() {
   }
 #endif // SYSTEMOC_DEBUG
   
-  assert(currentState);
-  RuntimeState *oldState = currentState;
-  
+  assert(ct);
+  assert(canFire());
   executing = true;
-  
-  if (ct == nullptr)
-    setCurrentState(currentState);
-
-  // ct may be nullptr if t->evaluateIOP() holds and t->evaluateGuard() fails
-  // for all transitions t
-  if (ct != nullptr) {
-#ifndef SYSTEMOC_ENABLE_MAESTRO
-    assert(ct->evaluateIOP());
-    assert(ct->evaluateGuard());
-#endif //SYSTEMOC_ENABLE_MAESTRO
-    ct->execute(this);
-  }
-  // also del/add me as listener
-  if(currentState != oldState) {
-    {
-      EventWaiterSet& am = oldState->am;
-
-      for(EventWaiterSet::iterator i = am.begin();
-          i != am.end(); ++i)
-      {
-        (*i)->delListener(this);
-      }
-    }
-    {
-      EventWaiterSet& am = currentState->am;
-
-      for(EventWaiterSet::iterator i = am.begin();
-          i != am.end(); ++i)
-      {
-        (*i)->addListener(this);
-      }
-    }
-  }
-
+  ct->execute(this);
   executing = false;
-  if (!ct) {
-    setActivation(false);
-  }
+  setActivation(canFire());
 
 #ifdef SYSTEMOC_DEBUG
   if (smoc::Detail::outDbg.isVisible(smoc::Detail::Debug::High)) {
@@ -394,11 +328,22 @@ void smoc_root_node::schedule() {
 }
 
 bool smoc_root_node::canFire() {
-  if (ct == nullptr)
-    setCurrentState(currentState);
+  assert(currentState);
+  if (ct == nullptr) {
+    RuntimeTransitionList &tl = currentState->getTransitions();
 
+    for (RuntimeTransitionList::iterator t = tl.begin();
+         t != tl.end();
+         ++t) {
+      if (t->evaluateIOP() && t->evaluateGuard()) {
+        ct = &*t;
+        break;
+      }
+    }
+  } else
+    assert(ct->evaluateIOP() && ct->evaluateGuard());
 #ifndef SYSTEMOC_ENABLE_MAESTRO
-  return (ct != nullptr) && ct->evaluateIOP() && ct->evaluateGuard();
+  return (ct != nullptr); // && ct->evaluateIOP() && ct->evaluateGuard();
 #else
   return (ct != nullptr) && !executing;
 #endif
@@ -416,16 +361,8 @@ void smoc_root_node::getCurrentTransition(MetaMap::Transition *&activeTransition
 }
 #endif //defined(SYSTEMOC_ENABLE_MAESTRO)
 
-void smoc_root_node::setActivation(bool activation){
-  if(activation) {
-#ifdef SYSTEMOC_DEBUG
-    smoc::Detail::outDbg << "requested schedule" << std::endl;
-#endif // SYSTEMOC_DEBUG
-    smoc::smoc_event::notify();
-  } else {
-#ifdef SYSTEMOC_DEBUG
-    smoc::Detail::outDbg << "canceled schedule" << std::endl;
-#endif // SYSTEMOC_DEBUG
-    smoc::smoc_event::reset();
-  }
+void smoc_root_node::setActivation(bool activation, sc_core::sc_time const &delta) {
+  if (activation
+      && !getSimCTX()->isVpcSchedulingEnabled())
+    scheduleRequest.notify(delta);
 }

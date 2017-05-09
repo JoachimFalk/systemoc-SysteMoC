@@ -36,6 +36,7 @@
 #include <CoSupport/compatibility-glue/nullptr.h>
 
 #include <CoSupport/String/Concat.hpp>
+#include <CoSupport/sassert.h>
 
 #include <systemoc/smoc_config.h>
 
@@ -58,63 +59,6 @@ GraphBase::GraphBase(
     scheduler(nullptr)
 {}
   
-const smoc_node_list &GraphBase::getNodes() const
-  { return nodes; } 
-
-const smoc_chan_list &GraphBase::getChans() const
-  { return channels; }
-
-/*
-void GraphBase::getNodesRecursive( smoc_node_list & subnodes) const {
-  for (
-#if SYSTEMC_VERSION < 20050714
-        sc_core::sc_pvector<sc_core::sc_object*>::const_iterator iter = get_child_objects().begin();
-#else
-        std::vector<sc_core::sc_object*>::const_iterator iter = get_child_objects().begin();
-#endif
-        iter != get_child_objects().end();
-        ++iter ) {
-    //smoc::Detail::outDbg << (*iter)->name() << std::endl;
-    
-    smoc_root_node *node = dynamic_cast<smoc_actor *>(*iter);
-    if (node != nullptr){
-      //smoc::Detail::outDbg << "add: " <<  node->name() << std::endl;
-      subnodes.push_back(node);
-    }
-    GraphBase *graph = dynamic_cast<GraphBase *>(*iter);
-    if (graph != nullptr){
-      //smoc::Detail::outDbg << "sub_graph: " <<  graph->name() << std::endl;
-      graph->getNodesRecursive(subnodes);
-    }
-  }
-  //  return subnodes;
-}
- */
-
-/*
-void GraphBase::getChansRecursive( smoc_chan_list & channels) const {
-
-  for (
-#if SYSTEMC_VERSION < 20050714
-        sc_core::sc_pvector<sc_core::sc_object*>::const_iterator iter = get_child_objects().begin();
-#else
-        std::vector<sc_core::sc_object*>::const_iterator iter = get_child_objects().begin();
-#endif
-        iter != get_child_objects().end();
-        ++iter ) {
-    smoc_root_chan *chan = dynamic_cast<smoc_root_chan *>(*iter);
-    
-    if (chan != nullptr )
-      channels.push_back(chan);
-
-    GraphBase *graph = dynamic_cast<GraphBase *>(*iter);
-    if (graph != nullptr ){
-      graph->getChansRecursive( channels );
-    }
-  }
-}
- */
-
 void GraphBase::before_end_of_elaboration() {
 #ifdef SYSTEMOC_DEBUG
   if (smoc::Detail::outDbg.isVisible(smoc::Detail::Debug::High)) {
@@ -130,16 +74,11 @@ void GraphBase::before_end_of_elaboration() {
   for (std::vector<sc_core::sc_object *>::const_iterator iter = get_child_objects().begin();
        iter != get_child_objects().end();
        ++iter) {
+    sassert(childLookupMap.insert(std::make_pair((*iter)->name(), *iter)).second);
     // only processing children which are nodes
     smoc_root_node *node = dynamic_cast<smoc_root_node*>(*iter);
     if (node)
       nodes.push_back(node);
-  }
-  
-  for (std::vector<sc_core::sc_object *>::const_iterator iter = get_child_objects().begin();
-       iter != get_child_objects().end();
-       ++iter)
-  {
     // only processing children which are channels
     smoc_root_chan *channel = dynamic_cast<smoc_root_chan*>(*iter);
     if (channel)
@@ -170,6 +109,20 @@ void GraphBase::end_of_elaboration() {
     smoc::Detail::outDbg << smoc::Detail::Indent::Down << "</GraphBase::end_of_elaboration>" << std::endl;
   }
 #endif //defined(SYSTEMOC_DEBUG)
+}
+
+const smoc_node_list &GraphBase::getNodes() const
+  { return nodes; }
+
+const smoc_chan_list &GraphBase::getChans() const
+  { return channels; }
+
+sc_core::sc_object   *GraphBase::getChild(std::string const &name) const {
+  std::map<std::string, sc_core::sc_object *>::const_iterator iter =
+      childLookupMap.find(name);
+  return iter != childLookupMap.end()
+      ? iter->second
+      : nullptr;
 }
 
 void GraphBase::doReset() {

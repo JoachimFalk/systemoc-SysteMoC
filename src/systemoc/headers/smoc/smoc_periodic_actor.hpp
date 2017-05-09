@@ -31,19 +31,63 @@
  * ENHANCEMENTS, OR MODIFICATIONS.
  */
 
-#ifndef _INCLUDED_SYSTEMOC_SMOC_GRAPH_TT_HPP
-#define _INCLUDED_SYSTEMOC_SMOC_GRAPH_TT_HPP
+#ifndef _INCLUDED_SMOC_SMOC_PERIODIC_ACTOR_HPP
+#define _INCLUDED_SMOC_SMOC_PERIODIC_ACTOR_HPP
 
-#include <CoSupport/commondefs.h>
+#include <systemoc/smoc_moc.hpp>
+#include "smoc_actor.hpp"
 
-#ifdef _MSC_VER
-# pragma message COSUPPORT_WARN("This is a deprecated header, please use systemoc/smoc_graph.hpp and the class smoc_graph")
-#else //!_MSC_VER
-# warning "This is a deprecated header, please use systemoc/smoc_graph.hpp and the class smoc_graph"
-#endif //!_MSC_VER
+namespace smoc {
 
-#include "smoc_graph.hpp"
+/*class smoc_periodic_actor 
+ * used to generate an event periodically.
+ * the period, its offset 
+ * and a pointer to the managing EventQueue is passed to the Constructor*/
+class smoc_periodic_actor: public smoc_actor {
+public:
+  //constructor sets the period, offset and EventQueue
+  smoc_periodic_actor(sc_core::sc_module_name name,
+                smoc_firing_state & start_state,
+                sc_core::sc_time per,
+                sc_core::sc_time off,
+                float jitter=0.0);
 
-typedef smoc_graph smoc_graph_tt;
+  sc_core::sc_time calculateMobility() const;
 
-#endif // _INCLUDED_SYSTEMOC_SMOC_GRAPH_TT_HPP
+  sc_core::sc_time updateReleaseTime();
+
+  // override getNextReleaseTime from ScheduledTask
+  sc_core::sc_time getNextReleaseTime();
+
+  sc_core::sc_time getPeriod()
+    { return period; }
+
+  sc_core::sc_time getOffset()
+    { return offset; }
+
+protected:
+  void forceReexecution()
+    { reexecute = true; }
+
+  void stopPeriodicActorExecution()
+    { periodicActorActive = false; }
+
+  void restartPeriodicActorExecution()
+    { periodicActorActive = true; }
+
+  void setActivation(bool activation, sc_core::sc_time const &delta);
+
+private:
+  int period_counter;
+  sc_core::sc_time period;
+  sc_core::sc_time offset;
+  sc_core::sc_time nextReleaseTime_;
+  float jitter;
+  bool reexecute;
+  bool periodicActorActive;
+
+};
+
+} // namespace smoc
+
+#endif // _INCLUDED_SMOC_SMOC_PERIODIC_ACTOR_HPP

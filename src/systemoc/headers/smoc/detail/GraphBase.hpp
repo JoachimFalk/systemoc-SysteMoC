@@ -207,11 +207,6 @@ public:
 
 protected:
 
-  const smoc_node_list &getNodes() const;
-  const smoc_chan_list &getChans() const;
-//void getNodesRecursive(smoc_node_list &nodes) const;
-//void getChansRecursive(smoc_chan_list &chans) const;
-
 #ifdef SYSTEMOC_ENABLE_MAESTRO
 //template<class PortA, class PortB>
 //void connectRoutedPortsI(PortA &a, PortB &b)
@@ -302,6 +297,10 @@ protected:
   virtual void before_end_of_elaboration();
   virtual void end_of_elaboration();
   
+  const smoc_node_list &getNodes() const;
+  const smoc_chan_list &getChans() const;
+  sc_core::sc_object   *getChild(std::string const &name) const;
+
   /// @brief Resets given node
   void doReset();
 
@@ -310,6 +309,8 @@ private:
   smoc_node_list      nodes;
   /// Channel child objects of this graph.
   smoc_chan_list      channels;
+  /// Child lookup map
+  std::map<std::string, sc_core::sc_object *> childLookupMap;
   /// Scheduler for this graph. If this variable is NULL, than this graph will
   /// be scheduled by its parent graph.
   smoc_scheduler_top *scheduler;

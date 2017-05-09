@@ -56,13 +56,24 @@ namespace Detail {
   static
   bool systemcVpcCanExecute(SystemC_VPC::ScheduledTask *actor) {
     assert(dynamic_cast<smoc_actor*>(actor) != nullptr);
+    ofstream logfile;
+    logfile.open("logfile.txt", std::ios_base::app);
+    sc_time t1 = sc_time_stamp();
+    logfile << "\t systemcVpcCanExecute " << actor->getPid() << " at: " << t1 << " " << static_cast<smoc_actor*>(actor)->canFire() << "\n";
+    logfile.close();
     return static_cast<smoc_actor*>(actor)->canFire();
   }
 
   static
   void systemcVpcExecute(SystemC_VPC::ScheduledTask *actor) {
     //std::cerr << "smoc::Scheduling::execute" << std::endl;
+
     assert(dynamic_cast<smoc_actor*>(actor) != nullptr);
+    ofstream logfile;
+    logfile.open("logfile.txt", std::ios_base::app);
+    sc_time t1 = sc_time_stamp();
+    logfile << "\t systemcVpcExecute " << actor->getPid() << " at: " << t1 << "\n";
+    logfile.close();
     static_cast<smoc_actor*>(actor)->schedule();
   }
 
@@ -76,7 +87,7 @@ smoc_scheduler_top::smoc_scheduler_top(Detail::GraphBase *g) :
   simulation_running(false)
 {
   this->g->setScheduler(this);
-  SC_THREAD(schedule);
+//SC_THREAD(schedule);
 }
 
 smoc_scheduler_top::smoc_scheduler_top(Detail::GraphBase &g) :
@@ -86,7 +97,7 @@ smoc_scheduler_top::smoc_scheduler_top(Detail::GraphBase &g) :
   simulation_running(false)
 {
   this->g->setScheduler(this);
-  SC_THREAD(schedule);
+//SC_THREAD(schedule);
 }
 
 smoc_scheduler_top::~smoc_scheduler_top() {
@@ -179,16 +190,15 @@ void smoc_scheduler_top::_end_of_elaboration() {
 #endif //defined(SYSTEMOC_DEBUG)
 }
 
+/*
 void smoc_scheduler_top::schedule() {
 #ifdef SYSTEMOC_ENABLE_MAESTRO
   return;
 #endif //SYSTEMOC_ENABLE_MAESTRO
-#ifdef SYSTEMOC_ENABLE_VPC
   // enable VPC scheduling if the VPC configuration is valid
   // or if forced by command line option
   if (getSimCTX()->isVpcSchedulingEnabled())
     return;
-#endif //SYSTEMOC_ENABLE_VPC
   // plain old smoc scheduler
   while (true) {
     smoc_wait(*g);
@@ -208,5 +218,6 @@ void smoc_scheduler_top::schedule() {
     }
   }
 }
+ */
 
 } // namespace smoc
