@@ -51,7 +51,18 @@
 using namespace smoc::Detail;
 
 smoc_root_node::smoc_root_node(sc_core::sc_module_name name, NodeType nodeType, smoc_hierarchical_state &s)
-  : sc_core::sc_module(name)
+  :
+#if defined(SYSTEMOC_ENABLE_VPC)
+    SystemC_VPC::ScheduledTask(name)
+#elif defined(SYSTEMOC_ENABLE_MAESTRO)
+    sc_core::sc_module(name)
+  , MetaMap::SMoCActor
+# ifdef MAESTRO_ENABLE_POLYPHONIC
+  , MAESTRO::PolyphoniC::psmoc_root_node()
+# endif
+#else // !defined(def SYSTEMOC_ENABLE_VPC) && !defined(SYSTEMOC_ENABLE_MAESTRO)
+     smoc::Detail::SysteMoCScheduler(name)
+#endif
   , nodeType(nodeType)
   , currentState(nullptr)
   , ct(nullptr)
@@ -73,16 +84,6 @@ smoc_root_node::smoc_root_node(sc_core::sc_module_name name, NodeType nodeType, 
           smoc_func_call_list()))),
       this);
 #endif // SYSTEMOC_ENABLE_VPC
-  if (!getSimCTX()->isVpcSchedulingEnabled()) {
-    SC_METHOD(scheduleRequestMethod);
-    sensitive << scheduleRequest;
-    dont_initialize();
-  }
-}
-
-void smoc_root_node::scheduleRequestMethod() {
-  if (ct)
-    schedule();
 }
 
 void smoc_root_node::before_end_of_elaboration() {
@@ -186,7 +187,8 @@ void smoc_root_node::doReset() {
   reset();
   // will re-evaluate guards
   setCurrentState(getFiringFSM()->getInitialState());
-  setActivation(canFire());
+  if (useActivationCallback())
+    setActivation(canFire());
 
 #ifdef SYSTEMOC_DEBUG
   if (smoc::Detail::outDbg.isVisible(smoc::Detail::Debug::High)) {
@@ -220,6 +222,7 @@ void smoc_root_node::signaled(smoc::smoc_event_waiter *e) {
          << std::endl << smoc::Detail::Indent::Up;
   }
 #endif // SYSTEMOC_DEBUG
+  assert(useActivationCallback());
   if (!executing) {
     // Never execute t->evaluateGuard() if events are reseted as the state of
     // all smoc::smoc_event_and_list dependent on the state of the reseted basic
@@ -276,7 +279,7 @@ void smoc_root_node::setCurrentState(RuntimeState *newState) {
 #endif //SYSTEMOC_ENABLE_MAESTRO
   assert(newState);
   
-  if (!getSimCTX()->isVpcSchedulingEnabled()) {
+  if (useActivationCallback()) {
     // also del/add me as listener
     if (currentState != newState) {
       if (currentState) {
@@ -323,7 +326,7 @@ void smoc_root_node::schedule() {
   executing = true;
   ct->execute(this);
   executing = false;
-  setActivation(canFire());
+//setActivation(canFire());
 
 #ifdef SYSTEMOC_DEBUG
   if (smoc::Detail::outDbg.isVisible(smoc::Detail::Debug::High)) {
@@ -354,6 +357,9 @@ bool smoc_root_node::canFire() {
 #endif
 }
 
+sc_core::sc_time const &smoc_root_node::getNextReleaseTime() const
+  { return sc_core::sc_time_stamp(); }
+
 #ifdef SYSTEMOC_ENABLE_MAESTRO
 bool smoc_root_node::testCanFire()
 {
@@ -365,12 +371,3 @@ void smoc_root_node::getCurrentTransition(MetaMap::Transition *&activeTransition
   activeTransition = static_cast<MetaMap::Transition *>(this->ct);
 }
 #endif //defined(SYSTEMOC_ENABLE_MAESTRO)
-
-void smoc_root_node::setActivation(bool activation, sc_core::sc_time const &delta) {
-  if (!getSimCTX()->isVpcSchedulingEnabled()) {
-    if (activation)
-      scheduleRequest.notify(delta);
-    else
-      scheduleRequest.cancel();
-  }
-}

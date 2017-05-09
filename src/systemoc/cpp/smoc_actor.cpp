@@ -62,16 +62,10 @@ smoc_actor::smoc_actor(smoc_hierarchical_state &s, unsigned int thread_stack_siz
 #else //!defined(SYSTEMOC_ENABLE_MAESTRO)
 smoc_actor::smoc_actor(sc_core::sc_module_name name, smoc_hierarchical_state &s)
   : smoc_root_node(name, smoc_root_node::NODE_TYPE_ACTOR, s)
-#ifndef SYSTEMOC_ENABLE_VPC
-  , activeFlag(true)
-#endif //!defined(SYSTEMOC_ENABLE_VPC)
   {}
 
 smoc_actor::smoc_actor(smoc_hierarchical_state &s)
   : smoc_root_node(sc_core::sc_gen_unique_name("smoc_actor"), smoc_root_node::NODE_TYPE_ACTOR, s)
-#ifndef SYSTEMOC_ENABLE_VPC
-  , activeFlag(true)
-#endif //!defined(SYSTEMOC_ENABLE_VPC)
   {}
 #endif //!defined(SYSTEMOC_ENABLE_MAESTRO)
 
@@ -251,15 +245,6 @@ void smoc_actor::before_end_of_elaboration() {
 #ifdef SYSTEMOC_DEBUG
   smoc::Detail::outDbg << smoc::Detail::Indent::Down << "</smoc_actor::before_end_of_elaboration>" << std::endl;
 #endif // SYSTEMOC_DEBUG
-}
-
-void smoc_actor::setActivation(bool activation, sc_core::sc_time const &delta) {
-  smoc_root_node::setActivation(activation, delta);
-  //std::cerr << this->name()
-  //    << ": smoc_actor::setActivation(" << activation << ")" << std::endl;
-#ifdef SYSTEMOC_ENABLE_VPC
-  this->notifyActivation(activation);
-#endif //SYSTEMOC_ENABLE_VPC
 }
 
 } // namespace smoc

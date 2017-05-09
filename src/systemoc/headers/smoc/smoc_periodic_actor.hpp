@@ -54,10 +54,7 @@ public:
 
   sc_core::sc_time calculateMobility() const;
 
-  sc_core::sc_time updateReleaseTime();
-
-  // override getNextReleaseTime from ScheduledTask
-  sc_core::sc_time getNextReleaseTime();
+  void             updateReleaseTime();
 
   sc_core::sc_time getPeriod()
     { return period; }
@@ -66,6 +63,7 @@ public:
     { return offset; }
 
 protected:
+
   void forceReexecution()
     { reexecute = true; }
 
@@ -75,13 +73,16 @@ protected:
   void restartPeriodicActorExecution()
     { periodicActorActive = true; }
 
-  void setActivation(bool activation, sc_core::sc_time const &delta);
-
 private:
+
+  void schedule();
+
+  sc_core::sc_time const &getNextReleaseTime() const;
+
   int period_counter;
   sc_core::sc_time period;
   sc_core::sc_time offset;
-  sc_core::sc_time nextReleaseTime_;
+  sc_core::sc_time nextReleaseTime;
   float jitter;
   bool reexecute;
   bool periodicActorActive;

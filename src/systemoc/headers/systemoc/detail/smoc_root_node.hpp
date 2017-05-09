@@ -52,6 +52,7 @@
 #include <systemoc/smoc_config.h>
 
 #include "../../smoc/detail/NamedIdedObj.hpp"
+#include "../../smoc/detail/SysteMoCScheduler.hpp"
 #include "../../smoc/detail/SimulationContext.hpp"
 #include "../../smoc/smoc_expr.hpp"
 #include "../smoc_firing_rules.hpp"
@@ -61,6 +62,10 @@
 #ifdef SYSTEMOC_ENABLE_HOOKING
 # include <smoc/smoc_hooking.hpp>
 #endif //SYSTEMOC_ENABLE_HOOKING
+
+#ifdef SYSTEMOC_ENABLE_VPC
+# include <systemcvpc/ScheduledTask.hpp>
+#endif //SYSTEMOC_ENABLE_VPC
 
 #ifdef MAESTRO_ENABLE_POLYPHONIC
 # include <PolyphoniC/Callip.h>
@@ -104,11 +109,22 @@ namespace smoc { namespace Detail {
  * you have to change apply_visitor.hpp accordingly.
  */
 class smoc_root_node
-: public sc_core::sc_module
+  :
+#if defined(SYSTEMOC_ENABLE_VPC)
+    public SystemC_VPC::ScheduledTask
+#elif defined(SYSTEMOC_ENABLE_MAESTRO)
+    public sc_core::sc_module
+  , public MetaMap::SMoCActor
+# ifdef MAESTRO_ENABLE_POLYPHONIC
+  , public MAESTRO::PolyphoniC::psmoc_root_node
+# endif
+#else // !defined(def SYSTEMOC_ENABLE_VPC) && !defined(SYSTEMOC_ENABLE_MAESTRO)
+    public smoc::Detail::SysteMoCScheduler
+#endif
 #ifdef SYSTEMOC_NEED_IDS
-, public  smoc::Detail::NamedIdedObj
+  , public smoc::Detail::NamedIdedObj
 #endif // SYSTEMOC_NEED_IDS
-, public  smoc::Detail::SimCTXBase
+  , public smoc::Detail::SimCTXBase
 /// This smoc_event_listener base class is used to listen for events
 /// denoting sufficient available tokens and free spaces for at least
 /// one outgoing transition of the current state <currentState>.
@@ -116,11 +132,7 @@ class smoc_root_node
 /// signaled method of smoc_event_listener is called. This
 /// Method is overwritten in this class to maybe schedule the
 /// actor or graph if the guard of the transition is also satisfied.
-, private smoc::smoc_event_listener
-//, public  smoc::smoc_event
-#ifdef MAESTRO_ENABLE_POLYPHONIC
-, public MAESTRO::PolyphoniC::psmoc_root_node
-#endif
+  , private smoc::smoc_event_listener
 {
   typedef smoc_root_node this_type;
   friend class RuntimeTransition;
@@ -131,8 +143,6 @@ class smoc_root_node
   // To manipulate transitionHooks
   friend void smoc::Hook::Detail::addTransitionHook(smoc_actor *, const smoc::Hook::Detail::TransitionHook &);
 #endif //SYSTEMOC_ENABLE_HOOKING
-
-  SC_HAS_PROCESS(smoc_root_node);
 public:
   enum NodeType {
     NODE_TYPE_UNKNOWN = 0,
@@ -195,18 +205,9 @@ private:
 
   void setCurrentState(RuntimeState *s);
 
-  /// This event will be notified by setActivation if
-  /// no VPC or Maestro scheduling is activated to
-  /// enable SysteMoC self scheduling of the actor.
-  sc_core::sc_event scheduleRequest;
-
-  void scheduleRequestMethod();
-
 protected:
   smoc_root_node(sc_core::sc_module_name, NodeType nodeType, smoc_hierarchical_state &s);
   
-  virtual void setActivation(bool activation, sc_core::sc_time const &delta = sc_core::SC_ZERO_TIME);
-
   virtual void before_end_of_elaboration();
   virtual void end_of_elaboration();
   virtual void start_of_simulation();
@@ -298,19 +299,13 @@ public:
   /// @brief Collect ports from child objects
   smoc_sysc_port_list getPorts() const;
 
-////determines non-strict actors (non-strict blocks in synchronous-reactive domains)
-//bool isNonStrict() const;
-
   virtual ~smoc_root_node();
 
   void schedule();
 
   bool canFire();
 
-//// FIXME should not be public
-//smoc::smoc_event_waiter *reset(smoc::smoc_event_listener* el)
-//  { return smoc::smoc_event::reset(el); }
-
+  sc_core::sc_time const &getNextReleaseTime() const;
 };
 
 #ifdef SYSTEMOC_ENABLE_MAESTRO

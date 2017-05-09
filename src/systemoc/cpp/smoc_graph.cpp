@@ -39,10 +39,13 @@
 
 #include <systemoc/smoc_config.h>
 
-#include <systemoc/smoc_graph.hpp>
 #include <systemoc/smoc_firing_rules.hpp>
 #include <systemoc/detail/smoc_sysc_port.hpp>
+
+#include <smoc/smoc_graph.hpp>
 #include <smoc/detail/DebugOStream.hpp>
+
+namespace smoc {
 
 using CoSupport::String::Concat;
 
@@ -149,3 +152,4 @@ void smoc_graph::reEnableActor(std::string const &actorName) {
   obj->setActive(true);
 }
 
+} // namespace smoc

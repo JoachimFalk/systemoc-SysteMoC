@@ -77,6 +77,7 @@ libsystemoc_la_SOURCES = \
 	src/systemoc/cpp/smoc_scheduler_top.cpp \
 	src/systemoc/cpp/smoc_sysc_port.cpp \
 	src/systemoc/cpp/SMXDumper.cpp \
+	src/systemoc/cpp/SysteMoCScheduler.cpp \
 	src/systemoc/cpp/TraceLog.cpp \
 	src/systemoc/cpp/VpcInterface.cpp
 
