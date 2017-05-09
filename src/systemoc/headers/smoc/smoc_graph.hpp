@@ -50,19 +50,26 @@ namespace smoc {
  * graph with FSM which schedules children by selecting
  * any executable transition
  */
-class smoc_graph : public Detail::GraphBase
-{
+class smoc_graph: public Detail::GraphBase {
 public:
   // construct graph with name
-  explicit smoc_graph(const sc_core::sc_module_name& name);
+  explicit smoc_graph(const sc_core::sc_module_name &name);
 
   // construct graph with generated name
   smoc_graph();
   
+  /**
+   * disables the executability of an actor
+   */
+  void disableActor(std::string const &actorName);
+
+  /**
+   * reenables the executability of an actor
+   */
+  void reEnableActor(std::string const &actorName);
 protected:
   /// @brief See GraphBase
   virtual void before_end_of_elaboration();
-
 private:
   // graph scheduler FSM state
   smoc_firing_state run;
@@ -70,6 +77,7 @@ private:
   // common constructor code
   void constructor();
 
+/*
   void initDDF();
 
   // schedule children of this graph
@@ -82,6 +90,7 @@ private:
           smoc_node_ready_list;
 
   smoc_node_ready_list ol;
+ */
 };
 
 } // namespace smoc

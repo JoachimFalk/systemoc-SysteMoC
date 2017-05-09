@@ -52,7 +52,7 @@
 namespace smoc { namespace Detail {
 
 class SimulationContext {
-private: //protected:
+private:
   std::vector<char *> argv;
 
 #ifdef SYSTEMOC_ENABLE_SGX
@@ -70,8 +70,9 @@ private: //protected:
 #ifdef SYSTEMOC_NEED_IDS
   Detail::IdPool  idPool;
 #endif // SYSTEMOC_NEED_IDS
-  bool dummy;
+#ifdef SYSTEMOC_ENABLE_VPC
   bool vpcScheduling;
+#endif //SYSTEMOC_ENABLE_VPC
 public:
   SimulationContext(int _argc, char *_argv[]);
 
@@ -82,9 +83,13 @@ public:
   int    getArgc();
   char **getArgv();
 
-  bool isVpcSchedulingEnabled() const {
-    return vpcScheduling;
-  }
+#ifdef SYSTEMOC_ENABLE_VPC
+  bool isVpcSchedulingEnabled() const
+    { return vpcScheduling; }
+#else //!defined(SYSTEMOC_ENABLE_VPC)
+  bool isVpcSchedulingEnabled() const
+    { return false; }
+#endif //!defined(SYSTEMOC_ENABLE_VPC)
 #ifdef SYSTEMOC_ENABLE_SGX
   bool isSMXDumpingASTEnabled() const
     { return dumpSMXAST; }
@@ -125,7 +130,7 @@ public:
   ~SimulationContext();
 
 private:
-  SimulationContext( const SimulationContext & toCopy ) {}
+  SimulationContext(const SimulationContext &toCopy);
 };
 
 } } // namespace smoc::Detail

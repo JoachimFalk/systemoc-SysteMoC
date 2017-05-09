@@ -1,5 +1,3 @@
-//  -*- tab-width:8; intent-tabs-mode:nil;  c-basic-offset:2; -*-
-// vim: set sw=2 ts=8:
 /*
  * Copyright (c) 2004-2017 Hardware-Software-CoDesign, University of Erlangen-Nuremberg.
  * 
@@ -33,44 +31,73 @@
  * ENHANCEMENTS, OR MODIFICATIONS.
  */
 
-#ifndef _INCLUDED_SMOC_SMOC_SCHEDULER_TOP_HPP
-#define _INCLUDED_SMOC_SMOC_SCHEDULER_TOP_HPP
+#ifndef __INCLUDED__SMOC_GRAPH__TT__HPP__
+#define __INCLUDED__SMOC_GRAPH__TT__HPP__
 
-#include <systemc>
 
-#include "detail/SimulationContext.hpp"
+#include <CoSupport/compatibility-glue/nullptr.h>
 
-namespace smoc {
+#include <boost/smart_ptr.hpp>
 
-namespace Detail {
-  class GraphBase;
-} // namespace Detail
+#include "../smoc/detail/GraphBase.hpp"
+#include "../smoc/detail/NodeQueue.hpp"
 
-class smoc_scheduler_top
-: public sc_core::sc_module,
-  public Detail::SimCTXBase {
-
-  friend class Detail::GraphBase;
+/**
+ * TimeTriggered graph with FSM which schedules children by selecting
+ * scheduling is done timetriggered-parameters (offset, period)
+ */
+class smoc_graph_tt : public smoc::Detail::GraphBase {
 public:
-  smoc_scheduler_top(Detail::GraphBase *g);
-  smoc_scheduler_top(Detail::GraphBase &g);
-  ~smoc_scheduler_top();
+  // construct graph with name
+  explicit smoc_graph_tt(const sc_core::sc_module_name& name);
+
+  // construct graph with generated name
+  smoc_graph_tt();
+  
+  /**
+   * disables the executability of an actor
+   */
+  void disableActor(std::string actor_name);
+
+  /**
+   * reenables the executability of an actor
+   */
+  void reEnableActor(std::string actor_name);
 
 protected:
-  void start_of_simulation();
-  void end_of_simulation();
-  void _before_end_of_elaboration();
-  void _end_of_elaboration();
+  /// @brief See GraphBase
+  virtual void before_end_of_elaboration();
 
 private:
-  SC_HAS_PROCESS(smoc_scheduler_top);
+  
+  // common constructor code
+  void constructor();
 
-  Detail::GraphBase *g;
-  bool               simulation_running;
+  void initTT();
 
-//void schedule();
+  // schedule children of this graph
+  void scheduleTT();
+
+  // a list containing the transitions of the graph's children
+  // that may be executed
+  typedef CoSupport::SystemC::EventOrList<smoc::smoc_event>
+          smoc_node_ready_list;
+  typedef CoSupport::SystemC::EventOrList<smoc_node_ready_list>
+          smoc_nodes_ready_list;
+
+  // OrList for the dataflow-driven nodes
+  smoc_node_ready_list ddf_nodes_activations;
+  // OrList for the activation of the graph
+  smoc::smoc_event_or_list graph_activation; // nodes scheduleable?
+
+  // handling of the time-triggered nodes
+  smoc::Detail::NodeQueue ttNodeQueue;
+
+  // graph scheduler FSM state
+  smoc_firing_state run;
+
+  std::map<std::string, smoc_root_node*> nameToNode;
+  std::map<smoc_root_node*, bool> nodeDisabled;
 };
 
-} // namespace smoc
-
-#endif // _INCLUDED_SMOC_SMOC_SCHEDULER_TOP_HPP
+#endif //__INCLUDED__SMOC_GRAPH__TT__HPP__

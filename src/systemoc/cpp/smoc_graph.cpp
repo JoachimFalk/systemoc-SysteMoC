@@ -60,10 +60,10 @@ smoc_graph::smoc_graph()
   : smoc::Detail::GraphBase(sc_core::sc_gen_unique_name("smoc_graph"), run)
   , run("run")
 {
-  constructor();
 #ifdef SYSTEMOC_ENABLE_MAESTRO
   this->setName(this->name());
 #endif //SYSTEMOC_ENABLE_MAESTRO
+  constructor();
 }
   
 void smoc_graph::before_end_of_elaboration() {
@@ -75,7 +75,7 @@ void smoc_graph::before_end_of_elaboration() {
 #endif // SYSTEMOC_DEBUG
   
   smoc::Detail::GraphBase::before_end_of_elaboration();
-  initDDF();
+//initDDF();
 
 #ifdef SYSTEMOC_DEBUG
   if (smoc::Detail::outDbg.isVisible(smoc::Detail::Debug::High)) {
@@ -87,9 +87,10 @@ void smoc_graph::before_end_of_elaboration() {
 void smoc_graph::constructor() {
 
   // if there is at least one active transition: execute it
-  run = smoc::Expr::till(ol) >> SMOC_CALL(smoc_graph::scheduleDDF) >> run;
+  //run = smoc::Expr::till(ol) >> SMOC_CALL(smoc_graph::scheduleDDF) >> run;
 }
 
+/*
 void smoc_graph::initDDF() {
   // FIXME if this an initial transition, ol must be cleared
   // up to now, this is called in before_end_of_elaboration...
@@ -134,3 +135,17 @@ void smoc_graph::scheduleDDF() {
   }
 #endif // SYSTEMOC_DEBUG
 }
+*/
+
+void smoc_graph::disableActor(std::string const &actorName) {
+  smoc_actor *obj = dynamic_cast<smoc_actor *>(getChild(actorName));
+  assert(obj && "Oops, disableActor called but no such actor is present!");
+  obj->setActive(false);
+}
+
+void smoc_graph::reEnableActor(std::string const &actorName) {
+  smoc_actor *obj = dynamic_cast<smoc_actor *>(getChild(actorName));
+  assert(obj && "Oops, reEnableActor called but no such actor is present!");
+  obj->setActive(true);
+}
+

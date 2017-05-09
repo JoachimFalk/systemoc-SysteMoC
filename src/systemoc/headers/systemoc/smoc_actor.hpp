@@ -1,3 +1,4 @@
+//  -*- tab-width:8; intent-tabs-mode:nil;  c-basic-offset:2; -*-
 // vim: set sw=2 ts=8:
 /*
  * Copyright (c) 2004-2017 Hardware-Software-CoDesign, University of Erlangen-Nuremberg.
@@ -32,101 +33,11 @@
  * ENHANCEMENTS, OR MODIFICATIONS.
  */
 
-#ifndef _INCLUDED_SMOC_ACTOR_HPP
-#define _INCLUDED_SMOC_ACTOR_HPP
+#ifndef _INCLUDED_SYSTEMOC_SMOC_ACTOR_HPP
+#define _INCLUDED_SYSTEMOC_SMOC_ACTOR_HPP
 
-#include <systemoc/smoc_config.h>
+#include "../smoc/smoc_actor.hpp"
 
-#ifdef SYSTEMOC_ENABLE_VPC
-# include <systemcvpc/ScheduledTask.hpp>
-#endif //SYSTEMOC_ENABLE_VPC
+using smoc::smoc_actor;
 
-#ifdef SYSTEMOC_ENABLE_MAESTRO
-# include <Maestro/MetaMap/SMoCActor.hpp>
-# include <Maestro/MetaMap/includes.hpp>
-#endif //SYSTEMOC_ENABLE_MAESTRO
-
-#include "detail/smoc_root_node.hpp"
-
-class smoc_actor :
-#ifdef SYSTEMOC_ENABLE_VPC
-  public SystemC_VPC::ScheduledTask,
-#endif //SYSTEMOC_ENABLE_VPC
-#ifdef SYSTEMOC_ENABLE_MAESTRO
-  public MetaMap::SMoCActor,
-#endif //SYSTEMOC_ENABLE_MAESTRO
-  public smoc_root_node {
-protected:
-#ifdef SYSTEMOC_ENABLE_MAESTRO
-  smoc_actor(sc_core::sc_module_name name, smoc_hierarchical_state &s, unsigned int thread_stack_size = 0x20000, bool useLogFile = false);
-  smoc_actor(smoc_hierarchical_state &s, unsigned int thread_stack_size = 0x20000, bool useLogFile = false);
-#else //!SYSTEMOC_ENABLE_MAESTRO
-  smoc_actor(sc_core::sc_module_name name, smoc_hierarchical_state &s);
-  smoc_actor(smoc_hierarchical_state &s);
-#endif //!SYSTEMOC_ENABLE_MAESTRO
-
-  void before_end_of_elaboration();
-
-  virtual void setActivation(bool activation);
-#ifdef SYSTEMOC_ENABLE_MAESTRO
-  void initMMactor();
-
-  double getLocalTimeDiff();
-#endif //SYSTEMOC_ENABLE_MAESTRO
-public:
-
-#ifdef SYSTEMOC_ENABLE_MAESTRO
-  /**
-   * Delta cycle wait
-   */
-  void wait();
-
-  /**
-   * Timespan wait
-   */
-  void wait(double v, sc_time_unit tu);
-
-  /**
-   * Wait for event
-   */
-  void wait(sc_event& waitEvent);
-
-  /**
-   * Timespan wait
-   */
-  void wait(sc_time sct);
-
-  /**
-   * Timespan wait according to actor-local time (as oppossed to simulation global time)
-   */
-  void localClockWait(sc_time sct);
-
-  /**
-   * Timespan wait according to actor-local time (as oppossed to simulation global time)
-   */
-  void localClockWait(double v, sc_time_unit tu);
-
-  /**
-   * Wait for timespan or event
-   */
-  void wait(sc_time sct, sc_event& waitEvent);
-
-  virtual bool testCanExecute();
-
-  virtual bool canExecute();
-  virtual void getCurrentTransition(MetaMap::Transition*& activeTransition);
-  virtual void registerTransitionReadyListener(MetaMap::TransitionReadyListener& trListener);
-  
-# ifdef MAESTRO_ENABLE_POLYPHONIC
-  virtual void registerThreadDoneListener(MetaMap::ThreadDoneListener& tdListener);
-# endif
-  
-  virtual void sleep(sc_event& wakeUpEvent);
-  virtual void execute();
-
-  virtual bool isScheduled();
-
-  virtual void setScheduled(bool set);
-#endif // SYSTEMOC_ENABLE_MAESTRO
-};
-#endif // _INCLUDED_SMOC_ACTOR_HPP
+#endif // _INCLUDED_SYSTEMOC_SMOC_ACTOR_HPP

@@ -39,6 +39,8 @@
 # include <Maestro/MetaMap/ClockI.hpp>
 #endif //SYSTEMOC_ENABLE_MAESTRO
 
+namespace smoc {
+
 #ifdef SYSTEMOC_ENABLE_MAESTRO
 smoc_actor::smoc_actor(sc_core::sc_module_name name, smoc_hierarchical_state &s, unsigned int thread_stack_size, bool useLogFile)
   : SMoCActor(thread_stack_size)
@@ -60,10 +62,16 @@ smoc_actor::smoc_actor(smoc_hierarchical_state &s, unsigned int thread_stack_siz
 #else //!defined(SYSTEMOC_ENABLE_MAESTRO)
 smoc_actor::smoc_actor(sc_core::sc_module_name name, smoc_hierarchical_state &s)
   : smoc_root_node(name, smoc_root_node::NODE_TYPE_ACTOR, s)
+#ifndef SYSTEMOC_ENABLE_VPC
+  , activeFlag(true)
+#endif //!defined(SYSTEMOC_ENABLE_VPC)
   {}
 
 smoc_actor::smoc_actor(smoc_hierarchical_state &s)
   : smoc_root_node(sc_core::sc_gen_unique_name("smoc_actor"), smoc_root_node::NODE_TYPE_ACTOR, s)
+#ifndef SYSTEMOC_ENABLE_VPC
+  , activeFlag(true)
+#endif //!defined(SYSTEMOC_ENABLE_VPC)
   {}
 #endif //!defined(SYSTEMOC_ENABLE_MAESTRO)
 
@@ -191,41 +199,40 @@ void smoc_actor::sleep(sc_core::sc_event& wakeUpevent)
 
 double smoc_actor::getLocalTimeDiff()
 {
-	sc_core::sc_time localTime = localClock->computeTimeStamp();
-	sc_core::sc_time globalTime = sc_core::sc_time_stamp();
+  sc_core::sc_time localTime = localClock->computeTimeStamp();
+  sc_core::sc_time globalTime = sc_core::sc_time_stamp();
 
-	return globalTime.to_double() - localTime.to_double();
-
+  return globalTime.to_double() - localTime.to_double();
 }
 
 void smoc_actor::localClockWait(sc_core::sc_time sct)
 {
-	sc_core::sc_time totalTimeToWait;
+  sc_core::sc_time totalTimeToWait;
 
-	//ClockI* clock = SMoCActor::trace->getClock();
+  //ClockI* clock = SMoCActor::trace->getClock();
 
-	//double localTime = clock->computeTimeStamp().to_double();
+  //double localTime = clock->computeTimeStamp().to_double();
 
-	double freqFactor = localClock->getFreqFactor();
+  double freqFactor = localClock->getFreqFactor();
 
-	//double offset = clock->getOffset().to_double() * clock->getOffsetSign();
+  //double offset = clock->getOffset().to_double() * clock->getOffsetSign();
 
-	//double shift = clock->getShift().to_double() * clock->getShiftSign();
+  //double shift = clock->getShift().to_double() * clock->getShiftSign();
 
-	double totalTime = (sct.to_double() /*- shift - offset*/)*freqFactor;
+  double totalTime = (sct.to_double() /*- shift - offset*/)*freqFactor;
 
 # ifdef MAESTRO_ENABLE_POLYPHONIC
-	this->waitListener->notifyWillWaitTime(*this);
+  this->waitListener->notifyWillWaitTime(*this);
 # endif
-	sc_core::sc_module::wait(totalTime,sc_core::SC_PS);
+  sc_core::sc_module::wait(totalTime,sc_core::SC_PS);
 # ifdef MAESTRO_ENABLE_POLYPHONIC
-	this->waitListener->notifyTimeEllapsedAndAwaken(*this);
+  this->waitListener->notifyTimeEllapsedAndAwaken(*this);
 # endif
 }
 
 void smoc_actor::localClockWait(double v, sc_core::sc_time_unit tu)
 {
-	localClockWait(sc_core::sc_time(v, tu));
+  localClockWait(sc_core::sc_time(v, tu));
 }
 #endif //defined(SYSTEMOC_ENABLE_MAESTRO)
 
@@ -246,11 +253,13 @@ void smoc_actor::before_end_of_elaboration() {
 #endif // SYSTEMOC_DEBUG
 }
 
-void smoc_actor::setActivation(bool activation){
-  smoc_root_node::setActivation(activation);
+void smoc_actor::setActivation(bool activation, sc_core::sc_time const &delta) {
+  smoc_root_node::setActivation(activation, delta);
   //std::cerr << this->name()
   //    << ": smoc_actor::setActivation(" << activation << ")" << std::endl;
 #ifdef SYSTEMOC_ENABLE_VPC
   this->notifyActivation(activation);
 #endif //SYSTEMOC_ENABLE_VPC
 }
+
+} // namespace smoc

@@ -70,6 +70,12 @@ namespace smoc { namespace Expr {
 
 } } // namespace smoc::Detail
 
+namespace smoc {
+
+  class smoc_actor;
+
+} // namespace smoc
+
 
 class smoc_port_access_base_if {
 public:
@@ -131,7 +137,7 @@ class smoc_sysc_port
   typedef smoc_sysc_port this_type;
   
   friend class smoc_root_node;
-  friend class smoc_actor;
+  friend class smoc::smoc_actor;
   friend class smoc::Detail::PortInfo;
   template <class E> friend class smoc::Expr::CommExec;
 #if defined(SYSTEMOC_ENABLE_DEBUG)

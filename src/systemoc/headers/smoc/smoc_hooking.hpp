@@ -43,9 +43,9 @@
 
 #include <boost/function.hpp>
 
-class smoc_actor;
-
 namespace smoc {
+
+  class smoc_actor;
 
   typedef boost::function<bool (smoc_actor *, const std::string &, const std::string &, const std::string &)> smoc_pre_hook_callback;
   typedef boost::function<void (smoc_actor *, const std::string &, const std::string &, const std::string &)> smoc_post_hook_callback;

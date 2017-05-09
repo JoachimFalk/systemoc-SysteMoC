@@ -46,8 +46,6 @@
 #include <boost/function.hpp>
 #include <boost/regex.hpp>
 
-class smoc_actor;
-
 namespace smoc { namespace Detail {
 
 /// Specify a transition hooking rule and its pre and post callbacks
