@@ -42,6 +42,7 @@
 
 // This should be the main header for SysteMoC without smoc namespace.
 // If there are additional headers required, please add them here.
+#include <systemoc/smoc_event.hpp>
 #include <systemoc/smoc_port.hpp>
 #include <systemoc/smoc_fifo.hpp>
 #include <systemoc/smoc_actor.hpp>
