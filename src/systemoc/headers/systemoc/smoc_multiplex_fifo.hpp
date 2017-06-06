@@ -483,7 +483,7 @@ protected:
     this->emmAvailable.decreasedCount(this->visibleCount());
 #ifdef SYSTEMOC_ENABLE_VPC
     // Delayed call of diiExpired(n);
-    diiQueue.addEntry(n, vpcIf.getTaskDiiEvent(), vpcIf);
+    diiQueue.addEntry(n, vpcIf.getTaskDiiEvent());
 #else
     diiExpired(n);
 #endif

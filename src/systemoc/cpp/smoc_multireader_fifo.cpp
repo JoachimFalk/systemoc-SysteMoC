@@ -90,7 +90,7 @@ void smoc_multireader_fifo_chan_base::consume(smoc::Detail::PortInBaseIf *who, s
   emmData.decreasedCountRenotify(visibleCount());
 #ifdef SYSTEMOC_ENABLE_VPC
   // Delayed call of diiExpired
-  diiQueue.addEntry(n, vpcIf.getTaskDiiEvent(), vpcIf);
+  diiQueue.addEntry(n, vpcIf.getTaskDiiEvent());
 #else
   // Immediate call of diiExpired
   diiExpired(n);

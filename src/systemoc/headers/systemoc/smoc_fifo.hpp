@@ -176,8 +176,11 @@ public:
 
 protected:
   /// @brief See PortInBaseIf
+  void commitRead(size_t consume
 #ifdef SYSTEMOC_ENABLE_VPC
-  void commitRead(size_t consume, smoc::Detail::VpcInterface vpcIf)
+      , smoc::Detail::VpcInterface vpcIf
+#endif //SYSTEMOC_ENABLE_VPC
+    )
   {
 # ifdef SYSTEMOC_ENABLE_DATAFLOW_TRACE
     this->getSimCTX()->getDataflowTraceLog()->traceCommExecIn(&chan, consume);
@@ -185,21 +188,14 @@ protected:
     chan.rpp(consume);
     chan.emmData.decreasedCount(chan.visibleCount());
 
+#ifdef SYSTEMOC_ENABLE_VPC
     // Delayed call of diiExpired(consume);
-    chan.diiQueue.addEntry(consume, vpcIf.getTaskDiiEvent(), vpcIf);
-  }
-#endif //SYSTEMOC_ENABLE_VPC
-
-  void commitRead(size_t consume)
-  {
-#ifdef SYSTEMOC_ENABLE_DATAFLOW_TRACE
-    this->getSimCTX()->getDataflowTraceLog()->traceCommExecIn(&chan, consume);
-#endif //SYSTEMOC_ENABLE_DATAFLOW_TRACE
-    chan.rpp(consume);
-    chan.emmData.decreasedCount(chan.visibleCount());
+    chan.diiQueue.addEntry(consume, vpcIf.getTaskDiiEvent());
+#else //!defined(SYSTEMOC_ENABLE_VPC)
     chan.diiExpired(consume);
+#endif //!defined(SYSTEMOC_ENABLE_VPC)
   }
-  
+
   /// @brief See PortInBaseIf
   smoc::smoc_event &dataAvailableEvent(size_t n)
     { return chan.emmData.getEvent(n); }

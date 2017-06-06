@@ -59,8 +59,7 @@ public:
       const boost::function<void (size_t)> &diiExpired)
     : eventQueue(diiExpired) {}
 
-  void addEntry(size_t n, const smoc_vpc_event_p &diiEvent,
-                smoc::Detail::VpcInterface vpcIf)
+  void addEntry(size_t n, const smoc_vpc_event_p &diiEvent)
     { eventQueue.addEntry(n, diiEvent); }
 
   void dump(){
