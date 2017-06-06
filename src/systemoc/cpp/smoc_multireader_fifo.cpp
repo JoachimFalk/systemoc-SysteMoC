@@ -62,7 +62,7 @@ smoc_multireader_fifo_chan_base::smoc_multireader_fifo_chan_base(const chan_init
 {}
 
 #ifdef SYSTEMOC_ENABLE_VPC
-void smoc_multireader_fifo_chan_base::consume(smoc::Detail::PortInBaseIf *who, size_t n, smoc::Detail::VpcInterface vpcIf)
+void smoc_multireader_fifo_chan_base::consume(smoc::Detail::PortInBaseIf *who, size_t n, smoc::smoc_vpc_event_p const &diiEvent)
 #else
 void smoc_multireader_fifo_chan_base::consume(smoc::Detail::PortInBaseIf *who, size_t n)
 #endif
@@ -90,7 +90,7 @@ void smoc_multireader_fifo_chan_base::consume(smoc::Detail::PortInBaseIf *who, s
   emmData.decreasedCountRenotify(visibleCount());
 #ifdef SYSTEMOC_ENABLE_VPC
   // Delayed call of diiExpired
-  diiQueue.addEntry(n, vpcIf.getTaskDiiEvent());
+  diiQueue.addEntry(n, diiEvent);
 #else
   // Immediate call of diiExpired
   diiExpired(n);

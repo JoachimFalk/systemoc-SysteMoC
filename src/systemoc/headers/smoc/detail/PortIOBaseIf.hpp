@@ -144,7 +144,7 @@ protected:
  
 #ifdef SYSTEMOC_ENABLE_VPC
   virtual void        commitRead(size_t consume,
-    VpcInterface vpcIf) = 0;
+    smoc_vpc_event_p const &diiEvent) = 0;
 #else //!defined(SYSTEMOC_ENABLE_VPC)
   virtual void        commitRead(size_t consume) = 0;
 #endif //!defined(SYSTEMOC_ENABLE_VPC)
@@ -162,7 +162,7 @@ protected:
     {
       vpcIf.setPortIf(this); // TODO (ms): move to base class?
       vpcIf.startVpcRead(n);
-      return this->commitRead(n, vpcIf);
+      return this->commitRead(n, vpcIf.getTaskDiiEvent());
     }
 #else //!defined(SYSTEMOC_ENABLE_VPC)
   void commExec(size_t n)

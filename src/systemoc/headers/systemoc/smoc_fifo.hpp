@@ -178,7 +178,7 @@ protected:
   /// @brief See PortInBaseIf
   void commitRead(size_t consume
 #ifdef SYSTEMOC_ENABLE_VPC
-      , smoc::Detail::VpcInterface vpcIf
+      , smoc::smoc_vpc_event_p const &diiEvent
 #endif //SYSTEMOC_ENABLE_VPC
     )
   {
@@ -190,7 +190,7 @@ protected:
 
 #ifdef SYSTEMOC_ENABLE_VPC
     // Delayed call of diiExpired(consume);
-    chan.diiQueue.addEntry(consume, vpcIf.getTaskDiiEvent());
+    chan.diiQueue.addEntry(consume, diiEvent);
 #else //!defined(SYSTEMOC_ENABLE_VPC)
     chan.diiExpired(consume);
 #endif //!defined(SYSTEMOC_ENABLE_VPC)

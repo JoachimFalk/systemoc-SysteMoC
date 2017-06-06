@@ -120,7 +120,7 @@ protected:
 
   /// @brief Called by outlet if it did consume tokens
 #ifdef SYSTEMOC_ENABLE_VPC
-  void consume(smoc::Detail::PortInBaseIf *who, size_t n, smoc::Detail::VpcInterface vpcIf);
+  void consume(smoc::Detail::PortInBaseIf *who, size_t n, smoc::smoc_vpc_event_p const &diiEvent);
 #else
   void consume(smoc::Detail::PortInBaseIf *who, size_t n);
 #endif
@@ -222,8 +222,8 @@ public:
 protected:
   /// @brief See PortInBaseIf
 #ifdef SYSTEMOC_ENABLE_VPC
-  void commitRead(size_t n, smoc::Detail::VpcInterface vpcIf)
-    { chan.consume(this, n, vpcIf); }
+  void commitRead(size_t n, smoc::smoc_vpc_event_p const &diiEvent)
+    { chan.consume(this, n, diiEvent); }
 #else
   void commitRead(size_t n)
     { chan.consume(this, n); }
