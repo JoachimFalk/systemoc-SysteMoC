@@ -158,13 +158,12 @@ public:
   {}
   
   /// @brief See PortInBaseIf
+  void commitRead(size_t n
 #ifdef SYSTEMOC_ENABLE_VPC
-  void commitRead(size_t n, smoc::Detail::VpcInterface vpcIf)
+      , smoc::smoc_vpc_event_p const &diiEvent
+#endif //defined(SYSTEMOC_ENABLE_VPC)
+    )
     { assert(0); }
-#endif
-  void commitRead(size_t n)
-    { assert(0); }
-
  
   /// @brief See PortInBaseIf
   smoc::smoc_event& dataAvailableEvent(size_t n) {

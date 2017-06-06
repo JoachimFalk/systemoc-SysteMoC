@@ -36,6 +36,7 @@
 #define _INCLUDED_SMOC_CHAN_ADAPTER_HPP
 
 #include <CoSupport/compatibility-glue/nullptr.h>
+#include <CoSupport/SmartPtr/intrusive_refcount_ptr.hpp>
 
 #include <tlm.h>
 
@@ -217,7 +218,12 @@ public:
   /// - stores reference to wrapped interface
   /// - needs read channel access
   smoc_chan_adapter(typename this_type::iface_impl_type &in_if)
-    : smoc::Detail::ChanAdapterMid<smoc_port_in_if<T,R> >(in_if) {}
+    : smoc::Detail::ChanAdapterMid<smoc_port_in_if<T,R> >(in_if) {
+#ifdef SYSTEMOC_ENABLE_VPC
+    // Pre notify this.
+    diiEvent->notify();
+#endif //defined(SYSTEMOC_ENABLE_VPC)
+  }
 
   /// see tlm::tlm_blocking_get_if<T>
   T get(tlm::tlm_tag<T> * = nullptr) {
@@ -233,14 +239,16 @@ public:
     const T &t = (*ca)[0];
     
 #ifdef SYSTEMOC_ENABLE_VPC
-    // TODO (ms): care for VpcInterface(nullptr) 
-    this->getIface().commitRead(1u, smoc::Detail::VpcInterface(nullptr));
-#else
+    this->getIface().commitRead(1u, diiEvent);
+#else //!defined(SYSTEMOC_ENABLE_VPC)
     this->getIface().commitRead(1u);
-#endif
-    
+#endif //!defined(SYSTEMOC_ENABLE_VPC)
     return t;
   }
+private:
+#ifdef SYSTEMOC_ENABLE_VPC
+  CoSupport::SmartPtr::ScopedRefCountPtr<smoc::smoc_vpc_event> diiEvent;
+#endif //defined(SYSTEMOC_ENABLE_VPC)
 };
 
 /**
@@ -262,8 +270,12 @@ public:
   /// - stores reference to wrapped interface
   /// - needs read channel access
   smoc_chan_adapter(typename this_type::iface_impl_type &in_if)
-    : smoc::Detail::ChanAdapterMid<smoc_port_in_if<void,R> >(in_if) {}
-
+    : smoc::Detail::ChanAdapterMid<smoc_port_in_if<void,R> >(in_if) {
+#ifdef SYSTEMOC_ENABLE_VPC
+    // Pre notify this.
+    diiEvent->notify();
+#endif //defined(SYSTEMOC_ENABLE_VPC)
+  }
   /// see tlm::tlm_blocking_get_if<void>
   void get(tlm::tlm_tag<void> * = nullptr) {
     smoc::smoc_wait(this->dataAvailable);
@@ -277,11 +289,15 @@ public:
 #endif
     
 #ifdef SYSTEMOC_ENABLE_VPC
-    this->getIface().commitRead(1u, smoc::Detail::VpcInterface(nullptr));
+    this->getIface().commitRead(1u, diiEvent);
 #else
     this->getIface().commitRead(1u);
 #endif
   }
+private:
+#ifdef SYSTEMOC_ENABLE_VPC
+  CoSupport::SmartPtr::ScopedRefCountPtr<smoc::smoc_vpc_event> diiEvent;
+#endif //defined(SYSTEMOC_ENABLE_VPC)
 };
 
 /**
@@ -306,8 +322,12 @@ public:
   /// - needs read channel access
   smoc_chan_adapter(typename this_type::iface_impl_type &in_if)
     : smoc::Detail::ChanAdapterMid<smoc_port_in_if<T,R> >(in_if),
-      scev(this->dataAvailable) {}
-
+      scev(this->dataAvailable) {
+#ifdef SYSTEMOC_ENABLE_VPC
+    // Pre notify this.
+    diiEvent->notify();
+#endif //defined(SYSTEMOC_ENABLE_VPC)
+  }
   /// see tlm_nonblocking_get_if<T>
   bool nb_get(T &t) {
     if (!this->dataAvailable)
@@ -323,7 +343,7 @@ public:
     t = (*ca)[0];
     
 #ifdef SYSTEMOC_ENABLE_VPC
-    this->getIface().commitRead(1u, smoc::Detail::VpcInterface(nullptr));
+    this->getIface().commitRead(1u, diiEvent);
 #else
     this->getIface().commitRead(1u);
 #endif
@@ -338,6 +358,10 @@ public:
   /// see tlm_nonblocking_get_if<T>
   const sc_core::sc_event& ok_to_get(tlm::tlm_tag<T> * = nullptr) const
     { return scev.getSCEvent(); }
+private:
+#ifdef SYSTEMOC_ENABLE_VPC
+  CoSupport::SmartPtr::ScopedRefCountPtr<smoc::smoc_vpc_event> diiEvent;
+#endif //defined(SYSTEMOC_ENABLE_VPC)
 };
 
 /**
@@ -362,7 +386,12 @@ public:
   /// - needs read channel access
   smoc_chan_adapter(typename this_type::iface_impl_type &in_if)
     : smoc::Detail::ChanAdapterMid<smoc_port_in_if<void,R> >(in_if),
-      scev(this->dataAvailable) {}
+      scev(this->dataAvailable) {
+#ifdef SYSTEMOC_ENABLE_VPC
+    // Pre notify this.
+    diiEvent->notify();
+#endif //defined(SYSTEMOC_ENABLE_VPC)
+  }
 
   /// see tlm_nonblocking_get_if<void>
   bool nb_get(tlm::tlm_tag<void> * = nullptr) {
@@ -378,7 +407,7 @@ public:
 #endif
     
 #ifdef SYSTEMOC_ENABLE_VPC
-    this->getIface().commitRead(1u, smoc::Detail::VpcInterface(nullptr));
+    this->getIface().commitRead(1u, diiEvent);
 #else
     this->getIface().commitRead(1u);
 #endif
@@ -393,6 +422,10 @@ public:
   /// see tlm_nonblocking_get_if<void>
   const sc_core::sc_event& ok_to_get(tlm::tlm_tag<void> * = nullptr) const
     { return scev.getSCEvent(); }
+private:
+#ifdef SYSTEMOC_ENABLE_VPC
+  CoSupport::SmartPtr::ScopedRefCountPtr<smoc::smoc_vpc_event> diiEvent;
+#endif //defined(SYSTEMOC_ENABLE_VPC)
 };
 
 /**

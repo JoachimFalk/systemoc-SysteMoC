@@ -340,7 +340,7 @@ protected:
   }
 
 #ifdef SYSTEMOC_ENABLE_VPC
-  void consume(FifoId from, size_t n, smoc::Detail::VpcInterface vpcIf)
+  void consume(FifoId from, size_t n, smoc::smoc_vpc_event_p const &diiEvent)
 #else
   void consume(FifoId from, size_t n)
 #endif
@@ -403,10 +403,10 @@ protected:
     
     //
 #ifdef SYSTEMOC_ENABLE_VPC
-    this->commitRead(n, vpcIf);
-#else
+    this->commitRead(n, diiEvent);
+#else //!defined(SYSTEMOC_ENABLE_VPC)
     this->commitRead(n);
-#endif
+#endif //!defined(SYSTEMOC_ENABLE_VPC)
     
     /*
      * Example: Nothing todo
@@ -474,7 +474,7 @@ protected:
   }
 
 #ifdef SYSTEMOC_ENABLE_VPC
-  void commitRead(size_t n, smoc::Detail::VpcInterface vpcIf)
+  void commitRead(size_t n, smoc::smoc_vpc_event_p const &diiEvent)
 #else
   void commitRead(size_t n)
 #endif
@@ -483,10 +483,10 @@ protected:
     this->emmAvailable.decreasedCount(this->visibleCount());
 #ifdef SYSTEMOC_ENABLE_VPC
     // Delayed call of diiExpired(n);
-    diiQueue.addEntry(n, vpcIf.getTaskDiiEvent());
-#else
+    diiQueue.addEntry(n, diiEvent);
+#else //!defined(SYSTEMOC_ENABLE_VPC)
     diiExpired(n);
-#endif
+#endif //!defined(SYSTEMOC_ENABLE_VPC)
   }
 
   void diiExpired(size_t n) {
@@ -575,8 +575,8 @@ public:
 protected:
   /// @brief See PortInBaseIf
 #ifdef SYSTEMOC_ENABLE_VPC
-  void commitRead(size_t n, smoc::Detail::VpcInterface vpcIf)
-    { return chan.commitRead(n, vpcIf); }
+  void commitRead(size_t n, smoc::smoc_vpc_event_p const &diiEvent)
+    { return chan.commitRead(n, diiEvent); }
 #else
   void commitRead(size_t n)
     { return chan.commitRead(n); }
@@ -691,7 +691,7 @@ public:
 protected:
   /// @brief See PortInBaseIf
 #ifdef SYSTEMOC_ENABLE_VPC
-  void commitRead(size_t n, smoc::Detail::VpcInterface vpcIf)
+  void commitRead(size_t n, smoc::smoc_vpc_event_p const &diiEvent)
 #else
   void commitRead(size_t n)
 #endif
@@ -700,7 +700,7 @@ protected:
     countAvailable -= n;
     emmAvailable.decreasedCount(countAvailable);
 #ifdef SYSTEMOC_ENABLE_VPC
-    chan->consume(fifoId, n, vpcIf);
+    chan->consume(fifoId, n, diiEvent);
 #else
     chan->consume(fifoId, n);
 #endif
