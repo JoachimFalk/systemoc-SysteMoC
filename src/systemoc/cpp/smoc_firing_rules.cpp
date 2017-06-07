@@ -161,7 +161,7 @@ const MultiState& ExpandedTransition::getDestStates() const
 RuntimeTransition::RuntimeTransition(
     const boost::shared_ptr<TransitionImpl> &tip
 #ifdef SYSTEMOC_ENABLE_MAESTRO
-  , SMoCActor& pActor
+  , MetaMap::SMoCActor& pActor
 #endif //SYSTEMOC_ENABLE_MAESTRO
   , RuntimeState *dest)
   :
@@ -802,7 +802,7 @@ void FiringFSMImpl::before_end_of_elaboration(
           assert(rd);
 
 #ifdef SYSTEMOC_ENABLE_MAESTRO
-          SMoCActor* a = nullptr;
+          MetaMap::SMoCActor* a = nullptr;
           if (actorOrGraphNode->isActor()) {
             a = dynamic_cast<MetaMap::SMoCActor*>(actorOrGraphNode);
           }

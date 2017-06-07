@@ -70,43 +70,6 @@ void smoc_reset_chan::doReset() {
   smoc_root_chan::doReset();
 }
 
-#ifdef SYSTEMOC_ENABLE_VPC
-void smoc_reset_chan::produce(smoc::Detail::PortOutBaseIf *who, const smoc::smoc_ref_event_p &latEvent)
-{
-#ifdef SYSTEMOC_ENABLE_DATAFLOW_TRACE
-  this->getSimCTX()->getDataflowTraceLog()->traceCommExecOut(this, 1);
-#endif
-  tokenId++;
-
-#ifdef SYSTEMOC_DEBUG
-  if (smoc::Detail::outDbg.isVisible(smoc::Detail::Debug::Medium)) {
-    smoc::Detail::outDbg << "<smoc_reset_chan::reset name=\"" << name() << "\">"
-         << std::endl << smoc::Detail::Indent::Up;
-  }
-#endif // SYSTEMOC_DEBUG
-
-  // reset channels
-  for(ChanSet::const_iterator c = chans.begin();
-      c != chans.end(); ++c)
-  {
-    (*c)->doReset();
-  }
-
-  // reset nodes
-  for(NodeSet::const_iterator n = nodes.begin();
-      n != nodes.end(); ++n)
-  {
-    (*n)->doReset();
-  }
-
-#ifdef SYSTEMOC_DEBUG
-  if (smoc::Detail::outDbg.isVisible(smoc::Detail::Debug::Medium)) {
-    smoc::Detail::outDbg << smoc::Detail::Indent::Down << "</smoc_reset_chan::reset>" << std::endl;
-  }
-#endif // SYSTEMOC_DEBUG
-}
-#endif
-
 void smoc_reset_chan::produce(smoc::Detail::PortOutBaseIf *who)
 {
 #ifdef SYSTEMOC_ENABLE_DATAFLOW_TRACE

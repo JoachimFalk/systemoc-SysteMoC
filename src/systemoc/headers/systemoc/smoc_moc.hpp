@@ -46,7 +46,9 @@
 #include <systemoc/smoc_port.hpp>
 #include <systemoc/smoc_fifo.hpp>
 #include <systemoc/smoc_actor.hpp>
+#include <systemoc/smoc_periodic_actor.hpp>
 #include <systemoc/smoc_graph.hpp>
+#include <systemoc/smoc_graph_tt.hpp>
 #include <systemoc/smoc_scheduler_top.hpp>
 
 //// for compatibility...

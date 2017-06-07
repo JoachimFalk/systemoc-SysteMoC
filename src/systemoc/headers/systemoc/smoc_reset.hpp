@@ -103,11 +103,7 @@ protected:
   smoc::smoc_event& dataAvailableEvent()
     { return dae; }
 
-#ifdef SYSTEMOC_ENABLE_VPC
-  void produce(smoc::Detail::PortOutBaseIf *who, const smoc::smoc_ref_event_p &latEvent);
-#endif
   void produce(smoc::Detail::PortOutBaseIf *who);
-
   
   /// @brief See smoc_port_registry
   smoc::Detail::PortOutBaseIf* createEntry();
@@ -158,13 +154,12 @@ public:
   {}
   
   /// @brief See PortInBaseIf
+  void commitRead(size_t n
 #ifdef SYSTEMOC_ENABLE_VPC
-  void commitRead(size_t n, smoc::Detail::VpcInterface vpcIf)
+      , smoc::smoc_vpc_event_p const &readConsumeEvent
+#endif //defined(SYSTEMOC_ENABLE_VPC)
+    )
     { assert(0); }
-#endif
-  void commitRead(size_t n)
-    { assert(0); }
-
  
   /// @brief See PortInBaseIf
   smoc::smoc_event& dataAvailableEvent(size_t n) {
@@ -216,11 +211,11 @@ public:
   {}
   
   /// @brief See PortOutBaseIf
+  void commitWrite(size_t n
 #ifdef SYSTEMOC_ENABLE_VPC
-  void commitWrite(size_t n, smoc::Detail::VpcInterface vpcIf)
-    { assert(n == 1); chan.produce(this, vpcIf.getTaskLatEvent()); }
-#endif
-  void commitWrite(size_t n)
+      , smoc::Detail::VpcInterface vpcIf
+#endif //defined(SYSTEMOC_ENABLE_VPC)
+    )
     { assert(n == 1); chan.produce(this); }
 
 

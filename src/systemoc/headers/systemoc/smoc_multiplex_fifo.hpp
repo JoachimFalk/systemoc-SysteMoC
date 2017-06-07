@@ -68,7 +68,7 @@
 #include <smoc/detail/EventMapManager.hpp>
 #ifdef SYSTEMOC_ENABLE_VPC
 # include <smoc/detail/LatencyQueue.hpp>
-# include <smoc/detail/DIIQueue.hpp>
+# include <smoc/detail/EventQueue.hpp>
 # include <smoc/detail/QueueFRVWPtr.hpp>
 #else
 # include <smoc/detail/QueueRWPtr.hpp>
@@ -206,16 +206,16 @@ public:
   typedef typename smoc_fifo_storage<T, smoc_multiplex_fifo_chan_base>::chan_init chan_init;
 private:
 #ifdef SYSTEMOC_ENABLE_VPC
-  smoc::Detail::LatencyQueue  latencyQueue;
-  smoc::Detail::DIIQueue      diiQueue;
+  smoc::Detail::LatencyQueue        latencyQueue;
+  smoc::Detail::EventQueue<size_t>  readConsumeQueue;
 #endif
 protected:
   /// @brief Constructor
   smoc_multiplex_fifo_chan(const chan_init &i)
     : smoc_fifo_storage<T, smoc_multiplex_fifo_chan_base>(i)
 #ifdef SYSTEMOC_ENABLE_VPC
-      ,latencyQueue(std::bind1st(std::mem_fun(&this_type::latencyExpired), this), this)
-      ,diiQueue(std::bind1st(std::mem_fun(&this_type::diiExpired), this))
+    , latencyQueue(std::bind1st(std::mem_fun(&this_type::latencyExpired), this), this)
+    , readConsumeQueue(std::bind1st(std::mem_fun(&this_type::readConsumeEventExpired), this))
 #endif
   {}
 
@@ -252,11 +252,14 @@ protected:
     this->wpp(n);
     this->emmFree.decreasedCount(this->freeCount());
 #ifdef SYSTEMOC_ENABLE_VPC
-    // Delayed call of latencyExpired(n);
-    latencyQueue.addEntry(n, vpcIf.getTaskLatEvent(), vpcIf);
-#else
-    latencyExpired(n);
-#endif
+    if (vpcIf.isValid()) {
+      // Delayed call of latencyExpired(n);
+      latencyQueue.addEntry(n, vpcIf.getTaskLatEvent(), vpcIf);
+    } else
+#endif //defined(SYSTEMOC_ENABLE_VPC)
+    {
+      latencyExpired(n);
+    }
   }
 
   void latencyExpired(size_t n) {
@@ -340,7 +343,7 @@ protected:
   }
 
 #ifdef SYSTEMOC_ENABLE_VPC
-  void consume(FifoId from, size_t n, smoc::Detail::VpcInterface vpcIf)
+  void consume(FifoId from, size_t n, smoc::smoc_vpc_event_p const &readConsumeEvent)
 #else
   void consume(FifoId from, size_t n)
 #endif
@@ -357,7 +360,7 @@ protected:
      *  
      *             fsize
      *   ____________^___________
-     *  /     OOOOO              \   
+     *  /     OOOOO              \
      * |FFFFFFVCVCIVIIVPIPPIIPFFFF|
      *        ^  ^     ^      ^
      *     rindex|   vindex windex
@@ -403,17 +406,17 @@ protected:
     
     //
 #ifdef SYSTEMOC_ENABLE_VPC
-    this->commitRead(n, vpcIf);
-#else
+    this->commitRead(n, readConsumeEvent);
+#else //!defined(SYSTEMOC_ENABLE_VPC)
     this->commitRead(n);
-#endif
+#endif //!defined(SYSTEMOC_ENABLE_VPC)
     
     /*
      * Example: Nothing todo
      *  
      *             fsize
      *   ____________^___________
-     *  /     OOOOOOOOO          \   
+     *  /     OOOOOOOOO          \
      * |FFFFCCVVVVPPPPPPPPPPPPFFFF|
      *        ^   ^           ^
      *     rindex vindex    windex
@@ -425,7 +428,7 @@ protected:
      *
      *             fsize
      *   ____________^___________
-     *  /     OOOOOO             \   
+     *  /     OOOOOO             \
      * |FFFFCCVVVVXXVVVPPPPPPPFFFF|
      *        ^   ^ ^  ^      ^
      *     rindex | |vindex windex
@@ -434,7 +437,7 @@ protected:
      *
      *             fsize
      *   ____________^___________
-     *  /     OOOOOO             \   
+     *  /     OOOOOO             \
      * |FFFFCCVVVVXPPPPPPPPPPPFFFF|
      *        ^   ^^          ^
      *     rindex |vindex   windex
@@ -474,7 +477,7 @@ protected:
   }
 
 #ifdef SYSTEMOC_ENABLE_VPC
-  void commitRead(size_t n, smoc::Detail::VpcInterface vpcIf)
+  void commitRead(size_t n, smoc::smoc_vpc_event_p const &readConsumeEvent)
 #else
   void commitRead(size_t n)
 #endif
@@ -482,15 +485,15 @@ protected:
     this->rpp(n);
     this->emmAvailable.decreasedCount(this->visibleCount());
 #ifdef SYSTEMOC_ENABLE_VPC
-    // Delayed call of diiExpired(n);
-    diiQueue.addEntry(n, vpcIf.getTaskDiiEvent(), vpcIf);
-#else
-    diiExpired(n);
-#endif
+    // Delayed call of readConsumeEventExpired(n);
+    readConsumeQueue.addEntry(n, readConsumeEvent);
+#else //!defined(SYSTEMOC_ENABLE_VPC)
+    readConsumeEventExpired(n);
+#endif //!defined(SYSTEMOC_ENABLE_VPC)
   }
 
-  void diiExpired(size_t n) {
-  //std::cerr << "smoc_multiplex_fifo_chan_base::diiExpired(" << n << ") [BEGIN]" << std::endl;
+  void readConsumeEventExpired(size_t n) {
+  //std::cerr << "smoc_multiplex_fifo_chan_base::readConsumeEventExpired(" << n << ") [BEGIN]" << std::endl;
   //std::cerr << "fifoOutOfOrder == " << fifoOutOfOrder << std::endl;
   //std::cerr << "freeCount():    " << freeCount() << std::endl;
   //std::cerr << "usedCount():    " << usedCount() << std::endl;
@@ -499,7 +502,7 @@ protected:
     this->fpp(n);
     this->emmFree.increasedCount(this->freeCount());
 
-  //std::cerr << "smoc_multiplex_fifo_chan_base::diiExpired(" << n << ") [END]" << std::endl;
+  //std::cerr << "smoc_multiplex_fifo_chan_base::readConsumeEventExpired(" << n << ") [END]" << std::endl;
   //std::cerr << "freeCount():    " << freeCount() << std::endl;
   //std::cerr << "usedCount():    " << usedCount() << std::endl;
   //std::cerr << "visibleCount(): " << visibleCount() << std::endl;
@@ -575,8 +578,8 @@ public:
 protected:
   /// @brief See PortInBaseIf
 #ifdef SYSTEMOC_ENABLE_VPC
-  void commitRead(size_t n, smoc::Detail::VpcInterface vpcIf)
-    { return chan.commitRead(n, vpcIf); }
+  void commitRead(size_t n, smoc::smoc_vpc_event_p const &readConsumeEvent)
+    { return chan.commitRead(n, readConsumeEvent); }
 #else
   void commitRead(size_t n)
     { return chan.commitRead(n); }
@@ -691,7 +694,7 @@ public:
 protected:
   /// @brief See PortInBaseIf
 #ifdef SYSTEMOC_ENABLE_VPC
-  void commitRead(size_t n, smoc::Detail::VpcInterface vpcIf)
+  void commitRead(size_t n, smoc::smoc_vpc_event_p const &readConsumeEvent)
 #else
   void commitRead(size_t n)
 #endif
@@ -700,7 +703,7 @@ protected:
     countAvailable -= n;
     emmAvailable.decreasedCount(countAvailable);
 #ifdef SYSTEMOC_ENABLE_VPC
-    chan->consume(fifoId, n, vpcIf);
+    chan->consume(fifoId, n, readConsumeEvent);
 #else
     chan->consume(fifoId, n);
 #endif
