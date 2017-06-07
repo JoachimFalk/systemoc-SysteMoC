@@ -109,6 +109,9 @@ int sc_main (int argc, char **argv) {
     iter = atol(argv[1]);
   
   smoc_top_moc<m_h_top> top("top", iter);
-  sc_core::sc_start();
+  // FIXME: There is a bug in SysteMoC that prevent termination.
+  // Change this back to sc_core::sc_start() after the bug has
+  // been fixed!
+  sc_core::sc_start(1, sc_core::SC_SEC);
   return 0;
 }
