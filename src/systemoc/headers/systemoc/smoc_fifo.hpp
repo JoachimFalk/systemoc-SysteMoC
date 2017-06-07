@@ -62,7 +62,7 @@
 #include <smoc/detail/EventMapManager.hpp>
 #ifdef SYSTEMOC_ENABLE_VPC
 # include <smoc/detail/LatencyQueue.hpp>
-# include <smoc/detail/DIIQueue.hpp>
+# include <smoc/detail/EventQueue.hpp>
 # include <smoc/detail/QueueFRVWPtr.hpp>
 #else
 # include <smoc/detail/QueueRWPtr.hpp>
@@ -123,8 +123,8 @@ protected:
   }
 #endif //defined(SYSTEMOC_ENABLE_VPC)
 
-  /// @brief Detail::DIIQueue callback
-  void diiExpired(size_t n) {
+  /// @brief callback for readConsumeQueue
+  void readConsumeEventExpired(size_t n) {
     fpp(n);
     emmSpace.increasedCount(freeCount());
   }
@@ -143,8 +143,8 @@ private:
   smoc::Detail::EventMapManager emmData;
   smoc::Detail::EventMapManager emmSpace;
 #ifdef SYSTEMOC_ENABLE_VPC
-  smoc::Detail::LatencyQueue  latencyQueue;
-  smoc::Detail::DIIQueue      diiQueue;
+  smoc::Detail::LatencyQueue        latencyQueue;
+  smoc::Detail::EventQueue<size_t>  readConsumeQueue;
 #endif // SYSTEMOC_ENABLE_VPC
 
   /// @brief The token id of the next commit token
@@ -178,7 +178,7 @@ protected:
   /// @brief See PortInBaseIf
   void commitRead(size_t consume
 #ifdef SYSTEMOC_ENABLE_VPC
-      , smoc::smoc_vpc_event_p const &diiEvent
+      , smoc::smoc_vpc_event_p const &readConsumeEvent
 #endif //SYSTEMOC_ENABLE_VPC
     )
   {
@@ -189,10 +189,10 @@ protected:
     chan.emmData.decreasedCount(chan.visibleCount());
 
 #ifdef SYSTEMOC_ENABLE_VPC
-    // Delayed call of diiExpired(consume);
-    chan.diiQueue.addEntry(consume, diiEvent);
+    // Delayed call of readConsumeEventExpired(consume);
+    chan.readConsumeQueue.addEntry(consume, readConsumeEvent);
 #else //!defined(SYSTEMOC_ENABLE_VPC)
-    chan.diiExpired(consume);
+    chan.readConsumeEventExpired(consume);
 #endif //!defined(SYSTEMOC_ENABLE_VPC)
   }
 
