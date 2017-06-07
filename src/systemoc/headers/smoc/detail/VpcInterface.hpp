@@ -195,6 +195,9 @@ public:
   ///
   void startVpcRead(size_t tokenCount);
 
+  bool isValid() const
+    { return taskIf != nullptr && portIf != nullptr; }
+
 private:
   VpcTaskInterface *taskIf;
   VpcPortInterface *portIf;
