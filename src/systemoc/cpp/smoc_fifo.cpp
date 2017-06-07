@@ -46,7 +46,7 @@ smoc_fifo_chan_base::smoc_fifo_chan_base(const chan_init& i)
 #ifdef SYSTEMOC_ENABLE_VPC
   QueueFRVWPtr(i.n),
   latencyQueue(std::bind1st(std::mem_fun(&this_type::latencyExpired), this), this, std::bind1st(std::mem_fun(&this_type::latencyExpired_dropped), this)),
-  diiQueue(std::bind1st(std::mem_fun(&this_type::diiExpired), this)),
+  readConsumeQueue(std::bind1st(std::mem_fun(&this_type::readConsumeEventExpired), this)),
 #else
   QueueRWPtr(i.n),
 #endif
@@ -71,7 +71,7 @@ void smoc_fifo_chan_base::end_of_simulation() {
             << this->usedCount() << std::endl;
 # ifdef SYSTEMOC_ENABLE_VPC
     latencyQueue.dump();
-    diiQueue.dump();
+    readConsumeQueue.dump();
 # endif // SYSTEMOC_ENABLE_VPC
   }
 #endif // SYSTEMOC_DEBUG

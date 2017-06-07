@@ -221,7 +221,7 @@ public:
     : smoc::Detail::ChanAdapterMid<smoc_port_in_if<T,R> >(in_if) {
 #ifdef SYSTEMOC_ENABLE_VPC
     // Pre notify this.
-    diiEvent->notify();
+    readConsumeEvent->notify();
 #endif //defined(SYSTEMOC_ENABLE_VPC)
   }
 
@@ -239,7 +239,7 @@ public:
     const T &t = (*ca)[0];
     
 #ifdef SYSTEMOC_ENABLE_VPC
-    this->getIface().commitRead(1u, diiEvent);
+    this->getIface().commitRead(1u, readConsumeEvent);
 #else //!defined(SYSTEMOC_ENABLE_VPC)
     this->getIface().commitRead(1u);
 #endif //!defined(SYSTEMOC_ENABLE_VPC)
@@ -247,7 +247,7 @@ public:
   }
 private:
 #ifdef SYSTEMOC_ENABLE_VPC
-  CoSupport::SmartPtr::ScopedRefCountPtr<smoc::smoc_vpc_event> diiEvent;
+  CoSupport::SmartPtr::ScopedRefCountPtr<smoc::smoc_vpc_event> readConsumeEvent;
 #endif //defined(SYSTEMOC_ENABLE_VPC)
 };
 
@@ -273,7 +273,7 @@ public:
     : smoc::Detail::ChanAdapterMid<smoc_port_in_if<void,R> >(in_if) {
 #ifdef SYSTEMOC_ENABLE_VPC
     // Pre notify this.
-    diiEvent->notify();
+    readConsumeEvent->notify();
 #endif //defined(SYSTEMOC_ENABLE_VPC)
   }
   /// see tlm::tlm_blocking_get_if<void>
@@ -289,14 +289,14 @@ public:
 #endif
     
 #ifdef SYSTEMOC_ENABLE_VPC
-    this->getIface().commitRead(1u, diiEvent);
+    this->getIface().commitRead(1u, readConsumeEvent);
 #else
     this->getIface().commitRead(1u);
 #endif
   }
 private:
 #ifdef SYSTEMOC_ENABLE_VPC
-  CoSupport::SmartPtr::ScopedRefCountPtr<smoc::smoc_vpc_event> diiEvent;
+  CoSupport::SmartPtr::ScopedRefCountPtr<smoc::smoc_vpc_event> readConsumeEvent;
 #endif //defined(SYSTEMOC_ENABLE_VPC)
 };
 
@@ -325,7 +325,7 @@ public:
       scev(this->dataAvailable) {
 #ifdef SYSTEMOC_ENABLE_VPC
     // Pre notify this.
-    diiEvent->notify();
+    readConsumeEvent->notify();
 #endif //defined(SYSTEMOC_ENABLE_VPC)
   }
   /// see tlm_nonblocking_get_if<T>
@@ -343,7 +343,7 @@ public:
     t = (*ca)[0];
     
 #ifdef SYSTEMOC_ENABLE_VPC
-    this->getIface().commitRead(1u, diiEvent);
+    this->getIface().commitRead(1u, readConsumeEvent);
 #else
     this->getIface().commitRead(1u);
 #endif
@@ -360,7 +360,7 @@ public:
     { return scev.getSCEvent(); }
 private:
 #ifdef SYSTEMOC_ENABLE_VPC
-  CoSupport::SmartPtr::ScopedRefCountPtr<smoc::smoc_vpc_event> diiEvent;
+  CoSupport::SmartPtr::ScopedRefCountPtr<smoc::smoc_vpc_event> readConsumeEvent;
 #endif //defined(SYSTEMOC_ENABLE_VPC)
 };
 
@@ -389,7 +389,7 @@ public:
       scev(this->dataAvailable) {
 #ifdef SYSTEMOC_ENABLE_VPC
     // Pre notify this.
-    diiEvent->notify();
+    readConsumeEvent->notify();
 #endif //defined(SYSTEMOC_ENABLE_VPC)
   }
 
@@ -407,7 +407,7 @@ public:
 #endif
     
 #ifdef SYSTEMOC_ENABLE_VPC
-    this->getIface().commitRead(1u, diiEvent);
+    this->getIface().commitRead(1u, readConsumeEvent);
 #else
     this->getIface().commitRead(1u);
 #endif
@@ -424,7 +424,7 @@ public:
     { return scev.getSCEvent(); }
 private:
 #ifdef SYSTEMOC_ENABLE_VPC
-  CoSupport::SmartPtr::ScopedRefCountPtr<smoc::smoc_vpc_event> diiEvent;
+  CoSupport::SmartPtr::ScopedRefCountPtr<smoc::smoc_vpc_event> readConsumeEvent;
 #endif //defined(SYSTEMOC_ENABLE_VPC)
 };
 

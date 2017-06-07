@@ -64,7 +64,7 @@
 #include <smoc/detail/EventMapManager.hpp>
 #ifdef SYSTEMOC_ENABLE_VPC
 # include <smoc/detail/LatencyQueue.hpp>
-# include <smoc/detail/DIIQueue.hpp>
+# include <smoc/detail/EventQueue.hpp>
 # include <smoc/detail/QueueFRVWPtr.hpp>
 #else
 # include <smoc/detail/QueueRWPtr.hpp>
@@ -120,7 +120,7 @@ protected:
 
   /// @brief Called by outlet if it did consume tokens
 #ifdef SYSTEMOC_ENABLE_VPC
-  void consume(smoc::Detail::PortInBaseIf *who, size_t n, smoc::smoc_vpc_event_p const &diiEvent);
+  void consume(smoc::Detail::PortInBaseIf *who, size_t n, smoc::smoc_vpc_event_p const &readConsumeEvent);
 #else
   void consume(smoc::Detail::PortInBaseIf *who, size_t n);
 #endif
@@ -146,8 +146,8 @@ public:
 #endif // SYSTEMOC_ENABLE_SGX
 private:
 #ifdef SYSTEMOC_ENABLE_VPC
-  smoc::Detail::LatencyQueue  latencyQueue;
-  smoc::Detail::DIIQueue      diiQueue;
+  smoc::Detail::LatencyQueue        latencyQueue;
+  smoc::Detail::EventQueue<size_t>  readConsumeQueue;
 #endif
   
   smoc::Detail::EventMapManager emmData;
@@ -162,11 +162,11 @@ private:
   /// @brief The scheduler used for outlets
   smoc_multireader_scheduler* schedOutlets;
   
-  /// @brief Detail::LatencyQueue callback
+  /// @brief callback for latencyQueue
   void latencyExpired(size_t n);
 
-  /// @brief Detail::DIIQueue callback
-  void diiExpired(size_t n);
+  /// @brief callback for readConsumeQueue
+  void readConsumeEventExpired(size_t n);
   
   /// @brief Called when more data is available
   void moreData(size_t n);
@@ -188,10 +188,10 @@ public:
               << this->qfSize() << "\t"
               << this->freeCount() << "\t"
               << this->usedCount() << std::endl;
-#ifdef SYSTEMOC_ENABLE_VPC
+# ifdef SYSTEMOC_ENABLE_VPC
     latencyQueue.dump();
-    diiQueue.dump();
-#endif // SYSTEMOC_ENABLE_VPC
+    readConsumeQueue.dump();
+# endif // SYSTEMOC_ENABLE_VPC
 #endif // SYSTEMOC_DEBUG
   }
 
@@ -222,8 +222,8 @@ public:
 protected:
   /// @brief See PortInBaseIf
 #ifdef SYSTEMOC_ENABLE_VPC
-  void commitRead(size_t n, smoc::smoc_vpc_event_p const &diiEvent)
-    { chan.consume(this, n, diiEvent); }
+  void commitRead(size_t n, smoc::smoc_vpc_event_p const &readConsumeEvent)
+    { chan.consume(this, n, readConsumeEvent); }
 #else
   void commitRead(size_t n)
     { chan.consume(this, n); }

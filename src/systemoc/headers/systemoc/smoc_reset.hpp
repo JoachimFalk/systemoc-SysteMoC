@@ -160,7 +160,7 @@ public:
   /// @brief See PortInBaseIf
   void commitRead(size_t n
 #ifdef SYSTEMOC_ENABLE_VPC
-      , smoc::smoc_vpc_event_p const &diiEvent
+      , smoc::smoc_vpc_event_p const &readConsumeEvent
 #endif //defined(SYSTEMOC_ENABLE_VPC)
     )
     { assert(0); }

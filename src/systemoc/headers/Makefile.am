@@ -33,7 +33,6 @@ nobase_include_HEADERS = \
 	smoc/smoc_scheduler_top.hpp \
 	smoc/detail/ConnectProvider.hpp \
 	smoc/detail/DebugOStream.hpp \
-	smoc/detail/DIIQueue.hpp \
 	smoc/detail/DumpingInterfaces.hpp \
 	smoc/detail/EventMapManager.hpp \
 	smoc/detail/EventQueue.hpp \
