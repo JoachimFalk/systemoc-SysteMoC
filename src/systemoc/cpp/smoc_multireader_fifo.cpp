@@ -127,12 +127,15 @@ void smoc_multireader_fifo_chan_base::produce(size_t n)
   wpp(n);
   lessSpace(n);
 #ifdef SYSTEMOC_ENABLE_VPC
-  // Delayed call of latencyExpired
-  latencyQueue.addEntry(n, vpcIf.getTaskLatEvent(), vpcIf);
-#else
-  // Immediate call of latencyExpired
-  latencyExpired(n);
-#endif
+  if (vpcIf.isValid()) {
+    // Delayed call of latencyExpired
+    latencyQueue.addEntry(n, vpcIf.getTaskLatEvent(), vpcIf);
+  } else
+#endif //SYSTEMOC_ENABLE_VPC
+  {
+    // Immediate call of latencyExpired
+    latencyExpired(n);
+  }
 #ifdef SYSTEMOC_DEBUG
   if (smoc::Detail::outDbg.isVisible(smoc::Detail::Debug::Medium)) {
     smoc::Detail::outDbg << smoc::Detail::Indent::Down << "</smoc_multireader_fifo_chan_base::produce>" << std::endl;

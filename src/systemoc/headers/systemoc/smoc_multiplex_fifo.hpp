@@ -252,11 +252,14 @@ protected:
     this->wpp(n);
     this->emmFree.decreasedCount(this->freeCount());
 #ifdef SYSTEMOC_ENABLE_VPC
-    // Delayed call of latencyExpired(n);
-    latencyQueue.addEntry(n, vpcIf.getTaskLatEvent(), vpcIf);
-#else
-    latencyExpired(n);
-#endif
+    if (vpcIf.isValid()) {
+      // Delayed call of latencyExpired(n);
+      latencyQueue.addEntry(n, vpcIf.getTaskLatEvent(), vpcIf);
+    } else
+#endif //defined(SYSTEMOC_ENABLE_VPC)
+    {
+      latencyExpired(n);
+    }
   }
 
   void latencyExpired(size_t n) {
