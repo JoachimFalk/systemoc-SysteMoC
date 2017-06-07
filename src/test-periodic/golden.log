@@ -198,3 +198,5 @@ top.src@49250 ns: generate token with value 99
 top.snk@49250 ns: received token with value 99
 top.src@49750 ns: generate token with value 100
 top.snk@49750 ns: received token with value 100
+
+Info: /OSCI/SystemC: Simulation stopped by user.
