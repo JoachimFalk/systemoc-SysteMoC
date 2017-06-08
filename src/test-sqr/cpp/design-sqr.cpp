@@ -52,22 +52,22 @@ private:
   
   void src() {
 #ifdef SQR_LOGGING
-    std::cout << "src: " << i << std::endl;
+    std::cout << name() << ": " << i << std::endl;
 #endif //defined(SQR_LOGGING)
     out[0] = i++;
   }
   
   smoc_firing_state start;
 public:
-  Src(sc_core::sc_module_name name, int from)
-    : smoc_actor(name, start), i(from)
+  Src(sc_core::sc_module_name name, int iter)
+    : smoc_actor(name, start), i(10)
   {
-    SMOC_REGISTER_CPARAM(from);
+    SMOC_REGISTER_CPARAM(iter);
     char *init = getenv("SRC_ITERS");
     if (init)
-      i = NUM_MAX_ITERATIONS - atoll(init);
+      iter = atoll(init);
     start =
-       (VAR(i) <= NUM_MAX_ITERATIONS) >>
+       (VAR(i) <= iter+10)            >>
        out(1)                         >>
        CALL(Src::src)                 >> start
      ;
@@ -98,7 +98,7 @@ private:
   // FSM declared in the constructor
   bool check() const {
 #ifdef SQR_LOGGING
-    std::cout << "check: " << tmp_i1 << ", " << i2[0] << std::endl;
+    std::cout << "checking " << tmp_i1 << ", " << i2[0] << std::endl;
 #endif //defined(SQR_LOGGING)
     return std::fabs(tmp_i1 - i2[0]*i2[0]) < 0.0001;
   }
@@ -175,13 +175,12 @@ class Sink: public smoc_actor {
 public:
   smoc_port_in<double> in;
 private:
-  volatile int sinkDump;
+  volatile double sinkDump;
 
   void sink(void) {
-    int value = in[0];
-    sinkDump = value;
+    sinkDump = in[0];
 #ifdef SQR_LOGGING
-    std::cout << "sink: " << value << std::endl;
+    std::cout << name() << ": " << sinkDump << std::endl;
 #endif //defined(SQR_LOGGING)
   }
   
@@ -226,13 +225,12 @@ public:
 };
 
 int sc_main (int argc, char **argv) {
-  int from = 1;
+  int iter = NUM_MAX_ITERATIONS;
   if (argc == 2) {
-    const int iterations = atoi(argv[1]);
-    assert(iterations < NUM_MAX_ITERATIONS);
-    from = NUM_MAX_ITERATIONS - iterations;
+    iter = atoi(argv[1]);
+    assert(iter <= NUM_MAX_ITERATIONS);
   }
-  smoc_top_moc<SqrRoot> sqrroot("sqrroot", from);
+  smoc_top_moc<SqrRoot> sqrroot("sqrroot", iter);
   sc_core::sc_start();
   return 0;
 }
