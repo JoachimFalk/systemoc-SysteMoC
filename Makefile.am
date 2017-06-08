@@ -183,6 +183,12 @@ test_fsm_xor_composition_SOURCES		= \
 
 test-fsm-xor-composition.log: test-fsm-xor-composition
 	./'$<' 100 > "$@" || { rm -f "$@"; exit 1; }
+test-fsm-xor-composition-%.log: test-fsm-xor-composition.log
+	grep '$*:' '$<' > '$@' || { rm -f "$@"; exit 1; }
+TEST_ACTOR_LOGS += \
+	test-fsm-xor-composition-top.snk.log \
+	test-fsm-xor-composition-top.src.log \
+	test-fsm-xor-composition-top.transform.log
 
 # More integration required! check
 test_fsm_xor_composition_diss_falk_LDADD	= $(SYSTEMOC_LIBS)
