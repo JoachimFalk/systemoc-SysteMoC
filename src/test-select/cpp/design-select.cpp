@@ -82,49 +82,34 @@ public:
 };
 
 template <typename T>
-class SelectX: public smoc_actor {
+class Select: public smoc_actor {
 public:
   smoc_port_in<int>  Control;
   smoc_port_in<T>    Data0, Data1;
   smoc_port_out<T>   Output;
 private:
   void action0() { 
-    std::cout << "action0" << std::endl;
+    std::cout << name() << ": action0" << std::endl;
     Output[0] = Data0[0];
   }
   void action1() {
-    std::cout << "action1" << std::endl;
+    std::cout << name() << ": action1" << std::endl;
     Output[0] = Data1[0];
   }
-  smoc_firing_state atChannel0, atChannel1;
+  smoc_firing_state state;
 public:
-  SelectX(sc_core::sc_module_name name, int initialChannel = 0)
-    : smoc_actor(name, initialChannel ? atChannel1 : atChannel0) {
-    atChannel0
+  Select(sc_core::sc_module_name name)
+    : smoc_actor(name, state) {
+    state
       = (Control(1) && Data0(1) &&
          Control.getValueAt(0) == 0)  >>
         Output(1)                     >>
-        call(&SelectX::action0)        >> atChannel0
+        call(&Select::action0)        >> state
       | (Control(1) && Data1(1) &&
          Control.getValueAt(0) == 1)  >>
         Output(1)                     >>
-        call(&SelectX::action1)        >> atChannel1
-      | Data0(1)                      >>
-        Output(1)                     >>
-        call(&SelectX::action0)        >> atChannel0;
-    
-    atChannel1
-      = (Control(1) && Data0(1) &&
-         Control.getValueAt(0) == 0)  >>
-        Output(1)                     >>
-        call(&SelectX::action0)        >> atChannel0
-      | (Control(1) && Data1(1) &&
-         Control.getValueAt(0) == 1)  >>
-        Output(1)                     >>
-        call(&SelectX::action1)        >> atChannel1
-      | Data0(1)                      >>
-        Output(1)                     >>
-        call(&SelectX::action1)        >> atChannel1;
+        call(&Select::action1)        >> state
+      ;
   }
 };
 
@@ -157,7 +142,7 @@ class m_h_top: public smoc_graph {
 protected:
   m_h_srcbool         srcbool;
   m_h_src<double>     src1, src2;
-  SelectX<double>      select;
+  Select<double>      select;
   m_h_sink<double>    sink;
 public:
   m_h_top(sc_core::sc_module_name name, size_t iter)

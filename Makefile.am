@@ -92,6 +92,9 @@ noinst_PROGRAMS= \
 %.smx: %
 	./'$<' --systemoc-export-smx='$@'
 
+TEST_LOGS = $(addsuffix .log, $(noinst_PROGRAMS))
+TEST_ACTOR_LOGS =
+
 test_cluster_example_LDADD			= $(SYSTEMOC_LIBS)
 test_cluster_example_DEPENDENCIES		= $(SYSTEMOC_DEPENDENCIES)
 test_cluster_example_SOURCES			= \
@@ -147,6 +150,12 @@ test_fsm_and_composition_SOURCES		= \
 
 test-fsm-and-composition.log: test-fsm-and-composition
 	./'$<' 100 > "$@" || { rm -f "$@"; exit 1; }
+test-fsm-and-composition-%.log: test-fsm-and-composition.log
+	grep '$*:' '$<' > '$@' || { rm -f "$@"; exit 1; }
+TEST_ACTOR_LOGS += \
+	test-fsm-and-composition-top.src.log \
+	test-fsm-and-composition-top.snk.log \
+	test-fsm-and-composition-top.transform.log
 
 # More integration required! check
 test_fsm_and_composition_diss_falk_LDADD	= $(SYSTEMOC_LIBS)
@@ -215,6 +224,14 @@ test_select_SOURCES				= \
 
 test-select.log: test-select
 	./'$<' 100 > "$@" || { rm -f "$@"; exit 1; }
+test-select-%.log: test-select.log
+	grep '$*:' '$<' > '$@' || { rm -f "$@"; exit 1; }
+TEST_ACTOR_LOGS += \
+	test-select-top.select.log \
+	test-select-top.sink.log \
+	test-select-top.src1.log \
+	test-select-top.src2.log \
+	test-select-top.srcbool.log
 
 # More integration required! check and synthesis
 test_sqr_LDADD					= $(SYSTEMOC_LIBS)
@@ -366,18 +383,31 @@ clean-local:
 	  rm -f $${i}.cpp $${i}.smx $${i}.log; \
 	done
 
-ALL_LOGS = $(addsuffix .log, $(noinst_PROGRAMS))
-
 .PHONY: logs
-logs: $(ALL_LOGS)
-check-am: $(ALL_LOGS)
+logs: $(TEST_LOGS) $(TEST_ACTOR_LOGS)
+check-am: $(TEST_LOGS) $(TEST_ACTOR_LOGS)
 	@error=0; \
-        for log in $^; do \
-          case "$$log" in \
-	    test-*.log) \
-	      if ! diff -u $$log $(srcdir)/src/$${log%.log}/golden.log > /dev/null; then \
-		echo "Check for $$log failed!!!"; error=1; \
-		diff -u $$log $(srcdir)/src/$${log%.log}/golden.log; \
+        for test in $(noinst_PROGRAMS); do \
+          case "$$test" in \
+	    test-*) \
+	      if test -f $(srcdir)/src/$${test}/golden.log; then \
+		if ! diff -u $${test}.log $(srcdir)/src/$${test}/golden.log > /dev/null; then \
+		  echo "Check for $${test} failed!!!"; error=1; \
+		  diff -u $${test}.log $(srcdir)/src/$${test}/golden.log; \
+		fi; \
+	      else \
+	        status=success; \
+	        for log in $(srcdir)/src/$${test}/golden-*.log; do \
+		  if ! diff -u $${test}-$${log##*/golden-} $${log} > /dev/null; then \
+		    status=failed; \
+		  fi; \
+		done; \
+		if test x"$$status" = x"failed"; then \
+		  echo "Check for $${test} failed!!!"; error=1; \
+		  for log in $(srcdir)/src/$${test}/golden-*.log; do \
+		    diff -u $${test}-$${log##*/golden-} $${log}; \
+		  done; \
+		fi; \
 	      fi; \
 	      ;; \
  	  esac; \
