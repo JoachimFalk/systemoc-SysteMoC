@@ -247,6 +247,11 @@ test_sqr_SOURCES				= \
 
 test-sqr.log: test-sqr
 	./'$<' 100 > "$@" || { rm -f "$@"; exit 1; }
+test-sqr-%.log: test-sqr.log
+	grep '$*:' '$<' > '$@' || { rm -f "$@"; exit 1; }
+TEST_ACTOR_LOGS += \
+	test-sqr-sqrroot.a1.log \
+	test-sqr-sqrroot.a5.log
 
 # Needed by all synthesis targets for sqr
 test-sqr.cpp: $(test_sqr_SOURCES)
