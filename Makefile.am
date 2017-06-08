@@ -386,8 +386,9 @@ test-systemc-nonblocking-cosim.log: test-systemc-nonblocking-cosim
 
 clean-local:
 	for i in $(noinst_PROGRAMS); do \
-	  rm -f $${i}.cpp $${i}.smx $${i}.log; \
+	  rm -f $${i}.cpp $${i}.smx; \
 	done
+	rm -f $(TEST_LOGS) $(TEST_ACTOR_LOGS)
 
 .PHONY: logs
 logs: $(TEST_LOGS) $(TEST_ACTOR_LOGS)
