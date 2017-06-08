@@ -71,18 +71,22 @@ class m_h_sink: public smoc_actor {
 public:
   smoc_port_in<T> in;
 private:
-  int i;
-  
   void sink(void) {
     std::cout
       << name() << ": received token with value " << in[0] << std::endl;
   }
   
+  bool active(int j) const
+    { return (in[0]-1) % 3 == j; }
+
   smoc_firing_state start;
 public:
-  m_h_sink(sc_core::sc_module_name name)
+  m_h_sink(sc_core::sc_module_name name, int j)
     : smoc_actor(name, start) {
-    start = in(1) >> CALL(m_h_sink::sink) >> start;
+    start =
+        (in(1) && SMOC_GUARD(m_h_sink::active)(j)) >>
+        SMOC_CALL(m_h_sink::sink) >> start
+      ;
   }
 };
 
@@ -96,9 +100,9 @@ public:
   m_h_top(sc_core::sc_module_name name, size_t iter)
     : smoc_graph(name),
       src("src", iter),
-      snk1("snk1"),
-      snk2("snk2"),
-      snk3("snk3")
+      snk1("snk1", 0),
+      snk2("snk2", 1),
+      snk3("snk3", 2)
   {
     smoc_multireader_fifo<int> f;
 
