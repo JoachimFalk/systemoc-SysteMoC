@@ -247,8 +247,8 @@ test_sqr_SOURCES				= \
 
 test-sqr.log: test-sqr
 	./'$<' 100 > "$@" || { rm -f "$@"; exit 1; }
-test-sqr-%.log: test-sqr.log
-	grep '$*:' '$<' > '$@' || { rm -f "$@"; exit 1; }
+test-sqr-sqrroot.%.log: test-sqr.log
+	grep 'sqrroot.$*:' '$<' > '$@' || { rm -f "$@"; exit 1; }
 TEST_ACTOR_LOGS += \
 	test-sqr-sqrroot.a1.log \
 	test-sqr-sqrroot.a5.log
@@ -283,6 +283,11 @@ test_sqr_int_SOURCES				= \
 
 test-sqr-int.log: test-sqr-int
 	./'$<' 100 > "$@" || { rm -f "$@"; exit 1; }
+test-sqr-int-%.log: test-sqr-int.log
+	grep '$*:' '$<' > '$@' || { rm -f "$@"; exit 1; }
+TEST_ACTOR_LOGS += \
+	test-sqr-int-src.log \
+	test-sqr-int-sink.log
 
 # Needed by all synthesis targets for sqr-int
 test-sqr-int.cpp: $(test_sqr_int_SOURCES)
