@@ -35,14 +35,8 @@
  */
 
 #include <systemoc/smoc_moc.hpp>
-#include <systemoc/smoc_port.hpp>
-#include <systemoc/smoc_fifo.hpp>
-#include <systemoc/smoc_actor.hpp>
-#include <systemoc/smoc_graph.hpp>
 
 #include "smoc_synth_std_includes.hpp"
-
-using namespace std; 
 
 class Src: public smoc_actor {
 public:
@@ -110,7 +104,7 @@ public:
   // Constructor responsible for declaring the
   // communication FSM and initializing the actor
   SqrLoop(sc_core::sc_module_name name)
-    : smoc_actor( name, start ) {
+    : smoc_actor(name, start), tmp_i1(0) {
     start =
         i1(1)                               >>
         o1(1)                               >>

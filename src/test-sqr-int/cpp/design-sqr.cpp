@@ -34,15 +34,9 @@
  * ENHANCEMENTS, OR MODIFICATIONS.
  */
 
-#include "smoc_synth_std_includes.hpp"
-
 #include <systemoc/smoc_moc.hpp>
-#include <systemoc/smoc_port.hpp>
-#include <systemoc/smoc_fifo.hpp>
-#include <systemoc/smoc_actor.hpp>
-#include <systemoc/smoc_graph.hpp>
 
-using namespace std; 
+#include "smoc_synth_std_includes.hpp"
 
 class Src: public smoc_actor {
 public:
@@ -51,26 +45,26 @@ private:
   int i;
 
   void src() {
-#if defined(SYSTEMC_VERSION) || defined(SQR_LOGGING)
+#ifdef SQR_LOGGING
     std::cout << "src: " << i << std::endl;
-#endif //defined(SYSTEMC_VERSION) || defined(SQR_LOGGING)
+#endif //defined(SQR_LOGGING)
     out[0] = i++;
   }
   
   smoc_firing_state start;
 public:
-  Src(sc_core::sc_module_name name, int from)
-    : smoc_actor(name, start), i(from)
+  Src(sc_core::sc_module_name name, int iter)
+    : smoc_actor(name, start), i(10)
   {
-      SMOC_REGISTER_CPARAM(from);
-      char *init = std::getenv("SRC_ITERS");
-      if (init)
-        i = NUM_MAX_ITERATIONS - std::atoll(init);
-      start =
-        (VAR(i) <= NUM_MAX_ITERATIONS) >>
-        out(1)                         >>
-        CALL(Src::src)                 >> start
-      ;
+    SMOC_REGISTER_CPARAM(iter);
+    char *init = getenv("SRC_ITERS");
+    if (init)
+      iter = atoll(init);
+    start =
+       (VAR(i) <= iter+10)            >>
+       out(1)                         >>
+       CALL(Src::src)                 >> start
+     ;
   }
 };
 
@@ -112,7 +106,7 @@ public:
   // Constructor responsible for declaring the
   // communication FSM and initializing the actor
   SqrLoop(sc_core::sc_module_name name)
-    : smoc_actor( name, start ) {
+    : smoc_actor(name, start), tmp_i1(0) {
     start =
         i1(1)                               >>
         o1(1)                               >>
@@ -177,10 +171,13 @@ class Sink: public smoc_actor {
 public:
   smoc_port_in<int> in;
 private:
-  void sink() {
-#if defined(SYSTEMC_VERSION) || defined(SQR_LOGGING)
-    std::cout << "sink: " << in[0] << std::endl;
-#endif //defined(SYSTEMC_VERSION) || defined(SQR_LOGGING)
+  volatile int sinkDump;
+
+  void sink(void) {
+    sinkDump = in[0];
+#ifdef SQR_LOGGING
+    std::cout << "sink: " << sinkDump << std::endl;
+#endif //defined(SQR_LOGGING)
   }
   
   smoc_firing_state start;
@@ -190,7 +187,7 @@ public:
     start =
         in(1)             >>
         CALL(Sink::sink)  >>
-	start
+        start
       ;
   }
 };
@@ -224,13 +221,12 @@ public:
 };
 
 int sc_main (int argc, char **argv) {
-  int from = 1;
+  int iter = NUM_MAX_ITERATIONS;
   if (argc == 2) {
-    const int iterations = atoi(argv[1]);
-    assert(iterations < NUM_MAX_ITERATIONS);
-    from = NUM_MAX_ITERATIONS - iterations;
+    iter = atoi(argv[1]);
+    assert(iter <= NUM_MAX_ITERATIONS);
   }
-  smoc_top_moc<SqrRoot> sqrroot("sqrroot", from);
+  smoc_top_moc<SqrRoot> sqrroot("sqrroot", iter);
   sc_core::sc_start();
   return 0;
 }
