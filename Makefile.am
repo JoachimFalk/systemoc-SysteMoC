@@ -109,6 +109,11 @@ test_dynamic_fsm_SOURCES			= \
 
 test-dynamic-fsm.log: test-dynamic-fsm
 	./'$<' 100 > "$@" || { rm -f "$@"; exit 1; }
+test-dynamic-fsm-%.log: test-dynamic-fsm.log
+	grep '$*:' '$<' > '$@' || { rm -f "$@"; exit 1; }
+TEST_ACTOR_LOGS += \
+	test-dynamic-fsm-top.src.log \
+	test-dynamic-fsm-top.snk.log
 
 test_event_LDADD				= $(SYSTEMOC_LIBS)
 test_event_DEPENDENCIES				= $(SYSTEMOC_DEPENDENCIES)
@@ -149,8 +154,8 @@ test_fsm_and_composition_SOURCES		= \
 
 test-fsm-and-composition.log: test-fsm-and-composition
 	./'$<' 100 > "$@" || { rm -f "$@"; exit 1; }
-test-fsm-and-composition-%.log: test-fsm-and-composition.log
-	grep '$*:' '$<' > '$@' || { rm -f "$@"; exit 1; }
+test-fsm-and-composition-top.%.log: test-fsm-and-composition.log
+	grep 'top.$*:' '$<' > '$@' || { rm -f "$@"; exit 1; }
 TEST_ACTOR_LOGS += \
 	test-fsm-and-composition-top.src.log \
 	test-fsm-and-composition-top.snk.log \
@@ -164,6 +169,11 @@ test_fsm_and_composition_diss_falk_SOURCES	= \
 
 test-fsm-and-composition-diss-falk.log: test-fsm-and-composition-diss-falk
 	./'$<' 100 > "$@" || { rm -f "$@"; exit 1; }
+test-fsm-and-composition-diss-falk-%.log: test-fsm-and-composition-diss-falk.log
+	grep '$*:' '$<' > '$@' || { rm -f "$@"; exit 1; }
+TEST_ACTOR_LOGS += \
+	test-fsm-and-composition-diss-falk-top.tb.log \
+	test-fsm-and-composition-diss-falk-top.transform.log
 
 # More integration required! check
 test_fsm_junction_state_LDADD			= $(SYSTEMOC_LIBS)
@@ -205,6 +215,11 @@ test_getValueAt_SOURCES				= \
 
 test-getValueAt.log: test-getValueAt
 	./'$<' 100 > "$@" || { rm -f "$@"; exit 1; }
+test-getValueAt-%.log: test-getValueAt.log
+	grep '^$* ' '$<' > '$@' || { rm -f "$@"; exit 1; }
+TEST_ACTOR_LOGS += \
+	test-getValueAt-top.src1.log \
+	test-getValueAt-top.sink.log
 
 test_periodic_LDADD				= $(SYSTEMOC_LIBS)
 test_periodic_DEPENDENCIES			= $(SYSTEMOC_DEPENDENCIES)
