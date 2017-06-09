@@ -72,16 +72,6 @@
 
 #include <smoc/detail/DumpingInterfaces.hpp>
 
-class smoc_multireader_scheduler {
-public:
-  friend class smoc_multireader_fifo_chan_base;
-
-  virtual ~smoc_multireader_scheduler()
-    {}
-
-protected:
-};
-
 /**
  * The base channel implementation
  */
@@ -103,13 +93,12 @@ public:
   public:
     friend class smoc_multireader_fifo_chan_base;
   protected:
-    chan_init(const std::string& name, size_t n, smoc_multireader_scheduler* so)
-      : name(name), n(n), so(so)
+    chan_init(const std::string& name, size_t n)
+      : name(name), n(n)
     {}
   private:
     std::string name;
     size_t n;
-    smoc_multireader_scheduler* so;
   };
 
 protected:
@@ -156,12 +145,6 @@ private:
   /// @brief The token id of the next produced token
   size_t tokenId;
 
-  /// @brief The default scheduler
-  smoc_multireader_scheduler schedDefault;
-
-  /// @brief The scheduler used for outlets
-  smoc_multireader_scheduler* schedOutlets;
-  
   /// @brief callback for latencyQueue
   void latencyExpired(size_t n);
 
@@ -390,14 +373,14 @@ private:
   chan_type *chan;
 public:
   /// @brief Constructor
-  smoc_multireader_fifo(size_t n = 1, smoc_multireader_scheduler* so = 0)
-    : base_type("", n, so), chan(nullptr)
+  smoc_multireader_fifo(size_t n = 1)
+    : base_type("", n), chan(nullptr)
   {}
 
   /// @brief Constructor
   explicit smoc_multireader_fifo(
-      const std::string& name, size_t n = 1, smoc_multireader_scheduler* so = 0)
-    : base_type(name, n, so), chan(nullptr)
+      const std::string& name, size_t n = 1)
+    : base_type(name, n), chan(nullptr)
   {}
 
   /// @brief Constructor

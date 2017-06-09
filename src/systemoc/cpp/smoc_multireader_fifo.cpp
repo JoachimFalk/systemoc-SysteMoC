@@ -57,8 +57,7 @@ smoc_multireader_fifo_chan_base::smoc_multireader_fifo_chan_base(const chan_init
 #else
   QueueRWPtr(i.n),
 #endif
-  tokenId(0),
-  schedOutlets(i.so ? i.so : &schedDefault)
+  tokenId(0)
 {}
 
 #ifdef SYSTEMOC_ENABLE_VPC
