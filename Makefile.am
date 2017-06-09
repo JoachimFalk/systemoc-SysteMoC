@@ -351,6 +351,13 @@ test_src_snk_multiwriter_SOURCES		= \
 
 test-src-snk-multiwriter.log: test-src-snk-multiwriter
 	./'$<' 100 > "$@" || { rm -f "$@"; exit 1; }
+test-src-snk-multiwriter-%.log: test-src-snk-multiwriter.log
+	grep '$*:' '$<' > '$@' || { rm -f "$@"; exit 1; }
+TEST_ACTOR_LOGS += \
+	test-src-snk-multiwriter-top.src1.log \
+	test-src-snk-multiwriter-top.src2.log \
+	test-src-snk-multiwriter-top.src3.log \
+	test-src-snk-multiwriter-top.snk.log
 
 # More integration required! check
 test_src_snk_noconsume_LDADD			= $(SYSTEMOC_LIBS)

@@ -36,22 +36,19 @@
 #include <iostream>
 
 #include <systemoc/smoc_moc.hpp>
-#include <systemoc/smoc_port.hpp>
-#include <systemoc/smoc_graph.hpp>
-#include <systemoc/smoc_actor.hpp>
-#include <systemoc/smoc_multireader_fifo.hpp>
 
 template <typename T>
 class m_h_src: public smoc_actor {
 public:
-  smoc_port_out<T> out;
+  smoc_port_in<void>  inActive;
+  smoc_port_out<void> outActive;
+  smoc_port_out<T>    out;
 private:
   T       i;
   size_t  iter;
   
   void src() {
-    std::cout
-      << name() << ": generate token with value " << i << std::endl;
+    std::cout << name() << ": generate token with value " << i << std::endl;
     out[0] = i++; --iter;
   }
   smoc_firing_state start;
@@ -60,8 +57,10 @@ public:
     : smoc_actor(name, start),
       i(1), iter(_iter) {
     start =
-         (out(1) && VAR(iter) > 0U)
-      >> CALL(m_h_src::src)       >> start;
+         (inActive(1)  && SMOC_VAR(iter) > 0U &&
+          outActive(1) && out(1)) >>
+         SMOC_CALL(m_h_src::src) >> start;
+      ;
   }
 };
 
@@ -71,18 +70,18 @@ class m_h_sink: public smoc_actor {
 public:
   smoc_port_in<T> in;
 private:
-  int i;
-  
   void sink(void) {
-    std::cout
-      << name() << ": received token with value " << in[0] << std::endl;
+    std::cout << name() << ": received token with value " << in[0] << std::endl;
   }
   
   smoc_firing_state start;
 public:
   m_h_sink(sc_core::sc_module_name name)
     : smoc_actor(name, start) {
-    start = in(1) >> CALL(m_h_sink::sink) >> start;
+    start =
+        in(1) >>
+        CALL(m_h_sink::sink) >> start
+      ;
   }
 };
 
@@ -104,6 +103,9 @@ public:
 
     f.connect(src1.out).connect(src2.out).connect(src3.out).connect(snk.in);
 
+    connectNodePorts(src1.outActive, src2.inActive);
+    connectNodePorts(src2.outActive, src3.inActive);
+    connectNodePorts(src3.outActive, src1.inActive, smoc_fifo<void>() << 1);
   }
 };
 
