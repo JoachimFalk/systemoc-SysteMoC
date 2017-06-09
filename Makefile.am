@@ -82,7 +82,6 @@ noinst_PROGRAMS= \
 	test-src-snk-multicast \
 	test-src-snk-multiplex \
 	test-src-snk-multireader \
-	test-src-snk-multireader-sched \
 	test-src-snk-multiwriter \
 	test-src-snk-noconsume \
 	test-src-snk-void \
@@ -343,14 +342,6 @@ test_src_snk_multireader_SOURCES		= \
 	src/test-src-snk-multireader/cpp/design-src-snk-multireader.cpp
 
 test-src-snk-multireader.log: test-src-snk-multireader
-	./'$<' 100 > "$@" || { rm -f "$@"; exit 1; }
-
-test_src_snk_multireader_sched_LDADD		= $(SYSTEMOC_LIBS)
-test_src_snk_multireader_sched_DEPENDENCIES	= $(SYSTEMOC_DEPENDENCIES)
-test_src_snk_multireader_sched_SOURCES		= \
-	src/test-src-snk-multireader-sched/cpp/design-src-snk-multireader-sched.cpp
-
-test-src-snk-multireader-sched.log: test-src-snk-multireader-sched
 	./'$<' 100 > "$@" || { rm -f "$@"; exit 1; }
 
 test_src_snk_multiwriter_LDADD			= $(SYSTEMOC_LIBS)
