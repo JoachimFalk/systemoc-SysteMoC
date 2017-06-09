@@ -34,7 +34,6 @@
 #ifndef _INCLUDED_SMOC_SMOC_PERIODIC_ACTOR_HPP
 #define _INCLUDED_SMOC_SMOC_PERIODIC_ACTOR_HPP
 
-#include <systemoc/smoc_moc.hpp>
 #include "smoc_actor.hpp"
 
 namespace smoc {
