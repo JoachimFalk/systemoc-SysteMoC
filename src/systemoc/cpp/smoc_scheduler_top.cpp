@@ -50,36 +50,6 @@
 
 namespace smoc {
 
-#ifdef SYSTEMOC_ENABLE_VPC
-namespace Detail {
-
-  static
-  bool systemcVpcCanExecute(SystemC_VPC::ScheduledTask *actor) {
-    assert(dynamic_cast<smoc_actor*>(actor) != nullptr);
-    ofstream logfile;
-    logfile.open("logfile.txt", std::ios_base::app);
-    sc_time t1 = sc_time_stamp();
-    logfile << "\t systemcVpcCanExecute " << actor->getPid() << " at: " << t1 << " " << static_cast<smoc_actor*>(actor)->canFire() << "\n";
-    logfile.close();
-    return static_cast<smoc_actor*>(actor)->canFire();
-  }
-
-  static
-  void systemcVpcExecute(SystemC_VPC::ScheduledTask *actor) {
-    //std::cerr << "smoc::Scheduling::execute" << std::endl;
-
-    assert(dynamic_cast<smoc_actor*>(actor) != nullptr);
-    ofstream logfile;
-    logfile.open("logfile.txt", std::ios_base::app);
-    sc_time t1 = sc_time_stamp();
-    logfile << "\t systemcVpcExecute " << actor->getPid() << " at: " << t1 << "\n";
-    logfile.close();
-    static_cast<smoc_actor*>(actor)->schedule();
-  }
-
-} // Detail
-#endif //SYSTEMOC_ENABLE_VPC
-
 smoc_scheduler_top::smoc_scheduler_top(Detail::GraphBase *g) :
   // Prefix all SysteMoC internal modules with __smoc_ to enable filtering out the module on smx dump!
   sc_core::sc_module(sc_core::sc_module_name("__smoc_smoc_scheduler_top")),
@@ -137,13 +107,6 @@ void smoc_scheduler_top::_before_end_of_elaboration() {
   try {
 #ifdef SYSTEMOC_ENABLE_VPC
     SystemC_VPC::Director::getInstance().beforeVpcFinalize();
-    
-    boost::function<void (SystemC_VPC::ScheduledTask *actor)> callExecute
-      = &Detail::systemcVpcExecute;
-    boost::function<bool (SystemC_VPC::ScheduledTask *actor)> callCanExecute
-      = &Detail::systemcVpcCanExecute;
-    SystemC_VPC::Director::getInstance().
-      registerSysteMoCCallBacks(callExecute, callCanExecute);
 #endif //SYSTEMOC_ENABLE_VPC
 #ifdef SYSTEMOC_ENABLE_MAESTRO
     MM::MMAPI* api = MM::MMAPI::getInstance();
