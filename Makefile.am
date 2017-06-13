@@ -236,6 +236,14 @@ test_sdf_SOURCES				= \
 
 test-sdf.log: test-sdf
 	./'$<' 100 > "$@" || { rm -f "$@"; exit 1; }
+test-sdf-%.log: test-sdf.log
+	grep '$* ' '$<' > '$@' || { rm -f "$@"; exit 1; }
+TEST_ACTOR_LOGS += \
+	test-sdf-top.sink.log \
+	test-sdf-top.src1.log \
+	test-sdf-top.src2.log \
+	test-sdf-top.top2.adder.log \
+	test-sdf-top.top2.multiply.log
 
 test_select_LDADD				= $(SYSTEMOC_LIBS)
 test_select_DEPENDENCIES			= $(SYSTEMOC_DEPENDENCIES)
@@ -341,6 +349,14 @@ test_src_snk_multicast_SOURCES			= \
 
 test-src-snk-multicast.log: test-src-snk-multicast
 	./'$<' 100 > "$@" || { rm -f "$@"; exit 1; }
+test-src-snk-multicast-%.log: test-src-snk-multicast.log
+	grep '$*:' '$<' > '$@' || { rm -f "$@"; exit 1; }
+TEST_ACTOR_LOGS += \
+	test-src-snk-multicast-top.foo.snk1.log \
+	test-src-snk-multicast-top.foo.snk2.log \
+	test-src-snk-multicast-top.foo.src.log \
+	test-src-snk-multicast-top.snk3.log \
+	test-src-snk-multicast-top.snk4.log
 
 # More integration required! check
 test_src_snk_multiplex_LDADD			= $(SYSTEMOC_LIBS)
@@ -350,6 +366,20 @@ test_src_snk_multiplex_SOURCES			= \
 
 test-src-snk-multiplex.log: test-src-snk-multiplex
 	./'$<' 1000 10 20 5 0 2 > "$@" || { rm -f "$@"; exit 1; }
+test-src-snk-multiplex-%.log: test-src-snk-multiplex.log
+	grep '$*:' '$<' > '$@' || { rm -f "$@"; exit 1; }
+TEST_ACTOR_LOGS += \
+	test-src-snk-multiplex-top.snk0.log \
+	test-src-snk-multiplex-top.snk1.log \
+	test-src-snk-multiplex-top.snk2.log \
+	test-src-snk-multiplex-top.snk3.log \
+	test-src-snk-multiplex-top.snk4.log \
+	test-src-snk-multiplex-top.snk5.log \
+	test-src-snk-multiplex-top.snk6.log \
+	test-src-snk-multiplex-top.snk7.log \
+	test-src-snk-multiplex-top.snk8.log \
+	test-src-snk-multiplex-top.snk9.log \
+	test-src-snk-multiplex-top.src.log
 
 test_src_snk_multireader_LDADD			= $(SYSTEMOC_LIBS)
 test_src_snk_multireader_DEPENDENCIES		= $(SYSTEMOC_DEPENDENCIES)
@@ -398,6 +428,13 @@ test_systemc_blocking_cosim_SOURCES		= \
 
 test-systemc-blocking-cosim.log: test-systemc-blocking-cosim
 	./'$<' > "$@" || { rm -f "$@"; exit 1; }
+test-systemc-blocking-cosim-%.log: test-systemc-blocking-cosim.log
+	grep '$*:' '$<' > '$@' || { rm -f "$@"; exit 1; }
+TEST_ACTOR_LOGS += \
+	test-systemc-blocking-cosim-A.log \
+	test-systemc-blocking-cosim-B.log \
+	test-systemc-blocking-cosim-Snk.log \
+	test-systemc-blocking-cosim-Src.log
 
 test_systemc_nonblocking_cosim_LDADD		= $(SYSTEMOC_LIBS)
 test_systemc_nonblocking_cosim_DEPENDENCIES	= $(SYSTEMOC_DEPENDENCIES)
@@ -406,6 +443,13 @@ test_systemc_nonblocking_cosim_SOURCES		= \
 
 test-systemc-nonblocking-cosim.log: test-systemc-nonblocking-cosim
 	./'$<' > "$@" || { rm -f "$@"; exit 1; }
+test-systemc-nonblocking-cosim-%.log: test-systemc-nonblocking-cosim.log
+	grep '$*:' '$<' > '$@' || { rm -f "$@"; exit 1; }
+TEST_ACTOR_LOGS += \
+	test-systemc-nonblocking-cosim-A.log \
+	test-systemc-nonblocking-cosim-B.log \
+	test-systemc-nonblocking-cosim-Snk.log \
+	test-systemc-nonblocking-cosim-Src.log
 
 clean-local:
 	for i in $(noinst_PROGRAMS); do \
