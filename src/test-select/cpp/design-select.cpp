@@ -58,7 +58,7 @@ public:
   m_h_src(sc_core::sc_module_name name)
     : smoc_actor(name, start),
       i(1) {
-    start = out(1) >> call(&m_h_src::src) >> start;
+    start = out(1) >> SMOC_CALL(m_h_src::src) >> start;
   }
 };
 
@@ -77,7 +77,7 @@ public:
   m_h_srcbool(sc_core::sc_module_name name)
     : smoc_actor(name, start),
       i(false) {
-    start = out(1) >> call(&m_h_srcbool::src) >> start;
+    start = out(1) >> SMOC_CALL(m_h_srcbool::src) >> start;
   }
 };
 
@@ -104,11 +104,11 @@ public:
       = (Control(1) && Data0(1) &&
          Control.getValueAt(0) == 0)  >>
         Output(1)                     >>
-        call(&Select::action0)        >> state
+        SMOC_CALL(Select::action0)    >> state
       | (Control(1) && Data1(1) &&
          Control.getValueAt(0) == 1)  >>
         Output(1)                     >>
-        call(&Select::action1)        >> state
+        SMOC_CALL(Select::action1)    >> state
       ;
   }
 };
@@ -131,7 +131,7 @@ public:
     : smoc_actor(name, start), iter(iter) {
     start =
          (in(1) && (SMOC_VAR(this->iter) > 0U)) >>
-         CALL(m_h_sink::sink) >> start
+         SMOC_CALL(m_h_sink::sink) >> start
       |
          (SMOC_VAR(this->iter) == 0U) >> end
       ;

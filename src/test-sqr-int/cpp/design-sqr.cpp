@@ -61,9 +61,9 @@ public:
     if (init)
       iter = atoll(init);
     start =
-       (VAR(i) <= iter+10)            >>
+       (SMOC_VAR(i) <= iter+10)            >>
        out(1)                         >>
-       CALL(Src::src)                 >> start
+       SMOC_CALL(Src::src)                 >> start
      ;
   }
 };
@@ -110,15 +110,15 @@ public:
     start =
         i1(1)                               >>
         o1(1)                               >>
-        CALL(SqrLoop::copyStore)            >> loop
+        SMOC_CALL(SqrLoop::copyStore)            >> loop
       ;
     loop  =
-        (i2(1) &&  GUARD(SqrLoop::check))   >>
+        (i2(1) &&  SMOC_GUARD(SqrLoop::check))   >>
         o2(1)                               >>
-        CALL(SqrLoop::copyApprox)           >> start
-      | (i2(1) && !GUARD(SqrLoop::check))   >>
+        SMOC_CALL(SqrLoop::copyApprox)           >> start
+      | (i2(1) && !SMOC_GUARD(SqrLoop::check))   >>
         o1(1)                               >>
-        CALL(SqrLoop::copyInput)            >> loop
+        SMOC_CALL(SqrLoop::copyInput)            >> loop
       ;
   }
 };
@@ -138,7 +138,7 @@ public:
     start =
         (i1(1) && i2(1))         >>
         o1(1)                    >>
-        CALL(Approx::approx)     >> start
+        SMOC_CALL(Approx::approx)     >> start
       ;
   }
 };
@@ -162,7 +162,7 @@ public:
     start =
         i1(1)                    >>
         (o1(1) && o2(1))         >>
-        CALL(Dup::dup)           >> start
+        SMOC_CALL(Dup::dup)           >> start
       ;
   }
 };
@@ -186,7 +186,7 @@ public:
     : smoc_actor(name, start) {
     start =
         in(1)             >>
-        CALL(Sink::sink)  >>
+        SMOC_CALL(Sink::sink)  >>
         start
       ;
   }

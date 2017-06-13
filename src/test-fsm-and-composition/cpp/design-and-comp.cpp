@@ -53,8 +53,8 @@ public:
       iter(_iter), i(0)
   {
     start =
-         (out(1) && VAR(iter) > 0U)
-      >> CALL(Src::src)
+         (out(1) && SMOC_VAR(iter) > 0U)
+      >> SMOC_CALL(Src::src)
       >> start;
   }
 
@@ -81,7 +81,7 @@ public:
   {
     start =
          in(1)
-      >> CALL(Snk::snk)
+      >> SMOC_CALL(Snk::snk)
       >> start;
   }
 
@@ -141,35 +141,35 @@ public:
     init =
       // Specifying AND state as target state
          in(1)
-      >> CALL(Transform::print)("init -> k")
-      >> CALL(Transform::store)
+      >> SMOC_CALL(Transform::print)("init -> k")
+      >> SMOC_CALL(Transform::store)
       >> k
       // Specifying different initial states per partition
     |    in(1)
-      >> CALL(Transform::print)("init -> (l,j)")
-      >> CALL(Transform::store)
+      >> SMOC_CALL(Transform::print)("init -> (l,j)")
+      >> SMOC_CALL(Transform::store)
       >> (l,j);
 
     (k, IN(i)) =
       // leaving AND states leaves each partition
          out(1)
-      >> CALL(Transform::print)("(k,IN(i)) -> init")
-      >> CALL(Transform::write)
+      >> SMOC_CALL(Transform::print)("(k,IN(i)) -> init")
+      >> SMOC_CALL(Transform::write)
       >> init;
 
     // conditionally leaving and entering same AND state
     (k, IN(l)) =
-      CALL(Transform::print)("(k,IN(l)) -> (k,m)") >> (k,m);
+      SMOC_CALL(Transform::print)("(k,IN(l)) -> (k,m)") >> (k,m);
 
     // transition in sub-AND-state
-    b = CALL(Transform::print)("b -> c") >> c;
+    b = SMOC_CALL(Transform::print)("b -> c") >> c;
 
     // can also check states in other hierarchy layer
-    (b, IN(m)) = CALL(Transform::print)("b -> b") >> b;
+    (b, IN(m)) = SMOC_CALL(Transform::print)("b -> b") >> b;
 
     // AND partitions can be accessed -> XOR state
     (k0, !IN(c), !IN(e))
-      = CALL(Transform::print)("(k[0], !IN(c), !IN(e)) -> (c,e)") >> (c,e);
+      = SMOC_CALL(Transform::print)("(k[0], !IN(c), !IN(e)) -> (c,e)") >> (c,e);
   }     
 
 private:

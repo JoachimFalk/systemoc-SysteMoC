@@ -52,8 +52,8 @@ public:
       iter(_iter), i(0)
   {
     start =
-         (out(1) && VAR(iter) > 0U)
-      >> CALL(Src::src)
+         (out(1) && SMOC_VAR(iter) > 0U)
+      >> SMOC_CALL(Src::src)
       >> start;
   }
 
@@ -79,7 +79,7 @@ public:
   {
     start =
          in(1)
-      >> CALL(Snk::snk)
+      >> SMOC_CALL(Snk::snk)
       >> start;
   }
 
@@ -127,17 +127,17 @@ public:
 
     a =
          in(1)
-      >> CALL(Transform::store)("a -> b")
+      >> SMOC_CALL(Transform::store)("a -> b")
       >> b;
   
     d =
          out(1)
-      >> CALL(Transform::write)("d -> a")
+      >> SMOC_CALL(Transform::write)("d -> a")
       >> a;
 
     e =
          out(1)
-      >> CALL(Transform::write)("e -> a")
+      >> SMOC_CALL(Transform::write)("e -> a")
       >> a;
     
     /*
@@ -145,11 +145,11 @@ public:
      */
     
     b =
-         GUARD(Transform::odd)
-      >> CALL(Transform::process)("b -> s_s_b")
+         SMOC_GUARD(Transform::odd)
+      >> SMOC_CALL(Transform::process)("b -> s_s_b")
       >> s_s_b
-    |    !GUARD(Transform::odd)
-      >> CALL(Transform::process)("b -> c")
+    |    !SMOC_GUARD(Transform::odd)
+      >> SMOC_CALL(Transform::process)("b -> c")
       >> c;
 
     /*
@@ -157,7 +157,7 @@ public:
      */
 
     s_a =
-         CALL(Transform::process)("s_a -> s_b")
+         SMOC_CALL(Transform::process)("s_a -> s_b")
       >> s_b;
 
     /*
@@ -165,13 +165,13 @@ public:
      */
 
     s_b =
-         GUARD(Transform::odd)
-      >> CALL(Transform::process)("s_b -> e")
+         SMOC_GUARD(Transform::odd)
+      >> SMOC_CALL(Transform::process)("s_b -> e")
       >> e;
 
     c =
-         !GUARD(Transform::odd)
-      >> CALL(Transform::process)("c -> d")
+         !SMOC_GUARD(Transform::odd)
+      >> SMOC_CALL(Transform::process)("c -> d")
       >> d;
   }
 

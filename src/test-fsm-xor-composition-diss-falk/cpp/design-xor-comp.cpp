@@ -51,11 +51,11 @@ public:
       start("start"),
       iter(_iter), cv(-1)
   {
-    start = o2(1)                                   >> CALL(Src::newcase) >> run;
-    run   = (o2(1) && o3(1)          && VAR(cv)==1) >> CALL(Src::newcase) >> run
-          | (o1(1) && o2(1) && o3(1) && VAR(cv)==2) >> CALL(Src::newcase) >> run
-          | (o2(1) && o4(1)          && VAR(cv)==3) >> CALL(Src::newcase) >> run
-          |                            (VAR(cv)==0)                       >> end;
+    start = o2(1)                                   >> SMOC_CALL(Src::newcase) >> run;
+    run   = (o2(1) && o3(1)          && SMOC_VAR(cv)==1) >> SMOC_CALL(Src::newcase) >> run
+          | (o1(1) && o2(1) && o3(1) && SMOC_VAR(cv)==2) >> SMOC_CALL(Src::newcase) >> run
+          | (o2(1) && o4(1)          && SMOC_VAR(cv)==3) >> SMOC_CALL(Src::newcase) >> run
+          |                            (SMOC_VAR(cv)==0)                       >> end;
   }
 
 private:
@@ -89,11 +89,11 @@ public:
   {
     d.init(a).add(c);
 
-    a = i1(1) >> CALL(Transform::print)("a->b") >> c;
-    d = i2(1) >> CALL(Transform::print)("d->b") >> b;
+    a = i1(1) >> SMOC_CALL(Transform::print)("a->b") >> c;
+    d = i2(1) >> SMOC_CALL(Transform::print)("d->b") >> b;
     b =
-        i3(1) >> CALL(Transform::print)("b->d") >> d
-      | i4(1) >> CALL(Transform::print)("b->c") >> c;
+        i3(1) >> SMOC_CALL(Transform::print)("b->d") >> d
+      | i4(1) >> SMOC_CALL(Transform::print)("b->c") >> c;
   }
 private:
   void print(const char *tname)

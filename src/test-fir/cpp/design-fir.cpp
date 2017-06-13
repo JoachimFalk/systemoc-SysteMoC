@@ -66,7 +66,7 @@ public:
     
     SMOC_REGISTER_CPARAM(iterations);
     
-    start = out(1) >> (VAR(i) < iterations) >> CALL(m_h_src::src) >> start;
+    start = out(1) >> (SMOC_VAR(i) < iterations) >> SMOC_CALL(m_h_src::src) >> start;
   }
 };
 
@@ -112,7 +112,7 @@ public:
     data = initializer::get_fir_data();
     start = input(1)             >>
             output(1)            >>
-            CALL(m_h_fir::dofir) >> start;
+            SMOC_CALL(m_h_fir::dofir) >> start;
   }
 };
 
@@ -133,7 +133,7 @@ private:
 public:
   m_h_sink(sc_core::sc_module_name name)
     : smoc_actor(name, start) {
-    start = in(1) >> CALL(m_h_sink::sink) >> start;
+    start = in(1) >> SMOC_CALL(m_h_sink::sink) >> start;
   }
 };
 
