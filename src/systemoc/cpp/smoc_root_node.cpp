@@ -188,7 +188,7 @@ void smoc_root_node::doReset() {
   // will re-evaluate guards
   setCurrentState(getFiringFSM()->getInitialState());
   if (useActivationCallback())
-    setActivation(canFire());
+    setActivation(searchActiveTransition());
 
 #ifdef SYSTEMOC_DEBUG
   if (smoc::Detail::outDbg.isVisible(smoc::Detail::Debug::High)) {
@@ -234,8 +234,7 @@ void smoc_root_node::signaled(smoc::smoc_event_waiter *e) {
 #ifdef SYSTEMOC_ENABLE_DEBUG
       RuntimeTransition      *oldct = ct;
 #endif // SYSTEMOC_ENABLE_DEBUG
-      ct = nullptr;
-      canFire();
+      searchActiveTransition();
 #ifdef SYSTEMOC_ENABLE_DEBUG
       assert(!(oldct != nullptr && ct == nullptr) && "WTF?! Event was enabled but transition vanished!");
 #endif // SYSTEMOC_ENABLE_DEBUG
@@ -246,8 +245,10 @@ void smoc_root_node::signaled(smoc::smoc_event_waiter *e) {
 #endif //SYSTEMOC_ENABLE_MAESTRO
         setActivation(true);
       }
-    } else if (ct != nullptr && (!ct->evaluateIOP() || !ct->evaluateGuard())) {
-      ct = nullptr;
+    } else if (ct) {
+      searchActiveTransition();
+      if (!ct)
+        setActivation(false);
     }
   }
   
@@ -311,6 +312,22 @@ void smoc_root_node::setCurrentState(RuntimeState *newState) {
 #endif // SYSTEMOC_DEBUG
 }
 
+bool smoc_root_node::searchActiveTransition() {
+  assert(currentState);
+  ct = nullptr;
+
+  RuntimeTransitionList &tl = currentState->getTransitions();
+
+  for (RuntimeTransitionList::iterator t = tl.begin();
+       t != tl.end();
+       ++t) {
+    if (t->evaluateIOP() && t->evaluateGuard()) {
+      ct = &*t;
+      break;
+    }
+  }
+  return ct != nullptr;
+}
 
 void smoc_root_node::schedule() {
 #ifdef SYSTEMOC_DEBUG
@@ -321,11 +338,14 @@ void smoc_root_node::schedule() {
 #endif // SYSTEMOC_DEBUG
   
   assert(ct);
+  assert(ct->evaluateIOP() && ct->evaluateGuard());
   assert(canFire());
   executing = true;
   ct->execute(this);
   executing = false;
-
+  assert(!ct);
+  if (useActivationCallback())
+    searchActiveTransition();
 #ifdef SYSTEMOC_DEBUG
   if (smoc::Detail::outDbg.isVisible(smoc::Detail::Debug::High)) {
     smoc::Detail::outDbg << smoc::Detail::Indent::Down << "</smoc_root_node::schedule>" << std::endl;
@@ -334,20 +354,10 @@ void smoc_root_node::schedule() {
 }
 
 bool smoc_root_node::canFire() {
-  assert(currentState);
-  if (ct == nullptr) {
-    RuntimeTransitionList &tl = currentState->getTransitions();
-
-    for (RuntimeTransitionList::iterator t = tl.begin();
-         t != tl.end();
-         ++t) {
-      if (t->evaluateIOP() && t->evaluateGuard()) {
-        ct = &*t;
-        break;
-      }
-    }
-  } else
-    assert(ct->evaluateIOP() && ct->evaluateGuard());
+  if (ct == nullptr && !useActivationCallback()) {
+    // Hunt for enabled transition;
+    searchActiveTransition();
+  }
 #ifndef SYSTEMOC_ENABLE_MAESTRO
   return (ct != nullptr); // && ct->evaluateIOP() && ct->evaluateGuard();
 #else

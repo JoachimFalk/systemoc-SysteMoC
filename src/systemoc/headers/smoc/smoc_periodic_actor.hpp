@@ -76,6 +76,8 @@ private:
 
   void schedule();
 
+  bool canFire();
+
   sc_core::sc_time const &getNextReleaseTime() const;
 
   int period_counter;
