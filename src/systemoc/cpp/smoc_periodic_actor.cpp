@@ -75,6 +75,17 @@ void smoc_periodic_actor::schedule() {
     updateReleaseTime();
 }
 
+bool smoc_periodic_actor::canFire() {
+  bool active = smoc_actor::canFire();
+  if (active &&
+      getNextReleaseTime() > sc_core::sc_time_stamp() &&
+      useActivationCallback()) {
+    setActivation(true);
+    return false;
+  } else
+    return active;
+}
+
 // Override getNextReleaseTime from ScheduleInterface
 sc_core::sc_time const &smoc_periodic_actor::getNextReleaseTime() const {
   if (reexecute || !periodicActorActive

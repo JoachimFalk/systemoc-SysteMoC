@@ -196,6 +196,7 @@ private:
   void renotified(smoc::smoc_event_waiter *e);
 
   void setCurrentState(RuntimeState *s);
+  bool searchActiveTransition();
 
 protected:
   smoc_root_node(sc_core::sc_module_name, NodeType nodeType, smoc_hierarchical_state &s);
