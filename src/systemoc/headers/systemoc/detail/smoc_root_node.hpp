@@ -72,30 +72,22 @@
 #endif //MAESTRO_ENABLE_POLYPHONIC
 
 // FIXME: These macros are all obsolete, delete them!
-#define VAR(variable)       var(variable, #variable)
-#define TILL(event)         till(event, #event)
-#define LITERAL(lit)        literal(lit)
-#define CALL(func)          call(&func, #func)
-#define GUARD(func)         guard(&func, #func)
+#define VAR(variable)       this->var(variable, #variable)
+#define TILL(event)         this->till(event, #event)
+#define LITERAL(lit)        this->literal(lit)
+#define CALL(func)          this->call(this, &func, #func)
+#define GUARD(func)         this->guard(this, &func, #func)
 #ifdef SYSTEMOC_ENABLE_MAESTRO
-#define CALLIO(ins,func)   callio(ins, &func, #func)
-#define GUARDIO(ins,func)  guardio(ins, &func, #func)
-#define CALLI(ins,func)    calli(ins, &func, #func)
-#define GUARDI(ins,func)   guardi(ins, &func, #func)
+#define CALLI(ins,func)     this->call(ins, &func, #func)
+#define GUARDI(ins,func)    this->guard(ins, &func, #func)
 #endif //SYSTEMOC_ENABLE_MAESTRO
 
-#define SMOC_REGISTER_CPARAM(name)  registerParam(#name,name)
-#define SMOC_CALL(func)             calli(this, &func, #func)
-#define SMOC_GUARD(func)            guardi(this, &func, #func)
-#define SMOC_VAR(variable)          var(variable, #variable)
-#define SMOC_TILL(event)            till(event, #event)
-#define SMOC_LITERAL(lit)           literal(lit)
-/*
-#ifdef SYSTEMOC_ENABLE_MAESTRO
-# define SMOC_CALLI(ins,func)       calli(ins, &func, #func)
-# define SMOC_GUARDI(ins,func)      guardi(ins, &func, #func)
-#endif //SYSTEMOC_ENABLE_MAESTRO
- */
+#define SMOC_REGISTER_CPARAM(name)  this->registerParam(#name,name)
+#define SMOC_CALL(func)             this->call(this, &func, #func)
+#define SMOC_GUARD(func)            this->guard(this, &func, #func)
+#define SMOC_VAR(variable)          this->var(variable, #variable)
+#define SMOC_TILL(event)            this->till(event, #event)
+#define SMOC_LITERAL(lit)           this->literal(lit)
 
 namespace smoc { namespace Detail {
 
@@ -143,14 +135,14 @@ class smoc_root_node
   // To manipulate transitionHooks
   friend void smoc::Hook::Detail::addTransitionHook(smoc_actor *, const smoc::Hook::Detail::TransitionHook &);
 #endif //SYSTEMOC_ENABLE_HOOKING
-public:
+protected:
+  // This is used by smoc_actor and smoc_graph.
   enum NodeType {
-    NODE_TYPE_UNKNOWN = 0,
     NODE_TYPE_ACTOR   = 1,
     NODE_TYPE_GRAPH   = 2
   };
-
 private:
+
   /// @brief is this an actor, a graph, or something else.
   NodeType           nodeType;
   /// @brief current firing state
@@ -214,52 +206,38 @@ protected:
 
   /// @brief User reset method (do not put functionality in there)
   virtual void reset() {};
-public:
-  template<typename F>
-  typename CoSupport::Lambda::ParamAccumulator<smoc_member_func, CoSupport::Lambda::Functor<void, F> >::accumulated_type
-  call(const F &f, const char *name = "") {
-    return typename CoSupport::Lambda::ParamAccumulator<smoc_member_func, CoSupport::Lambda::Functor<void, F> >::accumulated_type
-      (CoSupport::Lambda::Functor<void, F>(this, f, name));
-  }
 
   template<typename F, typename X>
   typename CoSupport::Lambda::ParamAccumulator<smoc_member_func, CoSupport::Lambda::Functor<void, F> >::accumulated_type
-	  calli(X* ins, const F &f, const char *name = "") {
+  static
+  call(X* ins, const F &f, const char *name = "") {
     return typename CoSupport::Lambda::ParamAccumulator<smoc_member_func, CoSupport::Lambda::Functor<void, F> >::accumulated_type
       (CoSupport::Lambda::Functor<void, F>(ins, f, name));
   }
 
-protected:
-  template<typename F>
-  typename smoc::Expr::MemGuard<F>::type guard(const F &f, const char *name = "") const {
-    return smoc::Expr::guard(this, f, name);
-  }
-	
   template<typename F, typename X>
-  typename smoc::Expr::MemGuard<F>::type guardi(const X* ins, const F &f, const char *name = "") const {
-	  return smoc::Expr::guard(ins, f, name);
+  typename smoc::Expr::MemGuard<F>::type
+  static
+  guard(const X* ins, const F &f, const char *name = "") {
+    return smoc::Expr::guard(ins, f, name);
   }
-
-public:
-#ifdef SYSTEMOC_ENABLE_MAESTRO
-  bool testCanFire();
-#endif //SYSTEMOC_ENABLE_MAESTRO
   
-protected:
-
   template <typename T>
   static
-  typename smoc::Expr::Var<T>::type var(T &x, const char *name = nullptr)
+  typename smoc::Expr::Var<T>::type
+  var(T &x, const char *name = nullptr)
     { return smoc::Expr::var(x,name); }
 
   template <typename T>
   static
-  typename smoc::Expr::Literal<T>::type literal(T const &x)
+  typename smoc::Expr::Literal<T>::type
+  literal(T const &x)
     { return smoc::Expr::literal(x); }
 
   // FIXME: change this to work on plain SystemC events!
   static
-  smoc::Expr::SMOCEvent::type till(smoc::smoc_event_waiter &e, const char *name = nullptr)
+  smoc::Expr::SMOCEvent::type
+  till(smoc::smoc_event_waiter &e, const char *name = "")
     { return smoc::Expr::till(e,name); }
 
 public:
@@ -296,6 +274,10 @@ public:
     { return currentState == commState; }
 #endif // SYSTEMOC_ENABLE_VPC
 
+#ifdef SYSTEMOC_ENABLE_MAESTRO
+  bool testCanFire();
+#endif //SYSTEMOC_ENABLE_MAESTRO
+
   /// @brief Collect ports from child objects
   smoc_sysc_port_list getPorts() const;
 
@@ -307,19 +289,6 @@ public:
 
   sc_core::sc_time const &getNextReleaseTime() const;
 };
-
-#ifdef SYSTEMOC_ENABLE_MAESTRO
-template<typename F, typename X>
-typename CoSupport::Lambda::ParamAccumulator<smoc_member_func, CoSupport::Lambda::Functor<void, F> >::accumulated_type
-callio(X* ins, const F &f, const char *name = "") {
-	return typename CoSupport::Lambda::ParamAccumulator<smoc_member_func, CoSupport::Lambda::Functor<void, F> >::accumulated_type
-	(CoSupport::Lambda::Functor<void, F>(ins, f, name));
-}
-template<typename F, typename X>
-typename smoc::Expr::MemGuard<F>::type guardio(const X* ins, const F &f, const char *name = "") {
-	return smoc::Expr::guard(ins, f, name);
-}
-#endif
 
 typedef std::list<smoc_root_node *> smoc_node_list;
 
