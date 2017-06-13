@@ -42,6 +42,8 @@
 
 // This should be the main header for SysteMoC without smoc namespace.
 // If there are additional headers required, please add them here.
+#define _SYSTEMOC_NO_DEPRECATED_HEADER_WARNING
+
 #include <systemoc/smoc_event.hpp>
 #include <systemoc/smoc_port.hpp>
 #include <systemoc/smoc_fifo.hpp>
@@ -53,6 +55,8 @@
 #include <systemoc/smoc_graph.hpp>
 #include <systemoc/smoc_graph_tt.hpp>
 #include <systemoc/smoc_scheduler_top.hpp>
+
+#undef _SYSTEMOC_NO_DEPRECATED_HEADER_WARNING
 
 //// for compatibility...
 //typedef smoc_scheduler_top smoc_top;

@@ -33,16 +33,16 @@
  * ENHANCEMENTS, OR MODIFICATIONS.
  */
 
-#ifndef _INCLUDED_SYSTEMOC_SMOC_TT_HP
-#define _INCLUDED_SYSTEMOC_SMOC_TT_HP
-
 #include <CoSupport/commondefs.h>
 
 #ifdef _MSC_VER
-# pragma message COSUPPORT_WARN("This is a deprecated header, please use either systemoc/smoc_periodic_actor.hpp or systemoc/smoc_graph_tt.hpp")
+# pragma message COSUPPORT_WARN("This is a deprecated header, please use either systemoc/smoc_periodic_actor.hpp or systemoc/smoc_graph.hpp and the class smoc_graph")
 #else //!_MSC_VER
-# warning "This is a deprecated header, please use either systemoc/smoc_periodic_actor.hpp or systemoc/smoc_graph_tt.hpp"
+# warning "This is a deprecated header, please use either systemoc/smoc_periodic_actor.hpp or systemoc/smoc_graph.hpp and the class smoc_graph"
 #endif //!_MSC_VER
+
+#ifndef _INCLUDED_SYSTEMOC_SMOC_TT_HP
+#define _INCLUDED_SYSTEMOC_SMOC_TT_HP
 
 #include <systemoc/smoc_periodic_actor.hpp>
 #include <systemoc/smoc_graph_tt.hpp>

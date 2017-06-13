@@ -33,9 +33,6 @@
  * ENHANCEMENTS, OR MODIFICATIONS.
  */
 
-#ifndef _INCLUDED_SYSTEMOC_SMOC_GRAPH_TYPE_HPP
-#define _INCLUDED_SYSTEMOC_SMOC_GRAPH_TYPE_HPP
-
 #include <CoSupport/commondefs.h>
 
 #ifdef _MSC_VER
@@ -43,6 +40,9 @@
 #else //!_MSC_VER
 # warning "This is a deprecated header, please use systemoc/smoc_graph.hpp"
 #endif //!_MSC_VER
+
+#ifndef _INCLUDED_SYSTEMOC_SMOC_GRAPH_TYPE_HPP
+#define _INCLUDED_SYSTEMOC_SMOC_GRAPH_TYPE_HPP
 
 #include "smoc_graph.hpp"
 
