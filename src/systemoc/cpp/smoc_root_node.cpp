@@ -304,7 +304,6 @@ void smoc_root_node::setCurrentState(RuntimeState *newState) {
     currentState = newState;
   ct = nullptr;
 
-
 #ifdef SYSTEMOC_DEBUG
   if (smoc::Detail::outDbg.isVisible(smoc::Detail::Debug::High)) {
     smoc::Detail::outDbg << smoc::Detail::Indent::Down << "</smoc_root_node::setCurrentState>" << std::endl;
@@ -326,7 +325,6 @@ void smoc_root_node::schedule() {
   executing = true;
   ct->execute(this);
   executing = false;
-//setActivation(canFire());
 
 #ifdef SYSTEMOC_DEBUG
   if (smoc::Detail::outDbg.isVisible(smoc::Detail::Debug::High)) {
