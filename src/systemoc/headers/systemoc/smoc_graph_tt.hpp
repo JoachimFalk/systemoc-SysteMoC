@@ -31,16 +31,18 @@
  * ENHANCEMENTS, OR MODIFICATIONS.
  */
 
-#ifndef _INCLUDED_SYSTEMOC_SMOC_GRAPH_TT_HPP
-#define _INCLUDED_SYSTEMOC_SMOC_GRAPH_TT_HPP
-
 #include <CoSupport/commondefs.h>
 
-#ifdef _MSC_VER
-# pragma message COSUPPORT_WARN("This is a deprecated header, please use systemoc/smoc_graph.hpp and the class smoc_graph")
-#else //!_MSC_VER
-# warning "This is a deprecated header, please use systemoc/smoc_graph.hpp and the class smoc_graph"
-#endif //!_MSC_VER
+#ifndef _SYSTEMOC_NO_DEPRECATED_HEADER_WARNING
+# ifdef _MSC_VER
+#   pragma message COSUPPORT_WARN("This is a deprecated header, please use systemoc/smoc_graph.hpp and the class smoc_graph")
+# else //!_MSC_VER
+#   warning "This is a deprecated header, please use systemoc/smoc_graph.hpp and the class smoc_graph"
+# endif //!_MSC_VER
+#endif //!defined(_SYSTEMOC_NO_DEPRECATED_HEADER_WARNING)
+
+#ifndef _INCLUDED_SYSTEMOC_SMOC_GRAPH_TT_HPP
+#define _INCLUDED_SYSTEMOC_SMOC_GRAPH_TT_HPP
 
 #include "smoc_graph.hpp"
 

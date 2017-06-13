@@ -32,9 +32,6 @@
  * ENHANCEMENTS, OR MODIFICATIONS.
  */
 
-#ifndef _INCLUDED_SMOC_NODE_TYPES_HPP
-#define _INCLUDED_SMOC_NODE_TYPES_HPP
-
 #include <CoSupport/commondefs.h>
 
 #ifdef _MSC_VER
@@ -42,6 +39,9 @@
 #else //!_MSC_VER
 # warning "This is a deprecated header, please use either systemoc/smoc_graph.hpp or systemoc/smoc_actor.hpp"
 #endif //!_MSC_VER
+
+#ifndef _INCLUDED_SMOC_NODE_TYPES_HPP
+#define _INCLUDED_SMOC_NODE_TYPES_HPP
 
 #include "smoc_graph.hpp"
 #include "smoc_actor.hpp"
