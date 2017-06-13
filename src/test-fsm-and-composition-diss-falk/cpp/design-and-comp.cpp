@@ -56,17 +56,17 @@ public:
       bf("bf"), be("be"), bg("bg"), cf("cf"), ce("ce"), cg("cg"),
       iter(_iter), random((rand()&1)+1)
   {
-    bf = (GUARD(Testbench::caseA)    && o2(1))          >> CALL(Testbench::print)("bf->be") >> be
-       | (GUARD(Testbench::caseB)    && o1(1) && i1(2)) >> CALL(Testbench::print)("bf->cf") >> cf;
-    be = (GUARD(Testbench::caseA)    && i2(1))          >> CALL(Testbench::print)("be->bg") >> bg
-       | (GUARD(Testbench::caseB)    && o1(1) && i1(2)) >> CALL(Testbench::print)("be->ce") >> ce;
-    bg = (GUARD(Testbench::caseA)    && o2(3))          >> CALL(Testbench::print)("bg->bf") >> bf
-       | (GUARD(Testbench::caseB)    && o1(1) && i1(2)) >> CALL(Testbench::print)("bg->cg") >> cg;
+    bf = (SMOC_GUARD(Testbench::caseA)    && o2(1))          >> SMOC_CALL(Testbench::print)("bf->be") >> be
+       | (SMOC_GUARD(Testbench::caseB)    && o1(1) && i1(2)) >> SMOC_CALL(Testbench::print)("bf->cf") >> cf;
+    be = (SMOC_GUARD(Testbench::caseA)    && i2(1))          >> SMOC_CALL(Testbench::print)("be->bg") >> bg
+       | (SMOC_GUARD(Testbench::caseB)    && o1(1) && i1(2)) >> SMOC_CALL(Testbench::print)("be->ce") >> ce;
+    bg = (SMOC_GUARD(Testbench::caseA)    && o2(3))          >> SMOC_CALL(Testbench::print)("bg->bf") >> bf
+       | (SMOC_GUARD(Testbench::caseB)    && o1(1) && i1(2)) >> SMOC_CALL(Testbench::print)("bg->cg") >> cg;
 
-    cf = (GUARD(Testbench::caseBoth) && o2(1))          >> CALL(Testbench::print)("cf->ce") >> ce;
-    ce = (GUARD(Testbench::caseBoth) && i2(1))          >> CALL(Testbench::print)("ce->cg") >> cg;
-    cg = (GUARD(Testbench::caseA)    && o2(3))          >> CALL(Testbench::print)("cg->cf") >> cf
-       | (GUARD(Testbench::caseB)    && i2(2))          >> CALL(Testbench::print)("cg->bg") >> bg;
+    cf = (SMOC_GUARD(Testbench::caseBoth) && o2(1))          >> SMOC_CALL(Testbench::print)("cf->ce") >> ce;
+    ce = (SMOC_GUARD(Testbench::caseBoth) && i2(1))          >> SMOC_CALL(Testbench::print)("ce->cg") >> cg;
+    cg = (SMOC_GUARD(Testbench::caseA)    && o2(3))          >> SMOC_CALL(Testbench::print)("cg->cf") >> cf
+       | (SMOC_GUARD(Testbench::caseB)    && i2(2))          >> SMOC_CALL(Testbench::print)("cg->bg") >> bg;
   }
 
 private:
@@ -100,13 +100,13 @@ public:
     a.init(b).add(c);
     d.add(e).init(f).add(g);
 
-    b =          i1(1) >> o1(2) >> CALL(Transform::print)("b->c") >> c;
-    (c, IN(g)) =          o2(2) >> CALL(Transform::print)("c->b") >> b;
+    b =          i1(1) >> o1(2) >> SMOC_CALL(Transform::print)("b->c") >> c;
+    (c, IN(g)) =          o2(2) >> SMOC_CALL(Transform::print)("c->b") >> b;
 
-    e          =          o2(1) >> CALL(Transform::print)("e->g") >> g;
-    f          = i2(1)          >> CALL(Transform::print)("f->e") >> e
-               |          o2(1) >> CALL(Transform::print)("f->g") >> g;
-    g          = i2(3)          >> CALL(Transform::print)("g->f") >> f;
+    e          =          o2(1) >> SMOC_CALL(Transform::print)("e->g") >> g;
+    f          = i2(1)          >> SMOC_CALL(Transform::print)("f->e") >> e
+               |          o2(1) >> SMOC_CALL(Transform::print)("f->g") >> g;
+    g          = i2(3)          >> SMOC_CALL(Transform::print)("g->f") >> f;
   }
 private:
   void print(const char *tname)

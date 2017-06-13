@@ -80,7 +80,7 @@ public:
     : smoc_actor(name, start) {
     start =
         in(1) >>
-        CALL(m_h_sink::sink) >> start
+        SMOC_CALL(m_h_sink::sink) >> start
       ;
   }
 };

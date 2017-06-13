@@ -73,9 +73,9 @@ public:
     : smoc_actor(name, start), i(0)
   {
     start =
-         TILL(ev)
+         SMOC_TILL(ev)
       >> out(1)                       
-      >> CALL(Src::src)
+      >> SMOC_CALL(Src::src)
       >> start
     ;
     SC_METHOD(notifier);
@@ -107,7 +107,7 @@ public:
   {
     start =
          (in1(1) && in2(1) && in3(1) && (SMOC_VAR(this->iter) > 0U)) >>
-         CALL(Sink::sink) >> start
+         SMOC_CALL(Sink::sink) >> start
       |
          (SMOC_VAR(this->iter) == 0U) >> end
       ;

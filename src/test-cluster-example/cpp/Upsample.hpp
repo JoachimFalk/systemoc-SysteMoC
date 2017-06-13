@@ -40,7 +40,7 @@ public:
 
     fsm_main = 
       (in1(1) && out1(factor)) >>
-      CALL(Upsample::do_upsample) >>
+      SMOC_CALL(Upsample::do_upsample) >>
       fsm_main;
 
   }

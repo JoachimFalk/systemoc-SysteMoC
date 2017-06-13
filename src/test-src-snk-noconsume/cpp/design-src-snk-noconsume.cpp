@@ -58,7 +58,7 @@ public:
   m_h_src(sc_core::sc_module_name name, const T &iters)
     : smoc_actor(name, start),
       i(1) {
-    start = (out(1) && VAR(i) <= iters) >> call(&m_h_src::src) >> start;
+    start = (out(1) && SMOC_VAR(i) <= iters) >> SMOC_CALL(m_h_src::src) >> start;
   }
 };
 
@@ -76,8 +76,8 @@ private:
 public:
   m_h_sink(sc_core::sc_module_name name)
     : smoc_actor(name, s0) {
-    s0 = in(0,1) >> call(&m_h_sink::sink) >> s1;
-    s1 = in(1)   >> call(&m_h_sink::sink) >> s0;
+    s0 = in(0,1) >> SMOC_CALL(m_h_sink::sink) >> s1;
+    s1 = in(1)   >> SMOC_CALL(m_h_sink::sink) >> s0;
   }
 };
 

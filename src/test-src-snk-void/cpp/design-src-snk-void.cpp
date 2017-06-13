@@ -54,7 +54,7 @@ public:
   {
     run =
         (out(1) && (SMOC_VAR(this->iter) != 0U)) >>
-        CALL(Src::src) >> run
+        SMOC_CALL(Src::src) >> run
      ;
   }
 
@@ -76,7 +76,7 @@ public:
   Snk(sc_core::sc_module_name name) :
     smoc_actor(name, run)
   {
-    run = in(1) >> CALL(Snk::snk) >> run;
+    run = in(1) >> SMOC_CALL(Snk::snk) >> run;
   }
 
   void snk() {

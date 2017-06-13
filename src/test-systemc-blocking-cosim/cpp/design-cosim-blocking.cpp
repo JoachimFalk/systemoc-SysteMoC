@@ -72,7 +72,7 @@ public:
   B(sc_core::sc_module_name name) :
     smoc_actor(name, run)
   {
-    run = in(1) >> out(1) >> CALL(B::copy) >> run;
+    run = in(1) >> out(1) >> SMOC_CALL(B::copy) >> run;
   }
 
   void copy() {
@@ -94,7 +94,7 @@ public:
     smoc_actor(name, run),
     x(0)
   {
-    run = out(1) >> CALL(Src::copy) >> run;
+    run = out(1) >> SMOC_CALL(Src::copy) >> run;
   }
 
   void copy() {
@@ -114,7 +114,7 @@ public:
   Snk(sc_core::sc_module_name name) :
     smoc_actor(name, run)
   {
-    run = in(1) >> CALL(Snk::copy) >> run;
+    run = in(1) >> SMOC_CALL(Snk::copy) >> run;
   }
 
   void copy() {

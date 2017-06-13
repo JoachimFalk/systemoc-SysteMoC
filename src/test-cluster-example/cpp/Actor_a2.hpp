@@ -46,7 +46,7 @@ public:
 
     fsm_main = 
       (in1(2) && in2(2) && out1(2) && out2(2)) >>
-      CALL(Actor_a2::heat) >>
+      SMOC_CALL(Actor_a2::heat) >>
       fsm_main;
 
   }

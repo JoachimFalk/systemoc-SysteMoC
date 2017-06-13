@@ -52,8 +52,8 @@ public:
       iter(_iter), i(0)
   {
     start =
-         (out(1) && VAR(iter) > 0U)
-      >> CALL(Src::src)
+         (out(1) && SMOC_VAR(iter) > 0U)
+      >> SMOC_CALL(Src::src)
       >> start;
   }
 
@@ -79,7 +79,7 @@ public:
   {
     start =
          in(1)
-      >> CALL(Snk::snk)
+      >> SMOC_CALL(Snk::snk)
       >> start;
   }
 
@@ -104,11 +104,11 @@ public:
     smoc_junction_state s;
     
     init = 
-         (in(1) && GUARD(Transform::mod)(2))
-      >> CALL(Transform::store)("init -> s (mod2)")
+         (in(1) && SMOC_GUARD(Transform::mod)(2))
+      >> SMOC_CALL(Transform::store)("init -> s (mod2)")
       >> s
-    |    (in(1) && !GUARD(Transform::mod)(2))
-      >> CALL(Transform::store)("init -> s (!mod2)")
+    |    (in(1) && !SMOC_GUARD(Transform::mod)(2))
+      >> SMOC_CALL(Transform::store)("init -> s (!mod2)")
       >> s;
 
     // because s is a smoc_junction_state, the guards
@@ -120,14 +120,14 @@ public:
     // also be evaluated atomically!!!
 
     s =
-         (out(1) && GUARD(Transform::mod)(3))
-      >> CALL(Transform::write)("s -> init (mod3)")
+         (out(1) && SMOC_GUARD(Transform::mod)(3))
+      >> SMOC_CALL(Transform::write)("s -> init (mod3)")
       >> init
-    |    (out(1) && GUARD(Transform::mod)(5))
-      >> CALL(Transform::write)("s -> init (mod5)")
+    |    (out(1) && SMOC_GUARD(Transform::mod)(5))
+      >> SMOC_CALL(Transform::write)("s -> init (mod5)")
       >> init
-    |    (out(1) && !GUARD(Transform::mod)(3) && !GUARD(Transform::mod)(5))
-      >> CALL(Transform::write)("s -> init (!mod3 && !mod5)")
+    |    (out(1) && !SMOC_GUARD(Transform::mod)(3) && !SMOC_GUARD(Transform::mod)(5))
+      >> SMOC_CALL(Transform::write)("s -> init (!mod3 && !mod5)")
       >> init;
   }
 

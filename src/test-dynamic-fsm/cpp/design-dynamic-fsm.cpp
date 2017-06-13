@@ -72,8 +72,8 @@ public:
       smoc_firing_state::Ptr newState = j < mumStates
         ? &smoc_firing_state("state"+CoSupport::String::asStr(j))
         : &start;
-      *oldState = (out(j) && VAR(this->iter) > 0)
-        >> CALL(m_h_src::src)(j) >> *newState;
+      *oldState = (out(j) && SMOC_VAR(this->iter) > 0)
+        >> SMOC_CALL(m_h_src::src)(j) >> *newState;
       oldState = newState;
     }
   }
@@ -95,7 +95,7 @@ private:
 public:
   m_h_sink(sc_core::sc_module_name name)
     : smoc_actor(name, start) {
-    start = in(1) >> CALL(m_h_sink::sink) >> start;
+    start = in(1) >> SMOC_CALL(m_h_sink::sink) >> start;
   }
 };
 

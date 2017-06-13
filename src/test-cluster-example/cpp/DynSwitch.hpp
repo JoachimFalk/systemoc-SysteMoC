@@ -216,61 +216,61 @@ public:
     /* Initial state in order to avoid initial tokens */
     fsm_start = 
       out1(2) >>
-      CALL(DynSwitch::action_t1_init) >>
+      SMOC_CALL(DynSwitch::action_t1_init) >>
       fsm_path1_q1;
 
     /* Path1 through static cluster */
     fsm_path1_q1 =
       (in1(2) && out2(1)) >>
-      CALL(DynSwitch::action_t3) >>
+      SMOC_CALL(DynSwitch::action_t3) >>
       fsm_path1_q3;
 
     fsm_path1_q3 =
       (in2(1) && out2(1)) >>
-      ((VAR(path_selector) <= (unsigned long)0) && (VAR(invocation_id) < num_iterations)) >>
-      CALL(DynSwitch::action_t5_path1) >>
+      ((SMOC_VAR(path_selector) <= (unsigned long)0) && (SMOC_VAR(invocation_id) < num_iterations)) >>
+      SMOC_CALL(DynSwitch::action_t5_path1) >>
       fsm_path1_q0
 
       |(in2(1) && out2(1)) >>
-      ((VAR(path_selector) > (unsigned long)0) && (VAR(invocation_id) < num_iterations)) >>
-      CALL(DynSwitch::action_t5_path1) >>
+      ((SMOC_VAR(path_selector) > (unsigned long)0) && (SMOC_VAR(invocation_id) < num_iterations)) >>
+      SMOC_CALL(DynSwitch::action_t5_path1) >>
       fsm_path2_q0
 
       |(in2(1) && out2(1)) >>
-      (VAR(invocation_id) >= num_iterations) >>
-      CALL(DynSwitch::action_t5_path1) >>
+      (SMOC_VAR(invocation_id) >= num_iterations) >>
+      SMOC_CALL(DynSwitch::action_t5_path1) >>
       stuck;
 
     fsm_path1_q0 =
       (in2(1) && out1(2)) >>
-      CALL(DynSwitch::action_t1) >>
+      SMOC_CALL(DynSwitch::action_t1) >>
       fsm_path1_q1;
 
     /* Path2 through static cluster */
     fsm_path2_q0 =
       (in2(1) && out2(1)) >>
-      CALL(DynSwitch::action_t2) >>
+      SMOC_CALL(DynSwitch::action_t2) >>
       fsm_path2_q2;
 
     fsm_path2_q2 =
       (in2(1) && out1(2)) >>
-      CALL(DynSwitch::action_t4) >>
+      SMOC_CALL(DynSwitch::action_t4) >>
       fsm_path2_q3;
 
     fsm_path2_q3 =
       (in1(2) && out2(1)) >>
-      ((VAR(path_selector) <= (unsigned long)0) && (VAR(invocation_id) < num_iterations)) >>
-      CALL(DynSwitch::action_t5_path2) >>
+      ((SMOC_VAR(path_selector) <= (unsigned long)0) && (SMOC_VAR(invocation_id) < num_iterations)) >>
+      SMOC_CALL(DynSwitch::action_t5_path2) >>
       fsm_path1_q0
 
       |(in1(2) && out2(1)) >>
-      ((VAR(path_selector) > (unsigned long)0) && (VAR(invocation_id) < num_iterations))>>
-      CALL(DynSwitch::action_t5_path2) >>
+      ((SMOC_VAR(path_selector) > (unsigned long)0) && (SMOC_VAR(invocation_id) < num_iterations))>>
+      SMOC_CALL(DynSwitch::action_t5_path2) >>
       fsm_path2_q0
 
       |(in1(2) && out2(1)) >>
-      (VAR(invocation_id) < num_iterations)>>
-      CALL(DynSwitch::action_t5_path2) >>
+      (SMOC_VAR(invocation_id) < num_iterations)>>
+      SMOC_CALL(DynSwitch::action_t5_path2) >>
       stuck;
 
   }

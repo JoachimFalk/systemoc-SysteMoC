@@ -28,7 +28,7 @@ class m_source: public smoc_actor {
   public:
     m_source( sc_core::sc_module_name name, size_t iter)
       :smoc_actor( name, start ), i(0) {
-      start =  out(1) >> (VAR(i) < iter) >> CALL(m_source::process) >> start;
+      start =  out(1) >> (SMOC_VAR(i) < iter) >> SMOC_CALL(m_source::process) >> start;
     }
 };
 
@@ -47,10 +47,10 @@ class m_sink: public smoc_actor {
     m_sink( sc_core::sc_module_name name )
       :smoc_actor( name, start ) {
       start = (in(1) && in.getValueAt(0) == 0) 
-				>> CALL(m_sink::process) 
+				>> SMOC_CALL(m_sink::process) 
 				>> start
 				| in(1) 
-				>> CALL(m_sink::process) 
+				>> SMOC_CALL(m_sink::process) 
 				>> start;
     }
 };

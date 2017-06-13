@@ -105,8 +105,8 @@ public:
       val(0)
   {
     start =
-         (out(1) && GUARD(m_h_src::more) /*FIXME: VAR(iter) > 0U*/)
-      >> CALL(m_h_src::src)       >> start;
+         (out(1) && SMOC_GUARD(m_h_src::more) /*FIXME: SMOC_VAR(iter) > 0U*/)
+      >> SMOC_CALL(m_h_src::src)       >> start;
   }
 };
 
@@ -128,7 +128,7 @@ public:
     : smoc_actor(name, start),
       idx(idx)
   {
-    start = in(1) >> CALL(m_h_snk::snk) >> start;
+    start = in(1) >> SMOC_CALL(m_h_snk::snk) >> start;
   }
   
   struct factory {

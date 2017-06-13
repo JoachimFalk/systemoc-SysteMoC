@@ -64,7 +64,7 @@ class m_adder: public smoc_actor {
   public:
     m_adder( sc_core::sc_module_name name )
       :smoc_actor( name, start ) {
-      start = (in1(2) && in2(1) && out(1)) >> CALL(m_adder::process) >> start;
+      start = (in1(2) && in2(1) && out(1)) >> SMOC_CALL(m_adder::process) >> start;
     }
 };
 
@@ -93,7 +93,7 @@ class m_multiply: public smoc_actor {
       :smoc_actor( name, start ) {
       start = (in1(1) && in2(1) && 
                out1(1) && out2(1)) >>
-               CALL(m_multiply::process) >> start;
+               SMOC_CALL(m_multiply::process) >> start;
     }
 };
 
@@ -137,7 +137,7 @@ class m_source: public smoc_actor {
   public:
     m_source(sc_core::sc_module_name name, size_t iter)
       :smoc_actor( name, start ), i(0) {
-      start =  out(1) >> (VAR(i) < iter) >> CALL(m_source::process) >> start;
+      start =  out(1) >> (SMOC_VAR(i) < iter) >> SMOC_CALL(m_source::process) >> start;
     }
 };
 
@@ -155,7 +155,7 @@ class m_sink: public smoc_actor {
   public:
     m_sink( sc_core::sc_module_name name )
       :smoc_actor( name, start ) {
-      start = in(1) >> CALL(m_sink::process) >> start;
+      start = in(1) >> SMOC_CALL(m_sink::process) >> start;
     }
 };
 

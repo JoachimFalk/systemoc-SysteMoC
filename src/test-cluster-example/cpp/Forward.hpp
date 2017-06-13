@@ -40,7 +40,7 @@ public:
 
     fsm_main = 
       (in1(1) && out1(1)) >>
-      CALL(Forward::heat) >>
+      SMOC_CALL(Forward::heat) >>
       fsm_main;
 
   }

@@ -60,8 +60,8 @@ public:
     : smoc_actor(name, start),
       i(1), iter(_iter) {
     start =
-         (out(1) && VAR(iter) > 0U)
-      >> CALL(m_h_src::src)       >> start;
+         (out(1) && SMOC_VAR(iter) > 0U)
+      >> SMOC_CALL(m_h_src::src)       >> start;
   }
 };
 
