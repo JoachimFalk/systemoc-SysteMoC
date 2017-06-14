@@ -199,7 +199,7 @@ private:
   bool searchActiveTransition();
 
 protected:
-  smoc_root_node(sc_core::sc_module_name, NodeType nodeType, smoc_hierarchical_state &s);
+  smoc_root_node(sc_core::sc_module_name, NodeType nodeType, smoc_hierarchical_state &s, unsigned int thread_stack_size);
   
   virtual void before_end_of_elaboration();
   virtual void end_of_elaboration();

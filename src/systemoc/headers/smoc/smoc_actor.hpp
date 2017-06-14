@@ -49,13 +49,16 @@ namespace smoc {
 class smoc_actor :
   public smoc_root_node {
 protected:
+  smoc_actor(sc_core::sc_module_name name, smoc_hierarchical_state &s, unsigned int thread_stack_size = 0
 #ifdef SYSTEMOC_ENABLE_MAESTRO
-  smoc_actor(sc_core::sc_module_name name, smoc_hierarchical_state &s, unsigned int thread_stack_size = 0x20000, bool useLogFile = false);
-  smoc_actor(smoc_hierarchical_state &s, unsigned int thread_stack_size = 0x20000, bool useLogFile = false);
-#else //!SYSTEMOC_ENABLE_MAESTRO
-  smoc_actor(sc_core::sc_module_name name, smoc_hierarchical_state &s);
-  smoc_actor(smoc_hierarchical_state &s);
-#endif //!SYSTEMOC_ENABLE_MAESTRO
+      , bool useLogFile = false
+#endif //defined(SYSTEMOC_ENABLE_MAESTRO)
+    );
+  smoc_actor(smoc_hierarchical_state &s, unsigned int thread_stack_size = 0
+#ifdef SYSTEMOC_ENABLE_MAESTRO
+      , bool useLogFile = false
+#endif //defined(SYSTEMOC_ENABLE_MAESTRO)
+    );
 
   void before_end_of_elaboration();
 

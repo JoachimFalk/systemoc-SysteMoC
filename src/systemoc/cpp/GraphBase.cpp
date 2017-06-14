@@ -52,10 +52,7 @@ using CoSupport::String::Concat;
 
 GraphBase::GraphBase(
     const sc_core::sc_module_name &name, smoc_firing_state &init)
-  : smoc_root_node(name, smoc_root_node::NODE_TYPE_GRAPH, init),
-#ifdef SYSTEMOC_ENABLE_MAESTRO
-	MetaMap::SMoCGraph(name.operator const char *()),
-#endif //SYSTEMOC_ENABLE_MAESTRO
+  : smoc_root_node(name, smoc_root_node::NODE_TYPE_GRAPH, init, 0),
     scheduler(nullptr)
 {}
   

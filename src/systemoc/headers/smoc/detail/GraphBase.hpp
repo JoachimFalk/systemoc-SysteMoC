@@ -50,7 +50,6 @@
 #include "../../systemoc/smoc_chan_adapter.hpp"
 
 #ifdef SYSTEMOC_ENABLE_MAESTRO
-#include <Maestro/MetaMap/SMoCGraph.hpp>
 #include <Maestro/MetaMap/CommunicationComponent.hpp>
 #endif //SYSTEMOC_ENABLE_MAESTRO
 
@@ -60,15 +59,12 @@
 namespace smoc { namespace Detail {
 
 /**
- * base class for all graph classes; no scheduling of childen (->
+ * base class for all graph classes; no scheduling of children (->
  * derive from this class and build FSM!). If you derive more stuff
  * from this class you have to change apply_visitor.hpp accordingly.
  */
 class GraphBase
   : public smoc_root_node 
-#ifdef SYSTEMOC_ENABLE_MAESTRO
-  , public MetaMap::SMoCGraph
-#endif //SYSTEMOC_ENABLE_MAESTRO
 {
   // need to call *StateChange
   friend class smoc_multireader_fifo_chan_base;
@@ -77,8 +73,7 @@ class GraphBase
   friend class smoc::smoc_scheduler_top; // doReset
 
   typedef GraphBase this_type;
-protected:
- 
+private:
   /**
    * Helper class for determining the data type from ports
    * (Not needed if adapter classes exist)

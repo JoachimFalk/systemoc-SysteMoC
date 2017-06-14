@@ -50,18 +50,18 @@
 
 using namespace smoc::Detail;
 
-smoc_root_node::smoc_root_node(sc_core::sc_module_name name, NodeType nodeType, smoc_hierarchical_state &s)
+smoc_root_node::smoc_root_node(sc_core::sc_module_name name, NodeType nodeType, smoc_hierarchical_state &s, unsigned int thread_stack_size)
   :
 #if defined(SYSTEMOC_ENABLE_VPC)
     SystemC_VPC::ScheduledTask(name)
 #elif defined(SYSTEMOC_ENABLE_MAESTRO)
     sc_core::sc_module(name)
-  , MetaMap::SMoCActor
+  , MetaMap::SMoCActor(thread_stack_size)
 # ifdef MAESTRO_ENABLE_POLYPHONIC
   , MAESTRO::PolyphoniC::psmoc_root_node()
 # endif
 #else // !defined(def SYSTEMOC_ENABLE_VPC) && !defined(SYSTEMOC_ENABLE_MAESTRO)
-     smoc::Detail::SysteMoCScheduler(name)
+    smoc::Detail::SysteMoCScheduler(name)
 #endif
   , nodeType(nodeType)
   , currentState(nullptr)
