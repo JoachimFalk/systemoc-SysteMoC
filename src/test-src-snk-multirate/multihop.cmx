@@ -1,0 +1,56 @@
+<?xml version="1.0"?>
+<!DOCTYPE vpcconfiguration SYSTEM "vpc.dtd">
+<vpcconfiguration>
+ <resultfile name=""/>
+ <measurefile name=""/>
+
+ <resources>
+  <component name="HW_SRC" type="threaded" scheduler="RoundRobin">
+    <attribute type="tracing" value="PAJE"/>
+  </component>
+  <component name="Mem" type="threaded" scheduler="RoundRobin" >
+    <attribute type="tracing" value="PAJE"/>
+  </component> 
+  <component name="Bus" type="threaded" scheduler="RoundRobin" >
+    <attribute type="tracing" value="PAJE"/>
+  </component>  
+  <component name="HW_SNK" type="threaded" scheduler="RoundRobin">
+    <attribute type="tracing" value="PAJE"/>
+  </component>  
+ </resources>
+
+ <mappings>
+
+  <!-- this mapping is expected to become obsolete
+  <mapping source="cf_top.src_top.snk_1" target="Mem">
+    <timing dii="10" latency="10"/>
+  </mapping>
+   -->
+  <mapping source="top.snk" target="HW_SNK">
+    <timing dii="20" latency="20"/>
+  </mapping>
+
+  <mapping source="top.src" target="HW_SRC">
+    <timing dii="40" latency="40"/>
+  </mapping>
+
+  <mapping source="top.dummy" target="HW_SNK">
+    <timing dii="400" latency="400"/>
+  </mapping>
+
+ </mappings>
+
+ <topology>
+  <route source="top.src" destination="cf_top.src_top.snk_1">
+   <hop name="HW_SRC">     <timing dii="10" latency="10" /> </hop>
+   <hop name="Bus">        <timing dii="10" latency="10" /> </hop>
+   <hop name="Mem">        <timing dii="10" latency="10" /> </hop>
+  </route>
+
+  <route source="cf_top.src_top.snk_1" destination="top.snk">
+   <hop name="Mem">        <timing dii="10" latency="10" /> </hop>
+   <hop name="Bus">        <timing dii="10" latency="10" /> </hop>
+   <hop name="HW_SNK">     <timing dii="10" latency="10" /> </hop>
+  </route>
+ </topology>
+</vpcconfiguration>

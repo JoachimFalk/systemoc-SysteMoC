@@ -78,6 +78,7 @@ noinst_PROGRAMS= \
 	test-systemc-sqr \
 	test-sqr-int \
 	test-src-snk \
+	test-src-snk-multirate \
 	test-src-snk-hierarchy \
 	test-src-snk-multicast \
 	test-src-snk-multiplex \
@@ -332,6 +333,15 @@ test_src_snk_SOURCES				= \
 	src/test-src-snk/cpp/design-src-snk.cpp
 
 test-src-snk.log: test-src-snk
+	./'$<' 100 > "$@" || { rm -f "$@"; exit 1; }
+
+# More integration required! Maybe check for VPC?
+test_src_snk_multirate_LDADD			= $(SYSTEMOC_LIBS)
+test_src_snk_multirate_DEPENDENCIES		= $(SYSTEMOC_DEPENDENCIES)
+test_src_snk_multirate_SOURCES			= \
+	src/test-src-snk-multirate/cpp/design-src-snk-multirate.cpp
+
+test-src-snk-multirate.log: test-src-snk-multirate
 	./'$<' 100 > "$@" || { rm -f "$@"; exit 1; }
 
 test_src_snk_hierarchy_LDADD			= $(SYSTEMOC_LIBS)
