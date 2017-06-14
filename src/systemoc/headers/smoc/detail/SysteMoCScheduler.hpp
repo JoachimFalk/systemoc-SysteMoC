@@ -8,7 +8,7 @@
 #ifndef _INCLUDED_SMOC_DETAIL_SYSTEMOCSCHEDULER_HPP
 #define _INCLUDED_SMOC_DETAIL_SYSTEMOCSCHEDULER_HPP
 
-#include "SchedulingInterface.hpp"
+#include <smoc/EvalAPI/SchedulingInterface.hpp>
 
 namespace smoc {
 
@@ -19,7 +19,7 @@ namespace smoc {
 namespace smoc { namespace Detail {
 
   class SysteMoCScheduler
-    : public SchedulingInterface
+    : protected EvalAPI::SchedulingInterface
     , public sc_core::sc_module
   {
     friend class ::smoc::smoc_graph;

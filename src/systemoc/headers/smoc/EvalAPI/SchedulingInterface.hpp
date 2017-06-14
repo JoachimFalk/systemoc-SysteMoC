@@ -5,16 +5,15 @@
  *      Author: muellersi
  */
 
-#ifndef _INCLUDED_SMOC_DETAIL_SCHEDULINGINTERFACE_HPP
-#define _INCLUDED_SMOC_DETAIL_SCHEDULINGINTERFACE_HPP
+#ifndef _INCLUDED_SMOC_EVALAPI_SCHEDULINGINTERFACE_HPP
+#define _INCLUDED_SMOC_EVALAPI_SCHEDULINGINTERFACE_HPP
 
 #include <systemc>
 
-namespace smoc { namespace Detail {
+namespace smoc { namespace EvalAPI {
 
   class SchedulingInterface {
-
-  protected:
+  public:
     // This will execute the actor. The actor must be fireable if this method is called.
     // This will be implemented by the SysteMoC actor and called by the scheduler.
     virtual void schedule() = 0;
@@ -46,6 +45,6 @@ namespace smoc { namespace Detail {
     virtual ~SchedulingInterface() {};
   };
 
-} } // namespace smoc::Detail
+} } // namespace smoc::EvalAPI
 
-#endif // _INCLUDED_SMOC_DETAIL_SCHEDULINGINTERFACE_HPP
+#endif // _INCLUDED_SMOC_EVALAPI_SCHEDULINGINTERFACE_HPP
