@@ -1,0 +1,26 @@
+<?xml version="1.0"?>
+<!DOCTYPE vpcconfiguration SYSTEM "vpc.dtd">
+<vpcconfiguration>
+ <resultfile name=""/>
+ <measurefile name=""/>
+
+ <resources>
+  <component name="CPU" scheduler="FCFS">
+   <attribute type="tracing" value="VCD"/>
+  </component>
+ </resources>
+
+ <mappings>
+  <mapping source="top.src" target="CPU">
+    <timing fname="m_h_src::src"   delay="75 ns"/>
+  </mapping>
+  <mapping source="top.snk" target="CPU">
+    <timing fname="m_h_sink::sink" delay="100 ns"/>
+  </mapping>
+ </mappings>
+
+ <topology>
+  <route source="top.src" destination="queue"/>
+  <route source="queue" destination="top.snk"/>
+ </topology>
+</vpcconfiguration>

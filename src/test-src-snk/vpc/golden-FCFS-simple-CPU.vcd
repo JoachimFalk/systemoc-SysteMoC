@@ -1,0 +1,825 @@
+$date
+     Jun 20, 2017       16:50:09
+$end
+
+$version
+ SystemC 2.3.1-Accellera --- Jun  6 2015 16:02:58
+$end
+
+$timescale
+     1 ns
+$end
+
+$scope module SystemC $end
+$var wire    8  aaaaa  top.src [7:0]  $end
+$var wire    8  aaaab  top.snk [7:0]  $end
+$upscope $end
+$enddefinitions  $end
+
+$comment
+All initial values are dumped below at time 0 sec = 0 timescale units.
+$end
+
+$dumpvars
+b1010010 aaaaa
+b100000 aaaab
+$end
+
+#75
+b1110010 aaaaa
+b1110111 aaaab
+
+#150
+b100000 aaaaa
+b1010010 aaaab
+
+#250
+b1110111 aaaaa
+b1110010 aaaab
+
+#350
+b1010010 aaaaa
+b100000 aaaab
+
+#425
+b1110010 aaaaa
+b1110111 aaaab
+
+#500
+b100000 aaaaa
+b1010010 aaaab
+
+#600
+b1110111 aaaaa
+b1110010 aaaab
+
+#700
+b1010010 aaaaa
+b100000 aaaab
+
+#775
+b1110010 aaaaa
+b1110111 aaaab
+
+#850
+b100000 aaaaa
+b1010010 aaaab
+
+#950
+b1110111 aaaaa
+b1110010 aaaab
+
+#1050
+b1010010 aaaaa
+b100000 aaaab
+
+#1125
+b1110010 aaaaa
+b1110111 aaaab
+
+#1200
+b100000 aaaaa
+b1010010 aaaab
+
+#1300
+b1110111 aaaaa
+b1110010 aaaab
+
+#1400
+b1010010 aaaaa
+b100000 aaaab
+
+#1475
+b1110010 aaaaa
+b1110111 aaaab
+
+#1550
+b100000 aaaaa
+b1010010 aaaab
+
+#1650
+b1110111 aaaaa
+b1110010 aaaab
+
+#1750
+b1010010 aaaaa
+b100000 aaaab
+
+#1825
+b1110010 aaaaa
+b1110111 aaaab
+
+#1900
+b100000 aaaaa
+b1010010 aaaab
+
+#2000
+b1110111 aaaaa
+b1110010 aaaab
+
+#2100
+b1010010 aaaaa
+b100000 aaaab
+
+#2175
+b1110010 aaaaa
+b1110111 aaaab
+
+#2250
+b100000 aaaaa
+b1010010 aaaab
+
+#2350
+b1110111 aaaaa
+b1110010 aaaab
+
+#2450
+b1010010 aaaaa
+b100000 aaaab
+
+#2525
+b1110010 aaaaa
+b1110111 aaaab
+
+#2600
+b100000 aaaaa
+b1010010 aaaab
+
+#2700
+b1110111 aaaaa
+b1110010 aaaab
+
+#2800
+b1010010 aaaaa
+b100000 aaaab
+
+#2875
+b1110010 aaaaa
+b1110111 aaaab
+
+#2950
+b100000 aaaaa
+b1010010 aaaab
+
+#3050
+b1110111 aaaaa
+b1110010 aaaab
+
+#3150
+b1010010 aaaaa
+b100000 aaaab
+
+#3225
+b1110010 aaaaa
+b1110111 aaaab
+
+#3300
+b100000 aaaaa
+b1010010 aaaab
+
+#3400
+b1110111 aaaaa
+b1110010 aaaab
+
+#3500
+b1010010 aaaaa
+b100000 aaaab
+
+#3575
+b1110010 aaaaa
+b1110111 aaaab
+
+#3650
+b100000 aaaaa
+b1010010 aaaab
+
+#3750
+b1110111 aaaaa
+b1110010 aaaab
+
+#3850
+b1010010 aaaaa
+b100000 aaaab
+
+#3925
+b1110010 aaaaa
+b1110111 aaaab
+
+#4000
+b100000 aaaaa
+b1010010 aaaab
+
+#4100
+b1110111 aaaaa
+b1110010 aaaab
+
+#4200
+b1010010 aaaaa
+b100000 aaaab
+
+#4275
+b1110010 aaaaa
+b1110111 aaaab
+
+#4350
+b100000 aaaaa
+b1010010 aaaab
+
+#4450
+b1110111 aaaaa
+b1110010 aaaab
+
+#4550
+b1010010 aaaaa
+b100000 aaaab
+
+#4625
+b1110010 aaaaa
+b1110111 aaaab
+
+#4700
+b100000 aaaaa
+b1010010 aaaab
+
+#4800
+b1110111 aaaaa
+b1110010 aaaab
+
+#4900
+b1010010 aaaaa
+b100000 aaaab
+
+#4975
+b1110010 aaaaa
+b1110111 aaaab
+
+#5050
+b100000 aaaaa
+b1010010 aaaab
+
+#5150
+b1110111 aaaaa
+b1110010 aaaab
+
+#5250
+b1010010 aaaaa
+b100000 aaaab
+
+#5325
+b1110010 aaaaa
+b1110111 aaaab
+
+#5400
+b100000 aaaaa
+b1010010 aaaab
+
+#5500
+b1110111 aaaaa
+b1110010 aaaab
+
+#5600
+b1010010 aaaaa
+b100000 aaaab
+
+#5675
+b1110010 aaaaa
+b1110111 aaaab
+
+#5750
+b100000 aaaaa
+b1010010 aaaab
+
+#5850
+b1110111 aaaaa
+b1110010 aaaab
+
+#5950
+b1010010 aaaaa
+b100000 aaaab
+
+#6025
+b1110010 aaaaa
+b1110111 aaaab
+
+#6100
+b100000 aaaaa
+b1010010 aaaab
+
+#6200
+b1110111 aaaaa
+b1110010 aaaab
+
+#6300
+b1010010 aaaaa
+b100000 aaaab
+
+#6375
+b1110010 aaaaa
+b1110111 aaaab
+
+#6450
+b100000 aaaaa
+b1010010 aaaab
+
+#6550
+b1110111 aaaaa
+b1110010 aaaab
+
+#6650
+b1010010 aaaaa
+b100000 aaaab
+
+#6725
+b1110010 aaaaa
+b1110111 aaaab
+
+#6800
+b100000 aaaaa
+b1010010 aaaab
+
+#6900
+b1110111 aaaaa
+b1110010 aaaab
+
+#7000
+b1010010 aaaaa
+b100000 aaaab
+
+#7075
+b1110010 aaaaa
+b1110111 aaaab
+
+#7150
+b100000 aaaaa
+b1010010 aaaab
+
+#7250
+b1110111 aaaaa
+b1110010 aaaab
+
+#7350
+b1010010 aaaaa
+b100000 aaaab
+
+#7425
+b1110010 aaaaa
+b1110111 aaaab
+
+#7500
+b100000 aaaaa
+b1010010 aaaab
+
+#7600
+b1110111 aaaaa
+b1110010 aaaab
+
+#7700
+b1010010 aaaaa
+b100000 aaaab
+
+#7775
+b1110010 aaaaa
+b1110111 aaaab
+
+#7850
+b100000 aaaaa
+b1010010 aaaab
+
+#7950
+b1110111 aaaaa
+b1110010 aaaab
+
+#8050
+b1010010 aaaaa
+b100000 aaaab
+
+#8125
+b1110010 aaaaa
+b1110111 aaaab
+
+#8200
+b100000 aaaaa
+b1010010 aaaab
+
+#8300
+b1110111 aaaaa
+b1110010 aaaab
+
+#8400
+b1010010 aaaaa
+b100000 aaaab
+
+#8475
+b1110010 aaaaa
+b1110111 aaaab
+
+#8550
+b100000 aaaaa
+b1010010 aaaab
+
+#8650
+b1110111 aaaaa
+b1110010 aaaab
+
+#8750
+b1010010 aaaaa
+b100000 aaaab
+
+#8825
+b1110010 aaaaa
+b1110111 aaaab
+
+#8900
+b100000 aaaaa
+b1010010 aaaab
+
+#9000
+b1110111 aaaaa
+b1110010 aaaab
+
+#9100
+b1010010 aaaaa
+b100000 aaaab
+
+#9175
+b1110010 aaaaa
+b1110111 aaaab
+
+#9250
+b100000 aaaaa
+b1010010 aaaab
+
+#9350
+b1110111 aaaaa
+b1110010 aaaab
+
+#9450
+b1010010 aaaaa
+b100000 aaaab
+
+#9525
+b1110010 aaaaa
+b1110111 aaaab
+
+#9600
+b100000 aaaaa
+b1010010 aaaab
+
+#9700
+b1110111 aaaaa
+b1110010 aaaab
+
+#9800
+b1010010 aaaaa
+b100000 aaaab
+
+#9875
+b1110010 aaaaa
+b1110111 aaaab
+
+#9950
+b100000 aaaaa
+b1010010 aaaab
+
+#10050
+b1110111 aaaaa
+b1110010 aaaab
+
+#10150
+b1010010 aaaaa
+b100000 aaaab
+
+#10225
+b1110010 aaaaa
+b1110111 aaaab
+
+#10300
+b100000 aaaaa
+b1010010 aaaab
+
+#10400
+b1110111 aaaaa
+b1110010 aaaab
+
+#10500
+b1010010 aaaaa
+b100000 aaaab
+
+#10575
+b1110010 aaaaa
+b1110111 aaaab
+
+#10650
+b100000 aaaaa
+b1010010 aaaab
+
+#10750
+b1110111 aaaaa
+b1110010 aaaab
+
+#10850
+b1010010 aaaaa
+b100000 aaaab
+
+#10925
+b1110010 aaaaa
+b1110111 aaaab
+
+#11000
+b100000 aaaaa
+b1010010 aaaab
+
+#11100
+b1110111 aaaaa
+b1110010 aaaab
+
+#11200
+b1010010 aaaaa
+b100000 aaaab
+
+#11275
+b1110010 aaaaa
+b1110111 aaaab
+
+#11350
+b100000 aaaaa
+b1010010 aaaab
+
+#11450
+b1110111 aaaaa
+b1110010 aaaab
+
+#11550
+b1010010 aaaaa
+b100000 aaaab
+
+#11625
+b1110010 aaaaa
+b1110111 aaaab
+
+#11700
+b100000 aaaaa
+b1010010 aaaab
+
+#11800
+b1110111 aaaaa
+b1110010 aaaab
+
+#11900
+b1010010 aaaaa
+b100000 aaaab
+
+#11975
+b1110010 aaaaa
+b1110111 aaaab
+
+#12050
+b100000 aaaaa
+b1010010 aaaab
+
+#12150
+b1110111 aaaaa
+b1110010 aaaab
+
+#12250
+b1010010 aaaaa
+b100000 aaaab
+
+#12325
+b1110010 aaaaa
+b1110111 aaaab
+
+#12400
+b100000 aaaaa
+b1010010 aaaab
+
+#12500
+b1110111 aaaaa
+b1110010 aaaab
+
+#12600
+b1010010 aaaaa
+b100000 aaaab
+
+#12675
+b1110010 aaaaa
+b1110111 aaaab
+
+#12750
+b100000 aaaaa
+b1010010 aaaab
+
+#12850
+b1110111 aaaaa
+b1110010 aaaab
+
+#12950
+b1010010 aaaaa
+b100000 aaaab
+
+#13025
+b1110010 aaaaa
+b1110111 aaaab
+
+#13100
+b100000 aaaaa
+b1010010 aaaab
+
+#13200
+b1110111 aaaaa
+b1110010 aaaab
+
+#13300
+b1010010 aaaaa
+b100000 aaaab
+
+#13375
+b1110010 aaaaa
+b1110111 aaaab
+
+#13450
+b100000 aaaaa
+b1010010 aaaab
+
+#13550
+b1110111 aaaaa
+b1110010 aaaab
+
+#13650
+b1010010 aaaaa
+b100000 aaaab
+
+#13725
+b1110010 aaaaa
+b1110111 aaaab
+
+#13800
+b100000 aaaaa
+b1010010 aaaab
+
+#13900
+b1110111 aaaaa
+b1110010 aaaab
+
+#14000
+b1010010 aaaaa
+b100000 aaaab
+
+#14075
+b1110010 aaaaa
+b1110111 aaaab
+
+#14150
+b100000 aaaaa
+b1010010 aaaab
+
+#14250
+b1110111 aaaaa
+b1110010 aaaab
+
+#14350
+b1010010 aaaaa
+b100000 aaaab
+
+#14425
+b1110010 aaaaa
+b1110111 aaaab
+
+#14500
+b100000 aaaaa
+b1010010 aaaab
+
+#14600
+b1110111 aaaaa
+b1110010 aaaab
+
+#14700
+b1010010 aaaaa
+b100000 aaaab
+
+#14775
+b1110010 aaaaa
+b1110111 aaaab
+
+#14850
+b100000 aaaaa
+b1010010 aaaab
+
+#14950
+b1110111 aaaaa
+b1110010 aaaab
+
+#15050
+b1010010 aaaaa
+b100000 aaaab
+
+#15125
+b1110010 aaaaa
+b1110111 aaaab
+
+#15200
+b100000 aaaaa
+b1010010 aaaab
+
+#15300
+b1110111 aaaaa
+b1110010 aaaab
+
+#15400
+b1010010 aaaaa
+b100000 aaaab
+
+#15475
+b1110010 aaaaa
+b1110111 aaaab
+
+#15550
+b100000 aaaaa
+b1010010 aaaab
+
+#15650
+b1110111 aaaaa
+b1110010 aaaab
+
+#15750
+b1010010 aaaaa
+b100000 aaaab
+
+#15825
+b1110010 aaaaa
+b1110111 aaaab
+
+#15900
+b100000 aaaaa
+b1010010 aaaab
+
+#16000
+b1110111 aaaaa
+b1110010 aaaab
+
+#16100
+b1010010 aaaaa
+b100000 aaaab
+
+#16175
+b1110010 aaaaa
+b1110111 aaaab
+
+#16250
+b100000 aaaaa
+b1010010 aaaab
+
+#16350
+b1110111 aaaaa
+b1110010 aaaab
+
+#16450
+b1010010 aaaaa
+b100000 aaaab
+
+#16525
+b1110010 aaaaa
+b1110111 aaaab
+
+#16600
+b100000 aaaaa
+b1010010 aaaab
+
+#16700
+b1110111 aaaaa
+b1110010 aaaab
+
+#16800
+b1010010 aaaaa
+b100000 aaaab
+
+#16875
+b1110010 aaaaa
+b1110111 aaaab
+
+#16950
+b100000 aaaaa
+b1010010 aaaab
+
+#17050
+b1110111 aaaaa
+b1110010 aaaab
+
+#17150
+b1010010 aaaaa
+b100000 aaaab
+
+#17225
+b1110010 aaaaa
+b1110111 aaaab
+
+#17300
+b100000 aaaaa
+b1010010 aaaab
+
+#17400
+b1110010 aaaab
+
+#17500
+b100000 aaaab
+

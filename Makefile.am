@@ -1,6 +1,6 @@
 ## Process this file with automake to produce Makefile.in
 #
-# Copyright (c) 2004-2016 Hardware-Software-CoDesign, University of Erlangen-Nuremberg.
+# Copyright (c) 2004-2017 Hardware-Software-CoDesign, University of Erlangen-Nuremberg.
 #
 #   This library is free software; you can redistribute it and/or modify it under
 #   the terms of the GNU Lesser General Public License as published by the Free
@@ -92,8 +92,8 @@ noinst_PROGRAMS= \
 %.smx: %
 	./'$<' --systemoc-export-smx='$@'
 
-TEST_LOGS = $(addsuffix .log, $(noinst_PROGRAMS))
-TEST_ACTOR_LOGS =
+TEST_LOGS = $(foreach TEST,$(noinst_PROGRAMS),$(patsubst $(srcdir)/src/$(TEST)/golden%.log,$(TEST)%.log,$(wildcard $(srcdir)/src/$(TEST)/golden*.log)))
+TEST_VCDS = $(foreach TEST,$(noinst_PROGRAMS),$(patsubst $(srcdir)/src/$(TEST)/vpc/golden%.vcd,$(TEST)%.vcd,$(wildcard $(srcdir)/src/$(TEST)/vpc/golden*.vcd)))
 
 test_cluster_example_LDADD			= $(SYSTEMOC_LIBS)
 test_cluster_example_DEPENDENCIES		= $(SYSTEMOC_DEPENDENCIES)
@@ -112,9 +112,6 @@ test-dynamic-fsm.log: test-dynamic-fsm
 	./'$<' 100 > "$@" || { rm -f "$@"; exit 1; }
 test-dynamic-fsm-%.log: test-dynamic-fsm.log
 	grep '$*:' '$<' > '$@' || { rm -f "$@"; exit 1; }
-TEST_ACTOR_LOGS += \
-	test-dynamic-fsm-top.src.log \
-	test-dynamic-fsm-top.snk.log
 
 test_event_LDADD				= $(SYSTEMOC_LIBS)
 test_event_DEPENDENCIES				= $(SYSTEMOC_DEPENDENCIES)
@@ -157,10 +154,6 @@ test-fsm-and-composition.log: test-fsm-and-composition
 	./'$<' 100 > "$@" || { rm -f "$@"; exit 1; }
 test-fsm-and-composition-top.%.log: test-fsm-and-composition.log
 	grep 'top.$*:' '$<' > '$@' || { rm -f "$@"; exit 1; }
-TEST_ACTOR_LOGS += \
-	test-fsm-and-composition-top.src.log \
-	test-fsm-and-composition-top.snk.log \
-	test-fsm-and-composition-top.transform.log
 
 # More integration required! check
 test_fsm_and_composition_diss_falk_LDADD	= $(SYSTEMOC_LIBS)
@@ -172,9 +165,6 @@ test-fsm-and-composition-diss-falk.log: test-fsm-and-composition-diss-falk
 	./'$<' 100 > "$@" || { rm -f "$@"; exit 1; }
 test-fsm-and-composition-diss-falk-%.log: test-fsm-and-composition-diss-falk.log
 	grep '$*:' '$<' > '$@' || { rm -f "$@"; exit 1; }
-TEST_ACTOR_LOGS += \
-	test-fsm-and-composition-diss-falk-top.tb.log \
-	test-fsm-and-composition-diss-falk-top.transform.log
 
 # More integration required! check
 test_fsm_junction_state_LDADD			= $(SYSTEMOC_LIBS)
@@ -195,10 +185,6 @@ test-fsm-xor-composition.log: test-fsm-xor-composition
 	./'$<' 100 > "$@" || { rm -f "$@"; exit 1; }
 test-fsm-xor-composition-%.log: test-fsm-xor-composition.log
 	grep '$*:' '$<' > '$@' || { rm -f "$@"; exit 1; }
-TEST_ACTOR_LOGS += \
-	test-fsm-xor-composition-top.snk.log \
-	test-fsm-xor-composition-top.src.log \
-	test-fsm-xor-composition-top.transform.log
 
 # More integration required! check
 test_fsm_xor_composition_diss_falk_LDADD	= $(SYSTEMOC_LIBS)
@@ -218,9 +204,6 @@ test-getValueAt.log: test-getValueAt
 	./'$<' 100 > "$@" || { rm -f "$@"; exit 1; }
 test-getValueAt-%.log: test-getValueAt.log
 	grep '^$* ' '$<' > '$@' || { rm -f "$@"; exit 1; }
-TEST_ACTOR_LOGS += \
-	test-getValueAt-top.src1.log \
-	test-getValueAt-top.sink.log
 
 test_periodic_LDADD				= $(SYSTEMOC_LIBS)
 test_periodic_DEPENDENCIES			= $(SYSTEMOC_DEPENDENCIES)
@@ -239,12 +222,6 @@ test-sdf.log: test-sdf
 	./'$<' 100 > "$@" || { rm -f "$@"; exit 1; }
 test-sdf-%.log: test-sdf.log
 	grep '$* ' '$<' > '$@' || { rm -f "$@"; exit 1; }
-TEST_ACTOR_LOGS += \
-	test-sdf-top.sink.log \
-	test-sdf-top.src1.log \
-	test-sdf-top.src2.log \
-	test-sdf-top.top2.adder.log \
-	test-sdf-top.top2.multiply.log
 
 test_select_LDADD				= $(SYSTEMOC_LIBS)
 test_select_DEPENDENCIES			= $(SYSTEMOC_DEPENDENCIES)
@@ -255,12 +232,6 @@ test-select.log: test-select
 	./'$<' 100 > "$@" || { rm -f "$@"; exit 1; }
 test-select-%.log: test-select.log
 	grep '$*:' '$<' > '$@' || { rm -f "$@"; exit 1; }
-TEST_ACTOR_LOGS += \
-	test-select-top.select.log \
-	test-select-top.sink.log \
-	test-select-top.src1.log \
-	test-select-top.src2.log \
-	test-select-top.srcbool.log
 
 # More integration required! check and synthesis
 test_sqr_LDADD					= $(SYSTEMOC_LIBS)
@@ -272,9 +243,6 @@ test-sqr.log: test-sqr
 	./'$<' 100 > "$@" || { rm -f "$@"; exit 1; }
 test-sqr-sqrroot.%.log: test-sqr.log
 	grep 'sqrroot.$*:' '$<' > '$@' || { rm -f "$@"; exit 1; }
-TEST_ACTOR_LOGS += \
-	test-sqr-sqrroot.a1.log \
-	test-sqr-sqrroot.a5.log
 
 # Needed by all synthesis targets for sqr
 test-sqr.cpp: $(test_sqr_SOURCES)
@@ -308,9 +276,6 @@ test-sqr-int.log: test-sqr-int
 	./'$<' 100 > "$@" || { rm -f "$@"; exit 1; }
 test-sqr-int-%.log: test-sqr-int.log
 	grep '$*:' '$<' > '$@' || { rm -f "$@"; exit 1; }
-TEST_ACTOR_LOGS += \
-	test-sqr-int-src.log \
-	test-sqr-int-sink.log
 
 # Needed by all synthesis targets for sqr-int
 test-sqr-int.cpp: $(test_sqr_int_SOURCES)
@@ -334,6 +299,10 @@ test_src_snk_SOURCES				= \
 
 test-src-snk.log: test-src-snk
 	./'$<' 100 > "$@" || { rm -f "$@"; exit 1; }
+if VPC
+test-src-snk-%.log test-src-snk-%-CPU.vcd: test-src-snk src/test-src-snk/vpc/%.vpc.xml
+	set -- $^; VPCTRACEFILEPREFIX=test-src-snk-$*- VPCCONFIGURATION=$$2 ./'$<' 100 > 'test-src-snk-$*.log'
+endif
 
 # More integration required! Maybe check for VPC?
 test_src_snk_multirate_LDADD			= $(SYSTEMOC_LIBS)
@@ -361,12 +330,6 @@ test-src-snk-multicast.log: test-src-snk-multicast
 	./'$<' 100 > "$@" || { rm -f "$@"; exit 1; }
 test-src-snk-multicast-%.log: test-src-snk-multicast.log
 	grep '$*:' '$<' > '$@' || { rm -f "$@"; exit 1; }
-TEST_ACTOR_LOGS += \
-	test-src-snk-multicast-top.foo.snk1.log \
-	test-src-snk-multicast-top.foo.snk2.log \
-	test-src-snk-multicast-top.foo.src.log \
-	test-src-snk-multicast-top.snk3.log \
-	test-src-snk-multicast-top.snk4.log
 
 # More integration required! check
 test_src_snk_multiplex_LDADD			= $(SYSTEMOC_LIBS)
@@ -378,18 +341,6 @@ test-src-snk-multiplex.log: test-src-snk-multiplex
 	./'$<' 1000 10 20 5 0 2 > "$@" || { rm -f "$@"; exit 1; }
 test-src-snk-multiplex-%.log: test-src-snk-multiplex.log
 	grep '$*:' '$<' > '$@' || { rm -f "$@"; exit 1; }
-TEST_ACTOR_LOGS += \
-	test-src-snk-multiplex-top.snk0.log \
-	test-src-snk-multiplex-top.snk1.log \
-	test-src-snk-multiplex-top.snk2.log \
-	test-src-snk-multiplex-top.snk3.log \
-	test-src-snk-multiplex-top.snk4.log \
-	test-src-snk-multiplex-top.snk5.log \
-	test-src-snk-multiplex-top.snk6.log \
-	test-src-snk-multiplex-top.snk7.log \
-	test-src-snk-multiplex-top.snk8.log \
-	test-src-snk-multiplex-top.snk9.log \
-	test-src-snk-multiplex-top.src.log
 
 test_src_snk_multireader_LDADD			= $(SYSTEMOC_LIBS)
 test_src_snk_multireader_DEPENDENCIES		= $(SYSTEMOC_DEPENDENCIES)
@@ -408,11 +359,6 @@ test-src-snk-multiwriter.log: test-src-snk-multiwriter
 	./'$<' 100 > "$@" || { rm -f "$@"; exit 1; }
 test-src-snk-multiwriter-%.log: test-src-snk-multiwriter.log
 	grep '$*:' '$<' > '$@' || { rm -f "$@"; exit 1; }
-TEST_ACTOR_LOGS += \
-	test-src-snk-multiwriter-top.src1.log \
-	test-src-snk-multiwriter-top.src2.log \
-	test-src-snk-multiwriter-top.src3.log \
-	test-src-snk-multiwriter-top.snk.log
 
 # More integration required! check
 test_src_snk_noconsume_LDADD			= $(SYSTEMOC_LIBS)
@@ -440,11 +386,6 @@ test-systemc-blocking-cosim.log: test-systemc-blocking-cosim
 	./'$<' > "$@" || { rm -f "$@"; exit 1; }
 test-systemc-blocking-cosim-%.log: test-systemc-blocking-cosim.log
 	grep '$*:' '$<' > '$@' || { rm -f "$@"; exit 1; }
-TEST_ACTOR_LOGS += \
-	test-systemc-blocking-cosim-A.log \
-	test-systemc-blocking-cosim-B.log \
-	test-systemc-blocking-cosim-Snk.log \
-	test-systemc-blocking-cosim-Src.log
 
 test_systemc_nonblocking_cosim_LDADD		= $(SYSTEMOC_LIBS)
 test_systemc_nonblocking_cosim_DEPENDENCIES	= $(SYSTEMOC_DEPENDENCIES)
@@ -455,21 +396,20 @@ test-systemc-nonblocking-cosim.log: test-systemc-nonblocking-cosim
 	./'$<' > "$@" || { rm -f "$@"; exit 1; }
 test-systemc-nonblocking-cosim-%.log: test-systemc-nonblocking-cosim.log
 	grep '$*:' '$<' > '$@' || { rm -f "$@"; exit 1; }
-TEST_ACTOR_LOGS += \
-	test-systemc-nonblocking-cosim-A.log \
-	test-systemc-nonblocking-cosim-B.log \
-	test-systemc-nonblocking-cosim-Snk.log \
-	test-systemc-nonblocking-cosim-Src.log
 
 clean-local:
 	for i in $(noinst_PROGRAMS); do \
 	  rm -f $${i}.cpp $${i}.smx; \
 	done
-	rm -f $(TEST_LOGS) $(TEST_ACTOR_LOGS)
+	rm -f $(TEST_LOGS) $(TEST_VCDS)
 
-.PHONY: logs
-logs: $(TEST_LOGS) $(TEST_ACTOR_LOGS)
-check-am: $(TEST_LOGS) $(TEST_ACTOR_LOGS)
+.PHONY: test-logs
+test-logs: $(TEST_LOGS)
+.PHONY: test-vcds
+if VPC
+test-vcds: $(TEST_VCDS)
+endif
+check-am: $(TEST_LOGS)
 	@error=0; \
         for test in $(noinst_PROGRAMS); do \
           case "$$test" in \
@@ -504,8 +444,9 @@ if SYNTH_SW
 synth-sw: synth-sw-fir synth-sw-sqr synth-sw-sqr-int
 synth: synth-sw
 endif
+# .PHONY is outside conditionals to make automake happy
+.PHONY: synth-pthread
 if SYNTH_PTHREAD
 synth-pthread: synth-pthread-fir synth-pthread-sqr synth-pthread-sqr-int
-.PHONY: synth-pthread
 synth: synth-pthread
 endif
