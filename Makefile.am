@@ -403,13 +403,10 @@ clean-local:
 	done
 	rm -f $(TEST_LOGS) $(TEST_VCDS)
 
-.PHONY: test-logs
+.PHONY: test-logs check-logs
+check-am: check-logs
 test-logs: $(TEST_LOGS)
-.PHONY: test-vcds
-if VPC
-test-vcds: $(TEST_VCDS)
-endif
-check-am: $(TEST_LOGS)
+check-logs: $(TEST_LOGS)
 	@error=0; \
         for test in $(noinst_PROGRAMS); do \
           case "$$test" in \
@@ -437,6 +434,37 @@ check-am: $(TEST_LOGS)
  	  esac; \
 	done; \
 	exit $$error
+
+# .PHONY is outside conditionals to make automake happy
+.PHONY: test-vcds check-vcds
+if VPC
+check-am: check-vcds
+test-vcds: $(TEST_VCDS)
+check-vcds: $(TEST_VCDS)
+	@error=0; \
+        for test in $(noinst_PROGRAMS); do \
+          case "$$test" in \
+	    test-*) \
+	      for cmx in $(srcdir)/src/$${test}/vpc/*.vpc.xml; do \
+	        cmx=$${cmx##*/}; cmx=$${cmx%%.vpc.xml}; \
+	        status=success; \
+	        for vcd in $(srcdir)/src/$${test}/vpc/golden-$${cmx}*.vcd; do \
+		  if test -f $${vcd} && ! diff -u $${test}-$${vcd##*/golden-} $${vcd} > /dev/null; then \
+		    status=failed; \
+		  fi; \
+		done; \
+		if test x"$$status" = x"failed"; then \
+		  echo "Check for $${test}-$${cmx} failed!!!"; error=1; \
+		  for vcd in $(srcdir)/src/$${test}/vpc/golden-$${cmx}*.vcd; do \
+		    diff -u $${test}-$${vcd##*/golden-} $${vcd}; \
+		  done; \
+		fi; \
+	      done; \
+	      ;; \
+ 	  esac; \
+	done; \
+	exit $$error
+endif
 
 # .PHONY is outside conditionals to make automake happy
 .PHONY: synth-sw synth-pthread synth
