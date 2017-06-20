@@ -52,6 +52,14 @@ dnl AM_CPPFLAGS="$AM_CPPFLAGS $BOOST_INCLUDE"
 dnl AM_LDFLAGS="$AM_LDFLAGS   $BOOST_LDFLAGS"
 ACJF_CHECK_LIB_COSUPPORT
 ACJF_CHECK_LIB_SYSTEMOC
+AM_CONDITIONAL(VPC, test x"$SYSTEMOC_ENABLE_VPC" = x"yes")
+if test x"$SYSTEMOC_ENABLE_VPC" = x"yes"; then
+  AC_CONFIG_SUBDIRS([vpc])
+fi
+AM_CONDITIONAL(MAESTRO, test x"$SYSTEMOC_ENABLE_VPC" = x"yes")
+if test x"$SYSTEMOC_ENABLE_MAESTRO" = x"yes"; then
+  AC_CONFIG_SUBDIRS([maestro])
+fi
 
 # Checks for typedefs, structures, and compiler characteristics.
 
@@ -74,13 +82,6 @@ AM_CONDITIONAL(CLUSTERING, test x"$clustering" = x"true")
 AC_CONFIG_HEADER([config.h])
 AC_CONFIG_FILES([Makefile])
 
-if test x"$SYSTEMOC_ENABLE_VPC" = x"yes"; then
-  AC_CONFIG_SUBDIRS([vpc])
-fi
-
-if test x"$SYSTEMOC_ENABLE_MAESTRO" = x"yes"; then
-  AC_CONFIG_SUBDIRS([maestro])
-fi
 
 dnl m4_sinclude([systemoc-sqr/configure.in.frag])
 dnl m4_sinclude([systemoc-sqr-int/configure.in.frag])

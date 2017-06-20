@@ -1,6 +1,6 @@
 // vim: set sw=2 ts=8:
 /*
- * Copyright (c) 2004-2006 Hardware-Software-CoDesign, University of
+ * Copyright (c) 2004-2017 Hardware-Software-CoDesign, University of
  * Erlangen-Nuremberg. All rights reserved.
  * 
  *   This program is free software; you can redistribute it and/or modify it under
@@ -95,7 +95,8 @@ public:
   m_h_top(sc_core::sc_module_name name, size_t iter)
     : smoc_graph(name),
       src("src", iter), snk("snk") {
-    connectNodePorts(src.out, snk.in);
+    smoc_fifo<int> q("queue", 2);
+    q.connect(src.out).connect(snk.in);
   }
 };
 
