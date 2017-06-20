@@ -107,6 +107,10 @@ model {
       sources.cpp.lib project: ':SysteMoC', library: 'systemoc'
     }
 
+    "test-src-snk-multirate"(JFNativeExecutableSpec) {
+      sources.cpp.lib project: ':SysteMoC', library: 'systemoc'
+    }
+
     "test-src-snk-hierarchy"(JFNativeExecutableSpec) {
       sources.cpp.lib project: ':SysteMoC', library: 'systemoc'
     }
