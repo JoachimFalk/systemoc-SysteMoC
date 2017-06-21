@@ -299,6 +299,8 @@ test_src_snk_SOURCES				= \
 
 test-src-snk.log: test-src-snk
 	./'$<' 100 > "$@" || { rm -f "$@"; exit 1; }
+test-src-snk-%.log: test-src-snk.log
+	grep '$*:' '$<' > '$@' || { rm -f "$@"; exit 1; }
 if VPC
 test-src-snk-%.log test-src-snk-%-CPU.vcd: test-src-snk src/test-src-snk/vpc/%.vpc.xml
 	set -- $^; VPCTRACEFILEPREFIX=test-src-snk-$*- VPCCONFIGURATION=$$2 ./'$<' 100 > 'test-src-snk-$*.log'
