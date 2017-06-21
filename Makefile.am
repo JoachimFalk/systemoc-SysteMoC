@@ -438,6 +438,11 @@ check-logs: $(TEST_LOGS)
 # .PHONY is outside conditionals to make automake happy
 .PHONY: test-vcds check-vcds
 if VPC
+
+diff_vcd_ignore_date=-I '[[:blank:]]*[[:alpha:]]\{3\}[[:blank:]][[:digit:]]\{2\},[[:blank:]][[:digit:]]\{4\}[[:blank:]]*[[:digit:]]\{1,2\}:[[:digit:]]\{2\}:[[:digit:]]\{2\}$$'
+diff_vcd_ignore_systemc_version=-I 'SystemC[[:blank:]]2.2.0[[:blank:]]---[[:blank:]]'
+diff_vcd_ignore=$(diff_vcd_ignore_date) $(diff_vcd_ignore_systemc_version)
+
 check-am: check-vcds
 test-vcds: $(TEST_VCDS)
 check-vcds: $(TEST_VCDS)
@@ -449,14 +454,14 @@ check-vcds: $(TEST_VCDS)
 	        cmx=$${cmx##*/}; cmx=$${cmx%%.vpc.xml}; \
 	        status=success; \
 	        for vcd in $(srcdir)/src/$${test}/vpc/golden-$${cmx}*.vcd; do \
-		  if test -f $${vcd} && ! diff -u $${test}-$${vcd##*/golden-} $${vcd} > /dev/null; then \
+		  if test -f $${vcd} && ! diff -u $(diff_vcd_ignore) $${test}-$${vcd##*/golden-} $${vcd} > /dev/null; then \
 		    status=failed; \
 		  fi; \
 		done; \
 		if test x"$$status" = x"failed"; then \
 		  echo "Check for $${test}-$${cmx} failed!!!"; error=1; \
 		  for vcd in $(srcdir)/src/$${test}/vpc/golden-$${cmx}*.vcd; do \
-		    diff -u $${test}-$${vcd##*/golden-} $${vcd}; \
+		    diff -u $(diff_vcd_ignore) $${test}-$${vcd##*/golden-} $${vcd}; \
 		  done; \
 		fi; \
 	      done; \
