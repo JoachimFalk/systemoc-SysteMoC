@@ -91,6 +91,12 @@
 
 class smoc_reset_chan;
 
+namespace smoc {
+
+  class smoc_graph;
+
+} // namespace smoc
+
 namespace smoc { namespace Detail {
 
 class GraphBase;
@@ -127,6 +133,8 @@ class Node
   , private smoc::smoc_event_listener
 {
   typedef Node this_type;
+
+  friend class ::smoc::smoc_graph;
   friend class ::RuntimeTransition;
   // To call doReset()
   friend class ::smoc_reset_chan;
@@ -274,10 +282,6 @@ public:
   bool inCommState() const
     { return currentState == commState; }
 #endif // SYSTEMOC_ENABLE_VPC
-
-#ifdef SYSTEMOC_ENABLE_MAESTRO
-  bool testCanFire();
-#endif //SYSTEMOC_ENABLE_MAESTRO
 
   /// @brief Collect ports from child objects
   smoc_sysc_port_list getPorts() const;

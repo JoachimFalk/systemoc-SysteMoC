@@ -60,7 +60,7 @@ Node::Node(sc_core::sc_module_name name, NodeType nodeType, smoc_hierarchical_st
 # ifdef MAESTRO_ENABLE_POLYPHONIC
   , MAESTRO::PolyphoniC::psmoc_root_node()
 # endif
-#else // !defined(def SYSTEMOC_ENABLE_VPC) && !defined(SYSTEMOC_ENABLE_MAESTRO)
+#else // !defined(SYSTEMOC_ENABLE_VPC) && !defined(SYSTEMOC_ENABLE_MAESTRO)
     smoc::Detail::SysteMoCScheduler(name)
 #endif
   , nodeType(nodeType)
@@ -354,26 +354,16 @@ void Node::schedule() {
 }
 
 bool Node::canFire() {
-  if (ct == nullptr && !useActivationCallback()) {
-    // Hunt for enabled transition;
+  if (ct == nullptr && !useActivationCallback())
+    // Hunt for an enabled transition;
     searchActiveTransition();
-  }
-#ifndef SYSTEMOC_ENABLE_MAESTRO
-  return (ct != nullptr); // && ct->evaluateIOP() && ct->evaluateGuard();
-#else
   return (ct != nullptr) && !executing;
-#endif
 }
 
 sc_core::sc_time const &Node::getNextReleaseTime() const
   { return sc_core::sc_time_stamp(); }
 
 #ifdef SYSTEMOC_ENABLE_MAESTRO
-bool Node::testCanFire()
-{
-  return (ct != NULL && !executing);
-}
-
 void Node::getCurrentTransition(MetaMap::Transition *&activeTransition)
 {
   activeTransition = static_cast<MetaMap::Transition *>(this->ct);
