@@ -64,12 +64,12 @@ namespace smoc { namespace Detail {
  * from this class you have to change apply_visitor.hpp accordingly.
  */
 class GraphBase
-  : public smoc_root_node 
+  : public Node 
 {
   // need to call *StateChange
   friend class smoc_multireader_fifo_chan_base;
   friend class smoc_reset_chan;
-  friend class smoc_root_node;
+  friend class Node;
   friend class smoc::smoc_scheduler_top; // doReset
 
   typedef GraphBase this_type;
@@ -292,7 +292,7 @@ protected:
   virtual void before_end_of_elaboration();
   virtual void end_of_elaboration();
   
-  const smoc_node_list &getNodes() const;
+  const NodeList &getNodes() const;
   const smoc_chan_list &getChans() const;
   sc_core::sc_object   *getChild(std::string const &name) const;
 
@@ -301,7 +301,7 @@ protected:
 
 private:
   /// Actor and graph child objects of this graph.
-  smoc_node_list      nodes;
+  NodeList      nodes;
   /// Channel child objects of this graph.
   smoc_chan_list      channels;
   /// Child lookup map

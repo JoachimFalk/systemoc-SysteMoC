@@ -36,7 +36,6 @@
 
 #include <systemoc/detail/smoc_chan_if.hpp>
 #include <systemoc/detail/smoc_root_chan.hpp>
-#include <systemoc/detail/smoc_root_node.hpp>
 #include <smoc/detail/DebugOStream.hpp>
 
 #include <map>
@@ -45,6 +44,7 @@
 #include <CoSupport/compatibility-glue/nullptr.h>
 
 #include <CoSupport/String/Concat.hpp>
+#include <smoc/detail/Node.hpp>
 
 using namespace smoc::Detail;
 using CoSupport::String::Concat;

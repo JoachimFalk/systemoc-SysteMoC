@@ -125,7 +125,7 @@ private:
   smoc::smoc_event dae;
 
   typedef std::set<smoc_root_chan*> ChanSet;
-  typedef std::set<smoc_root_node*> NodeSet;
+  typedef std::set<smoc::Detail::Node*> NodeSet;
 
   ChanSet chans;
   NodeSet nodes;
@@ -294,12 +294,12 @@ public:
   this_type& connect(smoc_reset_port& p)
     { return this_type::con_type::connect(p); }
   
-  this_type& connect(smoc_root_node& n) {
+  this_type& connect(smoc::Detail::Node& n) {
     sassert(getChan()->nodes.insert(&n).second);
     return *this;
   }
 
-  this_type& operator<<(smoc_root_node& n)
+  this_type& operator<<(smoc::Detail::Node& n)
     { return connect(n); }
 
   template<class T>

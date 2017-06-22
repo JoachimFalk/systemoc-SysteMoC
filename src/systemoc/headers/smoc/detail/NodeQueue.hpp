@@ -36,11 +36,12 @@
 #ifndef _INCLUDED_SMOC_DETAIL_NODEQUEUE_HPP
 #define _INCLUDED_SMOC_DETAIL_NODEQUEUE_HPP
 
+#include <smoc/detail/Node.hpp>
+
 #include <systemc>
 #include <queue>
 
 #include "../smoc_event.hpp"
-#include "../../systemoc/detail/smoc_root_node.hpp"
 
 namespace smoc { namespace Detail {
 
@@ -53,18 +54,18 @@ public:
   NodeQueue(sc_core::sc_module_name name);
   
   // register an event with its next releasetime in the EventQueue
-  void registerNode(smoc_root_node *node, sc_core::sc_time time);
+  void registerNode(Node *node, sc_core::sc_time time);
   
-  smoc_root_node *getNextNode();
+  Node *getNextNode();
 private:
 
   /* struct used to store an event with a certain release-time */
   struct TimeNodePair {
-    TimeNodePair(sc_core::sc_time time, smoc_root_node *node)
+    TimeNodePair(sc_core::sc_time time, Node *node)
       : time(time), node(node) {}
 
     sc_core::sc_time  time;
-    smoc_root_node   *node;
+    Node   *node;
   };
 
   /* struct used for comparison

@@ -51,10 +51,6 @@ public:
                 sc_core::sc_time off,
                 float jitter=0.0);
 
-  sc_core::sc_time calculateMobility() const;
-
-  void             updateReleaseTime();
-
   sc_core::sc_time getPeriod()
     { return period; }
 
@@ -74,10 +70,11 @@ protected:
 
 private:
 
-  void schedule();
-
   bool canFire();
+  void schedule();
+  void updateReleaseTime();
 
+  sc_core::sc_time       calculateMobility() const;
   sc_core::sc_time const &getNextReleaseTime() const;
 
   int period_counter;
@@ -87,7 +84,6 @@ private:
   float jitter;
   bool reexecute;
   bool periodicActorActive;
-
 };
 
 } // namespace smoc

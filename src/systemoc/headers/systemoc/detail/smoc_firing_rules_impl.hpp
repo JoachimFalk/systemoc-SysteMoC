@@ -74,7 +74,11 @@
 # include <Maestro/MetaMap/Transition.hpp>
 #endif //SYSTEMOC_ENABLE_MAESTRO
 
-class smoc_root_node;
+namespace smoc { namespace Detail { 
+
+  class Node;
+
+} } // namepsace smoc::Detail
 
 //class FiringStateBaseImpl;
 //DECL_INTRUSIVE_REFCOUNT_PTR(FiringStateBaseImpl, PFiringStateBaseImpl);
@@ -264,7 +268,7 @@ private:
   /**
    * Method to be used by a thread to execute this transition's actions
    */
-  virtual void executeTransition(smoc_root_node* node);
+  virtual void executeTransition(smoc::Detail::Node *node);
   
 #endif //SYSTEMOC_ENABLE_MAESTRO
 
@@ -303,11 +307,11 @@ public:
   bool evaluateGuard() const;
 
   /// @brief Execute transitions
-  void execute(smoc_root_node *actor);
+  void execute(smoc::Detail::Node *actor);
 
   void *getID() const;
 
-  void before_end_of_elaboration(smoc_root_node* node);
+  void before_end_of_elaboration(smoc::Detail::Node *node);
 
   void end_of_elaboration();
 
@@ -346,7 +350,7 @@ public:
   RuntimeTransitionList& getTransitions();
 
   void addTransition(const RuntimeTransition& t,
-                     smoc_root_node *node);
+                     smoc::Detail::Node *node);
 
   void end_of_elaboration();
 
@@ -391,12 +395,12 @@ public:
 
   /// @brief Hierarchical before end-of-elaboration callback
   void before_end_of_elaboration(
-      smoc_root_node        *actor,
+      smoc::Detail::Node    *actor,
       HierarchicalStateImpl *init);
 
   /// @brief Hierarchical end-of-elaboration callback
   void end_of_elaboration(
-      smoc_root_node        *actor);
+      smoc::Detail::Node    *actor);
 
   /// @brief Merge firing FSMs
   void unify(this_type *fr);

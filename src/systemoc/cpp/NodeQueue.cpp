@@ -44,7 +44,7 @@ NodeQueue::NodeQueue(sc_core::sc_module_name name)
 };
 
 // register an event with its next releasetime in the EventQueue
-void NodeQueue::registerNode(smoc_root_node* node, sc_core::sc_time time) {
+void NodeQueue::registerNode(Node* node, sc_core::sc_time time) {
   if (time < sc_core::sc_time_stamp()) {
     std::cerr << "Warning: re-activation of a time-triggered Node with a release-time in the past! ("
               << node->name() << ") "<< time << " < " << sc_core::sc_time_stamp() << std::endl
@@ -65,9 +65,9 @@ void NodeQueue::registerNode(smoc_root_node* node, sc_core::sc_time time) {
   }
 }
 
-smoc_root_node *NodeQueue::getNextNode() {
+Node *NodeQueue::getNextNode() {
   TimeNodePair    pair     = pqueue.top();
-  smoc_root_node *top_node = pair.node;
+  Node *top_node = pair.node;
   pqueue.pop();
   
   if (pqueue.empty() || pqueue.top().time > sc_core::sc_time_stamp()) {

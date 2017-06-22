@@ -38,8 +38,7 @@
 
 #include <boost/type_traits/add_const.hpp>
 #include <boost/type_traits/remove_const.hpp>
-
-#include <systemoc/detail/smoc_root_node.hpp>
+#include <smoc/detail/Node.hpp>
 #include <systemoc/detail/smoc_root_chan.hpp>
 #include <systemoc/detail/smoc_sysc_port.hpp>
 #include <systemoc/smoc_graph.hpp>
@@ -111,14 +110,14 @@ _SMOC_GENERATE_APPLY_VISITOR(smoc_actor)
 namespace Detail {
   template<template <class> class M, class Visitor>
   typename Visitor::result_type
-  apply_visitor_helper(Visitor &visitor, typename M<smoc_root_node>::type *ptr) {
+  apply_visitor_helper(Visitor &visitor, typename M<smoc::Detail::Node>::type *ptr) {
     _SMOC_HANDLE_DERIVED_CLASS(smoc_actor);
     _SMOC_HANDLE_DERIVED_CLASS(GraphBase);
     assert(!"WTF?! Unhandled derived class of smoc_root_node!");
   }
 } // namespace Detail
 
-_SMOC_GENERATE_APPLY_VISITOR(smoc_root_node)
+_SMOC_GENERATE_APPLY_VISITOR(smoc::Detail::Node)
 
 /* smoc_fifo_chan_base */
 
@@ -207,7 +206,7 @@ namespace smoc { namespace Detail {
   template<template <class> class M, class Visitor>
   typename Visitor::result_type
   apply_visitor_helper(Visitor &visitor, typename M<sc_core::sc_module>::type *ptr) {
-    _SMOC_HANDLE_DERIVED_CLASS(smoc_root_node);
+    _SMOC_HANDLE_DERIVED_CLASS(Node);
     return visitor(*ptr); // fallback
   }
 

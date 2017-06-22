@@ -44,6 +44,7 @@ nobase_include_HEADERS = \
 	smoc/detail/IOPattern.hpp \
 	smoc/detail/LatencyQueue.hpp \
 	smoc/detail/NamedIdedObj.hpp \
+	smoc/detail/Node.hpp \
 	smoc/detail/NodeQueue.hpp \
 	smoc/detail/PortBaseIf.hpp \
 	smoc/detail/PortIOBaseIf.hpp \
@@ -88,5 +89,4 @@ nobase_include_HEADERS = \
 	systemoc/detail/smoc_port_registry.hpp \
 	systemoc/detail/smoc_ring_access.hpp \
 	systemoc/detail/smoc_root_chan.hpp \
-	systemoc/detail/smoc_root_node.hpp \
 	systemoc/detail/smoc_sysc_port.hpp
