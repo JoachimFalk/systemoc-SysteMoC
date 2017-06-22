@@ -77,7 +77,7 @@ noinst_PROGRAMS= \
 	test-sqr \
 	test-systemc-sqr \
 	test-sqr-int \
-	test-src-snk \
+	test-src-snk-plain \
 	test-src-snk-multirate \
 	test-src-snk-hierarchy \
 	test-src-snk-multicast \
@@ -292,18 +292,18 @@ synth-pthread-sqr-int: test-sqr-int-$(PTHREAD_SYNTH_SUBDIR)/top
 endif
 
 # More integration required! Maybe check for VPC?
-test_src_snk_LDADD				= $(SYSTEMOC_LIBS)
-test_src_snk_DEPENDENCIES			= $(SYSTEMOC_DEPENDENCIES)
-test_src_snk_SOURCES				= \
-	src/test-src-snk/cpp/design-src-snk.cpp
+test_src_snk_plain_LDADD			= $(SYSTEMOC_LIBS)
+test_src_snk_plain_DEPENDENCIES			= $(SYSTEMOC_DEPENDENCIES)
+test_src_snk_plain_SOURCES			= \
+	src/test-src-snk-plain/cpp/design-src-snk-plain.cpp
 
-test-src-snk.log: test-src-snk
+test-src-snk-plain.log: test-src-snk-plain
 	./'$<' 100 > "$@" || { rm -f "$@"; exit 1; }
-test-src-snk-%.log: test-src-snk.log
+test-src-snk-plain-%.log: test-src-snk-plain.log
 	grep '$*:' '$<' > '$@' || { rm -f "$@"; exit 1; }
 if VPC
-test-src-snk-%.log test-src-snk-%-CPU.vcd: test-src-snk src/test-src-snk/vpc/%.vpc.xml
-	set -- $^; VPCTRACEFILEPREFIX=test-src-snk-$*- VPCCONFIGURATION=$$2 ./'$<' 100 > 'test-src-snk-$*.log'
+test-src-snk-plain-%.log test-src-snk-plain-%-CPU.vcd: test-src-snk-plain src/test-src-snk-plain/vpc/%.vpc.xml
+	set -- $^; VPCTRACEFILEPREFIX=test-src-snk-plain-$*- VPCCONFIGURATION=$$2 ./'$<' 100 > 'test-src-snk-plain-$*.log'
 endif
 
 # More integration required! Maybe check for VPC?
