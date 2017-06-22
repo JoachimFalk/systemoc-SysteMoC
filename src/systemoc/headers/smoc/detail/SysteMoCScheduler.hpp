@@ -22,8 +22,6 @@ namespace smoc { namespace Detail {
     : protected EvalAPI::SchedulingInterface
     , public sc_core::sc_module
   {
-    friend class ::smoc::smoc_graph;
-
     SC_HAS_PROCESS(SysteMoCScheduler);
   protected:
     SysteMoCScheduler(sc_core::sc_module_name);
