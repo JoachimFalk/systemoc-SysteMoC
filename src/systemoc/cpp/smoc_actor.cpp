@@ -45,7 +45,7 @@ smoc_actor::smoc_actor(sc_core::sc_module_name name, smoc_hierarchical_state &s,
 #ifdef SYSTEMOC_ENABLE_MAESTRO
     , bool useLogFile
 #endif //defined(SYSTEMOC_ENABLE_MAESTRO)
-  ) : smoc_root_node(name, NODE_TYPE_ACTOR, s, thread_stack_size)
+  ) : Node(name, NODE_TYPE_ACTOR, s, thread_stack_size)
 {
 #ifdef SYSTEMOC_ENABLE_MAESTRO
   this->setName(this->name());
@@ -57,7 +57,7 @@ smoc_actor::smoc_actor(smoc_hierarchical_state &s, unsigned int thread_stack_siz
 #ifdef SYSTEMOC_ENABLE_MAESTRO
     , bool useLogFile
 #endif //defined(SYSTEMOC_ENABLE_MAESTRO)
-  ) : smoc_root_node(sc_core::sc_gen_unique_name("smoc_actor"), NODE_TYPE_ACTOR, s, thread_stack_size)
+  ) : Node(sc_core::sc_gen_unique_name("smoc_actor"), NODE_TYPE_ACTOR, s, thread_stack_size)
 {
 #ifdef SYSTEMOC_ENABLE_MAESTRO
   this->setName(this->name());
@@ -98,7 +98,7 @@ void smoc_actor::setScheduled(bool set)
 
 void smoc_actor::getCurrentTransition(MetaMap::Transition*& activeTransition)
 {
-  smoc_root_node::getCurrentTransition(activeTransition);
+  Node::getCurrentTransition(activeTransition);
 }
 
 void smoc_actor::registerTransitionReadyListener(MetaMap::TransitionReadyListener& listener)
@@ -232,7 +232,7 @@ void smoc_actor::before_end_of_elaboration() {
   smoc::Detail::outDbg << "<smoc_actor::before_end_of_elaboration name=\"" << this->name() << "\">"
          << std::endl << smoc::Detail::Indent::Up;
 #endif // SYSTEMOC_DEBUG
-  smoc_root_node::before_end_of_elaboration();
+  Node::before_end_of_elaboration();
 #ifdef SYSTEMOC_ENABLE_VPC
   smoc_sysc_port_list ports = getPorts();
   for (smoc_sysc_port_list::iterator iter = ports.begin();

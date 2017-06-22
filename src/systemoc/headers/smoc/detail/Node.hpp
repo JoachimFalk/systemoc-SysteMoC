@@ -33,8 +33,8 @@
  * ENHANCEMENTS, OR MODIFICATIONS.
  */
 
-#ifndef _INCLUDED_SMOC_ROOT_NODE_HPP
-#define _INCLUDED_SMOC_ROOT_NODE_HPP
+#ifndef _INCLUDED_SMOC_DETAIL_NODE_HPP
+#define _INCLUDED_SMOC_DETAIL_NODE_HPP
 
 #include <list>
 #include <typeinfo>
@@ -51,13 +51,13 @@
 
 #include <systemoc/smoc_config.h>
 
-#include "../../smoc/detail/NamedIdedObj.hpp"
-#include "../../smoc/detail/SysteMoCScheduler.hpp"
-#include "../../smoc/detail/SimulationContext.hpp"
-#include "../../smoc/smoc_expr.hpp"
-#include "../smoc_firing_rules.hpp"
-#include "smoc_firing_rules_impl.hpp"
-#include "smoc_sysc_port.hpp"
+#include "NamedIdedObj.hpp"
+#include "SysteMoCScheduler.hpp"
+#include "SimulationContext.hpp"
+#include "../smoc_expr.hpp"
+#include "../../systemoc/smoc_firing_rules.hpp"
+#include "../../systemoc/detail/smoc_firing_rules_impl.hpp"
+#include "../../systemoc/detail/smoc_sysc_port.hpp"
 
 #ifdef SYSTEMOC_ENABLE_HOOKING
 # include <smoc/smoc_hooking.hpp>
@@ -89,18 +89,18 @@
 #define SMOC_TILL(event)            this->till(event, #event)
 #define SMOC_LITERAL(lit)           this->literal(lit)
 
+class smoc_reset_chan;
+
 namespace smoc { namespace Detail {
 
-  class GraphBase;
-
-} } // namespace smoc::Detail
+class GraphBase;
 
 /**
  * smoc_root_node is the base class of all systemoc nodes be it
  * actors or graphs! If you derive more stuff from this class
  * you have to change apply_visitor.hpp accordingly.
  */
-class smoc_root_node
+class Node
   :
 #if defined(SYSTEMOC_ENABLE_VPC)
     public SystemC_VPC::ScheduledTask
@@ -126,11 +126,11 @@ class smoc_root_node
 /// actor or graph if the guard of the transition is also satisfied.
   , private smoc::smoc_event_listener
 {
-  typedef smoc_root_node this_type;
-  friend class RuntimeTransition;
+  typedef Node this_type;
+  friend class ::RuntimeTransition;
   // To call doReset()
-  friend class smoc_reset_chan;
-  friend class smoc::Detail::GraphBase;
+  friend class ::smoc_reset_chan;
+  friend class GraphBase;
 #ifdef SYSTEMOC_ENABLE_HOOKING
   // To manipulate transitionHooks
   friend void smoc::Hook::Detail::addTransitionHook(smoc_actor *, const smoc::Hook::Detail::TransitionHook &);
@@ -199,7 +199,7 @@ private:
   bool searchActiveTransition();
 
 protected:
-  smoc_root_node(sc_core::sc_module_name, NodeType nodeType, smoc_hierarchical_state &s, unsigned int thread_stack_size);
+  Node(sc_core::sc_module_name, NodeType nodeType, smoc_hierarchical_state &s, unsigned int thread_stack_size);
   
   virtual void before_end_of_elaboration();
   virtual void end_of_elaboration();
@@ -282,7 +282,7 @@ public:
   /// @brief Collect ports from child objects
   smoc_sysc_port_list getPorts() const;
 
-  virtual ~smoc_root_node();
+  virtual ~Node();
 
   void schedule();
 
@@ -291,6 +291,8 @@ public:
   sc_core::sc_time const &getNextReleaseTime() const;
 };
 
-typedef std::list<smoc_root_node *> smoc_node_list;
+typedef std::list<Node *> NodeList;
 
-#endif // _INCLUDED_SMOC_ROOT_NODE_HPP
+} } // namespace smoc::Detail
+
+#endif // _INCLUDED_SMOC_DETAIL_NODE_HPP

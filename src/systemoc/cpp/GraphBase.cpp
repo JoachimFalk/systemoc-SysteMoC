@@ -52,7 +52,7 @@ using CoSupport::String::Concat;
 
 GraphBase::GraphBase(
     const sc_core::sc_module_name &name, smoc_firing_state &init)
-  : smoc_root_node(name, smoc_root_node::NODE_TYPE_GRAPH, init, 0),
+  : Node(name, Node::NODE_TYPE_GRAPH, init, 0),
     scheduler(nullptr)
 {}
   
@@ -66,14 +66,14 @@ void GraphBase::before_end_of_elaboration() {
   if (scheduler)
     scheduler->_before_end_of_elaboration();
 
-  smoc_root_node::before_end_of_elaboration();
+  Node::before_end_of_elaboration();
   
   for (std::vector<sc_core::sc_object *>::const_iterator iter = get_child_objects().begin();
        iter != get_child_objects().end();
        ++iter) {
     sassert(childLookupMap.insert(std::make_pair((*iter)->name(), *iter)).second);
     // only processing children which are nodes
-    smoc_root_node *node = dynamic_cast<smoc_root_node*>(*iter);
+    Node *node = dynamic_cast<Node*>(*iter);
     if (node)
       nodes.push_back(node);
     // only processing children which are channels
@@ -99,7 +99,7 @@ void GraphBase::end_of_elaboration() {
   if (scheduler)
     scheduler->_end_of_elaboration();
 
-  smoc_root_node::end_of_elaboration();
+  Node::end_of_elaboration();
 
 #ifdef SYSTEMOC_DEBUG
   if (smoc::Detail::outDbg.isVisible(smoc::Detail::Debug::High)) {
@@ -108,7 +108,7 @@ void GraphBase::end_of_elaboration() {
 #endif //defined(SYSTEMOC_DEBUG)
 }
 
-const smoc_node_list &GraphBase::getNodes() const
+const NodeList &GraphBase::getNodes() const
   { return nodes; }
 
 const smoc_chan_list &GraphBase::getChans() const
@@ -136,12 +136,12 @@ void GraphBase::doReset() {
       ++iter)
     (*iter)->doReset();
   // Reset all actors and subgraphs.
-  for(smoc_node_list::iterator iter = nodes.begin();
+  for(NodeList::iterator iter = nodes.begin();
       iter != nodes.end();
       ++iter)
     (*iter)->doReset();
   // Finally, reset myself.
-  smoc_root_node::doReset();
+  Node::doReset();
   
 #ifdef SYSTEMOC_DEBUG
   if (smoc::Detail::outDbg.isVisible(smoc::Detail::Debug::High)) {

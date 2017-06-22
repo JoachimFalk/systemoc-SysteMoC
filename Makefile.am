@@ -55,6 +55,7 @@ libsystemoc_la_SOURCES = \
 	src/systemoc/cpp/IdPool.cpp \
 	src/systemoc/cpp/IOPattern.cpp \
 	src/systemoc/cpp/LatencyQueue.cpp \
+	src/systemoc/cpp/Node.cpp \
 	src/systemoc/cpp/NodeQueue.cpp \
 	src/systemoc/cpp/SimulationContext.cpp \
 	src/systemoc/cpp/smoc_actor.cpp \
@@ -73,7 +74,6 @@ libsystemoc_la_SOURCES = \
 	src/systemoc/cpp/smoc_periodic_actor.cpp \
 	src/systemoc/cpp/smoc_reset.cpp \
 	src/systemoc/cpp/smoc_root_chan.cpp \
-	src/systemoc/cpp/smoc_root_node.cpp \
 	src/systemoc/cpp/smoc_scheduler_top.cpp \
 	src/systemoc/cpp/smoc_sysc_port.cpp \
 	src/systemoc/cpp/SMXDumper.cpp \
