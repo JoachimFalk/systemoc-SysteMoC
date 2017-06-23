@@ -34,6 +34,7 @@
 
 #include <CoSupport/compatibility-glue/nullptr.h>
 
+#include <list>
 #include <typeinfo>
 
 #include <systemoc/smoc_config.h>
@@ -67,6 +68,7 @@ Node::Node(sc_core::sc_module_name name, NodeType nodeType, smoc_hierarchical_st
   , currentState(nullptr)
   , ct(nullptr)
   , executing(false)
+  , useActivationCallback(true)
 #ifdef SYSTEMOC_ENABLE_VPC
   , commState(new RuntimeState())
   , diiEvent(new smoc::smoc_vpc_event())
@@ -187,7 +189,7 @@ void Node::doReset() {
   reset();
   // will re-evaluate guards
   setCurrentState(getFiringFSM()->getInitialState());
-  if (useActivationCallback())
+  if (useActivationCallback)
     setActivation(searchActiveTransition());
 
 #ifdef SYSTEMOC_DEBUG
@@ -222,7 +224,7 @@ void Node::signaled(smoc::smoc_event_waiter *e) {
          << std::endl << smoc::Detail::Indent::Up;
   }
 #endif // SYSTEMOC_DEBUG
-  assert(useActivationCallback());
+  assert(useActivationCallback);
   if (!executing) {
     // Never execute t->evaluateGuard() if events are reseted as the state of
     // all smoc::smoc_event_and_list dependent on the state of the reseted basic
@@ -280,7 +282,7 @@ void Node::setCurrentState(RuntimeState *newState) {
 #endif //SYSTEMOC_ENABLE_MAESTRO
   assert(newState);
   
-  if (useActivationCallback()) {
+  if (useActivationCallback) {
     // also del/add me as listener
     if (currentState != newState) {
       if (currentState) {
@@ -312,6 +314,42 @@ void Node::setCurrentState(RuntimeState *newState) {
 #endif // SYSTEMOC_DEBUG
 }
 
+void Node::setUseActivationCallback(bool flag) {
+  if (currentState) {
+    if (useActivationCallback && !flag) {
+      EventWaiterSet &am = currentState->am;
+
+      for (EventWaiterSet::iterator iter = am.begin();
+           iter != am.end();
+           ++iter)
+        (*iter)->delListener(this);
+      useActivationCallback = flag;
+    } else if (!useActivationCallback && flag) {
+      EventWaiterSet &am = currentState->am;
+
+      for (EventWaiterSet::iterator iter = am.begin();
+           iter != am.end();
+           ++iter)
+        (*iter)->addListener(this);
+      useActivationCallback = flag;
+      setActivation(searchActiveTransition());
+    } else
+      assert(useActivationCallback == flag);
+  } else
+    useActivationCallback = flag;
+}
+
+bool Node::getUseActivationCallback() const {
+  return useActivationCallback;
+}
+
+std::string Node::getDestStateName() {
+  if (!ct)
+    return "FIXME!!!";
+  assert(ct);
+  return ct->getDestStateName();
+}
+
 bool Node::searchActiveTransition() {
   assert(currentState);
   ct = nullptr;
@@ -321,7 +359,11 @@ bool Node::searchActiveTransition() {
   for (RuntimeTransitionList::iterator t = tl.begin();
        t != tl.end();
        ++t) {
-    if (t->evaluateIOP() && t->evaluateGuard()) {
+    if (t->check(
+#ifdef SYSTEMOC_ENABLE_VPC
+        currentState == commState
+#endif // SYSTEMOC_ENABLE_VPC
+      )) {
       ct = &*t;
       break;
     }
@@ -338,13 +380,12 @@ void Node::schedule() {
 #endif // SYSTEMOC_DEBUG
   
   assert(ct);
-  assert(ct->evaluateIOP() && ct->evaluateGuard());
-  assert(canFire());
+  assert(ct->check(true));
   executing = true;
   ct->execute(this);
   executing = false;
   assert(!ct);
-  if (useActivationCallback())
+  if (useActivationCallback)
     searchActiveTransition();
 #ifdef SYSTEMOC_DEBUG
   if (smoc::Detail::outDbg.isVisible(smoc::Detail::Debug::High)) {
@@ -354,7 +395,7 @@ void Node::schedule() {
 }
 
 bool Node::canFire() {
-  if (ct == nullptr && !useActivationCallback())
+  if (ct == nullptr && !useActivationCallback)
     // Hunt for an enabled transition;
     searchActiveTransition();
   return (ct != nullptr) && !executing;
