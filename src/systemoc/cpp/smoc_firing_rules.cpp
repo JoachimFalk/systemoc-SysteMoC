@@ -183,6 +183,9 @@ const smoc::Expr::Ex<bool>::type &RuntimeTransition::getExpr() const
 RuntimeState* RuntimeTransition::getDestState() const
   { return dest; }
 
+std::string RuntimeTransition::getDestStateName() const
+  { return dest->stateName; }
+
 const smoc_action& RuntimeTransition::getAction() const
   { return transitionImpl->getAction(); }
 
@@ -240,6 +243,38 @@ bool RuntimeTransition::hasWaitAction() {
   return boost::apply_visitor(Action_HasWaitVisitor(), getAction());
 }
 #endif //SYSTEMOC_ENABLE_MAESTRO
+
+bool RuntimeTransition::check(bool debug) const {
+#ifdef SYSTEMOC_DEBUG
+  if (smoc::Detail::outDbg.isVisible(smoc::Detail::Debug::Medium)) {
+    smoc::Detail::outDbg << "[" << getIOPatternWaiter() << "] " << *getIOPatternWaiter() << std::endl;
+  }
+#endif
+  bool result = getIOPatternWaiter()->isActive();
+  if (result) {
+    smoc::Expr::Detail::ActivationStatus retval =
+        smoc::Expr::evalTo<smoc::Expr::Value>(getExpr());
+  #if defined(SYSTEMOC_ENABLE_DEBUG)
+    smoc::Expr::evalTo<smoc::Expr::CommReset>(getExpr());
+  #endif
+    switch (retval.toSymbol()) {
+      case smoc::Expr::Detail::_ENABLED:
+        break;
+      case smoc::Expr::Detail::_DISABLED:
+        result = false;
+        break;
+      default:
+        assert(!"WHAT?!");
+        result = false;
+    }
+  }
+#if defined(SYSTEMOC_ENABLE_VPC)
+  if (!debug) {
+    transitionImpl->vpcTask.check();
+  }
+#endif //SYSTEMOC_ENABLE_VPC
+  return result;
+}
 
 void RuntimeTransition::execute(Node *actor) {
   enum {
@@ -357,7 +392,7 @@ void RuntimeTransition::execute(Node *actor) {
 #endif // SYSTEMOC_ENABLE_TRANSITION_TRACE
   
 
-#if defined SYSTEMOC_ENABLE_VPC
+#if defined(SYSTEMOC_ENABLE_VPC)
   if (execMode == MODE_DIISTART) {
     VpcTaskInterface *vti = this->transitionImpl.get();
     vti->getDiiEvent()->reset();
@@ -402,30 +437,6 @@ void RuntimeTransition::execute(Node *actor) {
 #endif
 }
 
-bool RuntimeTransition::evaluateIOP() const {
-#ifdef SYSTEMOC_DEBUG
-  if (smoc::Detail::outDbg.isVisible(smoc::Detail::Debug::Medium)) {
-    smoc::Detail::outDbg << "[" << getIOPatternWaiter() << "] " << *getIOPatternWaiter() << std::endl;
-  }
-#endif
-  return getIOPatternWaiter()->isActive();
-}
-
-bool RuntimeTransition::evaluateGuard() const {
-  smoc::Expr::Detail::ActivationStatus retval = smoc::Expr::evalTo<smoc::Expr::Value>(getExpr());
-#if defined(SYSTEMOC_ENABLE_DEBUG)
-  smoc::Expr::evalTo<smoc::Expr::CommReset>(getExpr());
-#endif
-  switch(retval.toSymbol()) {
-    case smoc::Expr::Detail::_ENABLED:
-      return true;
-    case smoc::Expr::Detail::_DISABLED:
-      return false;
-    default:
-      assert(0);
-  }
-}
-
 void RuntimeTransition::before_end_of_elaboration(Node *node) {
 #ifdef SYSTEMOC_NEED_IDS
   // Allocate Id for myself.
@@ -443,11 +454,12 @@ void RuntimeTransition::before_end_of_elaboration(Node *node) {
     boost::apply_visitor(
         smoc::Detail::ActionNameVisitor(actionNames), getAction());
 
+    //calculate delay for guard
     //initialize VpcTaskInterface
     this->transitionImpl->diiEvent = node->diiEvent;
     this->transitionImpl->vpcTask =
       SystemC_VPC::Director::getInstance().registerActor(actor,
-                  node->name(), actionNames, guardNames);
+                  node->name(), actionNames, guardNames, visitor.getComplexity());
 # ifdef SYSTEMOC_DEBUG_VPC_IF
     this->transitionImpl->actor = node->name();
 # endif // SYSTEMOC_DEBUG_VPC_IF

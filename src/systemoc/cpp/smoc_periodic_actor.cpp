@@ -79,7 +79,7 @@ bool smoc_periodic_actor::canFire() {
   bool active = smoc_actor::canFire();
   if (active &&
       getNextReleaseTime() > sc_core::sc_time_stamp() &&
-      useActivationCallback()) {
+      useActivationCallback) {
     setActivation(true);
     return false;
   } else

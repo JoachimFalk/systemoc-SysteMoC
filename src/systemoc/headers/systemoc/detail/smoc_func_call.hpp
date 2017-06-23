@@ -260,19 +260,25 @@ public:
 
 public:
   GuardNameVisitor(FunctionNames & names) :
-    functionNames(names){}
+      functionNames(names)
+    , complexity(0){}
 
+  int getComplexity(){
+    return complexity;
+  }
   result_type visitVar(const std::string &name, const std::string &type){
     return nullptr;
   }
   result_type visitLiteral(const std::string &type,
       const std::string &value){
+    complexity++;
     return nullptr;
   }
   result_type visitMemGuard(
       const std::string &name, const std::string& cxxType,
       const std::string &reType, const ParamInfoList &params){
     functionNames.push_back(name);
+    complexity++;
     return nullptr;
   }
   result_type visitEvent(const std::string &name){
@@ -303,6 +309,7 @@ public:
   }
 private:
   FunctionNames &functionNames;
+  int            complexity;
 };
 } } // namespace smoc::Detail
 #endif // SYSTEMOC_ENABLE_VPC

@@ -94,6 +94,7 @@ class smoc_reset_chan;
 namespace smoc {
 
   class smoc_graph;
+  class smoc_periodic_actor;
 
 } // namespace smoc
 
@@ -134,10 +135,11 @@ class Node
 {
   typedef Node this_type;
 
+  friend class ::smoc::smoc_periodic_actor;
   friend class ::smoc::smoc_graph;
-  friend class ::RuntimeTransition;
   // To call doReset()
   friend class ::smoc_reset_chan;
+  friend class ::RuntimeTransition;
   friend class GraphBase;
 #ifdef SYSTEMOC_ENABLE_HOOKING
   // To manipulate transitionHooks
@@ -159,6 +161,7 @@ private:
   RuntimeTransition *ct;
 
   bool               executing;
+  bool               useActivationCallback;
 
 #ifdef SYSTEMOC_ENABLE_VPC
   RuntimeState *commState;
@@ -205,6 +208,14 @@ private:
 
   void setCurrentState(RuntimeState *s);
   bool searchActiveTransition();
+
+  // Implement use activation callback interface from
+  // EvalAPI::SchedulingInterface.
+  void setUseActivationCallback(bool flags);
+  bool getUseActivationCallback() const;
+
+  // Implement getDestStateName from  EvalAPI::SchedulingInterface.
+  std::string getDestStateName();
 
 protected:
   Node(sc_core::sc_module_name, NodeType nodeType, smoc_hierarchical_state &s, unsigned int thread_stack_size);

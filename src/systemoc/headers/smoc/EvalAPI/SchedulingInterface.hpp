@@ -8,6 +8,7 @@
 #ifndef _INCLUDED_SMOC_EVALAPI_SCHEDULINGINTERFACE_HPP
 #define _INCLUDED_SMOC_EVALAPI_SCHEDULINGINTERFACE_HPP
 
+#include <list>
 #include <systemc>
 
 namespace smoc { namespace EvalAPI {
@@ -21,14 +22,24 @@ namespace smoc { namespace EvalAPI {
     // This will be implemented by the SysteMoC actor and called by the scheduler.
     virtual bool canFire()  = 0;
 
+    // This will return the target state of a transition.
+    virtual std::string getDestStateName() = 0;
+
+    // This method can switch between usage of the setActivation callback and
+    // between polling mode performed via canFire.
+    //
+    // setUseActivationCallback(false) will disable the setActivation callback.
+    // setUseActivationCallback(true)  will enable the setActivation callback.
+    virtual void setUseActivationCallback(bool flags) = 0;
+
     // If this method returns true, then SysteMoC will call
     // setActivation to notify the SchedulingInterface
     // that an actor is fireable. Otherwise, this has
     // to be check via calls to canFire.
-    virtual bool useActivationCallback() const = 0;
+    virtual bool getUseActivationCallback() const = 0;
 
-    // This will be called by SysteMoC if useActivationCallback()
-    // return true.
+    // This will be called by SysteMoC if getUseActivationCallback()
+    // returns true.
     virtual void setActivation(bool activation) = 0;
 
     // This must return a time until the actor is suspended

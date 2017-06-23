@@ -293,18 +293,26 @@ public:
   /// @brief Returns the target state
   RuntimeState* getDestState() const;
 
+  /// @brief Returns the name of the target state
+  std::string getDestStateName() const;
+
   /// @brief Returns the action
   const smoc_action &getAction() const;
 
   /// @brief Returns the guard
   const smoc::Expr::Ex<bool>::type &getExpr() const;
 
+//  /// @brief Gives the guard to SystemC-VPC
+//  std::list<bool> getGuard() const;
+
   /// @brief Returns waiter for input/output pattern (enough token/free space)
   smoc::smoc_event_waiter* getIOPatternWaiter() const
     { return transitionImpl->getIOPattern()->getWaiter(); }
 
-  bool evaluateIOP() const;
-  bool evaluateGuard() const;
+  /// @brief Test if transition is enabled.
+  /// If debug is true, the check of the guard is for debugging purposes
+  /// and should no consumed any simulated time.
+  bool check(bool debug = false) const;
 
   /// @brief Execute transitions
   void execute(smoc::Detail::Node *actor);
@@ -335,6 +343,10 @@ class RuntimeState
 #endif // SYSTEMOC_NEED_IDS
     public smoc::Detail::SimCTXBase {
     typedef RuntimeState                    this_type;
+
+    friend class smoc::Detail::Node;
+    friend class RuntimeTransition;
+
 private:
   std::string           stateName;
   RuntimeTransitionList tl;
