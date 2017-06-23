@@ -32,7 +32,7 @@ AC_DEFINE_UNQUOTED([SYSTEMOC_MICRO_VERSION],
   "$SYSTEMOC_MICRO_VERSION",
   [For SysteMoC version x.y.z defined to micro version, e.g., z])
 
-AC_CONFIG_SRCDIR([src/systemoc/cpp/smoc_root_node.cpp])
+AC_CONFIG_SRCDIR([src/systemoc/cpp/smoc_actor.cpp])
 AC_CONFIG_AUX_DIR([../BuildSystem])
 AC_CONFIG_MACRO_DIR([../BuildSystem/m4])
 
