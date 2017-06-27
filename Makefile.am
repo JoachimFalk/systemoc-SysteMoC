@@ -57,8 +57,8 @@ if CLUSTERING
   -include $(pkg_clustering_builddir)/mk/Rules-Synth-II.mk
 endif
 
-AM_CPPFLAGS= @AM_CPPFLAGS@ @SYSTEMOC_INCLUDE@
-AM_LDFLAGS = @AM_LDFLAGS@  @SYSTEMOC_LDFLAGS@
+AM_CPPFLAGS= @AM_CPPFLAGS@ $(SYSTEMOC_INCLUDE) $(BOOST_INCLUDE)
+AM_LDFLAGS = @AM_LDFLAGS@  $(SYSTEMOC_LDFLAGS) $(BOOST_LDFLAGS)
 
 noinst_PROGRAMS= \
 	test-cluster-example \
@@ -156,15 +156,15 @@ test-fsm-and-composition-top.%.log: test-fsm-and-composition.log
 	grep 'top.$*:' '$<' > '$@' || { rm -f "$@"; exit 1; }
 
 # More integration required! check
-test_fsm_and_composition_diss_falk_LDADD	= $(SYSTEMOC_LIBS)
+test_fsm_and_composition_diss_falk_LDADD	= $(SYSTEMOC_LIBS) -lboost_random
 test_fsm_and_composition_diss_falk_DEPENDENCIES	= $(SYSTEMOC_DEPENDENCIES)
 test_fsm_and_composition_diss_falk_SOURCES	= \
 	src/test-fsm-and-composition-diss-falk/cpp/design-and-comp.cpp
 
 test-fsm-and-composition-diss-falk.log: test-fsm-and-composition-diss-falk
 	./'$<' 100 > "$@" || { rm -f "$@"; exit 1; }
-test-fsm-and-composition-diss-falk-%.log: test-fsm-and-composition-diss-falk.log
-	grep '$*:' '$<' > '$@' || { rm -f "$@"; exit 1; }
+test-fsm-and-composition-diss-falk-top.%.log: test-fsm-and-composition-diss-falk.log
+	grep 'top.$*:' '$<' > '$@' || { rm -f "$@"; exit 1; }
 
 # More integration required! check
 test_fsm_junction_state_LDADD			= $(SYSTEMOC_LIBS)
@@ -176,15 +176,15 @@ test-fsm-junction-state.log: test-fsm-junction-state
 	./'$<' 100 > "$@" || { rm -f "$@"; exit 1; }
 
 # More integration required! check
-test_fsm_xor_composition_LDADD			= $(SYSTEMOC_LIBS)
+test_fsm_xor_composition_LDADD			= $(SYSTEMOC_LIBS) -lboost_random
 test_fsm_xor_composition_DEPENDENCIES		= $(SYSTEMOC_DEPENDENCIES)
 test_fsm_xor_composition_SOURCES		= \
 	src/test-fsm-xor-composition/cpp/design-xor-comp.cpp
 
 test-fsm-xor-composition.log: test-fsm-xor-composition
 	./'$<' 100 > "$@" || { rm -f "$@"; exit 1; }
-test-fsm-xor-composition-%.log: test-fsm-xor-composition.log
-	grep '$*:' '$<' > '$@' || { rm -f "$@"; exit 1; }
+test-fsm-xor-composition-top.%.log: test-fsm-xor-composition.log
+	grep 'top.$*:' '$<' > '$@' || { rm -f "$@"; exit 1; }
 
 # More integration required! check
 test_fsm_xor_composition_diss_falk_LDADD	= $(SYSTEMOC_LIBS)
@@ -194,6 +194,8 @@ test_fsm_xor_composition_diss_falk_SOURCES	= \
 
 test-fsm-xor-composition-diss-falk.log: test-fsm-xor-composition-diss-falk
 	./'$<' 100 > "$@" || { rm -f "$@"; exit 1; }
+test-fsm-xor-composition-diss-falk-top.%.log: test-fsm-xor-composition-diss-falk.log
+	grep 'top.$*:' '$<' > '$@' || { rm -f "$@"; exit 1; }
 
 test_getValueAt_LDADD				= $(SYSTEMOC_LIBS)
 test_getValueAt_DEPENDENCIES			= $(SYSTEMOC_DEPENDENCIES)
@@ -334,13 +336,13 @@ test-src-snk-multicast-%.log: test-src-snk-multicast.log
 	grep '$*:' '$<' > '$@' || { rm -f "$@"; exit 1; }
 
 # More integration required! check
-test_src_snk_multiplex_LDADD			= $(SYSTEMOC_LIBS)
+test_src_snk_multiplex_LDADD			= $(SYSTEMOC_LIBS) -lboost_random
 test_src_snk_multiplex_DEPENDENCIES		= $(SYSTEMOC_DEPENDENCIES)
 test_src_snk_multiplex_SOURCES			= \
 	src/test-src-snk-multiplex/cpp/design-src-snk-multiplex.cpp
 
 test-src-snk-multiplex.log: test-src-snk-multiplex
-	./'$<' 1000 10 20 5 0 2 > "$@" || { rm -f "$@"; exit 1; }
+	./'$<' 1000 10 20 5 4711 > "$@" || { rm -f "$@"; exit 1; }
 test-src-snk-multiplex-%.log: test-src-snk-multiplex.log
 	grep '$*:' '$<' > '$@' || { rm -f "$@"; exit 1; }
 

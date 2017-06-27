@@ -42,6 +42,9 @@
 #include <systemoc/smoc_actor.hpp>
 #include <systemoc/smoc_graph.hpp>
 
+#include <boost/random/uniform_int.hpp>
+#include <boost/random/mersenne_twister.hpp>
+
 class Src: public smoc_actor {
 public:
   smoc_port_out<void> o1, o2, o3, o4;
@@ -49,26 +52,27 @@ public:
   Src(sc_core::sc_module_name name, size_t _iter)
     : smoc_actor(name, start),
       start("start"),
-      iter(_iter), cv(-1)
+      rng(4711), die(1,3), iter(_iter), cv(-1)
   {
-    start = o2(1)                                   >> SMOC_CALL(Src::newcase) >> run;
+    start = o2(1)                                        >> SMOC_CALL(Src::newcase) >> run;
     run   = (o2(1) && o3(1)          && SMOC_VAR(cv)==1) >> SMOC_CALL(Src::newcase) >> run
           | (o1(1) && o2(1) && o3(1) && SMOC_VAR(cv)==2) >> SMOC_CALL(Src::newcase) >> run
           | (o2(1) && o4(1)          && SMOC_VAR(cv)==3) >> SMOC_CALL(Src::newcase) >> run
-          |                            (SMOC_VAR(cv)==0)                       >> end;
+          |                            (SMOC_VAR(cv)==0)                            >> end;
   }
 
 private:
   smoc_firing_state start, run, end;
-  size_t iter;
-  int cv;
+
+  boost::random::mt19937                    rng;
+  boost::random::uniform_int_distribution<> die;
+  size_t                                    iter;
+  int                                       cv;
 
   void newcase() {
     int oldcv = cv;
     if (--iter > 0)
-      do {
-        cv = rand() & 3;
-      } while (cv == 0);
+      cv = die(rng);
     else
       cv = 0;
     std::cout << name() << ": from case " << oldcv << " to " << cv << std::endl;

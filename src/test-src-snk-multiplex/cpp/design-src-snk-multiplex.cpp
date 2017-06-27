@@ -49,13 +49,11 @@
 #include <CoSupport/Streams/stl_output_for_pair.hpp>
 #include <CoSupport/String/Concat.hpp>
 
+#include <boost/random/uniform_int.hpp>
+#include <boost/random/mersenne_twister.hpp>
+
 using CoSupport::DataTypes::CheckedVector;
 using CoSupport::String::Concat;
-
-// random number in range [l,h[
-size_t rand(size_t l, size_t h) {
-  return l + (size_t) ((double)h * (std::rand() / (RAND_MAX + 1.0)));
-}
 
 uint64_t getUSecs() {
   timeval tv;
@@ -78,11 +76,13 @@ class m_h_src: public smoc_actor {
 public:
   smoc_port_out<Token> out;
 private:
-  size_t iter, inst;
+  boost::random::mt19937                    rng;
+  boost::random::uniform_int_distribution<> die;
+  size_t                                    iter;
   int val;
 
   void src() {
-    Token t(rand(0, inst), val++);
+    Token t(die(rng), val++);
 
     std::cout
       << name() << ": generate token with value " << t << std::endl;
@@ -93,20 +93,18 @@ private:
     --iter;
   }
 
-  bool more() const
-    { return iter > 0u; }
-
   smoc_firing_state start;
 public:
-  m_h_src(sc_core::sc_module_name name, size_t iter, size_t inst)
+  m_h_src(sc_core::sc_module_name name, size_t seed, size_t iter, size_t inst)
     : smoc_actor(name, start),
+      rng(seed), die(0, inst-1),
       iter(iter),
-      inst(inst),
       val(0)
   {
     start =
-         (out(1) && SMOC_GUARD(m_h_src::more) /*FIXME: SMOC_VAR(iter) > 0U*/)
-      >> SMOC_CALL(m_h_src::src)       >> start;
+        (out(1) && (SMOC_VAR(this->iter) > 0U)) >>
+        SMOC_CALL(m_h_src::src) >> start
+      ;
   }
 };
 
@@ -148,9 +146,9 @@ protected:
   m_h_src  src;
   CheckedVector<m_h_snk> snk;
 public:
-  m_h_top(sc_core::sc_module_name name, size_t iter, size_t inst, size_t size, size_t ooo)
+  m_h_top(sc_core::sc_module_name name, size_t iter, size_t inst, size_t size, size_t ooo, size_t seed)
     : smoc_graph(name),
-      src("src", iter, inst),
+      src("src", seed, iter, inst),
       snk(inst, m_h_snk::factory("snk"))
   {
     smoc_multiplex_fifo<Token, ColorAccessor> f(size,ooo);
@@ -191,9 +189,7 @@ int sc_main (int argc, char **argv) {
   if (argc >= 6)
     seed =  atol(argv[5]);
 
-  std::srand(seed);
-
-  smoc_top_moc<m_h_top> top("top", iter, inst, size, ooo);
+  smoc_top_moc<m_h_top> top("top", iter, inst, size, ooo, seed);
   sc_core::sc_start();
   return 0;
 }
