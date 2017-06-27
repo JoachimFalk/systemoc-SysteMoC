@@ -1,334 +1,232 @@
-top.src: from case -1 to 3
 top.transform: transition d->b
-top.src: from case 3 to 2
+top.transform: transition b->d
+top.transform: transition d->b
+top.transform: transition b->d
+top.transform: transition d->b
+top.transform: transition b->d
+top.transform: transition d->b
+top.transform: transition b->d
+top.transform: transition a->b
+top.transform: transition d->b
+top.transform: transition b->d
+top.transform: transition d->b
+top.transform: transition b->d
+top.transform: transition a->b
+top.transform: transition d->b
 top.transform: transition b->c
 top.transform: transition d->b
-top.src: from case 2 to 1
+top.transform: transition b->d
+top.transform: transition d->b
+top.transform: transition b->d
+top.transform: transition d->b
+top.transform: transition b->d
+top.transform: transition d->b
+top.transform: transition b->d
+top.transform: transition d->b
 top.transform: transition b->d
 top.transform: transition a->b
 top.transform: transition d->b
-top.src: from case 1 to 3
 top.transform: transition b->d
+top.transform: transition a->b
 top.transform: transition d->b
-top.src: from case 3 to 1
 top.transform: transition b->c
 top.transform: transition d->b
-top.src: from case 1 to 3
-top.transform: transition b->d
-top.transform: transition d->b
-top.src: from case 3 to 2
 top.transform: transition b->c
 top.transform: transition d->b
-top.src: from case 2 to 1
-top.transform: transition b->d
-top.transform: transition a->b
-top.transform: transition d->b
-top.src: from case 1 to 1
 top.transform: transition b->d
 top.transform: transition d->b
-top.src: from case 1 to 2
 top.transform: transition b->d
 top.transform: transition d->b
-top.src: from case 2 to 3
-top.transform: transition b->d
-top.transform: transition a->b
-top.transform: transition d->b
-top.src: from case 3 to 2
 top.transform: transition b->c
 top.transform: transition d->b
-top.src: from case 2 to 3
 top.transform: transition b->d
 top.transform: transition a->b
 top.transform: transition d->b
-top.src: from case 3 to 3
 top.transform: transition b->c
 top.transform: transition d->b
-top.src: from case 3 to 2
+top.transform: transition b->d
+top.transform: transition a->b
+top.transform: transition d->b
+top.transform: transition b->d
+top.transform: transition d->b
+top.transform: transition b->d
+top.transform: transition a->b
+top.transform: transition d->b
+top.transform: transition b->d
+top.transform: transition d->b
+top.transform: transition b->d
+top.transform: transition a->b
+top.transform: transition d->b
+top.transform: transition b->d
+top.transform: transition d->b
+top.transform: transition b->d
+top.transform: transition a->b
+top.transform: transition d->b
+top.transform: transition b->d
+top.transform: transition a->b
+top.transform: transition d->b
+top.transform: transition b->d
+top.transform: transition d->b
+top.transform: transition b->d
+top.transform: transition a->b
+top.transform: transition d->b
+top.transform: transition b->d
+top.transform: transition d->b
+top.transform: transition b->d
+top.transform: transition d->b
+top.transform: transition b->d
+top.transform: transition d->b
+top.transform: transition b->d
+top.transform: transition d->b
+top.transform: transition b->d
+top.transform: transition d->b
+top.transform: transition b->d
+top.transform: transition a->b
+top.transform: transition d->b
+top.transform: transition b->d
+top.transform: transition a->b
+top.transform: transition d->b
 top.transform: transition b->c
 top.transform: transition d->b
-top.src: from case 2 to 2
 top.transform: transition b->d
 top.transform: transition a->b
 top.transform: transition d->b
-top.src: from case 2 to 3
+top.transform: transition b->d
+top.transform: transition d->b
+top.transform: transition b->d
+top.transform: transition d->b
 top.transform: transition b->d
 top.transform: transition a->b
 top.transform: transition d->b
-top.src: from case 3 to 3
+top.transform: transition b->d
+top.transform: transition d->b
+top.transform: transition b->d
+top.transform: transition d->b
+top.transform: transition b->d
+top.transform: transition a->b
+top.transform: transition d->b
+top.transform: transition b->d
+top.transform: transition a->b
+top.transform: transition d->b
 top.transform: transition b->c
 top.transform: transition d->b
-top.src: from case 3 to 1
 top.transform: transition b->c
 top.transform: transition d->b
-top.src: from case 1 to 2
-top.transform: transition b->d
-top.transform: transition d->b
-top.src: from case 2 to 2
 top.transform: transition b->d
 top.transform: transition a->b
 top.transform: transition d->b
-top.src: from case 2 to 2
 top.transform: transition b->d
-top.transform: transition a->b
 top.transform: transition d->b
-top.src: from case 2 to 3
-top.transform: transition b->d
-top.transform: transition a->b
-top.transform: transition d->b
-top.src: from case 3 to 3
 top.transform: transition b->c
 top.transform: transition d->b
-top.src: from case 3 to 3
+top.transform: transition b->d
+top.transform: transition d->b
+top.transform: transition b->d
+top.transform: transition d->b
+top.transform: transition b->d
+top.transform: transition a->b
+top.transform: transition d->b
+top.transform: transition b->d
+top.transform: transition a->b
+top.transform: transition d->b
+top.transform: transition b->d
+top.transform: transition d->b
+top.transform: transition b->d
+top.transform: transition d->b
 top.transform: transition b->c
 top.transform: transition d->b
-top.src: from case 3 to 1
+top.transform: transition b->d
+top.transform: transition a->b
+top.transform: transition d->b
 top.transform: transition b->c
 top.transform: transition d->b
-top.src: from case 1 to 2
-top.transform: transition b->d
-top.transform: transition d->b
-top.src: from case 2 to 2
 top.transform: transition b->d
 top.transform: transition a->b
 top.transform: transition d->b
-top.src: from case 2 to 2
-top.transform: transition b->d
-top.transform: transition a->b
-top.transform: transition d->b
-top.src: from case 2 to 1
-top.transform: transition b->d
-top.transform: transition a->b
-top.transform: transition d->b
-top.src: from case 1 to 3
-top.transform: transition b->d
-top.transform: transition d->b
-top.src: from case 3 to 1
 top.transform: transition b->c
 top.transform: transition d->b
-top.src: from case 1 to 3
-top.transform: transition b->d
-top.transform: transition d->b
-top.src: from case 3 to 2
 top.transform: transition b->c
 top.transform: transition d->b
-top.src: from case 2 to 1
 top.transform: transition b->d
 top.transform: transition a->b
 top.transform: transition d->b
-top.src: from case 1 to 1
-top.transform: transition b->d
-top.transform: transition d->b
-top.src: from case 1 to 1
-top.transform: transition b->d
-top.transform: transition d->b
-top.src: from case 1 to 3
-top.transform: transition b->d
-top.transform: transition d->b
-top.src: from case 3 to 1
 top.transform: transition b->c
 top.transform: transition d->b
-top.src: from case 1 to 2
 top.transform: transition b->d
 top.transform: transition d->b
-top.src: from case 2 to 3
 top.transform: transition b->d
 top.transform: transition a->b
 top.transform: transition d->b
-top.src: from case 3 to 2
 top.transform: transition b->c
 top.transform: transition d->b
-top.src: from case 2 to 1
-top.transform: transition b->d
-top.transform: transition a->b
-top.transform: transition d->b
-top.src: from case 1 to 2
-top.transform: transition b->d
-top.transform: transition d->b
-top.src: from case 2 to 3
-top.transform: transition b->d
-top.transform: transition a->b
-top.transform: transition d->b
-top.src: from case 3 to 1
 top.transform: transition b->c
 top.transform: transition d->b
-top.src: from case 1 to 2
 top.transform: transition b->d
 top.transform: transition d->b
-top.src: from case 2 to 2
 top.transform: transition b->d
-top.transform: transition a->b
 top.transform: transition d->b
-top.src: from case 2 to 1
 top.transform: transition b->d
 top.transform: transition a->b
 top.transform: transition d->b
-top.src: from case 1 to 1
 top.transform: transition b->d
 top.transform: transition d->b
-top.src: from case 1 to 1
 top.transform: transition b->d
 top.transform: transition d->b
-top.src: from case 1 to 3
 top.transform: transition b->d
 top.transform: transition d->b
-top.src: from case 3 to 1
 top.transform: transition b->c
 top.transform: transition d->b
-top.src: from case 1 to 2
-top.transform: transition b->d
-top.transform: transition d->b
-top.src: from case 2 to 1
 top.transform: transition b->d
 top.transform: transition a->b
 top.transform: transition d->b
-top.src: from case 1 to 1
 top.transform: transition b->d
 top.transform: transition d->b
-top.src: from case 1 to 1
-top.transform: transition b->d
-top.transform: transition d->b
-top.src: from case 1 to 3
-top.transform: transition b->d
-top.transform: transition d->b
-top.src: from case 3 to 2
-top.transform: transition b->c
-top.transform: transition d->b
-top.src: from case 2 to 1
 top.transform: transition b->d
 top.transform: transition a->b
 top.transform: transition d->b
-top.src: from case 1 to 2
-top.transform: transition b->d
+top.transform: transition b->c
 top.transform: transition d->b
-top.src: from case 2 to 3
+top.transform: transition b->c
+top.transform: transition d->b
+top.transform: transition b->c
+top.transform: transition d->b
 top.transform: transition b->d
 top.transform: transition a->b
 top.transform: transition d->b
-top.src: from case 3 to 2
 top.transform: transition b->c
 top.transform: transition d->b
-top.src: from case 2 to 3
+top.transform: transition b->c
+top.transform: transition d->b
+top.transform: transition b->d
+top.transform: transition d->b
 top.transform: transition b->d
 top.transform: transition a->b
 top.transform: transition d->b
-top.src: from case 3 to 2
-top.transform: transition b->c
-top.transform: transition d->b
-top.src: from case 2 to 3
 top.transform: transition b->d
 top.transform: transition a->b
 top.transform: transition d->b
-top.src: from case 3 to 2
-top.transform: transition b->c
+top.transform: transition b->d
 top.transform: transition d->b
-top.src: from case 2 to 3
 top.transform: transition b->d
 top.transform: transition a->b
 top.transform: transition d->b
-top.src: from case 3 to 3
-top.transform: transition b->c
-top.transform: transition d->b
-top.src: from case 3 to 2
-top.transform: transition b->c
-top.transform: transition d->b
-top.src: from case 2 to 3
 top.transform: transition b->d
 top.transform: transition a->b
 top.transform: transition d->b
-top.src: from case 3 to 3
+top.transform: transition b->d
+top.transform: transition d->b
 top.transform: transition b->c
 top.transform: transition d->b
-top.src: from case 3 to 2
 top.transform: transition b->c
 top.transform: transition d->b
-top.src: from case 2 to 2
 top.transform: transition b->d
 top.transform: transition a->b
 top.transform: transition d->b
-top.src: from case 2 to 2
-top.transform: transition b->d
-top.transform: transition a->b
-top.transform: transition d->b
-top.src: from case 2 to 3
-top.transform: transition b->d
-top.transform: transition a->b
-top.transform: transition d->b
-top.src: from case 3 to 3
 top.transform: transition b->c
 top.transform: transition d->b
-top.src: from case 3 to 2
+top.transform: transition b->d
+top.transform: transition d->b
+top.transform: transition b->d
+top.transform: transition d->b
 top.transform: transition b->c
 top.transform: transition d->b
-top.src: from case 2 to 2
-top.transform: transition b->d
-top.transform: transition a->b
-top.transform: transition d->b
-top.src: from case 2 to 2
-top.transform: transition b->d
-top.transform: transition a->b
-top.transform: transition d->b
-top.src: from case 2 to 3
-top.transform: transition b->d
-top.transform: transition a->b
-top.transform: transition d->b
-top.src: from case 3 to 1
-top.transform: transition b->c
-top.transform: transition d->b
-top.src: from case 1 to 1
-top.transform: transition b->d
-top.transform: transition d->b
-top.src: from case 1 to 2
-top.transform: transition b->d
-top.transform: transition d->b
-top.src: from case 2 to 1
-top.transform: transition b->d
-top.transform: transition a->b
-top.transform: transition d->b
-top.src: from case 1 to 1
-top.transform: transition b->d
-top.transform: transition d->b
-top.src: from case 1 to 2
-top.transform: transition b->d
-top.transform: transition d->b
-top.src: from case 2 to 1
-top.transform: transition b->d
-top.transform: transition a->b
-top.transform: transition d->b
-top.src: from case 1 to 1
-top.transform: transition b->d
-top.transform: transition d->b
-top.src: from case 1 to 1
-top.transform: transition b->d
-top.transform: transition d->b
-top.src: from case 1 to 3
-top.transform: transition b->d
-top.transform: transition d->b
-top.src: from case 3 to 1
-top.transform: transition b->c
-top.transform: transition d->b
-top.src: from case 1 to 3
-top.transform: transition b->d
-top.transform: transition d->b
-top.src: from case 3 to 1
-top.transform: transition b->c
-top.transform: transition d->b
-top.src: from case 1 to 1
-top.transform: transition b->d
-top.transform: transition d->b
-top.src: from case 1 to 3
-top.transform: transition b->d
-top.transform: transition d->b
-top.src: from case 3 to 1
-top.transform: transition b->c
-top.transform: transition d->b
-top.src: from case 1 to 3
-top.transform: transition b->d
-top.transform: transition d->b
-top.src: from case 3 to 1
-top.transform: transition b->c
-top.transform: transition d->b
-top.src: from case 1 to 0
-top.transform: transition b->d
-top.transform: transition d->b
-
-Info: /OSCI/SystemC: Simulation stopped by user.

@@ -37,36 +37,62 @@
 #include <cstdlib>
 
 #include <systemoc/smoc_moc.hpp>
-#include <systemoc/smoc_port.hpp>
-#include <systemoc/smoc_fifo.hpp>
-#include <systemoc/smoc_actor.hpp>
-#include <systemoc/smoc_graph.hpp>
+
+#include <boost/random/uniform_int.hpp>
+#include <boost/random/mersenne_twister.hpp>
 
 class Testbench: public smoc_actor {
+  SC_HAS_PROCESS(Testbench);
 public:
   smoc_port_out<void> o1, o2;
   smoc_port_in<void>  i1, i2;
-protected:
+private:
   smoc_firing_state bf, be, bg, cf, ce, cg;
-  size_t            iter;
-  int               random;
+
+  smoc_event        smocEvent;
+  sc_core::sc_event scEvent;
+
+  // This produces randomness out of thin air, i.e., it is a pseudo-random number generator.
+  boost::random::mt19937                    rng;
+  boost::random::uniform_int_distribution<> coin;
+  size_t                                    iter;
+  int                                       random;
+
 public:
   Testbench(sc_core::sc_module_name name, size_t _iter)
     : smoc_actor(name, bf),
       bf("bf"), be("be"), bg("bg"), cf("cf"), ce("ce"), cg("cg"),
-      iter(_iter), random((rand()&1)+1)
+      rng(4711), coin(1,2), iter(_iter), random(coin(rng))
   {
-    bf = (SMOC_GUARD(Testbench::caseA)    && o2(1))          >> SMOC_CALL(Testbench::print)("bf->be") >> be
-       | (SMOC_GUARD(Testbench::caseB)    && o1(1) && i1(2)) >> SMOC_CALL(Testbench::print)("bf->cf") >> cf;
-    be = (SMOC_GUARD(Testbench::caseA)    && i2(1))          >> SMOC_CALL(Testbench::print)("be->bg") >> bg
-       | (SMOC_GUARD(Testbench::caseB)    && o1(1) && i1(2)) >> SMOC_CALL(Testbench::print)("be->ce") >> ce;
-    bg = (SMOC_GUARD(Testbench::caseA)    && o2(3))          >> SMOC_CALL(Testbench::print)("bg->bf") >> bf
-       | (SMOC_GUARD(Testbench::caseB)    && o1(1) && i1(2)) >> SMOC_CALL(Testbench::print)("bg->cg") >> cg;
+    SC_METHOD(notifyEvent);
+    sensitive << scEvent;
 
-    cf = (SMOC_GUARD(Testbench::caseBoth) && o2(1))          >> SMOC_CALL(Testbench::print)("cf->ce") >> ce;
-    ce = (SMOC_GUARD(Testbench::caseBoth) && i2(1))          >> SMOC_CALL(Testbench::print)("ce->cg") >> cg;
-    cg = (SMOC_GUARD(Testbench::caseA)    && o2(3))          >> SMOC_CALL(Testbench::print)("cg->cf") >> cf
-       | (SMOC_GUARD(Testbench::caseB)    && i2(2))          >> SMOC_CALL(Testbench::print)("cg->bg") >> bg;
+    bf = (till(smocEvent) && SMOC_GUARD(Testbench::caseA)    && o2(1)) >>
+         SMOC_CALL(Testbench::print)("bf->be") >> be
+       | (till(smocEvent) && SMOC_GUARD(Testbench::caseB)    && o1(1) && i1(2)) >>
+         SMOC_CALL(Testbench::print)("bf->cf") >> cf
+       ;
+    be = (till(smocEvent) && SMOC_GUARD(Testbench::caseA)    && i2(1)) >>
+         SMOC_CALL(Testbench::print)("be->bg") >> bg
+       | (till(smocEvent) && SMOC_GUARD(Testbench::caseB)    && o1(1) && i1(2)) >>
+         SMOC_CALL(Testbench::print)("be->ce") >> ce
+       ;
+    bg = (till(smocEvent) && SMOC_GUARD(Testbench::caseA)    && o2(3)) >>
+         SMOC_CALL(Testbench::print)("bg->bf") >> bf
+       | (till(smocEvent) && SMOC_GUARD(Testbench::caseB)    && o1(1) && i1(2)) >>
+         SMOC_CALL(Testbench::print)("bg->cg") >> cg
+       ;
+    cf = (till(smocEvent) && SMOC_GUARD(Testbench::caseBoth) && o2(1)) >>
+         SMOC_CALL(Testbench::print)("cf->ce") >> ce
+       ;
+    ce = (till(smocEvent) && SMOC_GUARD(Testbench::caseBoth) && i2(1)) >>
+         SMOC_CALL(Testbench::print)("ce->cg") >> cg
+       ;
+    cg = (till(smocEvent) && SMOC_GUARD(Testbench::caseA)    && o2(3)) >>
+         SMOC_CALL(Testbench::print)("cg->cf") >> cf
+       | (till(smocEvent) && SMOC_GUARD(Testbench::caseB)    && i2(2)) >>
+         SMOC_CALL(Testbench::print)("cg->bg") >> bg
+       ;
   }
 
 private:
@@ -75,11 +101,18 @@ private:
   bool caseBoth() const { return random >= 1; }
 
   void print(const char *tname) {
-    random = (rand()&1)+1;
+    smocEvent.reset();
+    random = coin(rng);
     if (--iter == 0)
       random = 0;
+    else
+      scEvent.notify(10, sc_core::SC_NS);
     std::cout << name() << ": transition " << tname << " (random: " << random << ")" << std::endl;
   }
+
+  void notifyEvent()
+    { smocEvent.notify(); }
+
 };
 
 class Transform : public smoc_actor {
