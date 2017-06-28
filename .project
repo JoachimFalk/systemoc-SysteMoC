@@ -34,4 +34,11 @@
 		<nature>org.eclipse.cdt.managedbuilder.core.ScannerConfigNature</nature>
 		<nature>org.eclipse.cdt.autotools.core.autotoolsNatureV2</nature>
 	</natures>
+	<linkedResources>
+		<link>
+			<name>obj</name>
+			<type>2</type>
+			<locationURI>WORKSPACE_LOC/obj/Testcases</locationURI>
+		</link>
+	</linkedResources>
 </projectDescription>
