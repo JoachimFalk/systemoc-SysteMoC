@@ -92,8 +92,9 @@ noinst_PROGRAMS= \
 %.smx: %
 	./'$<' --systemoc-export-smx='$@'
 
-TEST_LOGS = $(foreach TEST,$(noinst_PROGRAMS),$(patsubst $(srcdir)/src/$(TEST)/golden%.log,$(TEST)%.log,$(wildcard $(srcdir)/src/$(TEST)/golden*.log)))
-TEST_VCDS = $(foreach TEST,$(noinst_PROGRAMS),$(patsubst $(srcdir)/src/$(TEST)/vpc/golden%.vcd,$(TEST)%.vcd,$(wildcard $(srcdir)/src/$(TEST)/vpc/golden*.vcd)))
+TEST_LOGS	= $(foreach TEST,$(noinst_PROGRAMS),$(patsubst $(srcdir)/src/$(TEST)/golden%.log,$(TEST)%.log,$(wildcard $(srcdir)/src/$(TEST)/golden*.log)))
+TEST_VPC_LOGS	= $(foreach TEST,$(noinst_PROGRAMS),$(patsubst $(srcdir)/src/$(TEST)/vpc/%.vpc.xml,$(TEST)-%.log,$(wildcard $(srcdir)/src/$(TEST)/vpc/*.vpc.xml)))
+TEST_VPC_VCDS	= $(foreach TEST,$(noinst_PROGRAMS),$(patsubst $(srcdir)/src/$(TEST)/vpc/golden-%.vcd,$(TEST)-%.vcd,$(wildcard $(srcdir)/src/$(TEST)/vpc/golden-*.vcd)))
 
 test_cluster_example_LDADD			= $(SYSTEMOC_LIBS)
 test_cluster_example_DEPENDENCIES		= $(SYSTEMOC_DEPENDENCIES)
@@ -402,10 +403,10 @@ test-systemc-nonblocking-cosim-%.log: test-systemc-nonblocking-cosim.log
 	grep '$*:' '$<' > '$@' || { rm -f "$@"; exit 1; }
 
 clean-local:
-	for i in $(noinst_PROGRAMS); do \
-	  rm -f $${i}.cpp $${i}.smx; \
-	done
-	rm -f $(TEST_LOGS) $(TEST_VCDS)
+	rm -f $(addsuffix .log,$(noinst_PROGRAMS))
+	rm -f $(addsuffix .cpp,$(noinst_PROGRAMS))
+	rm -f $(addsuffix .smx,$(noinst_PROGRAMS))
+	rm -f $(TEST_LOGS) $(TEST_VPC_VCDS) $(TEST_VPC_LOGS)
 
 .PHONY: test-logs check-logs
 check-am: check-logs
@@ -448,8 +449,8 @@ diff_vcd_ignore_systemc_version=-I 'SystemC[[:blank:]]2.2.0[[:blank:]]---[[:blan
 diff_vcd_ignore=$(diff_vcd_ignore_date) $(diff_vcd_ignore_systemc_version)
 
 check-am: check-vcds
-test-vcds: $(TEST_VCDS)
-check-vcds: $(TEST_VCDS)
+test-vcds: $(TEST_VPC_VCDS)
+check-vcds: $(TEST_VPC_VCDS)
 	@error=0; \
         for test in $(noinst_PROGRAMS); do \
           case "$$test" in \
