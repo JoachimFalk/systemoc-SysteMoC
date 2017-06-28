@@ -76,8 +76,12 @@ DX_XML_FEATURE(OFF)
 DX_PDF_FEATURE(ON)
 DX_PS_FEATURE(OFF)
 DX_INIT_DOXYGEN("AC_PACKAGE_NAME", [doxygen.cfg], [doxygen-doc])
-DX_ENV_APPEND(COSUPPORT_INCPATH, [\$(COSUPPORT_INCPATH)])
+DX_ENV_APPEND(COSUPPORT_INCPATH, [\$(COSUPPORT_STRING_INCPATH)])
+COSUPPORT_EXTRA='`find $(COSUPPORT_STRING_INCPATH) -name "transform.hpp" -o -name "*Facade.hpp" -o -name "List*.hpp" -o -name "Set*.hpp" -o -name "Vector*.hpp" | tr "\n" " "`'
+AC_SUBST([COSUPPORT_EXTRA])
+DX_ENV_APPEND(COSUPPORT_EXTRA, ['\$(COSUPPORT_EXTRA)'])
 DX_ENV_APPEND(BOOST_INCPATH, [\$(BOOST_INCPATH)])
+
 
 dnl check for exe extension
 AC_EXEEXT
