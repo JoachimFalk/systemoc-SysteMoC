@@ -94,7 +94,7 @@ noinst_PROGRAMS= \
 
 TEST_LOGS	= $(foreach TEST,$(noinst_PROGRAMS),$(patsubst $(srcdir)/src/$(TEST)/golden%.log,$(TEST)%.log,$(wildcard $(srcdir)/src/$(TEST)/golden*.log)))
 TEST_VPC_LOGS	= $(foreach TEST,$(noinst_PROGRAMS),$(patsubst $(srcdir)/src/$(TEST)/vpc/%.vpc.xml,$(TEST)-%.log,$(wildcard $(srcdir)/src/$(TEST)/vpc/*.vpc.xml)))
-TEST_VPC_VCDS	= $(foreach TEST,$(noinst_PROGRAMS),$(patsubst $(srcdir)/src/$(TEST)/vpc/golden-%.vcd,$(TEST)-%.vcd,$(wildcard $(srcdir)/src/$(TEST)/vpc/golden-*.vcd)))
+TEST_VPC_VCDS	= $(foreach TEST,$(noinst_PROGRAMS),$(patsubst $(srcdir)/src/$(TEST)/vpc/%-golden.vcd,$(TEST)-%.vcd,$(wildcard $(srcdir)/src/$(TEST)/vpc/*-golden.vcd)))
 
 test_cluster_example_LDADD			= $(SYSTEMOC_LIBS)
 test_cluster_example_DEPENDENCIES		= $(SYSTEMOC_DEPENDENCIES)
@@ -458,15 +458,17 @@ check-vcds: $(TEST_VPC_VCDS)
 	      for cmx in $(srcdir)/src/$${test}/vpc/*.vpc.xml; do \
 	        cmx=$${cmx##*/}; cmx=$${cmx%%.vpc.xml}; \
 	        status=success; \
-	        for vcd in $(srcdir)/src/$${test}/vpc/golden-$${cmx}*.vcd; do \
-		  if test -f $${vcd} && ! diff -u $(diff_vcd_ignore) $${test}-$${vcd##*/golden-} $${vcd} > /dev/null; then \
+	        for golden_vcd in $(srcdir)/src/$${test}/vpc/$${cmx}-*-golden.vcd; do \
+		  test_vcd=$${golden_vcd##*/}; test_vcd=$${test}-$${test_vcd%%-golden.vcd}.vcd; \
+		  if test -f $${golden_vcd} && ! diff -u $(diff_vcd_ignore) $${test_vcd} $${golden_vcd} > /dev/null; then \
 		    status=failed; \
 		  fi; \
 		done; \
 		if test x"$$status" = x"failed"; then \
 		  echo "Check for $${test}-$${cmx} failed!!!"; error=1; \
-		  for vcd in $(srcdir)/src/$${test}/vpc/golden-$${cmx}*.vcd; do \
-		    diff -u $(diff_vcd_ignore) $${test}-$${vcd##*/golden-} $${vcd}; \
+		  for golden_vcd in $(srcdir)/src/$${test}/vpc/$${cmx}-*-golden.vcd; do \
+		    test_vcd=$${golden_vcd##*/}; test_vcd=$${test}-$${test_vcd%%-golden.vcd}.vcd; \
+		    diff -u $(diff_vcd_ignore) $${test_vcd} $${golden_vcd}; \
 		  done; \
 		fi; \
 	      done; \
