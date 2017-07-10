@@ -26,11 +26,14 @@ SUBDIRS=
 
 nobase_include_HEADERS = \
 	smoc.hpp \
+	smoc/smoc_actor.hpp \
 	smoc/smoc_event.hpp \
 	smoc/smoc_expr.hpp \
 	smoc/smoc_graph.hpp \
 	smoc/smoc_hooking.hpp \
+	smoc/smoc_periodic_actor.hpp \
 	smoc/smoc_scheduler_top.hpp \
+	smoc/EvalAPI/SchedulingInterface.hpp \
 	smoc/detail/ConnectProvider.hpp \
 	smoc/detail/DebugOStream.hpp \
 	smoc/detail/DumpingInterfaces.hpp \
@@ -55,6 +58,7 @@ nobase_include_HEADERS = \
 	smoc/detail/SimCTXBase.hpp \
 	smoc/detail/SimulationContext.hpp \
 	smoc/detail/Storage.hpp \
+	smoc/detail/SysteMoCScheduler.hpp \
 	smoc/detail/TraceLog.hpp \
 	smoc/detail/TransitionHook.hpp \
 	smoc/detail/VpcInterface.hpp \
