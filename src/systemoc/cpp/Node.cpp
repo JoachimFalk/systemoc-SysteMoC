@@ -395,10 +395,10 @@ void Node::schedule() {
 }
 
 bool Node::canFire() {
-  if (ct == nullptr && !useActivationCallback)
+  if (!useActivationCallback)
     // Hunt for an enabled transition;
     searchActiveTransition();
-  return (ct != nullptr) && !executing;
+  return ct != nullptr;
 }
 
 sc_core::sc_time const &Node::getNextReleaseTime() const
