@@ -138,11 +138,11 @@ public:
       // timings
       VC::DefaultTimingsProvider::Ptr provider = cpu->getDefaultTimingsProvider();
 
-      provider->add(VC::Timing("Source::source", sc_core::sc_time(10, SC_NS),
-          sc_core::sc_time(10, SC_NS))); // dii, latency
-      provider->add(VC::Timing("Sink::sink", sc_core::sc_time(10, SC_NS))); // delay
-      provider->add(VC::Timing("Source::source", sc_core::sc_time(100, SC_NS)));
-      provider->add(VC::Timing("Sink::sink", sc_core::sc_time(100, SC_NS)));
+      provider->add(VC::Timing("Source::source", sc_core::sc_time(10, sc_core::SC_NS),
+          sc_core::sc_time(10, sc_core::SC_NS))); // dii, latency
+      provider->add(VC::Timing("Sink::sink", sc_core::sc_time(10, sc_core::SC_NS))); // delay
+      provider->add(VC::Timing("Source::source", sc_core::sc_time(100, sc_core::SC_NS)));
+      provider->add(VC::Timing("Sink::sink", sc_core::sc_time(100, sc_core::SC_NS)));
 
 
       // configure routing
@@ -151,7 +151,7 @@ public:
       VC::Component::Ptr bus = VC::createComponent("Bus");
       VC::Component::Ptr mem = VC::createComponent("Memory");
 
-      VC::Timing transfer(sc_core::sc_time(20,SC_NS), sc_core::sc_time(20,SC_NS));
+      VC::Timing transfer(sc_core::sc_time(20,sc_core::SC_NS), sc_core::sc_time(20,sc_core::SC_NS));
       bus->setTransferTiming(transfer);
       mem->setTransferTiming(transfer);
       cpu->setTransferTiming(transfer);
@@ -161,8 +161,8 @@ public:
       VC::Route::Ptr writeRoute = VC::createRoute(&source.out);
       VC::Route::Ptr readRoute = VC::createRoute(&sink.in);
 
-      sc_core::sc_time d(10, SC_NS);
-      sc_core::sc_time l(20, SC_NS);
+      sc_core::sc_time d(10, sc_core::SC_NS);
+      sc_core::sc_time l(20, sc_core::SC_NS);
 
       writeRoute->addHop(cpu);
       writeRoute->addHop(bus).setPriority(0).setTransferTiming(VC::Timing(d,l));
