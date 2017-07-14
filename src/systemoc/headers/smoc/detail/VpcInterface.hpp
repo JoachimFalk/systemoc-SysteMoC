@@ -152,7 +152,7 @@ private:
   void releaseTask() {
 # ifdef SYSTEMOC_DEBUG_VPC_IF
     outDbg << "[" << this << "] " << actor
-           << " release @ " << sc_time_stamp() << std::endl;
+           << " release @ " << sc_core::sc_time_stamp() << std::endl;
 # endif // SYSTEMOC_DEBUG_VPC_IF
 
     // prevent from unecessary event_and_list evaluation
