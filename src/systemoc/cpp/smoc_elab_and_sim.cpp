@@ -32,7 +32,7 @@
  * ENHANCEMENTS, OR MODIFICATIONS.
  */
 
-#include <smoc/detail/SimulationContext.hpp>
+#include "detail/SimulationContext.hpp"
 
 #include <sysc/kernel/sc_cmnhdr.h>
 #include <sysc/kernel/sc_externs.h>

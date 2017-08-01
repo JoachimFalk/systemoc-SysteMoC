@@ -43,7 +43,6 @@ nobase_include_HEADERS = \
 	smoc/detail/export_config.h \
 	smoc/detail/GraphBase.hpp \
 	smoc/detail/IdedObj.hpp \
-	smoc/detail/IdPool.hpp \
 	smoc/detail/IdTAllocRequest.hpp \
 	smoc/detail/IOPattern.hpp \
 	smoc/detail/LatencyQueue.hpp \
@@ -57,7 +56,6 @@ nobase_include_HEADERS = \
 	smoc/detail/QueueRWPtr.hpp \
 	smoc/detail/QueueWithStorage.hpp \
 	smoc/detail/SimCTXBase.hpp \
-	smoc/detail/SimulationContext.hpp \
 	smoc/detail/Storage.hpp \
 	smoc/detail/SysteMoCScheduler.hpp \
 	smoc/detail/TraceLog.hpp \

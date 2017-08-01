@@ -46,7 +46,8 @@
 
 #include <CoSupport/Allocators/IdPool.hpp>
 
-#include "NamedIdedObj.hpp"
+#include <smoc/detail/NamedIdedObj.hpp>
+
 //#include "IdTAllocRequest.hpp"
 
 namespace smoc { namespace Detail {

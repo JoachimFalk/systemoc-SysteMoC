@@ -49,6 +49,8 @@
 # include <Maestro/MetaMap/MAESTRORuntimeException.hpp>
 #endif //SYSTEMOC_ENABLE_MAESTRO
 
+#include "SimulationContext.hpp"
+
 namespace smoc { namespace Detail {
 
 Node::Node(sc_core::sc_module_name name, NodeType nodeType, smoc_hierarchical_state &s, unsigned int thread_stack_size)

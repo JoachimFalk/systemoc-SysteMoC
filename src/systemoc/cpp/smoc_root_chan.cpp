@@ -46,6 +46,8 @@
 #include <CoSupport/String/Concat.hpp>
 #include <smoc/detail/Node.hpp>
 
+#include "detail/SimulationContext.hpp"
+
 using namespace smoc::Detail;
 using CoSupport::String::Concat;
 

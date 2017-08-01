@@ -50,14 +50,18 @@ CLEANFILES=$(nodist_pkgconfig_DATA)
 lib_LTLIBRARIES = libsystemoc.la
 
 libsystemoc_la_SOURCES = \
-	src/systemoc/cpp/DebugOStream.cpp \
-	src/systemoc/cpp/GraphBase.cpp \
-	src/systemoc/cpp/IdPool.cpp \
-	src/systemoc/cpp/IOPattern.cpp \
-	src/systemoc/cpp/LatencyQueue.cpp \
-	src/systemoc/cpp/Node.cpp \
-	src/systemoc/cpp/NodeQueue.cpp \
-	src/systemoc/cpp/SimulationContext.cpp \
+	src/systemoc/cpp/detail/DebugOStream.cpp \
+	src/systemoc/cpp/detail/GraphBase.cpp \
+	src/systemoc/cpp/detail/IdPool.cpp \
+	src/systemoc/cpp/detail/IOPattern.cpp \
+	src/systemoc/cpp/detail/LatencyQueue.cpp \
+	src/systemoc/cpp/detail/Node.cpp \
+	src/systemoc/cpp/detail/NodeQueue.cpp \
+	src/systemoc/cpp/detail/SimulationContext.cpp \
+	src/systemoc/cpp/detail/SMXDumper.cpp \
+	src/systemoc/cpp/detail/SysteMoCScheduler.cpp \
+	src/systemoc/cpp/detail/TraceLog.cpp \
+	src/systemoc/cpp/detail/VpcInterface.cpp \
 	src/systemoc/cpp/smoc_actor.cpp \
 	src/systemoc/cpp/smoc_chan_if.cpp \
 	src/systemoc/cpp/smoc_elab_and_sim.cpp \
@@ -75,11 +79,7 @@ libsystemoc_la_SOURCES = \
 	src/systemoc/cpp/smoc_reset.cpp \
 	src/systemoc/cpp/smoc_root_chan.cpp \
 	src/systemoc/cpp/smoc_scheduler_top.cpp \
-	src/systemoc/cpp/smoc_sysc_port.cpp \
-	src/systemoc/cpp/SMXDumper.cpp \
-	src/systemoc/cpp/SysteMoCScheduler.cpp \
-	src/systemoc/cpp/TraceLog.cpp \
-	src/systemoc/cpp/VpcInterface.cpp
+	src/systemoc/cpp/smoc_sysc_port.cpp
 
 libsystemoc_la_CPPFLAGS = $(AM_CPPFLAGS) \
 	$(BOOST_CPPFLAGS) \
