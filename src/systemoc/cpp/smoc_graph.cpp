@@ -43,6 +43,7 @@
 #include <systemoc/detail/smoc_sysc_port.hpp>
 
 #include <smoc/smoc_graph.hpp>
+#include <smoc/smoc_actor.hpp>
 #include <smoc/detail/DebugOStream.hpp>
 
 namespace smoc {
