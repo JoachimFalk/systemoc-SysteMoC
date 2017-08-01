@@ -49,6 +49,7 @@
 #include "smoc_fifo.hpp"
 #include "smoc_multireader_fifo.hpp"
 #include "smoc_multiplex_fifo.hpp"
+#include "smoc_register.hpp"
 #include "smoc_actor.hpp"
 #include "smoc_periodic_actor.hpp"
 #include "smoc_graph.hpp"
