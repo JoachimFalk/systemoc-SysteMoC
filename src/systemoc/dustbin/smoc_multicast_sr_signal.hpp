@@ -129,76 +129,24 @@ private:
   this_type& operator = ( const this_type & );
 };
 
-
-class smoc_multicast_outlet_base {
-public:
-  virtual ~smoc_multicast_outlet_base() {}
-protected:
-  virtual void allowUndefinedRead(bool allow) = 0;
-  virtual bool isDefined() const = 0;
-};
-
-class smoc_multicast_entry_base {
-public:
-  virtual ~smoc_multicast_entry_base() {}
-protected:
-  virtual void multipleWriteSameValue(bool allow) = 0;
-  virtual bool isDefined() const = 0;
-};
-
 template <typename T>
 class smoc_multicast_sr_signal_chan;
 
-template <typename T>
-class smoc_multicast_outlet
-  : public smoc_multicast_outlet_base,
-    public smoc_port_in_if<T,::smoc_1d_port_access_if>,
-    public smoc_1d_port_access_if<typename smoc::Detail::StorageTraitsIn<T>::return_type>
-{
+class smoc_multicast_outlet_base {
 public:
-  typedef T                                       data_type;
-  typedef smoc::Detail::Storage<data_type>                 storage_type;
-  typedef smoc_multicast_outlet<data_type>        this_type;
-  typedef typename this_type::access_in_type      ring_in_type;
-  typedef typename this_type::return_type         return_type;
-  typedef smoc_port_in_if<T,::smoc_1d_port_access_if>  iface_type;
-  
-  /// @brief Constructor
-  smoc_multicast_outlet(smoc_multicast_sr_signal_chan<T>* chan)
-    : chan(chan),
-      undefinedRead(false)
-  {}
-  
   std::string getChannelName() const
     { return chan->name();}
 
   /// @brief See PortInBaseIf
-#ifdef SYSTEMOC_ENABLE_VPC
-  void commitRead(size_t consume, smoc::Detail::VpcInterface vpcIf)
-#else
-  void commitRead(size_t consume)
-#endif
-  {
-#ifdef SYSTEMOC_ENABLE_DATAFLOW_TRACE
-    this->getSimCTX()->getDataflowTraceLog()->traceCommExecIn(chan, consume);
-#endif
-    chan->rpp(consume);
-  }
-  
+  size_t numAvailable() const
+    { return (undefinedRead || chan->getSignalState() != undefined) ? 1 : 0; }
+
   /// @brief See PortInBaseIf
   smoc::smoc_event &dataAvailableEvent(size_t n) {
     assert(n <= 1);
     return emm.getEvent(numAvailable(), n);
   }
 
-  /// @brief See PortInBaseIf
-  size_t numAvailable() const
-    { return (undefinedRead || chan->getSignalState() != undefined) ? 1 : 0; }
-  
-  /// @brief See PortInBaseIf
-  size_t inTokenId() const
-    { return chan->inTokenId(); }
-  
   /// @brief See PortInBaseIf
   void moreData(size_t)
     { emm.increasedCount(numAvailable()); }
@@ -207,30 +155,14 @@ public:
   void lessData(size_t)
     { emm.decreasedCount(numAvailable()); }
 
-  /// @brief See smoc_multicast_outlet_base
-  void allowUndefinedRead(bool allow) {
-    undefinedRead = allow;
-    chan->lessSpace();
-   //it was moreData(), which isn't defined here. 
-    moreData(0);
-  }
-  
+  /// @brief See PortInBaseIf
+  size_t inTokenId() const
+    { return chan->inTokenId(); }
+
   /// @brief See smoc_multicast_outlet_base
   bool isDefined() const
     { return chan->isDefined(); }
-  
-  /// @brief See smoc_port_in_if
-  ring_in_type* getReadPortAccess()
-    { return this; }
-  
-  /// @brief See smoc_1d_port_access_if
-  return_type operator[](size_t n)
-    { return chan->actualValue; }
 
-  /// @brief See smoc_1d_port_access_if
-  const return_type operator[](size_t n) const
-    { return chan->actualValue; }
-  
   /// @brief See smoc_1d_port_access_if
   bool tokenIsValid(size_t i) const
     { return chan->isDefined(); }
@@ -242,11 +174,116 @@ public:
   size_t getLimit() const
     { return limit; }
 
+#ifdef SYSTEMOC_ENABLE_VPC
+  void commitRead(size_t consume, smoc::Detail::VpcInterface vpcIf);
+#else
+  void commitRead(size_t consume);
+#endif
+
+protected:
+  smoc_multicast_outlet_base(smoc_multicast_sr_signal_chan_base *chan);
+
+  void allowUndefinedRead(bool allow);
+
+  smoc_multicast_sr_signal_chan_base *chan;
 private:
-  smoc_multicast_sr_signal_chan<T>* chan;
-  bool undefinedRead;
-  smoc::Detail::EventMapManager emm;
-  size_t limit;
+  bool                                undefinedRead;
+  smoc::Detail::EventMapManager       emm;
+  size_t                              limit;
+};
+
+template <typename T>
+class smoc_multicast_outlet
+  : public smoc_multicast_outlet_base,
+    public smoc_port_in_if<T,::smoc_1d_port_access_if>,
+    public smoc_1d_port_access_if<typename smoc::Detail::StorageTraitsIn<T>::return_type>
+{
+public:
+  typedef T                                            data_type;
+  typedef smoc::Detail::Storage<data_type>             storage_type;
+  typedef smoc_multicast_outlet<data_type>             this_type;
+  typedef typename this_type::access_in_type           ring_in_type;
+  typedef typename this_type::return_type              return_type;
+  typedef smoc_port_in_if<T,::smoc_1d_port_access_if>  iface_type;
+  
+  /// @brief Constructor
+  smoc_multicast_outlet(smoc_multicast_sr_signal_chan<T>* chan)
+    : smoc_multicast_outlet_base(chan) {}
+
+  /// @brief See smoc_port_in_if
+  ring_in_type* getReadPortAccess()
+    { return this; }
+  
+  /// @brief See smoc_1d_port_access_if
+  return_type operator[](size_t n)
+    { return static_cast<smoc_multicast_sr_signal_chan<T> *>(chan)->actualValue; }
+
+  /// @brief See smoc_1d_port_access_if
+  const return_type operator[](size_t n) const
+    { return static_cast<smoc_multicast_sr_signal_chan<T> *>(chan)->actualValue; }
+};
+
+class smoc_multicast_entry_base {
+public:
+  std::string getChannelName() const
+    { return chan->name();}
+
+  /// @brief See PortOutBaseIf
+#ifdef SYSTEMOC_ENABLE_VPC
+  void commitWrite(size_t produce, smoc::Detail::VpcInterface vpcIf);
+#else
+  void commitWrite(size_t produce);
+#endif
+
+  /// @brief See PortOutBaseIf
+  smoc::smoc_event &spaceAvailableEvent(size_t n) {
+    assert(n <= 1);
+    return emm.getEvent(numFree(), n);
+  }
+
+  /// @brief See PortOutBaseIf
+  size_t numFree() const
+    { return (multipleWrite || chan->getSignalState() == undefined) ? 1 : 0; }
+
+  /// @brief See PortOutBaseIf
+  size_t outTokenId() const
+    { return chan->outTokenId(); }
+
+  /// @brief See PortOutBaseIf
+  void moreSpace(size_t)
+    { emm.increasedCount(numFree()); }
+
+  /// @brief See PortOutBaseIf
+  void lessSpace(size_t)
+    { emm.decreasedCount(numFree()); }
+
+  /// @brief See smoc_multicast_entry_base
+  void multipleWriteSameValue(bool allow)
+    { multipleWrite = allow; }
+
+  /// @brief See smoc_multicast_entry_base
+  bool isDefined() const
+    { return chan->isDefined(); }
+
+  /// @brief See smoc_1d_port_access_if
+  bool tokenIsValid(size_t i) const
+    { return chan->isDefined(); }
+
+  /// @brief See smoc_1d_port_access_if
+  void setLimit(size_t l)
+    { limit = l; }
+
+  size_t getLimit() const
+    { return limit; }
+
+protected:
+  smoc_multicast_entry_base(smoc_multicast_sr_signal_chan_base *chan);
+
+  smoc_multicast_sr_signal_chan_base *chan;
+private:
+  bool                                multipleWrite;
+  smoc::Detail::EventMapManager       emm;
+  size_t                              limit;
 };
 
 template <typename T>
@@ -265,55 +302,7 @@ public:
   
   /// @brief Constructor
   smoc_multicast_entry(smoc_multicast_sr_signal_chan<T>* chan)
-    : chan(chan),
-      multipleWrite(false)
-  {}
-  
-  std::string getChannelName() const
-    { return chan->name();}
-
-  /// @brief See PortOutBaseIf
-#ifdef SYSTEMOC_ENABLE_VPC
-  void commitWrite(size_t produce, smoc::Detail::VpcInterface vpcIf)
-#else
-  void commitWrite(size_t produce)
-#endif
-  {
-#ifdef SYSTEMOC_ENABLE_DATAFLOW_TRACE
-    this->getSimCTX()->getDataflowTraceLog()->traceCommExecOut(chan, produce);
-#endif
-    chan->wpp(produce);
-  }
-
-  /// @brief See PortOutBaseIf
-  smoc::smoc_event &spaceAvailableEvent(size_t n) {
-    assert(n <= 1);
-    return emm.getEvent(numFree(), n);
-  }
-
-  /// @brief See PortOutBaseIf
-  size_t numFree() const
-    { return (multipleWrite || chan->getSignalState() == undefined) ? 1 : 0; }
-  
-  /// @brief See PortOutBaseIf
-  size_t outTokenId() const
-    { return chan->outTokenId(); }
-  
-  /// @brief See PortOutBaseIf
-  void moreSpace(size_t)
-    { emm.increasedCount(numFree()); }
-  
-  /// @brief See PortOutBaseIf
-  void lessSpace(size_t)
-    { emm.decreasedCount(numFree()); }
-  
-  /// @brief See smoc_multicast_entry_base
-  void multipleWriteSameValue(bool allow)
-    { multipleWrite = allow; }
-
-  /// @brief See smoc_multicast_entry_base
-  bool isDefined() const
-    { return chan->isDefined(); }
+    : smoc_multicast_entry_base(chan) {}
   
   /// @brief See smoc_port_out_if
   ring_out_type* getWritePortAccess()
@@ -321,28 +310,11 @@ public:
 
   /// @brief See smoc_1d_port_access_if
   return_type operator[](size_t n)
-    { return chan->actualValue; }
+    { return static_cast<smoc_multicast_sr_signal_chan<T> *>(chan)->actualValue; }
 
   /// @brief See smoc_1d_port_access_if
   const return_type operator[](size_t n) const
-    { return chan->actualValue; }
-  
-  /// @brief See smoc_1d_port_access_if
-  bool tokenIsValid(size_t i) const
-    { return chan->isDefined(); }
-
-  /// @brief See smoc_1d_port_access_if
-  void setLimit(size_t l)
-    { limit = l; }
-
-  size_t getLimit() const
-    { return limit; }
-
-private:
-  smoc_multicast_sr_signal_chan<T>* chan;
-  bool multipleWrite;
-  smoc::Detail::EventMapManager emm;
-  size_t limit;
+    { return static_cast<smoc_multicast_sr_signal_chan<T> *>(chan)->actualValue; }
 };
 
 template <typename T>

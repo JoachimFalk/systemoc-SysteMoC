@@ -68,10 +68,10 @@ libsystemoc_la_SOURCES = \
 	src/systemoc/cpp/smoc_graph.cpp \
 	src/systemoc/cpp/smoc_hooking.cpp \
 	src/systemoc/cpp/smoc_main.cpp \
-	src/systemoc/cpp/smoc_multicast_sr_signal.cpp \
 	src/systemoc/cpp/smoc_multiplex_fifo.cpp \
 	src/systemoc/cpp/smoc_multireader_fifo.cpp \
 	src/systemoc/cpp/smoc_periodic_actor.cpp \
+	src/systemoc/cpp/smoc_register.cpp \
 	src/systemoc/cpp/smoc_reset.cpp \
 	src/systemoc/cpp/smoc_root_chan.cpp \
 	src/systemoc/cpp/smoc_scheduler_top.cpp \

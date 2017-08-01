@@ -128,3 +128,45 @@ void smoc_multicast_sr_signal_chan_base::moreSpace() {
     iter->first->moreSpace(0);
   }
 }
+
+smoc_multicast_outlet_base::smoc_multicast_outlet_base(
+    smoc_multicast_sr_signal_chan_base *chan)
+  : chan(chan), undefinedRead(false), limit(0) {}
+
+/// @brief See smoc_multicast_outlet_base
+void smoc_multicast_outlet_base::allowUndefinedRead(bool allow) {
+  undefinedRead = allow;
+  chan->lessSpace();
+ //it was moreData(), which isn't defined here.
+  moreData(0);
+}
+
+/// @brief See PortInBaseIf
+#ifdef SYSTEMOC_ENABLE_VPC
+void smoc_multicast_outlet_base::commitRead(size_t consume, smoc::Detail::VpcInterface vpcIf)
+#else
+void smoc_multicast_outlet_base::commitRead(size_t consume)
+#endif
+{
+#ifdef SYSTEMOC_ENABLE_DATAFLOW_TRACE
+  this->getSimCTX()->getDataflowTraceLog()->traceCommExecIn(chan, consume);
+#endif
+  chan->rpp(consume);
+}
+
+smoc_multicast_entry_base::smoc_multicast_entry_base(
+    smoc_multicast_sr_signal_chan_base *chan)
+  : chan(chan), multipleWrite(false), limit(0) {}
+
+/// @brief See PortOutBaseIf
+#ifdef SYSTEMOC_ENABLE_VPC
+void smoc_multicast_entry_base::commitWrite(size_t produce, smoc::Detail::VpcInterface vpcIf)
+#else
+void smoc_multicast_entry_base::commitWrite(size_t produce)
+#endif
+{
+#ifdef SYSTEMOC_ENABLE_DATAFLOW_TRACE
+  this->getSimCTX()->getDataflowTraceLog()->traceCommExecOut(chan, produce);
+#endif
+  chan->wpp(produce);
+}
