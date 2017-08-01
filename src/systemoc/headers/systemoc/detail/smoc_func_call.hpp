@@ -36,6 +36,7 @@
 #define _INCLUDED_SMOC_FUNC_CALL_HPP
 
 #include <list>
+#include <vector>
 
 #include <CoSupport/compatibility-glue/nullptr.h>
 
@@ -261,7 +262,7 @@ public:
 public:
   GuardNameVisitor(FunctionNames & names) :
       functionNames(names)
-    , complexity(0){}
+    , complexity(0) {}
 
   int getComplexity(){
     return complexity;
@@ -271,6 +272,9 @@ public:
   }
   result_type visitLiteral(const std::string &type,
       const std::string &value){
+    if (type == "m") {
+      val.push_back(value);
+    }
     complexity++;
     return nullptr;
   }
@@ -308,8 +312,9 @@ public:
     return nullptr;
   }
 private:
-  FunctionNames &functionNames;
-  int            complexity;
+  FunctionNames        &functionNames;
+  int                   complexity;
+  std::vector<std::string>   val;
 };
 } } // namespace smoc::Detail
 #endif // SYSTEMOC_ENABLE_VPC
