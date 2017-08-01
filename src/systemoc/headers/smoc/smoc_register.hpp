@@ -85,8 +85,10 @@ protected:
   smoc_register_outlet_base(smoc_register_chan_base *chan);
 
 #ifdef SYSTEMOC_ENABLE_VPC
-  void commitRead(size_t consume, smoc::Detail::VpcInterface vpcIf);
+  /// @brief See PortInBaseIf
+  void commitRead(size_t consume, smoc::smoc_vpc_event_p const &readConsumeEvent);
 #else
+  /// @brief See PortInBaseIf
   void commitRead(size_t consume);
 #endif
 
@@ -114,9 +116,11 @@ public:
 
   // Interface independent of T but needed here in order to override pure virtual methods.
 #ifdef SYSTEMOC_ENABLE_VPC
-  void commitRead(size_t consume, smoc::Detail::VpcInterface vpcIf)
-    { smoc_register_outlet_base::commitRead(consume, vpcIf); }
+  /// @brief See PortInBaseIf
+  void commitRead(size_t consume, smoc::smoc_vpc_event_p const &readConsumeEvent)
+    { smoc_register_outlet_base::commitRead(consume, readConsumeEvent); }
 #else
+  /// @brief See PortInBaseIf
   void commitRead(size_t consume)
     { smoc_register_outlet_base::commitRead(consume); }
 #endif
@@ -171,10 +175,11 @@ class smoc_register_entry_base {
 protected:
   smoc_register_entry_base(smoc_register_chan_base *chan);
 
-  /// @brief See PortOutBaseIf
 #ifdef SYSTEMOC_ENABLE_VPC
+  /// @brief See PortOutBaseIf
   void commitWrite(size_t produce, smoc::Detail::VpcInterface vpcIf);
 #else
+  /// @brief See PortOutBaseIf
   void commitWrite(size_t produce);
 #endif
 
@@ -202,11 +207,12 @@ public:
 
   // Interface independent of T but needed here in order to override pure virtual methods.
 
-  /// @brief See PortOutBaseIf
 #ifdef SYSTEMOC_ENABLE_VPC
+  /// @brief See PortOutBaseIf
   void commitWrite(size_t produce, smoc::Detail::VpcInterface vpcIf)
     { smoc_register_entry_base::commitWrite(produce, vpcIf); }
 #else
+  /// @brief See PortOutBaseIf
   void commitWrite(size_t produce)
     { smoc_register_entry_base::commitWrite(produce); }
 #endif

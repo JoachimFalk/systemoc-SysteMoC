@@ -56,11 +56,11 @@ smoc_register_outlet_base::smoc_register_outlet_base(
   : chan(chan), trueEvent(true) {}
 
 /// @brief See PortInBaseIf
+void smoc_register_outlet_base::commitRead(size_t consume
 #ifdef SYSTEMOC_ENABLE_VPC
-void smoc_register_outlet_base::commitRead(size_t consume, smoc::Detail::VpcInterface vpcIf)
-#else
-void smoc_register_outlet_base::commitRead(size_t consume)
-#endif
+      , smoc::smoc_vpc_event_p const &readConsumeEvent
+#endif //SYSTEMOC_ENABLE_VPC
+    )
 {
 #ifdef SYSTEMOC_ENABLE_DATAFLOW_TRACE
   this->getSimCTX()->getDataflowTraceLog()->traceCommExecIn(chan, consume);
