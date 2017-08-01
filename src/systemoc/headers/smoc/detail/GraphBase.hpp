@@ -42,12 +42,11 @@
 
 #include "../smoc_scheduler_top.hpp"
 
-// FIXME: Migrate these incldues to smoc
+#include "Node.hpp"
+// FIXME: Migrate these includes to smoc
 #include "../../systemoc/smoc_port.hpp"
 #include "../../systemoc/smoc_fifo.hpp"
-#include "../../systemoc/smoc_multicast_sr_signal.hpp"
-#include "../../systemoc/smoc_actor.hpp"
-#include "../../systemoc/smoc_chan_adapter.hpp"
+//#include "../../systemoc/smoc_chan_adapter.hpp"
 
 #ifdef SYSTEMOC_ENABLE_MAESTRO
 #include <Maestro/MetaMap/CommunicationComponent.hpp>
@@ -63,8 +62,7 @@ namespace smoc { namespace Detail {
  * derive from this class and build FSM!). If you derive more stuff
  * from this class you have to change apply_visitor.hpp accordingly.
  */
-class GraphBase
-  : public Node 
+class GraphBase: public Node
 {
   // need to call *StateChange
   friend class smoc_multireader_fifo_chan_base;
@@ -292,7 +290,7 @@ protected:
   virtual void before_end_of_elaboration();
   virtual void end_of_elaboration();
   
-  const NodeList &getNodes() const;
+  const NodeList       &getNodes() const;
   const smoc_chan_list &getChans() const;
   sc_core::sc_object   *getChild(std::string const &name) const;
 
@@ -301,7 +299,7 @@ protected:
 
 private:
   /// Actor and graph child objects of this graph.
-  NodeList      nodes;
+  NodeList            nodes;
   /// Channel child objects of this graph.
   smoc_chan_list      channels;
   /// Child lookup map
