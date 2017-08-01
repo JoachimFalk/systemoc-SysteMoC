@@ -59,6 +59,8 @@
 #include <systemoc/detail/smoc_firing_rules_impl.hpp>
 #include <smoc/detail/DebugOStream.hpp>
 
+#include "detail/SimulationContext.hpp"
+
 #ifdef SYSTEMOC_ENABLE_HOOKING
 # include <boost/regex.hpp> 
 #endif // SYSTEMOC_ENABLE_HOOKING

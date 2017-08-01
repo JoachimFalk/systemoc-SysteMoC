@@ -39,6 +39,8 @@
 #include <systemoc/detail/smoc_sysc_port.hpp>
 #include <systemoc/detail/smoc_root_chan.hpp>
 
+#include "detail/SimulationContext.hpp"
+
 using namespace CoSupport;
 using namespace smoc::Detail;
 

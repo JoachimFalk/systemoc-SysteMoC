@@ -42,12 +42,13 @@
 
 #include <systemoc/smoc_config.h>
 
-#include "IdPool.hpp"
-#include "SimCTXBase.hpp"
+#include <smoc/detail/SimCTXBase.hpp>
 
 #ifdef MAESTRO_ENABLE_POLYPHONIC
-#include <boost/thread/mutex.hpp>
-#endif
+# include <boost/thread/mutex.hpp>
+#endif //MAESTRO_ENABLE_POLYPHONIC
+
+#include "IdPool.hpp"
 
 namespace smoc { namespace Detail {
 

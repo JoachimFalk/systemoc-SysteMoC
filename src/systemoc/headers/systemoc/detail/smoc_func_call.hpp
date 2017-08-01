@@ -48,7 +48,6 @@
 #include <systemoc/smoc_config.h>
 
 #include <smoc/smoc_expr.hpp>
-#include <smoc/detail/SimulationContext.hpp>
 
 #include <boost/intrusive_ptr.hpp>
 
@@ -59,6 +58,8 @@
 #ifdef MAESTRO_ENABLE_POLYPHONIC
 # include <Maestro/PolyphoniC/polyphonic_smoc_func_call.h>
 #endif //MAESTRO_ENABLE_POLYPHONIC
+
+#include <smoc/detail/SimCTXBase.hpp>
 
 /**
  * TODO: replace smoc_member_func_interface, smoc_member_func,

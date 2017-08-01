@@ -53,7 +53,6 @@
 
 #include "NamedIdedObj.hpp"
 #include "SysteMoCScheduler.hpp"
-#include "SimulationContext.hpp"
 #include "../smoc_expr.hpp"
 #include "../../systemoc/smoc_firing_rules.hpp"
 #include "../../systemoc/detail/smoc_firing_rules_impl.hpp"

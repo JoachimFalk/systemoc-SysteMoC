@@ -47,9 +47,7 @@
 #include "smoc_sysc_port.hpp"
 #include "smoc_port_registry.hpp"
 #include "../../smoc/smoc_event.hpp"
-//#include "../../smoc/detail/Storage.hpp"
 #include "../../smoc/detail/NamedIdedObj.hpp"
-#include "../../smoc/detail/SimulationContext.hpp"
 #include "../smoc_port.hpp"
 
 namespace smoc { namespace Detail {

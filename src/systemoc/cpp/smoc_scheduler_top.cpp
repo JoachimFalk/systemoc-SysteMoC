@@ -46,7 +46,8 @@
 #include <smoc/detail/DebugOStream.hpp>
 #include <smoc/detail/GraphBase.hpp>
 
-#include "SMXDumper.hpp"
+#include "detail/SMXDumper.hpp"
+#include "detail/SimulationContext.hpp"
 
 namespace smoc {
 

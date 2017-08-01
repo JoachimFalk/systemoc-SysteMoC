@@ -38,7 +38,7 @@
 
 #ifdef SYSTEMOC_NEED_IDS
 
-#include <smoc/detail/IdPool.hpp>
+#include "IdPool.hpp"
 
 namespace smoc { namespace Detail {
 

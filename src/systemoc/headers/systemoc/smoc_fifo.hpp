@@ -51,7 +51,6 @@
 # include <vpc.hpp>
 #endif //SYSTEMOC_ENABLE_VPC
 
-#include <smoc/detail/SimulationContext.hpp>
 #include <smoc/detail/TraceLog.hpp>
 
 #include "detail/smoc_chan_if.hpp"

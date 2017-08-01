@@ -47,7 +47,6 @@
 
 #include <systemoc/smoc_config.h>
 
-#include <smoc/detail/SimulationContext.hpp>
 #include <smoc/detail/DebugOStream.hpp>
 
 #ifdef SYSTEMOC_ENABLE_VPC
@@ -55,6 +54,8 @@
 #endif //SYSTEMOC_ENABLE_VPC
 
 #include <smoc/detail/TraceLog.hpp>
+
+#include "SimulationContext.hpp"
 
 namespace smoc { namespace Detail {
 
@@ -118,6 +119,9 @@ SimulationContext::SimulationContext(int _argc, char *_argv[])
      "Don't stop if dumping smoc-XML after elaboration")
     ("systemoc-export-smx-no-ast",
      "Disable smoc-XML transition AST dumping")
+    ("systemoc-import-smx",
+     po::value<std::string>(),
+     "Synchronize with specified smoc-XML")
     ;
   
 #ifdef SYSTEMOC_ENABLE_TRANSITION_TRACE
@@ -160,9 +164,6 @@ SimulationContext::SimulationContext(int _argc, char *_argv[])
      po::value<std::string>())
     ("vpc-config",
      po::value<std::string>())
-    ("systemoc-import-smx",
-     po::value<std::string>(),
-     "Synchronize with specified smoc-XML")
     ;
   // All options
   po::options_description od;
@@ -242,18 +243,18 @@ SimulationContext::SimulationContext(int _argc, char *_argv[])
     } else if (i->string_key == "systemoc-import-smx" ||
                i->string_key == "import-smx") {
       assert(!i->value.empty());
-      std::ostringstream str;
-      str << "SysteMoC option --" << i->string_key << " is not currently supported!";
-      throw std::runtime_error(str.str().c_str());
-//#ifdef SYSTEMOC_ENABLE_SGX
-//    
-//    CoSupport::Streams::AIStream in(std::cin, i->value.front(), "-");
-//    smoc::NGXConfig::getInstance().loadNGX(in);
-//#else  // !SYSTEMOC_ENABLE_SGX
 //    std::ostringstream str;
-//    str << "SysteMoC configured without sgx support: --" << i->string_key << " option not provided!";
+//    str << "SysteMoC option --" << i->string_key << " is not currently supported!";
 //    throw std::runtime_error(str.str().c_str());
-//#endif // !SYSTEMOC_ENABLE_SGX
+#ifdef SYSTEMOC_ENABLE_SGX
+      CoSupport::Streams::AIStream in(std::cin, i->value.front(), "-");
+      // FIXME: Do this!
+//    smoc::NGXConfig::getInstance().loadNGX(in);
+#else  // !SYSTEMOC_ENABLE_SGX
+      std::ostringstream str;
+      str << "SysteMoC configured without sgx support: --" << i->string_key << " option not provided!";
+      throw std::runtime_error(str.str().c_str());
+#endif // !SYSTEMOC_ENABLE_SGX
     } else if (i->string_key == "systemoc-export-trace") {
       assert(!i->value.empty());
 #ifdef SYSTEMOC_ENABLE_TRANSITION_TRACE

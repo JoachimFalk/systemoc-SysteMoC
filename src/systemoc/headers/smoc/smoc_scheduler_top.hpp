@@ -38,7 +38,7 @@
 
 #include <systemc>
 
-#include "detail/SimulationContext.hpp"
+#include "detail/SimCTXBase.hpp"
 
 namespace smoc {
 
