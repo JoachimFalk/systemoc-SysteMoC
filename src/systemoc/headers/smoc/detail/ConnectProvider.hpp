@@ -37,8 +37,10 @@
 #define _INCLUDED_SMOC_DETAIL_SMOC_CONNECT_PROVIDER_HPP
 
 #include <systemoc/smoc_config.h>
-#include <systemoc/smoc_port.hpp>
-#include <systemoc/smoc_chan_adapter.hpp>
+
+#include "../../systemoc/smoc_port.hpp"
+#include "../../systemoc/smoc_chan_adapter.hpp"
+#include "../../systemoc/detail/smoc_port_registry.hpp"
 
 #include <boost/mpl/if.hpp>
 #include <boost/mpl/bool.hpp>
