@@ -32,6 +32,7 @@ nobase_include_HEADERS = \
 	smoc/smoc_graph.hpp \
 	smoc/smoc_hooking.hpp \
 	smoc/smoc_periodic_actor.hpp \
+	smoc/smoc_register.hpp \
 	smoc/smoc_scheduler_top.hpp \
 	smoc/EvalAPI/SchedulingInterface.hpp \
 	smoc/detail/ConnectProvider.hpp \
@@ -75,7 +76,6 @@ nobase_include_HEADERS = \
 	systemoc/smoc_graph.hpp \
 	systemoc/smoc_graph_tt.hpp \
 	systemoc/smoc_graph_type.hpp \
-	systemoc/smoc_multicast_sr_signal.hpp \
 	systemoc/smoc_multiplex_fifo.hpp \
 	systemoc/smoc_multireader_fifo.hpp \
 	systemoc/smoc_node_types.hpp \
@@ -84,7 +84,6 @@ nobase_include_HEADERS = \
 	systemoc/smoc_register.hpp \
 	systemoc/smoc_reset.hpp \
 	systemoc/smoc_scheduler_top.hpp \
-	systemoc/smoc_sr_signal.hpp \
 	systemoc/smoc_tt.hpp \
 	systemoc/detail/smoc_chan_if.hpp \
 	systemoc/detail/smoc_fifo_storage.hpp \

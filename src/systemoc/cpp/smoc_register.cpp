@@ -1,5 +1,3 @@
-//  -*- tab-width:8; intent-tabs-mode:nil;  c-basic-offset:2; -*-
-// vim: set sw=2 ts=8:
 /*
  * Copyright (c) 2004-2017 Hardware-Software-CoDesign, University of Erlangen-Nuremberg.
  * 
@@ -33,11 +31,56 @@
  * ENHANCEMENTS, OR MODIFICATIONS.
  */
 
-#ifndef _INCLUDED_SYSTEMOC_SMOC_REGISTER_HPP
-#define _INCLUDED_SYSTEMOC_SMOC_REGISTER_HPP
+#include <CoSupport/compatibility-glue/nullptr.h>
 
-#include "../smoc/smoc_register.hpp"
+#include <smoc/smoc_register.hpp>
 
-using smoc::smoc_register;
+namespace smoc {
 
-#endif // _INCLUDED_SYSTEMOC_SMOC_REGISTER_HPP
+smoc_register_chan_base::chan_init::chan_init(
+    const std::string& name, size_t n)
+  : name(name), n(n)
+{}
+
+smoc_register_chan_base::smoc_register_chan_base(
+    const chan_init &i)
+  : smoc_root_chan(
+  #ifndef SYSTEMOC_ENABLE_MAESTROMM_SPEEDUP
+      i.name
+  #endif //!defined(SYSTEMOC_ENABLE_MAESTROMM_SPEEDUP)
+    )
+  , tokenId(0) {}
+
+smoc_register_outlet_base::smoc_register_outlet_base(
+    smoc_register_chan_base *chan)
+  : chan(chan), trueEvent(true) {}
+
+/// @brief See PortInBaseIf
+#ifdef SYSTEMOC_ENABLE_VPC
+void smoc_register_outlet_base::commitRead(size_t consume, smoc::Detail::VpcInterface vpcIf)
+#else
+void smoc_register_outlet_base::commitRead(size_t consume)
+#endif
+{
+#ifdef SYSTEMOC_ENABLE_DATAFLOW_TRACE
+  this->getSimCTX()->getDataflowTraceLog()->traceCommExecIn(chan, consume);
+#endif
+}
+
+smoc_register_entry_base::smoc_register_entry_base(
+    smoc_register_chan_base *chan)
+  : chan(chan), trueEvent(true) {}
+
+/// @brief See PortOutBaseIf
+#ifdef SYSTEMOC_ENABLE_VPC
+void smoc_register_entry_base::commitWrite(size_t produce, smoc::Detail::VpcInterface vpcIf)
+#else
+void smoc_register_entry_base::commitWrite(size_t produce)
+#endif
+{
+#ifdef SYSTEMOC_ENABLE_DATAFLOW_TRACE
+  this->getSimCTX()->getDataflowTraceLog()->traceCommExecOut(chan, produce);
+#endif
+}
+
+} // namespace smoc
