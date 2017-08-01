@@ -83,6 +83,8 @@ public:
 #if defined(SYSTEMOC_ENABLE_DEBUG)
   virtual void setLimit(size_t) = 0;
 #endif
+  virtual bool tokenIsValid(size_t) const = 0;
+
   virtual ~smoc_port_access_base_if() {}
 };
 
@@ -92,8 +94,6 @@ class smoc_1d_port_access_if
   typedef smoc_1d_port_access_if<T> this_type;
 public:
   typedef T return_type;
-
-  virtual bool   tokenIsValid(size_t) const           = 0;
 
   // Access methods
   virtual return_type operator[](size_t)              = 0;
@@ -106,9 +106,6 @@ class smoc_1d_port_access_if<void>
   typedef smoc_1d_port_access_if<void> this_type;
 public:
   typedef void return_type;
-
-  virtual bool   tokenIsValid(size_t) const           = 0;
-
   // return_type == void => No access methods needed
 };
 
@@ -118,9 +115,6 @@ class smoc_1d_port_access_if<const void>
   typedef smoc_1d_port_access_if<const void> this_type;
 public:
   typedef const void return_type;
-
-  virtual bool   tokenIsValid(size_t) const          = 0;
-
   // return_type == const void => No access methods needed
 };
 
