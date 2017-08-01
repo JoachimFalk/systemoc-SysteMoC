@@ -86,6 +86,7 @@ noinst_PROGRAMS= \
 	test-src-snk-multiwriter \
 	test-src-snk-noconsume \
 	test-src-snk-void \
+	test-src-snk-register \
 	test-systemc-blocking-cosim \
 	test-systemc-nonblocking-cosim
 
@@ -381,6 +382,16 @@ test_src_snk_void_SOURCES			= \
 
 test-src-snk-void.log: test-src-snk-void
 	./'$<' 100 > "$@" || { rm -f "$@"; exit 1; }
+
+test_src_snk_register_LDADD			= $(SYSTEMOC_LIBS)
+test_src_snk_register_DEPENDENCIES		= $(SYSTEMOC_DEPENDENCIES)
+test_src_snk_register_SOURCES			= \
+	src/test-src-snk-register/cpp/design-src-snk-register.cpp
+
+test-src-snk-register.log: test-src-snk-register
+	./'$<' 100 > "$@" || { rm -f "$@"; exit 1; }
+test-src-snk-register-%.log: test-src-snk-register.log
+	grep '$*:' '$<' > '$@' || { rm -f "$@"; exit 1; }
 
 test_systemc_blocking_cosim_LDADD		= $(SYSTEMOC_LIBS)
 test_systemc_blocking_cosim_DEPENDENCIES	= $(SYSTEMOC_DEPENDENCIES)
