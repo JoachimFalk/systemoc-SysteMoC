@@ -129,6 +129,7 @@ protected:
     emmSpace.increasedCount(freeCount());
   }
 
+  /// @See smoc_root_chan
   virtual void doReset();
 
   virtual void before_end_of_elaboration();
@@ -403,7 +404,7 @@ public:
 ////using this_type::con_type::operator<<;
 //using smoc::Detail::ConnectProvider<smoc_fifo<T>, smoc_fifo_chan<T> >::operator<<;
 
-//private:
+private:
   chan_type *getChan() {
     if (chan == nullptr)
       chan = new chan_type(*this);
