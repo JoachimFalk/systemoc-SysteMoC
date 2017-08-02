@@ -102,6 +102,18 @@ void Node::before_end_of_elaboration() {
   // Allocate Id for myself.
   getSimCTX()->getIdPool().addIdedObj(this);
 #endif // SYSTEMOC_NEED_IDS
+#ifdef SYSTEMOC_ENABLE_SGX
+  if (getSimCTX()->pNGX) {
+    SystemCoDesigner::SGX::Process::Ptr sgxProcPtr =
+        getSimCTX()->pNGX->objByIdAs<SystemCoDesigner::SGX::Process>(this->getId());
+    if (sgxProcPtr) {
+      std::cerr << "Found myself " << sgxProcPtr->name() << " " << this->name() << std::endl;
+    }
+    getSimCTX()->pNGX->routings();
+  }
+#endif //SYSTEMOC_ENABLE_SGX
+
+
   getFiringFSM()->before_end_of_elaboration(this,
     initialStatePtr
     ? CoSupport::DataTypes::FacadeCoreAccess::getImpl(initialStatePtr)

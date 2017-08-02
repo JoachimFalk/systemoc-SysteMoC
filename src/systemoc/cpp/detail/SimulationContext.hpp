@@ -47,10 +47,17 @@
 #ifdef MAESTRO_ENABLE_POLYPHONIC
 # include <boost/thread/mutex.hpp>
 #endif //MAESTRO_ENABLE_POLYPHONIC
+#ifdef SYSTEMOC_ENABLE_SGX
+# include <sgx.hpp>
+#endif //SYSTEMOC_ENABLE_SGX
 
 #include "IdPool.hpp"
 
 namespace smoc { namespace Detail {
+
+#ifdef SYSTEMOC_ENABLE_SGX
+namespace SGX = SystemCoDesigner::SGX;
+#endif //SYSTEMOC_ENABLE_SGX
 
 class SimulationContext {
 private:
@@ -121,6 +128,9 @@ public:
   smoc::Detail::TraceLogStream *getDataflowTraceLog() const
     { return dataflowTraceLog; }
 #endif // SYSTEMOC_ENABLE_DATAFLOW_TRACE
+#ifdef SYSTEMOC_ENABLE_SGX
+  SGX::NetworkGraphAccess::Ptr pNGX;
+#endif // SYSTEMOC_ENABLE_SGX
 
   void defCurrentCTX();
   void undefCurrentCTX();
