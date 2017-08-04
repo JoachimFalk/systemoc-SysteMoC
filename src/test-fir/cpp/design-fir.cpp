@@ -44,8 +44,6 @@
 
 #include "smoc_synth_std_includes.hpp"
 
-using namespace std;
-
 //template <class T>
 class m_h_src: public smoc_actor {
 public:
@@ -54,9 +52,7 @@ private:
   double i;
   
   void src() {
-#ifndef NDEBUG
-    cout << "src: " << i << std::endl;
-#endif
+    std::cout << "src: " << i << std::endl;
     out[0] = i++;
   }
   smoc_firing_state start;
@@ -121,12 +117,8 @@ class m_h_sink: public smoc_actor {
 public:
   smoc_port_in<double> in;
 private:
-  int i;
-  
   void sink(void) {
-#ifndef NDEBUG
-    cout << "sink: " << in[0] << std::endl;
-#endif
+    std::cout << "sink: " << in[0] << std::endl;
   }
   
   smoc_firing_state start;
