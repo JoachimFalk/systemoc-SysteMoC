@@ -52,84 +52,38 @@ private:
 
     path_selector = path_selector % 2;
 
-#ifndef NDEBUG
-#ifndef KASCPAR_PARSING
-#ifndef XILINX_EDK_RUNTIME
     std::cout << "Next path_selector = " << path_selector << std::endl;
-#else
-    xil_printf("Next path_selector = %u\r\n",path_selector);
-#endif
-#endif
-#endif
   }
 
   //Actions
   //The names correspond to the transitions
   //in Figure 4 of the DAC2008 paper
   void action_t1(){
-#ifndef NDEBUG
-#ifndef KASCPAR_PARSING
-#ifndef XILINX_EDK_RUNTIME
     std::cout << "I am action_t1" << std::endl;
     std::cout << "Starting invocation " << invocation_id << std::endl;    
-#else
-    xil_printf("I am action_t1\n\r");
-    xil_printf("Starting invocation %u\n\r", invocation_id);
-#endif
-#endif
-#endif
-
     int dummy COSUPPORT_ATTRIBUTE_UNUSED = in2[0];
     out1[0] = 0;
     out1[1] = 1;
-
   }
 
   void action_t1_init(){
-#ifndef NDEBUG
-#ifndef KASCPAR_PARSING
-#ifndef XILINX_EDK_RUNTIME
     std::cout << "I am action_t1_init" << std::endl;
     std::cout << "Starting invocation " << invocation_id << std::endl;
-#else
-    xil_printf("I am action_t1_init\n\r");
-    xil_printf("Starting invocation %u\n\r",invocation_id);
-#endif
-#endif
-#endif
 
     out1[0] = 0;
     out1[1] = 1;
   }
 
   void action_t2(){
-#ifndef NDEBUG
-#ifndef KASCPAR_PARSING
-#ifndef XILINX_EDK_RUNTIME
     std::cout << "I am action_t2" << std::endl;
     std::cout << "Starting invocation " << invocation_id << std::endl;
-#else
-    xil_printf("I am action_t2\n\r");
-    xil_printf("Starting invocation %u\r\n",invocation_id);
-#endif
-#endif
-#endif
 
     int dummy COSUPPORT_ATTRIBUTE_UNUSED = in2[0];
     out2[0] = 0;
   }
 
   void action_t3(){
-#ifndef NDEBUG
-#ifndef KASCPAR_PARSING
-#ifndef XILINX_EDK_RUNTIME
     std::cout << "I am action_t3" << std::endl;
-#else
-    xil_printf("I am action_t3\n\r");
-#endif
-#endif
-#endif
-
     //update path selector
     calc_next_selector();
 
@@ -138,15 +92,7 @@ private:
   }
 
   void action_t4(){
-#ifndef NDEBUG
-#ifndef KASCPAR_PARSING
-#ifndef XILINX_EDK_RUNTIME
     std::cout << "I am action_t4" << std::endl;
-#else
-    xil_printf("I am action_t4\n\r");
-#endif
-#endif
-#endif
 
     //update path selector
     calc_next_selector();
@@ -157,35 +103,18 @@ private:
   }
   
   void action_t5_path1(){
-#ifndef NDEBUG
-#ifndef KASCPAR_PARSING
-#ifndef XILINX_EDK_RUNTIME
     std::cout << "I am action_t5" << std::endl;
-#else
-    xil_printf("I am action_t5\n\r");
-#endif
-#endif
-#endif
 
     int dummy COSUPPORT_ATTRIBUTE_UNUSED = in2[0];
     out2[0] = 0;
   }
 
   void action_t5_path2(){
-#ifndef NDEBUG
-#ifndef KASCPAR_PARSING
-#ifndef XILINX_EDK_RUNTIME
     std::cout << "I am action_t5" << std::endl;
-#else
-    xil_printf("I am action_t5\n\r");
-#endif
-#endif
-#endif
 
     int dummy COSUPPORT_ATTRIBUTE_UNUSED = in1[0] + in1[1];
     out2[0] = 0;
   }
-
 
   //We divide the firing state machine into
   //two paths leading through the static actor  
