@@ -56,6 +56,7 @@
 #include <smoc/detail/TraceLog.hpp>
 
 #include "SimulationContext.hpp"
+#include "SMXImporter.hpp"
 
 namespace smoc { namespace Detail {
 
@@ -248,7 +249,7 @@ SimulationContext::SimulationContext(int _argc, char *_argv[])
 //    throw std::runtime_error(str.str().c_str());
 #ifdef SYSTEMOC_ENABLE_SGX
       CoSupport::Streams::AIStream in(std::cin, i->value.front(), "-");
-      this->pNGX = SGX::NetworkGraphAccess(in).toPtr();
+      this->pNGX = importSMX(in, this);
 #else  // !SYSTEMOC_ENABLE_SGX
       std::ostringstream str;
       str << "SysteMoC configured without sgx support: --" << i->string_key << " option not provided!";

@@ -59,6 +59,7 @@ libsystemoc_la_SOURCES = \
 	src/systemoc/cpp/detail/NodeQueue.cpp \
 	src/systemoc/cpp/detail/SimulationContext.cpp \
 	src/systemoc/cpp/detail/SMXDumper.cpp \
+	src/systemoc/cpp/detail/SMXImporter.cpp \
 	src/systemoc/cpp/detail/SysteMoCScheduler.cpp \
 	src/systemoc/cpp/detail/TraceLog.cpp \
 	src/systemoc/cpp/detail/VpcInterface.cpp \
