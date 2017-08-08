@@ -33,7 +33,10 @@
  * ENHANCEMENTS, OR MODIFICATIONS.
  */
 
-#include <systemoc/smoc_config.h>
+#include <CoSupport/SmartPtr/RefCountObject.hpp>
+
+#include "SMXImporter.hpp"
+#include "SimulationContext.hpp"
 
 #ifdef SYSTEMOC_ENABLE_SGX
 
@@ -41,16 +44,12 @@
 #include <utility>
 #include <memory>
 
-#include <sgx.hpp>
 #include <CoSupport/compatibility-glue/nullptr.h>
-
 #include <CoSupport/String/Concat.hpp>
 
 #include <smoc/detail/DebugOStream.hpp>
 
 #include <boost/variant/static_visitor.hpp>
-
-#include "SimulationContext.hpp"
 
 //#define SYSTEMOC_DEBUG
 
@@ -59,6 +58,10 @@ namespace smoc { namespace Detail {
 namespace SGX = SystemCoDesigner::SGX;
 
 using CoSupport::String::Concat;
+
+SimulationContextSMXImporting::SimulationContextSMXImporting()
+  : importSMXFile(nullptr)
+  {}
 
 class ProcessVisitor
   : public boost::static_visitor<void> {
@@ -92,14 +95,17 @@ ProcessVisitor::result_type ProcessVisitor::operator()(SGX::Process const &p) {
   // Ignore this
 }
 
-SGX::NetworkGraphAccess::Ptr importSMX(std::istream &in, SimulationContext *simCTX) {
-  SGX::NetworkGraphAccess ngx(in);
+void importSMX(SimulationContext *simCTX) {
+  if (!simCTX->isSMXImportingEnabled())
+    return;
+
+  SGX::NetworkGraphAccess ngx(*simCTX->importSMXFile);
   
   ProcessVisitor pv;
 
   iterateGraphs(ngx.problemGraph(), pv);
 
-  return ngx.toPtr();
+  simCTX->pNGX = ngx.toPtr();
 }
 
 } } // namespace smoc::Detail

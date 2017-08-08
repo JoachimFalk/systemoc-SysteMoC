@@ -67,12 +67,6 @@ SimulationContext *currentSimCTX = nullptr;
 
 SimulationContext::SimulationContext(int _argc, char *_argv[])
   : argv()
-#ifdef SYSTEMOC_ENABLE_SGX
-  , dumpPreSimSMXKeepGoing(false)
-  , dumpSMXAST(true)
-  , dumpPreSimSMXFile(nullptr)
-  , dumpPostSimSMXFile(nullptr)
-#endif // SYSTEMOC_ENABLE_SGX
 #ifdef SYSTEMOC_ENABLE_TRANSITION_TRACE
   , dumpTraceFile(nullptr)
 #endif // SYSTEMOC_ENABLE_TRANSITION_TRACE
@@ -81,9 +75,9 @@ SimulationContext::SimulationContext(int _argc, char *_argv[])
 #endif // SYSTEMOC_ENABLE_DATAFLOW_TRACE
 {
 #ifdef MAESTRO_ENABLE_POLYPHONIC
-	event_mutex = new boost::mutex();
-	sc_core::sc_get_curr_simcontext();
-	sc_core::sc_curr_simcontext->event_mutex = event_mutex;
+  event_mutex = new boost::mutex();
+  sc_core::sc_get_curr_simcontext();
+  sc_core::sc_curr_simcontext->event_mutex = event_mutex;
 #endif
 
   po::options_description systemocOptions("SysteMoC options");
@@ -245,8 +239,8 @@ SimulationContext::SimulationContext(int _argc, char *_argv[])
 //    str << "SysteMoC option --" << i->string_key << " is not currently supported!";
 //    throw std::runtime_error(str.str().c_str());
 #ifdef SYSTEMOC_ENABLE_SGX
-      CoSupport::Streams::AIStream in(std::cin, i->value.front(), "-");
-      this->pNGX = importSMX(in, this);
+      importSMXFile =
+        new CoSupport::Streams::AIStream(std::cin, i->value.front(), "-");
 #else  // !SYSTEMOC_ENABLE_SGX
       std::ostringstream str;
       str << "SysteMoC configured without sgx support: --" << i->string_key << " option not provided!";

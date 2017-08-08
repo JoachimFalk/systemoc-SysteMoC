@@ -33,6 +33,9 @@
  * ENHANCEMENTS, OR MODIFICATIONS.
  */
 
+#ifndef _INCLUDED_SYSTEMOC_DETAIL_SMXIMPORTER_HPP
+#define _INCLUDED_SYSTEMOC_DETAIL_SMXIMPORTER_HPP
+
 #include <systemoc/smoc_config.h>
 
 #ifdef SYSTEMOC_ENABLE_SGX
@@ -41,8 +44,30 @@
 
 namespace smoc { namespace Detail {
 
-SystemCoDesigner::SGX::NetworkGraphAccess::Ptr importSMX(std::istream &file, SimulationContext *simCTX);
+class SimulationContext;
+
+namespace SGX = SystemCoDesigner::SGX;
+
+class SimulationContextSMXImporting {
+  friend void importSMX(SimulationContext *simCTX);
+protected:
+  SimulationContextSMXImporting();
+
+  std::istream   *importSMXFile;
+private:
+  // FIXME: Make this private and provide interface for Node to check if an actor is inside a cluster and,
+  // thus, must not be scheduled by itself but by the containing cluster.
+public:
+  SGX::NetworkGraphAccess::Ptr pNGX;
+public:
+  bool isSMXImportingEnabled() const
+    { return importSMXFile; }
+};
+
+void importSMX(SimulationContext *simCTX);
 
 } } // namespace smoc::Detail
 
 #endif // SYSTEMOC_ENABLE_SGX
+
+#endif // _INCLUDED_SYSTEMOC_DETAIL_SMXIMPORTER_HPP

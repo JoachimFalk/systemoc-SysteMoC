@@ -33,16 +33,46 @@
  * ENHANCEMENTS, OR MODIFICATIONS.
  */
 
+#ifndef _INCLUDED_SYSTEMOC_DETAIL_SMXDUMPER_HPP
+#define _INCLUDED_SYSTEMOC_DETAIL_SMXDUMPER_HPP
+
 #include <systemoc/smoc_config.h>
 
 #ifdef SYSTEMOC_ENABLE_SGX
+
+#include <smoc/detail/GraphBase.hpp>
 
 #include <sgx.hpp>
 
 namespace smoc { namespace Detail {
 
-void dumpSMX(std::ostream &file, SimulationContext *simCTX, GraphBase &g);
+class SimulationContextSMXDumping {
+protected:
+  SimulationContextSMXDumping();
+
+  bool            dumpPreSimSMXKeepGoing;
+  bool            dumpSMXAST;
+  std::ostream   *dumpPreSimSMXFile;
+  std::ostream   *dumpPostSimSMXFile;
+public:
+  bool isSMXDumpingASTEnabled() const
+    { return dumpSMXAST; }
+  bool isSMXDumpingPreSimEnabled() const
+    { return dumpPreSimSMXFile; }
+  std::ostream &getSMXPreSimFile() const
+    { return *dumpPreSimSMXFile; }
+  bool isSMXDumpingPreSimKeepGoing() const
+    { return dumpPreSimSMXKeepGoing; }
+  bool isSMXDumpingPostSimEnabled() const
+    { return dumpPostSimSMXFile; }
+  std::ostream &getSMXPostSimFile() const
+    { return *dumpPostSimSMXFile; }
+};
+
+void dumpSMX(std::ostream &file, SimulationContextSMXDumping *simCTX, GraphBase &g);
 
 } } // namespace smoc::Detail
 
 #endif // SYSTEMOC_ENABLE_SGX
+
+#endif // _INCLUDED_SYSTEMOC_DETAIL_SMXDUMPER_HPP
