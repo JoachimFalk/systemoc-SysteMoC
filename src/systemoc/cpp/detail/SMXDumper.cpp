@@ -77,6 +77,12 @@ typedef std::map<sc_core::sc_interface *, SGX::Port::Ptr>  SCInterface2Port;
 
 using CoSupport::String::Concat;
 
+SimulationContextSMXDumping::SimulationContextSMXDumping()
+  : dumpPreSimSMXKeepGoing(false)
+  , dumpSMXAST(true)
+  , dumpPreSimSMXFile(nullptr)
+  , dumpPostSimSMXFile(nullptr) {}
+
 class ActionNGXVisitor {
 public:
   typedef SGX::Action::Ptr result_type;
@@ -233,9 +239,9 @@ ExprNGXVisitor::result_type ExprNGXVisitor::operator()(ASTNodePortIteration &a) 
 */
 
 struct SMXDumpCTX {
-  SimulationContext *simCTX;
+  SimulationContextSMXDumping *simCTX;
 
-  SMXDumpCTX(SimulationContext *ctx)
+  SMXDumpCTX(SimulationContextSMXDumping *ctx)
     : simCTX(ctx) {}
 };
 
@@ -975,7 +981,7 @@ GraphSubVisitor::~GraphSubVisitor() {
   expectedChannelConnections.clear();
 }
 
-void dumpSMX(std::ostream &file, SimulationContext *simCTX, GraphBase &g) {
+void dumpSMX(std::ostream &file, SimulationContextSMXDumping *simCTX, GraphBase &g) {
   SGX::NetworkGraphAccess ngx;
   SMXDumpCTX              ctx(simCTX);
   ExpectedPortConnections epc;

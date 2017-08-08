@@ -50,28 +50,23 @@
 
 #include <boost/noncopyable.hpp>
 
-#ifdef SYSTEMOC_ENABLE_SGX
-# include <sgx.hpp>
-#endif //SYSTEMOC_ENABLE_SGX
+#include "SMXDumper.hpp"
+#include "SMXImporter.hpp"
 
 #include "IdPool.hpp"
 
 namespace smoc { namespace Detail {
 
+class SimulationContext
+  : private boost::noncopyable
 #ifdef SYSTEMOC_ENABLE_SGX
-namespace SGX = SystemCoDesigner::SGX;
+  , public SimulationContextSMXDumping
+  , public SimulationContextSMXImporting
 #endif //SYSTEMOC_ENABLE_SGX
-
-class SimulationContext: private boost::noncopyable {
+{
 private:
   std::vector<char *> argv;
 
-#ifdef SYSTEMOC_ENABLE_SGX
-  bool            dumpPreSimSMXKeepGoing;
-  bool            dumpSMXAST;
-  std::ostream   *dumpPreSimSMXFile;
-  std::ostream   *dumpPostSimSMXFile;
-#endif // SYSTEMOC_ENABLE_SGX
 #ifdef SYSTEMOC_ENABLE_TRANSITION_TRACE
   std::ostream   *dumpTraceFile;
 #endif // SYSTEMOC_ENABLE_TRANSITION_TRACE
@@ -91,20 +86,6 @@ public:
   int    getArgc();
   char **getArgv();
 
-#ifdef SYSTEMOC_ENABLE_SGX
-  bool isSMXDumpingASTEnabled() const
-    { return dumpSMXAST; }
-  bool isSMXDumpingPreSimEnabled() const
-    { return dumpPreSimSMXFile; }
-  std::ostream &getSMXPreSimFile() const
-    { return *dumpPreSimSMXFile; }
-  bool isSMXDumpingPreSimKeepGoing() const
-    { return dumpPreSimSMXKeepGoing; }
-  bool isSMXDumpingPostSimEnabled() const
-    { return dumpPostSimSMXFile; }
-  std::ostream &getSMXPostSimFile() const
-    { return *dumpPostSimSMXFile; }
-#endif // SYSTEMOC_ENABLE_SGX
 #ifdef SYSTEMOC_NEED_IDS
   Detail::IdPool &getIdPool()
     { return idPool; }
@@ -121,9 +102,6 @@ public:
   smoc::Detail::TraceLogStream *getDataflowTraceLog() const
     { return dataflowTraceLog; }
 #endif // SYSTEMOC_ENABLE_DATAFLOW_TRACE
-#ifdef SYSTEMOC_ENABLE_SGX
-  SGX::NetworkGraphAccess::Ptr pNGX;
-#endif // SYSTEMOC_ENABLE_SGX
 
   void defCurrentCTX();
   void undefCurrentCTX();

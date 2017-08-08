@@ -106,6 +106,9 @@ void smoc_scheduler_top::_before_end_of_elaboration() {
   }
 #endif //defined(SYSTEMOC_DEBUG)
   try {
+#ifdef SYSTEMOC_ENABLE_SGX
+    Detail::importSMX(getSimCTX());
+#endif // SYSTEMOC_ENABLE_SGX
 #ifdef SYSTEMOC_ENABLE_VPC
     SystemC_VPC::Director::getInstance().beforeVpcFinalize();
 #endif //SYSTEMOC_ENABLE_VPC
