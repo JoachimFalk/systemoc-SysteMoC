@@ -92,6 +92,21 @@ noinst_PROGRAMS= \
 
 %.smx: %
 	./'$<' --systemoc-export-smx='$@'
+	
+if SYNTH_SW
+if CLUSTERING
+test-%.clu: src/test-%/clustering.clu
+	ln -sf '$<' '$@'
+endif
+endif
+if SYNTH_PTHREAD
+test-%-pthread.map: src/test-%/synth-pthread.map
+	ln -sf '$<' '$@'
+if CLUSTERING
+test-%-after-binding.clu: src/test-%/clustering-after-binding.clu
+	ln -sf '$<' '$@'
+endif
+endif
 
 TEST_LOGS	= $(foreach TEST,$(noinst_PROGRAMS),$(patsubst $(srcdir)/src/$(TEST)/golden%.log,$(TEST)%.log,$(wildcard $(srcdir)/src/$(TEST)/golden*.log)))
 TEST_VPC_LOGS	= $(foreach TEST,$(noinst_PROGRAMS),$(patsubst $(srcdir)/src/$(TEST)/vpc/%.vpc.xml,$(TEST)-%.log,$(wildcard $(srcdir)/src/$(TEST)/vpc/*.vpc.xml)))
@@ -252,14 +267,20 @@ test-sqr-sqrroot.%.log: test-sqr.log
 test-sqr.cpp: $(test_sqr_SOURCES)
 	{ for i in $^; do echo "#include \"$$i\""; done; } > $@
 # .PHONY is outside conditionals to make automake happy
-.PHONY: synth-sw-sqr synth-pthread-sqr
+.PHONY: synth-sw-sqr synth-sw-sqr-clu synth-pthread-sqr synth-pthread-sqr-clu
 if SYNTH_SW
 SW_SYNTH_TEST_SQR_CPPFLAGS = -I$(srcdir)/src/test-sqr/cpp
 synth-sw-sqr: test-sqr-$(SW_SYNTH_SUBDIR)/top
+if CLUSTERING
+synth-sw-sqr-clu: test-sqr-fsm-sched-$(SW_SYNTH_SUBDIR)/top
+endif
 endif
 if SYNTH_PTHREAD
 PTHREAD_SYNTH_TEST_SQR_CPPFLAGS = -I$(srcdir)/src/test-sqr/cpp
 synth-pthread-sqr: test-sqr-$(PTHREAD_SYNTH_SUBDIR)/top
+if CLUSTERING
+synth-pthread-sqr-clu: test-sqr-after-binding-fsm-sched-$(PTHREAD_SYNTH_SUBDIR)/top
+endif
 endif
 
 test_systemc_sqr_LDADD				= $(SYSTEMC_LIBS)
@@ -285,14 +306,20 @@ test-sqr-int-%.log: test-sqr-int.log
 test-sqr-int.cpp: $(test_sqr_int_SOURCES)
 	{ for i in $^; do echo "#include \"$$i\""; done; } > $@
 # .PHONY is outside conditionals to make automake happy
-.PHONY: synth-sw-sqr-int synth-pthread-sqr-int
+.PHONY: synth-sw-sqr-int synth-sw-sqr-int-clu synth-pthread-sqr-int synth-pthread-sqr-int-clu
 if SYNTH_SW
 SW_SYNTH_TEST_SQR_INT_CPPFLAGS = -I$(srcdir)/src/test-sqr-int/cpp
 synth-sw-sqr-int: test-sqr-int-$(SW_SYNTH_SUBDIR)/top
+if CLUSTERING
+synth-sw-sqr-int-clu: test-sqr-int-fsm-sched-$(SW_SYNTH_SUBDIR)/top
+endif
 endif
 if SYNTH_PTHREAD
 PTHREAD_SYNTH_TEST_SQR_INT_CPPFLAGS = -I$(srcdir)/src/test-sqr-int/cpp
 synth-pthread-sqr-int: test-sqr-int-$(PTHREAD_SYNTH_SUBDIR)/top
+if CLUSTERING
+synth-pthread-sqr-int-clu: test-sqr-int-after-binding-fsm-sched-$(PTHREAD_SYNTH_SUBDIR)/top
+endif
 endif
 
 # More integration required! Maybe check for VPC?
@@ -414,6 +441,9 @@ test-systemc-nonblocking-cosim-%.log: test-systemc-nonblocking-cosim.log
 	grep '$*:' '$<' > '$@' || { rm -f "$@"; exit 1; }
 
 clean-local:
+	rm -f $(addsuffix -pthread.map,$(noinst_PROGRAMS))
+	rm -f $(addsuffix -after-binding.clu,$(noinst_PROGRAMS))
+	rm -f $(addsuffix .clu,$(noinst_PROGRAMS))
 	rm -f $(addsuffix .log,$(noinst_PROGRAMS))
 	rm -f $(addsuffix .cpp,$(noinst_PROGRAMS))
 	rm -f $(addsuffix .smx,$(noinst_PROGRAMS))
@@ -490,14 +520,23 @@ check-vcds: $(TEST_VPC_VCDS)
 endif
 
 # .PHONY is outside conditionals to make automake happy
-.PHONY: synth-sw synth-pthread synth
+.PHONY: synth
+.PHONY: synth-sw synth-sw-clu
 if SYNTH_SW
 synth-sw: synth-sw-fir synth-sw-sqr synth-sw-sqr-int
 synth: synth-sw
+if CLUSTERING
+synth-sw-clu: synth-sw-sqr-clu synth-sw-sqr-int-clu
+synth: synth-sw-clu
+endif
 endif
 # .PHONY is outside conditionals to make automake happy
-.PHONY: synth-pthread
+.PHONY: synth-pthread 
 if SYNTH_PTHREAD
 synth-pthread: synth-pthread-fir synth-pthread-sqr synth-pthread-sqr-int
 synth: synth-pthread
+if CLUSTERING
+synth-pthread-clu: synth-pthread-sqr-clu synth-pthread-sqr-int-clu
+synth: synth-pthread-clu
+endif
 endif
