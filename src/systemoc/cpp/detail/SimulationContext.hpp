@@ -47,6 +47,9 @@
 #ifdef MAESTRO_ENABLE_POLYPHONIC
 # include <boost/thread/mutex.hpp>
 #endif //MAESTRO_ENABLE_POLYPHONIC
+
+#include <boost/noncopyable.hpp>
+
 #ifdef SYSTEMOC_ENABLE_SGX
 # include <sgx.hpp>
 #endif //SYSTEMOC_ENABLE_SGX
@@ -59,7 +62,7 @@ namespace smoc { namespace Detail {
 namespace SGX = SystemCoDesigner::SGX;
 #endif //SYSTEMOC_ENABLE_SGX
 
-class SimulationContext {
+class SimulationContext: private boost::noncopyable {
 private:
   std::vector<char *> argv;
 
@@ -78,9 +81,6 @@ private:
 #ifdef SYSTEMOC_NEED_IDS
   Detail::IdPool  idPool;
 #endif // SYSTEMOC_NEED_IDS
-#ifdef SYSTEMOC_ENABLE_VPC
-  bool vpcScheduling;
-#endif //SYSTEMOC_ENABLE_VPC
 public:
   SimulationContext(int _argc, char *_argv[]);
 
@@ -91,13 +91,6 @@ public:
   int    getArgc();
   char **getArgv();
 
-#ifdef SYSTEMOC_ENABLE_VPC
-  bool isVpcSchedulingEnabled() const
-    { return vpcScheduling; }
-#else //!defined(SYSTEMOC_ENABLE_VPC)
-  bool isVpcSchedulingEnabled() const
-    { return false; }
-#endif //!defined(SYSTEMOC_ENABLE_VPC)
 #ifdef SYSTEMOC_ENABLE_SGX
   bool isSMXDumpingASTEnabled() const
     { return dumpSMXAST; }
@@ -139,9 +132,6 @@ public:
   void endOfSystemcSimulation();
 
   ~SimulationContext();
-
-private:
-  SimulationContext(const SimulationContext &toCopy);
 };
 
 } } // namespace smoc::Detail
