@@ -154,34 +154,4 @@ void smoc_scheduler_top::_end_of_elaboration() {
 #endif //defined(SYSTEMOC_DEBUG)
 }
 
-/*
-void smoc_scheduler_top::schedule() {
-#ifdef SYSTEMOC_ENABLE_MAESTRO
-  return;
-#endif //SYSTEMOC_ENABLE_MAESTRO
-  // enable VPC scheduling if the VPC configuration is valid
-  // or if forced by command line option
-  if (getSimCTX()->isVpcSchedulingEnabled())
-    return;
-  // plain old smoc scheduler
-  while (true) {
-    smoc_wait(*g);
-    while (*g) {
-#ifdef SYSTEMOC_DEBUG
-      if (Detail::outDbg.isVisible(Detail::Debug::Medium)) {
-        Detail::outDbg << "<node name=\"" << g->name() << "\">" << std::endl
-             << Detail::Indent::Up;
-      }
-#endif // SYSTEMOC_DEBUG
-      g->schedule();
-#ifdef SYSTEMOC_DEBUG
-      if (Detail::outDbg.isVisible(Detail::Debug::Medium)) {
-        Detail::outDbg << Detail::Indent::Down << "</node>" << std::endl;
-      }
-#endif // SYSTEMOC_DEBUG
-    }
-  }
-}
- */
-
 } // namespace smoc

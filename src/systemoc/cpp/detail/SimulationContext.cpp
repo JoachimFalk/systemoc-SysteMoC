@@ -79,9 +79,6 @@ SimulationContext::SimulationContext(int _argc, char *_argv[])
 #ifdef SYSTEMOC_ENABLE_DATAFLOW_TRACE
   , dataflowTraceLog(nullptr)
 #endif // SYSTEMOC_ENABLE_DATAFLOW_TRACE
-#ifdef SYSTEMOC_ENABLE_VPC
-  , vpcScheduling(false)
-#endif //SYSTEMOC_ENABLE_VPC
 {
 #ifdef MAESTRO_ENABLE_POLYPHONIC
 	event_mutex = new boost::mutex();
@@ -315,10 +312,10 @@ SimulationContext::SimulationContext(int _argc, char *_argv[])
   }
   if (getenv("VPCCONFIGURATION") != nullptr) {
 #ifdef SYSTEMOC_ENABLE_VPC
-    vpcScheduling = SystemC_VPC::Director::getInstance().hasValidConfig();
+    bool validConfig = SystemC_VPC::Director::getInstance().hasValidConfig();
 # ifdef SYSTEMOC_DEBUG
     if (outDbg.isVisible(Debug::High)) {
-      if (vpcScheduling) {
+      if (validConfig) {
         outDbg << "SystemC_VPC has valid configuration " << getenv("VPCCONFIGURATION") << " => turning VPC on" << std::endl;
       } else {
         outDbg << "SystemC_VPC has invalid configuration " << getenv("VPCCONFIGURATION") << " => VPC still off" << std::endl;
