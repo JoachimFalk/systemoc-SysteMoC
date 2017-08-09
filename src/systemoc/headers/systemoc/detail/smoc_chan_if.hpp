@@ -78,7 +78,7 @@ private:
 template <
   typename T,                                     // data type
   template <typename> class R,                    // ring access type
-  template <typename> class S = smoc::Detail::StorageTraitsOut> // Storage
+  template <typename> class S = smoc::Detail::StorageTraitsInOut> // Storage
 class smoc_port_out_if
 : public smoc::Detail::PortOutBaseIf {
   typedef smoc_port_out_if<T,R,S> this_type;
