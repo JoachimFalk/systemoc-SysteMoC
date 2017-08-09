@@ -113,7 +113,7 @@ public:
       { return this->communicate(n,n); }
 
     // Provide [] access operator for port.
-    const return_type operator[](size_t n) const {
+    return_type operator[](size_t n) const {
 #ifdef SYSTEMOC_PORT_ACCESS_COUNTER
       const_cast<PORT *>(getImpl())->incrementAccessCount();
 #endif // SYSTEMOC_PORT_ACCESS_COUNTER
@@ -221,21 +221,6 @@ public:
       Expr::DBinOp<Expr::DPortTokens<smoc_sysc_port>,Expr::DLiteral<size_t>,Expr::OpBinT::Ge>,
       Expr::OpBinT::LAnd>::type                     CommAndPortTokensGuard;
     typedef Expr::PortTokens<smoc_sysc_port>::type  PortTokensGuard;
-  protected:
-    class Proxy {
-      std::vector<smoc_port_access_base_if *> &portAccesses;
-      size_t                                   n;
-    public:
-      Proxy(std::vector<smoc_port_access_base_if *> &portAccesses, size_t n)
-        : portAccesses(portAccesses), n(n) {}
-
-      void operator=(const data_type &t) {
-        for (std::vector<smoc_port_access_base_if *>::iterator iter = portAccesses.begin();
-             iter != portAccesses.end();
-             ++iter)
-          (*static_cast<access_type *>(*iter))[n] = t;
-      }
-    };
   public:
     // operator(n,m) n: How many tokens to produce, m: How much space must be available
     CommAndPortTokensGuard communicate(size_t n, size_t m) {
@@ -258,14 +243,18 @@ public:
       { return this->communicate(n,n); }
 
     // Provide [] access operator for port.
-    Proxy operator[](size_t n)  {
+    return_type operator[](size_t n) const {
 #ifdef SYSTEMOC_PORT_ACCESS_COUNTER
-      getImpl()->incrementAccessCount();
+      const_cast<PORT *>(getImpl())->incrementAccessCount();
 #endif // SYSTEMOC_PORT_ACCESS_COUNTER
-      return Proxy(getImpl()->portAccesses, n);
+      return (*portAccess)[n];
     }
   protected:
+    access_type *portAccess;
+
     void end_of_elaboration() {
+      assert(getImpl()->portAccesses.size() == 1);
+      portAccess = static_cast<access_type *>(getImpl()->portAccesses.front());
     }
   };
 protected:

@@ -63,8 +63,8 @@ class smoc_fifo_storage
     typename smoc::Detail::StorageTraitsIn<T>::return_type
   >,
   public smoc_ring_access<
-    typename smoc::Detail::StorageTraitsOut<T>::storage_type,
-    typename smoc::Detail::StorageTraitsOut<T>::return_type
+    typename smoc::Detail::StorageTraitsInOut<T>::storage_type,
+    typename smoc::Detail::StorageTraitsInOut<T>::return_type
   >
 {
   typedef smoc_fifo_storage<T, BASE>              this_type;
@@ -77,8 +77,8 @@ protected:
     typename smoc::Detail::StorageTraitsIn<T>::return_type
   > access_in_type_impl;
   typedef smoc_ring_access<
-    typename smoc::Detail::StorageTraitsOut<T>::storage_type,
-    typename smoc::Detail::StorageTraitsOut<T>::return_type
+    typename smoc::Detail::StorageTraitsInOut<T>::storage_type,
+    typename smoc::Detail::StorageTraitsInOut<T>::return_type
   > access_out_type_impl;
 
   /// @brief Channel initializer

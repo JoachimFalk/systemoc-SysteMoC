@@ -191,7 +191,7 @@ template <typename T>
 class smoc_register_entry
   : public smoc_register_entry_base
   , public smoc_port_out_if<T,::smoc_1d_port_access_if>
-  , public smoc_1d_port_access_if<typename smoc::Detail::StorageTraitsOut<T>::return_type>
+  , public smoc_1d_port_access_if<typename smoc::Detail::StorageTraitsInOut<T>::return_type>
 {
   typedef smoc_register_entry<T>                        this_type;
 public:
@@ -324,7 +324,7 @@ protected:
   /// @See smoc_root_chan
   virtual void doReset() {
     smoc_register_chan_base::doReset();
-    actualValue.reset();
+    actualValue.invalidate();
   }
 
   bool isValid() const

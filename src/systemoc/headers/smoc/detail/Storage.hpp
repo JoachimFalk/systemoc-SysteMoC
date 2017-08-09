@@ -40,12 +40,88 @@
 
 #include <CoSupport/SystemC/ChannelModificationSender.hpp> 
 
+#include <type_traits>
+
+#include <boost/utility/enable_if.hpp>
+
 #include <systemoc/smoc_config.h>
 
 namespace smoc { namespace Detail {
 
+template<class T, bool DC = std::is_default_constructible<T>::value>
+class Storage;
+
 template<class T>
-class Storage
+class Storage<T, true>
+  : public CoSupport::SystemC::ChannelModificationSender<T>
+{
+private:
+  char mem[sizeof(T)];
+  bool valid;
+private:
+  T       *ptr()
+    { return reinterpret_cast<T       *>(mem); }
+
+  T const *ptr() const
+    { return reinterpret_cast<T const *>(mem); }
+public:
+  Storage() : valid(false) {}
+
+  Storage(const T& t) : valid(true) { new(mem) T(t); }
+
+  T &get() {
+    if (!valid) {
+      // Default construct element on demand.
+      new(mem) T();
+      valid = true;
+    }
+    T &t = *ptr();
+    // delayed read access (VPC) may conflict with channel (in-)validation
+    this->fireModified(t);
+    return t;
+  }
+
+  operator T &()
+    { return get(); }
+
+  T const &get() const {
+    assert(valid);
+    T const &t = *ptr();
+    // delayed read access (VPC) may conflict with channel (in-)validation
+    this->fireModified(t);
+    return t;
+  }
+
+  operator T const &() const
+    { return get(); }
+
+  void put(T const &t) {
+    this->fireModified(t);
+    if (valid) {
+      *ptr() = t;
+    } else {
+      new(mem) T(t);
+      valid = true;
+    }
+  }
+
+  const bool isValid() const
+    { return valid; }
+
+  // invalidate data (e.g., to avoid reread of commited data)
+  void invalidate() {
+    if (valid) {
+      ptr()->~T();
+      valid = false;
+    }
+  }
+
+  ~Storage()
+    { invalidate(); }
+};
+
+template<class T>
+class Storage<T, false>
   : public CoSupport::SystemC::ChannelModificationSender<T>
 {
 private:
@@ -94,11 +170,6 @@ public:
     }
   }
 
-  //FIXME(MS): allow "const" access for non-strict
-  //void operator=(const T& t) const {
-  void operator = (T const &t)
-    { put(t); }  
-
   const bool isValid() const
     { return valid; }
 
@@ -110,74 +181,48 @@ public:
     }
   }
 
-  // reset storage
-  // used in SR (signals are reseted if fixed point is reached)
-  //
-  // FIXME: valid=false but mem may containt constructed data type!
-  void reset()
-    { valid = false; }
-
   ~Storage()
     { invalidate(); }
 };
 
-/// smoc storage with read only memory interface
-// typedef const T & smoc_storage_rom<T>
-
-/// smoc storage with write only memory interface
 template<class T>
-class StorageAccessWOM
-{
-private:
-  typedef StorageAccessWOM<T> this_type;
-private:
-  Storage<T> &s;
-public:
-  StorageAccessWOM(Storage<T> &_s)
-    : s(_s) {}
-
-  void operator=(const T& t)
-    { s.put(t); }  
-};
-
-/// smoc storage with read write memory interface
-template<class T>
-class StorageAccessRW
-{
-private:
-  typedef StorageAccessRW<T> this_type;
-private:
-  Storage<T> &s;
-public:
-  StorageAccessRW(Storage<T> &_s)
-    : s(_s) {}
- 
-  operator const T&() const
-    { return s.get(); }
-
-  void operator=(const T& t)
-    { s.put(t); }  
+struct StorageTraitsIn {
+  typedef Storage<T> const storage_type;
+  /// smoc storage with read only memory interface
+  typedef const T          &return_type;
 };
 
 template<class T>
-struct StorageTraitsIn
-{
-  typedef const Storage<T>  storage_type;
-  typedef const T               &return_type;
+struct StorageTraitsOut {
+  typedef Storage<T>       storage_type;
+  /// smoc storage with write only memory interface
+  class return_type {
+  private:
+    storage_type &s;
+  public:
+    return_type(storage_type &s): s(s) {}
+
+    void operator=(const T &t)
+      { s.put(t); }
+  };
 };
 
 template<class T>
-struct StorageTraitsOut
-{
-  typedef Storage<T>        storage_type;
-  typedef StorageAccessWOM<T>    return_type;
-};
+struct StorageTraitsInOut {
+  typedef Storage<T>       storage_type;
+  /// smoc storage with read write memory interface
+  class return_type {
+  private:
+    storage_type &s;
+  public:
+    return_type(storage_type &s): s(s) {}
 
-template<class T>
-struct StorageTraitsInOut
-{
-  typedef Storage<T>        storage_type;
-  typedef StorageAccessRW<T>     return_type;
+    operator T &() const
+      { return s.get(); }
+
+    void operator=(const T &t)
+      { s.put(t); }
+  };
 };
 
 template<>
@@ -202,13 +247,5 @@ struct StorageTraitsInOut<void>
 };
 
 } } // namespace smoc::Detail
-
-namespace CoSupport {
-  // provide isType for StorageAccessRW
-  template <typename T, typename X>
-  static inline
-  bool isType(const smoc::Detail::StorageAccessRW<X> &of )
-   { return isType<T>(static_cast<const X &>(of)); }
-};
 
 #endif // _INCLUDED_SMOC_DETAIL_STORAGE_HPP
