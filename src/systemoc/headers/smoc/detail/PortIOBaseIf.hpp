@@ -243,6 +243,7 @@ public:
       { return this->communicate(n,n); }
 
     // Provide [] access operator for port.
+
     return_type operator[](size_t n) const {
 #ifdef SYSTEMOC_PORT_ACCESS_COUNTER
       const_cast<PORT *>(getImpl())->incrementAccessCount();
@@ -253,8 +254,11 @@ public:
     access_type *portAccess;
 
     void end_of_elaboration() {
-      assert(getImpl()->portAccesses.size() == 1);
       portAccess = static_cast<access_type *>(getImpl()->portAccesses.front());
+      // There is code in smoc_port_out::commExec which copies over the new data from the
+      // first connected channel, i.e., portAccess, to other ones if present. Thus, the
+      // following assert can be disabled.
+      //assert(getImpl()->portAccesses.size() == 1);
     }
   };
 protected:

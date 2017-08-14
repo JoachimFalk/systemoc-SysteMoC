@@ -164,22 +164,25 @@ std::ostream& operator<<(std::ostream &os, const smoc_port_base<IFACE> &port)
   return os;
 }
 
-template <typename IFACE>
-class smoc_port_in_base
-: public smoc_port_base<IFACE> {
-private:
-  typedef smoc_port_in_base<IFACE>          this_type;
+template <typename T>
+class smoc_port_in
+: public smoc_port_base<smoc_port_in_if<T,smoc_1d_port_access_if> >
+{
+  typedef smoc_port_in<T>                                            this_type;
+  typedef smoc_port_base<smoc_port_in_if<T,smoc_1d_port_access_if> > base_type;
 public:
-  typedef typename this_type::iface_type  iface_type;
-  typedef typename this_type::access_type access_type;
-  typedef typename this_type::data_type   data_type;
-  typedef typename this_type::return_type return_type;
-protected:
-  smoc_port_in_base(const char* name, sc_core::sc_port_policy policy)
-    //: smoc_port_base<IFACE>(sc_core::sc_gen_unique_name("smoc_port_in")) {}
-    : smoc_port_base<IFACE>(name, policy) {}
+//typedef typename base_type::iface_type  iface_type;
+//typedef typename base_type::access_type access_type;
+//typedef typename base_type::data_type   data_type;
+//typedef typename base_type::return_type return_type;
+public:
+  smoc_port_in()
+    : base_type(sc_core::sc_gen_unique_name("smoc_port_in"), sc_core::SC_ONE_OR_MORE_BOUND)
+  {}
+  smoc_port_in(sc_core::sc_module_name name)
+    : base_type(name, sc_core::SC_ONE_OR_MORE_BOUND)
+  {}
 
-public:
   bool isInput() const { return true; }
 
 //size_t tokenId(size_t i=0) const
@@ -189,67 +192,17 @@ public:
     { return this->availableCount(); }
 };
 
-template <typename IFACE>
-class smoc_port_out_base
-: public smoc_port_base<IFACE> {
-private:
-  typedef smoc_port_out_base<IFACE>       this_type;
-public:
-  typedef typename this_type::iface_type  iface_type;
-  typedef typename this_type::access_type access_type;
-  typedef typename this_type::data_type   data_type;
-  typedef typename this_type::return_type return_type;
-protected:
-  smoc_port_out_base(const char* name, sc_core::sc_port_policy policy)
-    //: smoc_port_base<IFACE>(sc_core::sc_gen_unique_name("smoc_port_out")) {}
-    : smoc_port_base<IFACE>(name, policy) {}
- 
-public:
-  bool isInput() const { return false; }
- 
-//size_t tokenId(size_t i=0) const
-//  { return (*this)->outTokenId() + i; }
-  
-  size_t numFree() const
-    { return this->availableCount(); }
-};
-
-template <typename T>
-class smoc_port_in
-: public smoc_port_in_base<smoc_port_in_if<T,smoc_1d_port_access_if> > {
-private:
-  typedef smoc_port_in<T>                                               this_type;
-  typedef smoc_port_in_base<smoc_port_in_if<T,smoc_1d_port_access_if> > base_type;
-protected:
-  smoc_port_in(sc_core::sc_port_policy policy)
-    : base_type(sc_core::sc_gen_unique_name("smoc_port_in"), policy)
-  {}
-  smoc_port_in(sc_core::sc_module_name name, sc_core::sc_port_policy policy)
-    : base_type(name, policy)
-  {}
-public:
-  smoc_port_in()
-    : base_type(sc_core::sc_gen_unique_name("smoc_port_in"), sc_core::SC_ONE_OR_MORE_BOUND)
-  {}
-  smoc_port_in(sc_core::sc_module_name name)
-    : base_type(name, sc_core::SC_ONE_OR_MORE_BOUND)
-  {}
-
-};
-
 template <typename T>
 class smoc_port_out
-: public smoc_port_out_base<smoc_port_out_if<T,smoc_1d_port_access_if> > {
-private:
-  typedef smoc_port_out<T>                                                this_type;
-  typedef smoc_port_out_base<smoc_port_out_if<T,smoc_1d_port_access_if> > base_type;
-protected:
-  smoc_port_out(sc_core::sc_port_policy policy)
-    : base_type(sc_core::sc_gen_unique_name("smoc_port_out"), policy)
-  {}
-  smoc_port_out(sc_core::sc_module_name name, sc_core::sc_port_policy policy)
-    : base_type(name, policy)
-  {}
+: public smoc_port_base<smoc_port_out_if<T,smoc_1d_port_access_if> >
+{
+  typedef smoc_port_out<T>                                            this_type;
+  typedef smoc_port_base<smoc_port_out_if<T,smoc_1d_port_access_if> > base_type;
+public:
+//typedef typename base_type::iface_type  iface_type;
+//typedef typename base_type::access_type access_type;
+//typedef typename base_type::data_type   data_type;
+//typedef typename base_type::return_type return_type;
 public:
   smoc_port_out()
     : base_type(sc_core::sc_gen_unique_name("smoc_port_out"), sc_core::SC_ONE_OR_MORE_BOUND)
@@ -257,6 +210,63 @@ public:
   smoc_port_out(sc_core::sc_module_name name)
     : base_type(name, sc_core::SC_ONE_OR_MORE_BOUND)
   {}
+
+  bool isInput() const { return false; }
+
+//size_t tokenId(size_t i=0) const
+//  { return (*this)->outTokenId() + i; }
+
+  size_t numFree() const
+    { return this->availableCount(); }
+protected:
+#ifdef SYSTEMOC_ENABLE_VPC
+  void commExec(size_t n,  smoc::Detail::VpcInterface vpcIf)
+#else //!defined(SYSTEMOC_ENABLE_VPC)
+  void commExec(size_t n)
+#endif //!defined(SYSTEMOC_ENABLE_VPC)
+  {
+    for (typename base_type::PortAccesses::iterator iter = ++this->portAccesses.begin();
+         iter != this->portAccesses.end();
+         ++iter) {
+      typename this_type::access_type &access =
+          *static_cast<typename this_type::access_type *>(*iter);
+      for (size_t i = 0; i < n; ++i)
+        access[i] = (*this->portAccess)[i];
+    }
+#ifdef SYSTEMOC_ENABLE_VPC
+    base_type::commExec(n, vpcIf);
+#else //!defined(SYSTEMOC_ENABLE_VPC)
+    base_type::commExec(n);
+#endif //!defined(SYSTEMOC_ENABLE_VPC)
+  }
+};
+
+template <>
+class smoc_port_out<void>
+: public smoc_port_base<smoc_port_out_if<void,smoc_1d_port_access_if> >
+{
+  typedef smoc_port_out<void>                                            this_type;
+  typedef smoc_port_base<smoc_port_out_if<void,smoc_1d_port_access_if> > base_type;
+public:
+//typedef typename base_type::iface_type  iface_type;
+//typedef typename base_type::access_type access_type;
+//typedef typename base_type::data_type   data_type;
+//typedef typename base_type::return_type return_type;
+public:
+  smoc_port_out()
+    : base_type(sc_core::sc_gen_unique_name("smoc_port_out"), sc_core::SC_ONE_OR_MORE_BOUND)
+  {}
+  smoc_port_out(sc_core::sc_module_name name)
+    : base_type(name, sc_core::SC_ONE_OR_MORE_BOUND)
+  {}
+
+  bool isInput() const { return false; }
+
+//size_t tokenId(size_t i=0) const
+//  { return (*this)->outTokenId() + i; }
+
+  size_t numFree() const
+    { return this->availableCount(); }
 };
 
 typedef smoc_port_out<void> smoc_reset_port;

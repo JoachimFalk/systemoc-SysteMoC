@@ -384,16 +384,11 @@ void RuntimeTransition::execute(Node *actor) {
   }
 #endif // SYSTEMOC_ENABLE_HOOKING
 
-#ifdef SYSTEMOC_ENABLE_DEBUG
-  smoc::Expr::evalTo<smoc::Expr::CommReset>(getExpr());
-#endif
-  
 #ifdef SYSTEMOC_ENABLE_TRANSITION_TRACE
   if (execMode == MODE_DIISTART && getSimCTX()->isTraceDumpingEnabled())
     getSimCTX()->getTraceFile() << "<t id=\"" << getId() << "\"/>\n";
 #endif // SYSTEMOC_ENABLE_TRANSITION_TRACE
   
-
 #if defined(SYSTEMOC_ENABLE_VPC)
   if (execMode == MODE_DIISTART) {
     VpcTaskInterface *vti = this->transitionImpl.get();
@@ -422,6 +417,10 @@ void RuntimeTransition::execute(Node *actor) {
 #else // !defined(SYSTEMOC_ENABLE_VPC)
   smoc::Expr::evalTo<smoc::Expr::CommExec>(getExpr());
 #endif // !defined(SYSTEMOC_ENABLE_VPC)
+
+#ifdef SYSTEMOC_ENABLE_DEBUG
+  smoc::Expr::evalTo<smoc::Expr::CommReset>(getExpr());
+#endif
 
 #ifdef SYSTEMOC_ENABLE_DATAFLOW_TRACE
   if(execMode != MODE_GRAPH)

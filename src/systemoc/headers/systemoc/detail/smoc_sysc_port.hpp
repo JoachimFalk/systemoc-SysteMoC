@@ -146,9 +146,10 @@ class smoc_sysc_port
 public:
   typedef std::vector<smoc::Detail::PortBaseIf *>       Interfaces;
   typedef std::vector<smoc::Detail::PortBaseIf const *> ConstInterfaces;
+protected:
+  typedef std::vector<smoc_port_access_base_if *>       PortAccesses;
 private:
-  typedef std::vector<smoc_port_access_base_if *>     PortAccesses;
-  typedef std::map<size_t, smoc::smoc_event_and_list> BlockEventMap;
+  typedef std::map<size_t, smoc::smoc_event_and_list>   BlockEventMap;
 
   smoc_sysc_port *parent;
   // FIXME: In the future the FIFO may not be at the lca level of the connected actors.
@@ -157,7 +158,9 @@ private:
   smoc_sysc_port *child; 
 
   Interfaces    interfaces;
+protected:
   PortAccesses  portAccesses;
+private:
   BlockEventMap blockEventMap;
 
   // SystemC 2.2 requires this method
@@ -232,9 +235,9 @@ protected:
     return n;
   }
 #ifdef SYSTEMOC_ENABLE_VPC
-  void        commExec(size_t n,  smoc::Detail::VpcInterface vpcIf)
+  virtual void commExec(size_t n,  smoc::Detail::VpcInterface vpcIf)
 #else //!defined(SYSTEMOC_ENABLE_VPC)
-  void        commExec(size_t n)
+  virtual void commExec(size_t n)
 #endif //!defined(SYSTEMOC_ENABLE_VPC)
   {
     for (Interfaces::iterator iter = interfaces.begin();
