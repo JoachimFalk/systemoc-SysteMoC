@@ -197,13 +197,14 @@ struct StorageTraitsOut {
   typedef Storage<T>       storage_type;
   /// smoc storage with write only memory interface
   class return_type {
+    typedef return_type this_type;
   private:
     storage_type &s;
   public:
     return_type(storage_type &s): s(s) {}
 
-    void operator=(const T &t)
-      { s.put(t); }
+    this_type &operator=(const T &t)
+      { s.put(t); return *this; }
   };
 };
 
@@ -212,6 +213,7 @@ struct StorageTraitsInOut {
   typedef Storage<T>       storage_type;
   /// smoc storage with read write memory interface
   class return_type {
+    typedef return_type this_type;
   private:
     storage_type &s;
   public:
@@ -220,8 +222,10 @@ struct StorageTraitsInOut {
     operator T &() const
       { return s.get(); }
 
-    void operator=(const T &t)
-      { s.put(t); }
+    this_type &operator=(T const &t)
+      { s.put(t); return *this; }
+    this_type &operator=(this_type const &rhs)
+      { s.put(rhs); return *this; }
   };
 };
 
