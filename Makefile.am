@@ -59,6 +59,7 @@ libsystemoc_la_SOURCES = \
 	src/systemoc/cpp/detail/LatencyQueue.cpp \
 	src/systemoc/cpp/detail/NodeBase.cpp \
 	src/systemoc/cpp/detail/NodeQueue.cpp \
+	src/systemoc/cpp/detail/PortBase.cpp \
 	src/systemoc/cpp/detail/SimulationContext.cpp \
 	src/systemoc/cpp/detail/SMXDumper.cpp \
 	src/systemoc/cpp/detail/SMXImporter.cpp \
@@ -80,8 +81,7 @@ libsystemoc_la_SOURCES = \
 	src/systemoc/cpp/smoc_periodic_actor.cpp \
 	src/systemoc/cpp/smoc_register.cpp \
 	src/systemoc/cpp/smoc_reset.cpp \
-	src/systemoc/cpp/smoc_scheduler_top.cpp \
-	src/systemoc/cpp/smoc_sysc_port.cpp
+	src/systemoc/cpp/smoc_scheduler_top.cpp
 
 libsystemoc_la_CPPFLAGS = $(AM_CPPFLAGS) \
 	$(BOOST_CPPFLAGS) \

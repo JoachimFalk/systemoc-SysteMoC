@@ -72,8 +72,6 @@
 # include <sgx.hpp>
 #endif // SYSTEMOC_ENABLE_SGX
 
-//forward declaration
-class smoc_sysc_port;
 
 //forward declaration
 template <typename IFACE>
@@ -81,6 +79,8 @@ class smoc_port_base;
 
 namespace smoc { namespace Detail {
 
+  // Forward declarations
+  class PortBase;
   class PortBaseIf;
 
   struct Process;   // Process type marker for evalTo<{Sensitivity|CommExec}>( ... )
@@ -259,9 +259,9 @@ namespace smoc { namespace Detail {
 //  virtual result_type visitMemProc(const std::string &name, const std::string &retType, const std::string &obj, const std::string &addr) = 0;
     virtual result_type visitMemGuard(const std::string &name, const std::string& cxxType, const std::string &reType, const ParamInfoList &params) = 0;
     virtual result_type visitEvent(const std::string &name) = 0;
-    virtual result_type visitPortTokens(smoc_sysc_port &p) = 0;
-    virtual result_type visitToken(smoc_sysc_port &p, size_t n) = 0;
-    virtual result_type visitComm(smoc_sysc_port &p, boost::function<result_type (this_type &)> e) = 0;
+    virtual result_type visitPortTokens(PortBase &p) = 0;
+    virtual result_type visitToken(PortBase &p, size_t n) = 0;
+    virtual result_type visitComm(PortBase &p, boost::function<result_type (this_type &)> e) = 0;
     virtual result_type visitUnOp(OpUnT op, boost::function<result_type (this_type &)> e) = 0;
     virtual result_type visitBinOp(OpBinT op, boost::function<result_type (this_type &)> a, boost::function<result_type (this_type &)> b) = 0;
 
@@ -278,7 +278,7 @@ namespace smoc { namespace Detail {
 
 namespace smoc { namespace Expr {
 
-namespace Detail = smoc::Detail;
+//namespace Detail = smoc::Detail;
 
 using Detail::OpBinT;
 using Detail::OpUnT;
@@ -892,7 +892,7 @@ public:
 
 template <>
 struct Value<DSMOCEvent> {
-  typedef Expr::Detail::ENABLED result_type;
+  typedef Detail::ENABLED result_type;
 
   static inline
   result_type apply(const DSMOCEvent &e) {
@@ -1660,7 +1660,7 @@ struct CommSetup<DBinOp<DPortTokens<P>,E,Expr::OpBinT::Ge> >
 template <class P, class E>
 struct Value<DBinOp<DPortTokens<P>,E,Expr::OpBinT::Ge> >
 {
-  typedef Expr::Detail::ENABLED result_type;
+  typedef Detail::ENABLED result_type;
 
   static inline
   result_type apply(const DBinOp<DPortTokens<P>,E,Expr::OpBinT::Ge> &e)
@@ -1696,7 +1696,7 @@ private:
   E  committed; // was "E   e;"
   E  required;
 public:
-  explicit DComm(smoc_sysc_port &p, const E &c, const E &r):
+  explicit DComm(Detail::PortBase &p, const E &c, const E &r):
     p(p), committed(c), required(r) {}
 };
 
@@ -1798,7 +1798,7 @@ struct CommExec<DComm<P, E> > {
 
 template <class P, class E>
 struct Value<DComm<P, E> > {
-  typedef Expr::Detail::ENABLED result_type;
+  typedef Detail::ENABLED result_type;
 
   static inline
   result_type apply(const DComm<P, E> &e) {

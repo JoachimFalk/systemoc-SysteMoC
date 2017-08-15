@@ -54,7 +54,6 @@
 
 #include "detail/smoc_chan_if.hpp"
 //#include "../smoc/detail/Storage.hpp"
-#include "detail/smoc_sysc_port.hpp"
 #include <smoc/smoc_event.hpp>
 #include <smoc/detail/ConnectProvider.hpp>
 #include <smoc/detail/EventMapManager.hpp>

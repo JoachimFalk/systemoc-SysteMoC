@@ -56,7 +56,7 @@
 #include "../smoc_expr.hpp"
 #include "../../systemoc/smoc_firing_rules.hpp"
 #include "../../systemoc/detail/smoc_firing_rules_impl.hpp"
-#include "../../systemoc/detail/smoc_sysc_port.hpp"
+#include "PortBase.hpp"
 
 #ifdef SYSTEMOC_ENABLE_HOOKING
 # include <smoc/smoc_hooking.hpp>

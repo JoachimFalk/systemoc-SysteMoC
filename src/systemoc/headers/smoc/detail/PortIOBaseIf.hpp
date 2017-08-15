@@ -85,24 +85,24 @@ public:
     typedef typename access_type::return_type return_type;
 
     typedef Expr::BinOp<
-      Expr::DComm<smoc_sysc_port,Expr::DLiteral<size_t> >,
-      Expr::DBinOp<Expr::DPortTokens<smoc_sysc_port>,Expr::DLiteral<size_t>,Expr::OpBinT::Ge>,
+      Expr::DComm<PortBase,Expr::DLiteral<size_t> >,
+      Expr::DBinOp<Expr::DPortTokens<PortBase>,Expr::DLiteral<size_t>,Expr::OpBinT::Ge>,
       Expr::OpBinT::LAnd>::type                     CommAndPortTokensGuard;
-    typedef Expr::PortTokens<smoc_sysc_port>::type  PortTokensGuard;
+    typedef Expr::PortTokens<PortBase>::type  PortTokensGuard;
   public:
     // operator(n,m) n: How many tokens to consume, m: How many tokens must be available
     CommAndPortTokensGuard communicate(size_t n, size_t m) {
       assert(m >= n);
       return
-        Expr::comm(*static_cast<smoc_sysc_port *>(getImpl()),
+        Expr::comm(*static_cast<PortBase *>(getImpl()),
                    Expr::DLiteral<size_t>(n),
                    Expr::DLiteral<size_t>(m))
         && //FIXME: Expr::comm knows n and m -> should remove Expr::portTokens
-        Expr::portTokens(*static_cast<smoc_sysc_port *>(getImpl())) >= m;
+        Expr::portTokens(*static_cast<PortBase *>(getImpl())) >= m;
     }
 
     PortTokensGuard getConsumableTokens()
-      { return Expr::portTokens(*static_cast<smoc_sysc_port *>(getImpl())); }
+      { return Expr::portTokens(*static_cast<PortBase *>(getImpl())); }
 
     // reflect operator () to channel interface
     CommAndPortTokensGuard operator ()(size_t n, size_t m)
@@ -215,24 +215,24 @@ public:
     typedef typename access_type::return_type return_type;
 
     typedef Expr::BinOp<
-      Expr::DComm<smoc_sysc_port,Expr::DLiteral<size_t> >,
-      Expr::DBinOp<Expr::DPortTokens<smoc_sysc_port>,Expr::DLiteral<size_t>,Expr::OpBinT::Ge>,
+      Expr::DComm<PortBase,Expr::DLiteral<size_t> >,
+      Expr::DBinOp<Expr::DPortTokens<PortBase>,Expr::DLiteral<size_t>,Expr::OpBinT::Ge>,
       Expr::OpBinT::LAnd>::type                     CommAndPortTokensGuard;
-    typedef Expr::PortTokens<smoc_sysc_port>::type  PortTokensGuard;
+    typedef Expr::PortTokens<PortBase>::type  PortTokensGuard;
   public:
     // operator(n,m) n: How many tokens to produce, m: How much space must be available
     CommAndPortTokensGuard communicate(size_t n, size_t m) {
       assert(m >= n);
       return
-        Expr::comm(*static_cast<smoc_sysc_port *>(getImpl()),
+        Expr::comm(*static_cast<PortBase *>(getImpl()),
                    Expr::DLiteral<size_t>(n),
                    Expr::DLiteral<size_t>(m))
         && //FIXME: Expr::comm knows n and m -> should remove Expr::portTokens
-        Expr::portTokens(*static_cast<smoc_sysc_port *>(getImpl())) >= m;
+        Expr::portTokens(*static_cast<PortBase *>(getImpl())) >= m;
     }
 
     PortTokensGuard getFreeSpace()
-      { return Expr::portTokens(*static_cast<smoc_sysc_port *>(getImpl())); }
+      { return Expr::portTokens(*static_cast<PortBase *>(getImpl())); }
 
     // reflect operator () to channel interface
     CommAndPortTokensGuard operator ()(size_t n, size_t m)

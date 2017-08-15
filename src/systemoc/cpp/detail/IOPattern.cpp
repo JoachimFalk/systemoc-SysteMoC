@@ -33,13 +33,13 @@
  */
 
 #include <smoc/detail/IOPattern.hpp>
+#include <smoc/detail/PortBase.hpp>
 #include <smoc/smoc_event.hpp>
-#include <systemoc/detail/smoc_sysc_port.hpp>
 
 namespace smoc { namespace Detail {
 
 PortInfo::PortInfo(
-      smoc_sysc_port    *port,
+      PortBase    *port,
       size_t             numberRequiredTokens)
   : port(port),
     numberRequiredTokens(numberRequiredTokens),
@@ -71,7 +71,7 @@ void IOPattern::finalise() {
   ioPatternWaiter = getCAP(tmp);
 }
 
-void IOPattern::addPortRequirement(smoc_sysc_port &port, size_t numberRequiredTokens) {
+void IOPattern::addPortRequirement(PortBase &port, size_t numberRequiredTokens) {
   portInfos.push_back(PortInfo(&port, numberRequiredTokens));
 }
 

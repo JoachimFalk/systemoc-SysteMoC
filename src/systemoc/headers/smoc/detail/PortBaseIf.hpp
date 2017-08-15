@@ -49,8 +49,6 @@
 #include "VpcInterface.hpp"
 #endif // SYSTEMOC_ENABLE_VPC
 
-class smoc_sysc_port;
-
 namespace smoc { namespace Detail {
 
 #ifdef SYSTEMOC_PORT_ACCESS_COUNTER
@@ -71,6 +69,8 @@ private:
 };
 #endif // SYSTEMOC_PORT_ACCESS_COUNTER
 
+class PortBase;
+
 class PortBaseIf
 : public virtual sc_core::sc_interface
   , public SimCTXBase
@@ -82,7 +82,7 @@ class PortBaseIf
 #endif //SYSTEMOC_ENABLE_VPC
   , private boost::noncopyable
 {
-  friend class ::smoc_sysc_port;
+  friend class PortBase;
 public:
   // FIXME: Why not merge this with PortBaseIf?!
   class access_type {

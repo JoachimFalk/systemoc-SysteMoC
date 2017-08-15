@@ -46,14 +46,14 @@
 
 #include "../smoc_event.hpp"
 
-class smoc_sysc_port;
-
 namespace smoc { namespace Detail {
 
-  struct PortInfo {
-    PortInfo(smoc_sysc_port *port, size_t numberRequiredTokens);
+  class PortBase;
 
-    smoc_sysc_port    *port;
+  struct PortInfo {
+    PortInfo(PortBase *port, size_t numberRequiredTokens);
+
+    PortBase          *port;
     size_t             numberRequiredTokens;
     smoc_event_waiter *portEvent;
   };
@@ -72,7 +72,7 @@ namespace smoc { namespace Detail {
 
     void finalise();
 
-    void addPortRequirement(smoc_sysc_port &port, size_t numberRequiredTokens);
+    void addPortRequirement(PortBase &port, size_t numberRequiredTokens);
 
     void addEvent(smoc_event_waiter &plainEvent);
 

@@ -40,7 +40,7 @@
 #include <boost/type_traits/remove_const.hpp>
 #include <smoc/detail/NodeBase.hpp>
 #include <smoc/detail/ChanBase.hpp>
-#include <systemoc/detail/smoc_sysc_port.hpp>
+#include <smoc/detail/PortBase.hpp>
 #include <systemoc/smoc_graph.hpp>
 #include <systemoc/smoc_actor.hpp>
 #include <systemoc/smoc_fifo.hpp>
@@ -184,11 +184,11 @@ _SMOC_GENERATE_APPLY_VISITOR(smoc::Detail::ChanBase)
 namespace Detail {
   template<template <class> class M, class Visitor>
   typename Visitor::result_type
-  apply_visitor_helper(Visitor &visitor, typename M<smoc_sysc_port>::type *ptr)
+  apply_visitor_helper(Visitor &visitor, typename M<PortBase>::type *ptr)
     { return visitor(*ptr); }
 } // namespace Detail
 
-_SMOC_GENERATE_APPLY_VISITOR(smoc_sysc_port)
+_SMOC_GENERATE_APPLY_VISITOR(Detail::PortBase)
 
 } // namespace smoc
 
@@ -198,7 +198,7 @@ namespace smoc { namespace Detail {
   template<template <class> class M, class Visitor>
   typename Visitor::result_type
   apply_visitor_helper(Visitor &visitor, typename M<sc_core::sc_port_base>::type *ptr) {
-    _SMOC_HANDLE_DERIVED_CLASS(smoc_sysc_port);
+    _SMOC_HANDLE_DERIVED_CLASS(PortBase);
     return visitor(*ptr); // fallback
   }
 

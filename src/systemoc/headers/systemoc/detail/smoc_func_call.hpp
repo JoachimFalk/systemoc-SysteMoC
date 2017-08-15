@@ -289,13 +289,13 @@ public:
   result_type visitEvent(const std::string &name){
     return nullptr;
   }
-  result_type visitPortTokens(smoc_sysc_port &p){
+  result_type visitPortTokens(PortBase &p){
     return nullptr;
   }
-  result_type visitToken(smoc_sysc_port &p, size_t n){
+  result_type visitToken(PortBase &p, size_t n){
     return nullptr;
   }
-  result_type visitComm(smoc_sysc_port &p,
+  result_type visitComm(PortBase &p,
       boost::function<result_type (base_type &)> e){
     return nullptr;
   }
@@ -395,13 +395,13 @@ public:
   result_type visitEvent(const std::string &name){
     return nullptr;
   }
-  result_type visitPortTokens(smoc_sysc_port &p){
+  result_type visitPortTokens(PortBase &p){
     return nullptr;
   }
-  result_type visitToken(smoc_sysc_port &p, size_t n){
+  result_type visitToken(PortBase &p, size_t n){
     return nullptr;
   }
-  result_type visitComm(smoc_sysc_port &p,
+  result_type visitComm(PortBase &p,
       boost::function<result_type (base_type &)> e){
     return nullptr;
   }

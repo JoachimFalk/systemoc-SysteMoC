@@ -46,8 +46,8 @@
 
 #include <systemoc/smoc_config.h>
 
-#include <smoc/detail/PortBaseIf.hpp>
-#include "detail/smoc_sysc_port.hpp"
+#include "../smoc/detail/PortBaseIf.hpp"
+#include "../smoc/detail/PortBase.hpp"
 #include "detail/smoc_chan_if.hpp"
 
 #if defined(SYSTEMOC_ENABLE_MAESTRO) && defined(MAESTRO_ENABLE_BRUCKNER)
@@ -57,14 +57,14 @@
 /// IFACE: interface type (this is basically sc_port_b<IFACE>)
 template <typename IFACE>
 class smoc_port_base
-: public smoc_sysc_port,
+: public smoc::Detail::PortBase,
 #if defined(SYSTEMOC_ENABLE_MAESTRO) && defined(MAESTRO_ENABLE_BRUCKNER)
   public Bruckner::Model::Port,
 #endif //defined(SYSTEMOC_ENABLE_MAESTRO) && defined(MAESTRO_ENABLE_BRUCKNER)
   public IFACE::template PortMixin<smoc_port_base<IFACE>,IFACE> {
 private:
-  typedef smoc_port_base<IFACE> this_type;
-  typedef smoc_sysc_port        base_type;
+  typedef smoc_port_base<IFACE>   this_type;
+  typedef  smoc::Detail::PortBase base_type;
 
 //#if defined(WIN32) || defined(_WIN32) || defined(__WIN32) && !defined(__CYGWIN__)
 //#else
@@ -102,7 +102,7 @@ private:
   }
 protected:
   smoc_port_base(const char *name_, sc_core::sc_port_policy policy)
-    : smoc_sysc_port(name_, policy) 
+    : PortBase(name_, policy) 
   {
 #if defined(SYSTEMOC_ENABLE_MAESTRO) && defined(MAESTRO_ENABLE_BRUCKNER)
     this->memberName = name_;
