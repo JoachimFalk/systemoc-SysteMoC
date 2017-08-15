@@ -826,7 +826,7 @@ public:
         std::string::size_type colonPos = stateName.find(':');
         if (colonPos != std::string::npos)
           stateName = stateName.substr(colonPos+1);
-        SGX::FiringState sgxState(stateName, (*sIter)->getId());
+        SGX::FiringState sgxState(stateName, getId(*sIter));
         sassert(stateMap.insert(std::make_pair(*sIter, &sgxState)).second);
         sgxStateList.push_back(sgxState);
       }
@@ -848,7 +848,7 @@ public:
         for (RuntimeTransitionList::const_iterator tIter = smocTrans.begin();
              tIter != smocTrans.end();
              ++tIter) {
-          SGX::FiringTransition sgxTran(tIter->getId());
+          SGX::FiringTransition sgxTran(getId(&*tIter));
           sgxTrans.push_back(sgxTran);
           StateMap::const_iterator dIter = stateMap.find(tIter->getDestState());
           assert(dIter != stateMap.end());
@@ -986,7 +986,7 @@ void dumpSMX(std::ostream &file, SimulationContextSMXDumping *simCTX, GraphBase 
   SMXDumpCTX              ctx(simCTX);
   ExpectedPortConnections epc;
   SGX::RefinedProcess     rp;
-  SGX::ProblemGraph       pg(g.name(), g.getId());
+  SGX::ProblemGraph       pg(g.name(), IdedObjAccess::getId(&g));
   
   rp.refinements().push_back(pg);
   GraphSubVisitor sv(ctx,epc,rp,pg);
