@@ -52,19 +52,19 @@
 #include "smoc_multireader_fifo.hpp"
 #include "smoc_multiplex_fifo.hpp"
 
-#include "detail/smoc_root_chan.hpp"
 #include "detail/smoc_chan_if.hpp"
 //#include "../smoc/detail/Storage.hpp"
 #include "detail/smoc_sysc_port.hpp"
 #include <smoc/smoc_event.hpp>
 #include <smoc/detail/ConnectProvider.hpp>
 #include <smoc/detail/EventMapManager.hpp>
+#include <smoc/detail/Chan.hpp>
 
 class smoc_reset_outlet;
 class smoc_reset_entry;
 
 class smoc_reset_chan
-: public smoc_root_chan {
+: public smoc::Detail::Chan {
 public:
   friend class smoc_reset_entry;
   friend class smoc_reset_outlet;
@@ -124,8 +124,8 @@ private:
   smoc::smoc_event sae;
   smoc::smoc_event dae;
 
-  typedef std::set<smoc_root_chan*> ChanSet;
-  typedef std::set<smoc::Detail::Node*> NodeSet;
+  typedef std::set<smoc::Detail::Chan *> ChanSet;
+  typedef std::set<smoc::Detail::Node *> NodeSet;
 
   ChanSet chans;
   NodeSet nodes;

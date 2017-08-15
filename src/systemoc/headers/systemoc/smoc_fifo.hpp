@@ -54,9 +54,9 @@
 #include <smoc/detail/TraceLog.hpp>
 
 #include "detail/smoc_chan_if.hpp"
-#include "detail/smoc_root_chan.hpp"
 #include "smoc_chan_adapter.hpp"
 #include "detail/smoc_fifo_storage.hpp"
+#include <smoc/detail/Chan.hpp>
 #include <smoc/detail/ConnectProvider.hpp>
 #include <smoc/detail/EventMapManager.hpp>
 #ifdef SYSTEMOC_ENABLE_VPC
@@ -76,7 +76,7 @@
  * The base channel implementation
  */
 class smoc_fifo_chan_base
-: public smoc_root_chan,
+: public smoc::Detail::Chan,
 #ifdef SYSTEMOC_ENABLE_VPC
   public smoc::Detail::QueueFRVWPtr
 #else

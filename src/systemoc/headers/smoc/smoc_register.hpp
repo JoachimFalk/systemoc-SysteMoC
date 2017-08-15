@@ -37,7 +37,7 @@
 #define _INCLUDED_SMOC_SMOC_REGISTER_HPP
 
 #include "detail/ConnectProvider.hpp"
-#include "../systemoc/detail/smoc_root_chan.hpp"
+#include "detail/Chan.hpp"
 
 #include <boost/noncopyable.hpp>
 
@@ -45,7 +45,7 @@ namespace smoc {
 
 /// Base class for the smoc_register channel implementation.
 class smoc_register_chan_base
-  : public smoc_root_chan
+  : public smoc::Detail::Chan
   , private boost::noncopyable
 {
   typedef smoc_register_chan_base  this_type;

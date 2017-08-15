@@ -58,7 +58,7 @@
 # include <vpc.hpp>
 #endif //SYSTEMOC_ENABLE_VPC
 
-#include "detail/smoc_root_chan.hpp"
+#include <smoc/detail/Chan.hpp>
 #include "detail/smoc_chan_if.hpp"
 //#include "../smoc/detail/Storage.hpp"
 #include "smoc_chan_adapter.hpp"
@@ -85,7 +85,7 @@ template <class T, class A> class smoc_multiplex_vfifo_outlet;
 
 class smoc_multiplex_fifo_chan_base
 : private boost::noncopyable,
-  public smoc_root_chan,
+  public smoc::Detail::Chan,
 #ifdef SYSTEMOC_ENABLE_VPC
   public smoc::Detail::QueueFRVWPtr
 #else
@@ -149,7 +149,7 @@ protected:
       emmAvailable.increasedCount(visibleCount());
     }
     
-    smoc_root_chan::doReset();
+    smoc::Detail::Chan::doReset();
   }
 
   /// @brief See PortInBaseIf
@@ -240,7 +240,7 @@ protected:
       }
     }
     
-    smoc_root_chan::doReset();
+    smoc::Detail::Chan::doReset();
   }
 
 #ifdef SYSTEMOC_ENABLE_VPC

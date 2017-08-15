@@ -45,9 +45,9 @@
 
 smoc_multireader_fifo_chan_base::smoc_multireader_fifo_chan_base(const chan_init &i)
 #ifdef SYSTEMOC_ENABLE_MAESTROMM_SPEEDUP
-	: smoc_root_chan(),
+	: Chan(),
 #else
-	: smoc_root_chan(i.name),
+	: Chan(i.name),
 #endif
   
 #ifdef SYSTEMOC_ENABLE_VPC
@@ -222,7 +222,7 @@ void smoc_multireader_fifo_chan_base::doReset() {
   moreSpace(freeCount());
   moreData(visibleCount());
     
-  smoc_root_chan::doReset();
+  Chan::doReset();
 
 #ifdef SYSTEMOC_DEBUG
   if (smoc::Detail::outDbg.isVisible(smoc::Detail::Debug::Medium)) {
