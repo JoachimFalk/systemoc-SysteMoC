@@ -39,12 +39,13 @@
 
 #include <systemoc/smoc_config.h>
 
-#include <systemoc/detail/smoc_sysc_port.hpp>
-#include <systemoc/smoc_firing_rules.hpp>
-#include <smoc/smoc_event.hpp>
-#include <systemoc/smoc_graph.hpp>
 #include <smoc/detail/DebugOStream.hpp>
 #include <smoc/detail/NodeBase.hpp>
+#include <smoc/detail/PortBase.hpp>
+#include <smoc/smoc_event.hpp>
+
+#include <systemoc/smoc_firing_rules.hpp>
+#include <systemoc/smoc_graph.hpp>
 #ifdef SYSTEMOC_ENABLE_MAESTRO
 # include <Maestro/MetaMap/MAESTRORuntimeException.hpp>
 #endif //SYSTEMOC_ENABLE_MAESTRO
@@ -179,7 +180,7 @@ smoc_sysc_port_list NodeBase::getPorts() const {
       get_child_objects().begin();
     iter != get_child_objects().end(); ++iter)
   {
-    if(smoc_sysc_port* p = dynamic_cast<smoc_sysc_port*>(*iter))
+    if(PortBase* p = dynamic_cast<PortBase*>(*iter))
       ret.push_back(p);
   }
   return ret;

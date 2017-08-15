@@ -44,7 +44,6 @@
 
 #include <systemoc/smoc_config.h>
 
-#include "../../systemoc/detail/smoc_sysc_port.hpp"
 #include "../../systemoc/detail/smoc_port_registry.hpp"
 #include "../../systemoc/smoc_port.hpp"
 #include "../smoc_event.hpp"

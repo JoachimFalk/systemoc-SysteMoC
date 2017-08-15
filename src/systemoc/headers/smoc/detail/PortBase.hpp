@@ -50,13 +50,6 @@
 # include <smoc/detail/VpcInterface.hpp>
 #endif //SYSTEMOC_ENABLE_VPC
 
-namespace smoc { namespace Detail {
-
-  class NodeBase;
-  class PortInfo;
-
-} } // namespace smoc::Detail
-
 namespace smoc { namespace Expr {
 
   template <class E> class CommExec;
@@ -77,8 +70,13 @@ namespace smoc {
 
 /****************************************************************************/
 
+namespace smoc { namespace Detail {
+
+class NodeBase;
+class PortInfo;
+
 /// Class representing the base class of all SysteMoC ports.
-class smoc_sysc_port
+class PortBase
 : public sc_core::sc_port_base,
 #ifdef SYSTEMOC_NEED_IDS
   public smoc::Detail::NamedIdedObj,
@@ -86,7 +84,7 @@ class smoc_sysc_port
   public smoc::Detail::SimCTXBase,
   private boost::noncopyable
 {
-  typedef smoc_sysc_port this_type;
+  typedef PortBase this_type;
   
   friend class smoc::Detail::NodeBase;
   friend class smoc::smoc_actor;
@@ -109,11 +107,11 @@ protected:
 private:
   typedef std::map<size_t, smoc::smoc_event_and_list>   BlockEventMap;
 
-  smoc_sysc_port *parent;
+  PortBase *parent;
   // FIXME: In the future the FIFO may not be at the lca level of the connected actors.
   //        Hence, we may have multiple FIFOs at a lower level in the pg hierarchy.
   //        Therefore, we might need to support multiple child ports.
-  smoc_sysc_port *child; 
+  PortBase *child; 
 
   Interfaces    interfaces;
 protected:
@@ -130,7 +128,7 @@ private:
   void finaliseVpcLink(std::string actorName);
 #endif //SYSTEMOC_ENABLE_VPC
 protected:
-  smoc_sysc_port(const char* name_, sc_core::sc_port_policy policy);
+  PortBase(const char* name_, sc_core::sc_port_policy policy);
 
   using sc_core::sc_port_base::bind;
 
@@ -141,83 +139,29 @@ protected:
 
   virtual void end_of_elaboration();
 
-  virtual ~smoc_sysc_port();
+  virtual ~PortBase();
 
 #ifdef SYSTEMOC_PORT_ACCESS_COUNTER
-  size_t      getAccessCount() const {
-    return interfaces.front()->getAccessCount();
-  }
-  void        resetAccessCount() {
-    for (Interfaces::iterator iter = interfaces.begin();
-         iter != interfaces.end();
-         ++iter)
-      (*iter)->resetAccessCount();
-  }
-  void        incrementAccessCount() {
-    for (Interfaces::iterator iter = interfaces.begin();
-         iter != interfaces.end();
-         ++iter)
-      (*iter)->incrementAccessCount();
-  }
+  size_t      getAccessCount() const;
+  void        resetAccessCount();
+  void        incrementAccessCount();
 #endif // SYSTEMOC_PORT_ACCESS_COUNTER
 #ifdef SYSTEMOC_ENABLE_DATAFLOW_TRACE
-  void        traceCommSetup(size_t req) {
-    for (Interfaces::iterator iter = interfaces.begin();
-         iter != interfaces.end();
-         ++iter)
-      (*iter)->traceCommSetup(req);
-  }
+  void        traceCommSetup(size_t req);
 #endif //SYSTEMOC_ENABLE_DATAFLOW_TRACE
-  smoc::smoc_event_waiter &blockEvent(size_t n) {
-    if (interfaces.size() > 1) {
-      BlockEventMap::iterator iter = blockEventMap.find(n);
-      if (iter == blockEventMap.end()) {
-        iter = blockEventMap.insert(std::make_pair(n, smoc::smoc_event_and_list())).first;
-        for (Interfaces::iterator iIter = interfaces.begin();
-             iIter != interfaces.end();
-             ++iIter)
-          iter->second.insert((*iIter)->blockEvent(n));
-      }
-      return iter->second;
-    } else {
-      assert(interfaces.size() == 1);
-      return interfaces.front()->blockEvent(n);
-    }
-  }
-  size_t      availableCount() const {
-    size_t n = (std::numeric_limits<size_t>::max)();
-    for (Interfaces::const_iterator iter = interfaces.begin();
-         iter != interfaces.end();
-         ++iter)
-      n = (std::min)(n, (*iter)->availableCount());
-    return n;
-  }
+  smoc::smoc_event_waiter &blockEvent(size_t n);
+  size_t      availableCount() const;
 #ifdef SYSTEMOC_ENABLE_VPC
-  virtual void commExec(size_t n,  smoc::Detail::VpcInterface vpcIf)
+  virtual void commExec(size_t n,  smoc::Detail::VpcInterface vpcIf);
 #else //!defined(SYSTEMOC_ENABLE_VPC)
-  virtual void commExec(size_t n)
+  virtual void commExec(size_t n);
 #endif //!defined(SYSTEMOC_ENABLE_VPC)
-  {
-    for (Interfaces::iterator iter = interfaces.begin();
-         iter != interfaces.end();
-         ++iter)
-#ifdef SYSTEMOC_ENABLE_VPC
-      (*iter)->commExec(n, vpcIf);
-#else //!defined(SYSTEMOC_ENABLE_VPC)
-      (*iter)->commExec(n);
-#endif //!defined(SYSTEMOC_ENABLE_VPC)
-  }
 #ifdef SYSTEMOC_ENABLE_DEBUG
-  void setLimit(size_t req) {
-    for (PortAccesses::iterator iter = portAccesses.begin();
-         iter != portAccesses.end();
-         ++iter)
-      (*iter)->setLimit(req);
-  }
+  void setLimit(size_t req);
 #endif //SYSTEMOC_ENABLE_DEBUG
 public:
-  smoc_sysc_port const *getParentPort() const;
-  smoc_sysc_port const *getActorPort() const;
+  PortBase const *getParentPort() const;
+  PortBase const *getActorPort() const;
 
   virtual bool isInput()  const = 0;
   bool         isOutput() const
@@ -245,7 +189,9 @@ private:
 #endif // SYSTEMOC_NEED_IDS
 };
 
-typedef std::list<smoc_sysc_port *>       smoc_sysc_port_list;
+typedef std::list<PortBase *>             smoc_sysc_port_list;
 typedef std::list<sc_core::sc_port_base*> sc_port_list;
+
+} } // namespace smoc::Detail
 
 #endif // _INCLUDED_DETAIL_SMOC_SYSC_PORT_HPP

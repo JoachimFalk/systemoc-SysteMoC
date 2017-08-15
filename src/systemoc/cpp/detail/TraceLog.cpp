@@ -44,8 +44,8 @@
 
 #include <smoc/detail/TraceLog.hpp>
 #include <smoc/detail/ChanBase.hpp>
+#include <smoc/detail/PortBase.hpp>
 
-#include <systemoc/detail/smoc_sysc_port.hpp>
 #include <systemoc/detail/smoc_chan_if.hpp>
 #include <systemoc/detail/smoc_port_registry.hpp>
 #include <systemoc/detail/smoc_func_call.hpp>

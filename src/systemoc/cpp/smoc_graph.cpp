@@ -40,7 +40,6 @@
 #include <systemoc/smoc_config.h>
 
 #include <systemoc/smoc_firing_rules.hpp>
-#include <systemoc/detail/smoc_sysc_port.hpp>
 
 #include <smoc/smoc_graph.hpp>
 #include <smoc/smoc_actor.hpp>

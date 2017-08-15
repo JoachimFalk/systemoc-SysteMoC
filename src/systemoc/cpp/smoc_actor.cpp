@@ -234,8 +234,8 @@ void smoc_actor::before_end_of_elaboration() {
 #endif // SYSTEMOC_DEBUG
   NodeBase::before_end_of_elaboration();
 #ifdef SYSTEMOC_ENABLE_VPC
-  smoc_sysc_port_list ports = getPorts();
-  for (smoc_sysc_port_list::iterator iter = ports.begin();
+  Detail::smoc_sysc_port_list ports = getPorts();
+  for (Detail::smoc_sysc_port_list::iterator iter = ports.begin();
       iter != ports.end(); ++iter)
     (*iter)->finaliseVpcLink(this->name());
 #endif //SYSTEMOC_ENABLE_VPC

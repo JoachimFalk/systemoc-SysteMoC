@@ -42,7 +42,6 @@
 
 #include <systemoc/smoc_moc.hpp>
 #include <systemoc/smoc_firing_rules.hpp>
-#include <systemoc/detail/smoc_sysc_port.hpp>
 #include <smoc/detail/GraphBase.hpp>
 #include <smoc/detail/DebugOStream.hpp>
 

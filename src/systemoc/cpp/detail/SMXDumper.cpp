@@ -59,7 +59,7 @@
 
 #include <smoc/detail/NodeBase.hpp>
 #include <smoc/detail/ChanBase.hpp>
-#include <systemoc/detail/smoc_sysc_port.hpp>
+#include <smoc/detail/PortBase.hpp>
 #include <systemoc/detail/smoc_firing_rules_impl.hpp>
 #include <systemoc/smoc_actor.hpp>
 #include <systemoc/smoc_fifo.hpp>
@@ -131,9 +131,9 @@ public:
   result_type visitLiteral(const std::string &type, const std::string &value);
   result_type visitMemGuard(const std::string &name, const std::string& cxxType, const std::string &reType, const ParamInfoList &params);
   result_type visitEvent(const std::string &name);
-  result_type visitPortTokens(smoc_sysc_port &p);
-  result_type visitToken(smoc_sysc_port &p, size_t n);
-  result_type visitComm(smoc_sysc_port &p, boost::function<result_type (base_type &)> e);
+  result_type visitPortTokens(PortBase &p);
+  result_type visitToken(PortBase &p, size_t n);
+  result_type visitComm(PortBase &p, boost::function<result_type (base_type &)> e);
   result_type visitUnOp(OpUnT op, boost::function<result_type (base_type &)> e);
   result_type visitBinOp(OpBinT op, boost::function<result_type (base_type &)> a, boost::function<result_type (base_type &)> b);
 };
@@ -176,7 +176,7 @@ ExprNGXVisitor::result_type ExprNGXVisitor::visitEvent(const std::string &name) 
   return astNode.release();
 }
 
-ExprNGXVisitor::result_type ExprNGXVisitor::visitPortTokens(smoc_sysc_port &p) {
+ExprNGXVisitor::result_type ExprNGXVisitor::visitPortTokens(PortBase &p) {
   std::unique_ptr<SGX::ASTNodePortTokens> astNode(new SGX::ASTNodePortTokens);
   SCPortBase2Port::iterator iter = ports.find(&p);
   assert(iter != ports.end() && "WTF?!: Got port in activation pattern which is not from the same actor as the FSM?!");
@@ -185,7 +185,7 @@ ExprNGXVisitor::result_type ExprNGXVisitor::visitPortTokens(smoc_sysc_port &p) {
   return astNode.release();
 }
 
-ExprNGXVisitor::result_type ExprNGXVisitor::visitToken(smoc_sysc_port &p, size_t n) {
+ExprNGXVisitor::result_type ExprNGXVisitor::visitToken(PortBase &p, size_t n) {
   std::unique_ptr<SGX::ASTNodeToken> astNode(new SGX::ASTNodeToken);
   SCPortBase2Port::iterator iter = ports.find(&p);
   assert(iter != ports.end() && "WTF?!: Got port in activation pattern which is not from the same actor as the FSM?!");
@@ -194,7 +194,7 @@ ExprNGXVisitor::result_type ExprNGXVisitor::visitToken(smoc_sysc_port &p, size_t
   return astNode.release();
 }
 
-ExprNGXVisitor::result_type ExprNGXVisitor::visitComm(smoc_sysc_port &p, boost::function<result_type (base_type &)> e) {
+ExprNGXVisitor::result_type ExprNGXVisitor::visitComm(PortBase &p, boost::function<result_type (base_type &)> e) {
   std::unique_ptr<SGX::ASTNodeComm> astNode(new SGX::ASTNodeComm);
   SCPortBase2Port::iterator iter = ports.find(&p);
   assert(iter != ports.end() && "WTF?!: Got port in activation pattern which is not from the same actor as the FSM?!");
@@ -347,7 +347,7 @@ public:
   ProcessSubVisitor(SMXDumpCTX &ctx, ExpectedPortConnections &epc, SGX::Process &proc)
     : ctx(ctx), epc(epc), proc(proc) {}
 
-  void operator ()(smoc_sysc_port &obj);
+  void operator ()(PortBase &obj);
 
   void operator ()(sc_core::sc_port_base &obj);
 
@@ -409,7 +409,7 @@ public:
   DumpPort(ProcessSubVisitor &psv)
     : psv(psv) {}
 
-  result_type operator ()(smoc_sysc_port &p) {
+  result_type operator ()(PortBase &p) {
 #ifdef SYSTEMOC_DEBUG
     if (outDbg.isVisible(Debug::Low)) {
       outDbg << "DumpPort::operator ()(smoc_sysc_port &) [BEGIN]" << std::endl;
@@ -425,7 +425,7 @@ public:
         outDbg << getName(&p) << " => expectedChannelConnections";
       }
 #endif //defined(SYSTEMOC_DEBUG)
-      for (smoc_sysc_port::Interfaces::const_iterator iter = p.get_interfaces().begin();
+      for (PortBase::Interfaces::const_iterator iter = p.get_interfaces().begin();
            iter != p.get_interfaces().end();
            ++iter) {
 #ifdef SYSTEMOC_DEBUG
@@ -937,7 +937,7 @@ public:
   }
 };
 
-void ProcessSubVisitor::operator ()(smoc_sysc_port &obj) {
+void ProcessSubVisitor::operator ()(PortBase &obj) {
   DumpPort(*this)(obj);
 }
 

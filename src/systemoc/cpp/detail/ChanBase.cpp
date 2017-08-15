@@ -70,7 +70,7 @@ void ChanBase::generateName() {
       for (EntryMap::const_iterator iter = entries.begin();
            iter != entries.end();
            ++iter ) {
-        smoc_sysc_port        const *p  = dynamic_cast<smoc_sysc_port *>(iter->second);
+        PortBase        const *p  = dynamic_cast<PortBase *>(iter->second);
         sc_core::sc_port_base const *ap = p != nullptr ? p->getActorPort() : iter->second;
         genName
           << (iter == entries.begin() ? "" : "|")
@@ -84,7 +84,7 @@ void ChanBase::generateName() {
       for (OutletMap::const_iterator iter = outlets.begin();
            iter != outlets.end();
            ++iter ) {
-        smoc_sysc_port        const *p  = dynamic_cast<smoc_sysc_port *>(iter->second);
+        PortBase        const *p  = dynamic_cast<PortBase *>(iter->second);
         sc_core::sc_port_base const *ap = p != nullptr ? p->getActorPort() : iter->second;
         genName
           << (iter == outlets.begin() ? "" : "|")

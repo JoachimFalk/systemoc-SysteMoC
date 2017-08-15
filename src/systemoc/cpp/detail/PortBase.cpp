@@ -33,32 +33,34 @@
  */
 
 #include <CoSupport/compatibility-glue/nullptr.h>
-#include <smoc/detail/NodeBase.hpp>
-#include <smoc/detail/ChanBase.hpp>
 #include <systemoc/smoc_config.h>
 
-#include <systemoc/detail/smoc_sysc_port.hpp>
-#include "detail/SimulationContext.hpp"
+#include <smoc/detail/NodeBase.hpp>
+#include <smoc/detail/ChanBase.hpp>
+#include <smoc/detail/PortBase.hpp>
+
+#include "SimulationContext.hpp"
+
+namespace smoc { namespace Detail {
 
 using namespace CoSupport;
-using namespace smoc::Detail;
 
-smoc_sysc_port::smoc_sysc_port(const char* name_, sc_core::sc_port_policy policy)
+PortBase::PortBase(const char* name_, sc_core::sc_port_policy policy)
   : sc_core::sc_port_base(
       name_, 4096, sc_core::SC_ONE_OR_MORE_BOUND),
     parent(nullptr), child(nullptr) {
 }
 
-smoc_sysc_port::~smoc_sysc_port() {
+PortBase::~PortBase() {
 }
 
 // SystemC 2.2 requires this method
 // (must also return the correct number!!!)
-int smoc_sysc_port::interface_count() {
+int PortBase::interface_count() {
   return interfaces.size();
 }
 
-void smoc_sysc_port::add_interface(sc_core::sc_interface *i_) {
+void PortBase::add_interface(sc_core::sc_interface *i_) {
   if (i_ == NULL)
     throw std::runtime_error("Tried to add null channel interfact to port!");
   PortBaseIf *i = dynamic_cast<PortBaseIf *>(i_);
@@ -67,14 +69,14 @@ void smoc_sysc_port::add_interface(sc_core::sc_interface *i_) {
   interfaces.push_back(i);
 }
 
-void smoc_sysc_port::bind(this_type &parent_) {
+void PortBase::bind(this_type &parent_) {
   assert(parent == nullptr && parent_.child == nullptr);
   parent        = &parent_;
   parent->child = this;
   sc_core::sc_port_base::bind(parent_);
 }
 
-void smoc_sysc_port::before_end_of_elaboration() {
+void PortBase::before_end_of_elaboration() {
 #ifdef SYSTEMOC_DEBUG
   outDbg << "<smoc_sysc_port::before_end_of_elaboration name=\"" << this->name() << "\">"
          << std::endl << Indent::Up;
@@ -89,7 +91,7 @@ void smoc_sysc_port::before_end_of_elaboration() {
 #endif // SYSTEMOC_DEBUG
 }
 
-void smoc_sysc_port::end_of_elaboration() {
+void PortBase::end_of_elaboration() {
 #ifdef SYSTEMOC_DEBUG
   outDbg << "<smoc_sysc_port::end_of_elaboration name=\"" << this->name() << "\">"
          << std::endl << Indent::Up;
@@ -104,19 +106,19 @@ void smoc_sysc_port::end_of_elaboration() {
 #endif // SYSTEMOC_DEBUG
 }
 
-smoc_sysc_port const *smoc_sysc_port::getParentPort() const {
+PortBase const *PortBase::getParentPort() const {
   return parent;
 }
 
-smoc_sysc_port const *smoc_sysc_port::getActorPort() const {
-  smoc_sysc_port const *retval = this;
+PortBase const *PortBase::getActorPort() const {
+  PortBase const *retval = this;
   while (retval->child)
     retval = retval->child;
   return retval;
 }
 
 #ifdef SYSTEMOC_ENABLE_VPC
-void smoc_sysc_port::finaliseVpcLink(std::string actorName){
+void PortBase::finaliseVpcLink(std::string actorName){
   assert(getActorPort() == this);
   assert(get_parent_object()->name() == actorName);
 
@@ -152,9 +154,84 @@ void smoc_sysc_port::finaliseVpcLink(std::string actorName){
 }
 #endif //SYSTEMOC_ENABLE_VPC
 
+#ifdef SYSTEMOC_PORT_ACCESS_COUNTER
+size_t      PortBase::getAccessCount() const {
+  return interfaces.front()->getAccessCount();
+}
+void        PortBase::resetAccessCount() {
+  for (Interfaces::iterator iter = interfaces.begin();
+       iter != interfaces.end();
+       ++iter)
+    (*iter)->resetAccessCount();
+}
+void        PortBase::incrementAccessCount() {
+  for (Interfaces::iterator iter = interfaces.begin();
+       iter != interfaces.end();
+       ++iter)
+    (*iter)->incrementAccessCount();
+}
+#endif // SYSTEMOC_PORT_ACCESS_COUNTER
+#ifdef SYSTEMOC_ENABLE_DATAFLOW_TRACE
+void        PortBase::traceCommSetup(size_t req) {
+  for (Interfaces::iterator iter = interfaces.begin();
+       iter != interfaces.end();
+       ++iter)
+    (*iter)->traceCommSetup(req);
+}
+#endif //SYSTEMOC_ENABLE_DATAFLOW_TRACE
+smoc::smoc_event_waiter &PortBase::blockEvent(size_t n) {
+  if (interfaces.size() > 1) {
+    BlockEventMap::iterator iter = blockEventMap.find(n);
+    if (iter == blockEventMap.end()) {
+      iter = blockEventMap.insert(std::make_pair(n, smoc::smoc_event_and_list())).first;
+      for (Interfaces::iterator iIter = interfaces.begin();
+           iIter != interfaces.end();
+           ++iIter)
+        iter->second.insert((*iIter)->blockEvent(n));
+    }
+    return iter->second;
+  } else {
+    assert(interfaces.size() == 1);
+    return interfaces.front()->blockEvent(n);
+  }
+}
+size_t      PortBase::availableCount() const {
+  size_t n = (std::numeric_limits<size_t>::max)();
+  for (Interfaces::const_iterator iter = interfaces.begin();
+       iter != interfaces.end();
+       ++iter)
+    n = (std::min)(n, (*iter)->availableCount());
+  return n;
+}
+#ifdef SYSTEMOC_ENABLE_VPC
+void PortBase::commExec(size_t n,  smoc::Detail::VpcInterface vpcIf)
+#else //!defined(SYSTEMOC_ENABLE_VPC)
+void PortBase::commExec(size_t n)
+#endif //!defined(SYSTEMOC_ENABLE_VPC)
+{
+  for (Interfaces::iterator iter = interfaces.begin();
+       iter != interfaces.end();
+       ++iter)
+#ifdef SYSTEMOC_ENABLE_VPC
+    (*iter)->commExec(n, vpcIf);
+#else //!defined(SYSTEMOC_ENABLE_VPC)
+    (*iter)->commExec(n);
+#endif //!defined(SYSTEMOC_ENABLE_VPC)
+}
+#ifdef SYSTEMOC_ENABLE_DEBUG
+void PortBase::setLimit(size_t req) {
+  for (PortAccesses::iterator iter = portAccesses.begin();
+       iter != portAccesses.end();
+       ++iter)
+    (*iter)->setLimit(req);
+}
+#endif //SYSTEMOC_ENABLE_DEBUG
+
 // disable get_interface() from sc_core::sc_port_base
-sc_core::sc_interface       *smoc_sysc_port::get_interface()
+sc_core::sc_interface       *PortBase::get_interface()
   { assert(!"WTF?! The method smoc_sysc_port::get_interface() is disabled and should have never been called!"); return nullptr;}
 
-sc_core::sc_interface const *smoc_sysc_port::get_interface() const
+sc_core::sc_interface const *PortBase::get_interface() const
   { assert(!"WTF?! The method smoc_sysc_port::get_interface() const is disabled and should have never been called!");  return nullptr;}
+
+} } // namespace smoc::Detail

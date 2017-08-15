@@ -254,15 +254,15 @@ bool RuntimeTransition::check(bool debug) const {
 #endif
   bool result = getIOPatternWaiter()->isActive();
   if (result) {
-    smoc::Expr::Detail::ActivationStatus retval =
+    smoc::Detail::ActivationStatus retval =
         smoc::Expr::evalTo<smoc::Expr::Value>(getExpr());
   #if defined(SYSTEMOC_ENABLE_DEBUG)
     smoc::Expr::evalTo<smoc::Expr::CommReset>(getExpr());
   #endif
     switch (retval.toSymbol()) {
-      case smoc::Expr::Detail::_ENABLED:
+      case smoc::Detail::_ENABLED:
         break;
-      case smoc::Expr::Detail::_DISABLED:
+      case smoc::Detail::_DISABLED:
         result = false;
         break;
       default:
