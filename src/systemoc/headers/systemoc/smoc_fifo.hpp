@@ -161,16 +161,14 @@ template<class> class smoc_fifo_chan;
  * This class implements the channel in interface
  */
 template<class T>
-class smoc_fifo_outlet
-: public smoc_port_in_if<T,smoc_1d_port_access_if>
-{
+class smoc_fifo_outlet: public smoc_port_in_if<T> {
+  typedef smoc_fifo_outlet<T>              this_type;
 public:
-  typedef smoc_fifo_outlet<T> this_type;
-  typedef typename this_type::access_type access_type; 
-  typedef smoc_port_in_if<T,smoc_1d_port_access_if> iface_type;
+  typedef smoc_port_in_if<T>               iface_type;
+  typedef typename iface_type::access_type access_type;
 
   /// @brief Constructor
-  smoc_fifo_outlet(smoc_fifo_chan<T>& chan)
+  smoc_fifo_outlet(smoc_fifo_chan<T> &chan)
     : chan(chan)
   {}
 
@@ -230,16 +228,14 @@ private:
  * This class implements the channel out interface
  */
 template<class T>
-class smoc_fifo_entry
-: public smoc_port_out_if<T,smoc_1d_port_access_if>
-{
+class smoc_fifo_entry: public smoc_port_out_if<T> {
+  typedef smoc_fifo_entry<T>               this_type;
 public:
-  typedef smoc_fifo_entry<T> this_type;
-  typedef typename this_type::access_type access_type; 
-  typedef smoc_port_out_if<T,smoc_1d_port_access_if> iface_type;
+  typedef smoc_port_out_if<T>              iface_type;
+  typedef typename iface_type::access_type access_type;
 
   /// @brief Constructor
-  smoc_fifo_entry(smoc_fifo_chan<T>& chan)
+  smoc_fifo_entry(smoc_fifo_chan<T> &chan)
     : chan(chan)
   {}
 

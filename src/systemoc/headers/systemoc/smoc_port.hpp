@@ -166,10 +166,10 @@ std::ostream& operator<<(std::ostream &os, const smoc_port_base<IFACE> &port)
 
 template <typename T>
 class smoc_port_in
-: public smoc_port_base<smoc_port_in_if<T,smoc_1d_port_access_if> >
+: public smoc_port_base<smoc_port_in_if<T> >
 {
-  typedef smoc_port_in<T>                                            this_type;
-  typedef smoc_port_base<smoc_port_in_if<T,smoc_1d_port_access_if> > base_type;
+  typedef smoc_port_in<T>                     this_type;
+  typedef smoc_port_base<smoc_port_in_if<T> > base_type;
 public:
 //typedef typename base_type::iface_type  iface_type;
 //typedef typename base_type::access_type access_type;
@@ -194,10 +194,10 @@ public:
 
 template <typename T>
 class smoc_port_out
-: public smoc_port_base<smoc_port_out_if<T,smoc_1d_port_access_if> >
+: public smoc_port_base<smoc_port_out_if<T> >
 {
-  typedef smoc_port_out<T>                                            this_type;
-  typedef smoc_port_base<smoc_port_out_if<T,smoc_1d_port_access_if> > base_type;
+  typedef smoc_port_out<T>                     this_type;
+  typedef smoc_port_base<smoc_port_out_if<T> > base_type;
 public:
 //typedef typename base_type::iface_type  iface_type;
 //typedef typename base_type::access_type access_type;
@@ -243,10 +243,10 @@ protected:
 
 template <>
 class smoc_port_out<void>
-: public smoc_port_base<smoc_port_out_if<void,smoc_1d_port_access_if> >
+: public smoc_port_base<smoc_port_out_if<void> >
 {
-  typedef smoc_port_out<void>                                            this_type;
-  typedef smoc_port_base<smoc_port_out_if<void,smoc_1d_port_access_if> > base_type;
+  typedef smoc_port_out<void>                     this_type;
+  typedef smoc_port_base<smoc_port_out_if<void> > base_type;
 public:
 //typedef typename base_type::iface_type  iface_type;
 //typedef typename base_type::access_type access_type;

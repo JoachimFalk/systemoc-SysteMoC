@@ -47,17 +47,26 @@
 
 const sc_core::sc_event &smoc_default_event_abort();
 
-template <
-  typename T,                                     // data type
-  template <typename> class R>                    // ring access type
+template <typename T>
 class smoc_port_in_if
-: public smoc::Detail::PortInBaseIf {
-  typedef smoc_port_in_if<T,R>                  this_type;
+: public smoc::Detail::PortInBaseIf
+{
+  typedef smoc_port_in_if<T>                    this_type;
+  typedef smoc::Detail::PortInBaseIf            base_type;
 public:
   typedef T                                     data_type;
-  typedef R<
-    typename smoc::Detail::StorageTraitsIn<T>::return_type>   access_in_type;
-  typedef access_in_type                        access_type;
+
+  // FIXME: Why not merge this with smoc_port_in_if<T>?!
+  class access_type: public base_type::access_type {
+  public:
+    typedef typename smoc::Detail::StorageTraitsIn<T>::return_type return_type;
+
+    // Access methods
+    virtual return_type operator[](size_t)              = 0;
+    virtual const return_type operator[](size_t) const  = 0;
+  };
+
+  typedef access_type                           access_in_type;
   typedef this_type                             iface_type;
 protected:
   // constructor
@@ -75,19 +84,81 @@ private:
     { return smoc_default_event_abort(); }
 };
 
-template <
-  typename T,                                     // data type
-  template <typename> class R,                    // ring access type
-  template <typename> class S = smoc::Detail::StorageTraitsInOut> // Storage
-class smoc_port_out_if
-: public smoc::Detail::PortOutBaseIf {
-  typedef smoc_port_out_if<T,R,S> this_type;
+template <>
+class smoc_port_in_if<void>
+: public smoc::Detail::PortInBaseIf
+{
+  typedef smoc_port_in_if<void>                 this_type;
+  typedef smoc::Detail::PortInBaseIf            base_type;
 public:
-  typedef T                       data_type;
-  typedef R<
-    typename S<T>::return_type>   access_out_type;
-  typedef access_out_type         access_type;
-  typedef this_type               iface_type;
+  typedef void                                  data_type;
+  typedef base_type::access_type                access_type;
+  typedef access_type                           access_in_type;
+  typedef this_type                             iface_type;
+protected:
+  // constructor
+  smoc_port_in_if() {}
+
+  virtual access_type *getReadPortAccess() = 0;
+
+public:
+  access_type *getChannelAccess()
+    { return getReadPortAccess(); }
+
+private:
+  // disabled
+  const sc_core::sc_event &default_event() const
+    { return smoc_default_event_abort(); }
+};
+
+template <typename T>
+class smoc_port_out_if
+: public smoc::Detail::PortOutBaseIf
+{
+  typedef smoc_port_out_if<T>                   this_type;
+  typedef smoc::Detail::PortOutBaseIf           base_type;
+public:
+  typedef T                                     data_type;
+
+  // FIXME: Why not merge this with smoc_port_out_if<T>?!
+  class access_type: public base_type::access_type {
+  public:
+    typedef typename smoc::Detail::StorageTraitsInOut<T>::return_type return_type;
+
+    // Access methods
+    virtual return_type operator[](size_t)              = 0;
+    virtual const return_type operator[](size_t) const  = 0;
+  };
+
+  typedef access_type                           access_out_type;
+  typedef this_type                             iface_type;
+protected:
+  // constructor
+  smoc_port_out_if() {}
+
+  virtual access_type *getWritePortAccess() = 0;
+
+public:
+  access_type *getChannelAccess()
+    { return getWritePortAccess(); }
+
+private:
+  // disabled
+  const sc_core::sc_event &default_event() const
+    { return smoc_default_event_abort(); }
+};
+
+template <>
+class smoc_port_out_if<void>
+: public smoc::Detail::PortOutBaseIf
+{
+  typedef smoc_port_out_if<void>                this_type;
+  typedef smoc::Detail::PortOutBaseIf           base_type;
+public:
+  typedef void                                  data_type;
+  typedef base_type::access_type                access_type;
+  typedef access_type                           access_out_type;
+  typedef this_type                             iface_type;
 protected:
   // constructor
   smoc_port_out_if() {}

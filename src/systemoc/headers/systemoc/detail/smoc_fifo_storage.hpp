@@ -57,29 +57,17 @@
  */
 template<class T, class BASE>
 class smoc_fifo_storage
-: public smoc::Detail::QueueWithStorage<T, BASE>,
-  public smoc_ring_access<
-    typename smoc::Detail::StorageTraitsIn<T>::storage_type,
-    typename smoc::Detail::StorageTraitsIn<T>::return_type
-  >,
-  public smoc_ring_access<
-    typename smoc::Detail::StorageTraitsInOut<T>::storage_type,
-    typename smoc::Detail::StorageTraitsInOut<T>::return_type
-  >
+: public smoc::Detail::QueueWithStorage<T, BASE>
+, public smoc_ring_access<T, typename smoc_port_in_if<T>::access_type>
+, public smoc_ring_access<T, typename smoc_port_out_if<T>::access_type>
 {
   typedef smoc_fifo_storage<T, BASE>              this_type;
   typedef smoc::Detail::QueueWithStorage<T, BASE> base_type;
 public:
   typedef typename base_type::storage_type storage_type;
 protected:
-  typedef smoc_ring_access<
-    typename smoc::Detail::StorageTraitsIn<T>::storage_type,
-    typename smoc::Detail::StorageTraitsIn<T>::return_type
-  > access_in_type_impl;
-  typedef smoc_ring_access<
-    typename smoc::Detail::StorageTraitsInOut<T>::storage_type,
-    typename smoc::Detail::StorageTraitsInOut<T>::return_type
-  > access_out_type_impl;
+  typedef smoc_ring_access<T, typename smoc_port_in_if<T>::access_type>  access_in_type_impl;
+  typedef smoc_ring_access<T, typename smoc_port_out_if<T>::access_type> access_out_type_impl;
 
   /// @brief Channel initializer
   class chan_init: public BASE::chan_init {
@@ -166,25 +154,17 @@ public:
  */
 template<class BASE>
 class smoc_fifo_storage<void, BASE>
-: public smoc::Detail::QueueWithStorage<void, BASE>,
-  public smoc_ring_access<
-    typename smoc::Detail::StorageTraitsIn<void>::storage_type,
-    typename smoc::Detail::StorageTraitsIn<void>::return_type
-  >
+: public smoc::Detail::QueueWithStorage<void, BASE>
+, public smoc_ring_access<void, smoc_port_in_if<void>::access_type>
+//, public smoc_ring_access<void, smoc_port_out_if<void>::access_type>
 {
   typedef smoc_fifo_storage<void, BASE>               this_type;
   typedef smoc::Detail::QueueWithStorage<void, BASE>  base_type;
 public:
   typedef typename base_type::storage_type storage_type;
 protected:
-  typedef smoc_ring_access<
-    typename smoc::Detail::StorageTraitsIn<void>::storage_type,
-    typename smoc::Detail::StorageTraitsIn<void>::return_type
-  > access_in_type_impl;
-  typedef smoc_ring_access<
-    typename smoc::Detail::StorageTraitsOut<void>::storage_type,
-    typename smoc::Detail::StorageTraitsOut<void>::return_type
-  > access_out_type_impl;
+  typedef smoc_ring_access<void, smoc_port_in_if<void>::access_type>  access_in_type_impl;
+  typedef smoc_ring_access<void, smoc_port_out_if<void>::access_type> access_out_type_impl;
 
   /// @brief Channel initializer
   class chan_init: public BASE::chan_init {

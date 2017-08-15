@@ -99,8 +99,8 @@ protected:
 template <typename T>
 class smoc_register_outlet
   : public smoc_register_outlet_base
-  , public smoc_port_in_if<T,::smoc_1d_port_access_if>
-  , public smoc_1d_port_access_if<typename smoc::Detail::StorageTraitsIn<T>::return_type>
+  , public smoc_port_in_if<T>
+  , public smoc_port_in_if<T>::access_type
 {
   typedef smoc_register_outlet<T>                      this_type;
 public:
@@ -108,7 +108,7 @@ public:
   typedef smoc::Detail::Storage<data_type>             storage_type;
   typedef typename this_type::access_in_type           ring_in_type;
   typedef typename this_type::return_type              return_type;
-  typedef smoc_port_in_if<T,::smoc_1d_port_access_if>  iface_type;
+  typedef smoc_port_in_if<T>                           iface_type;
 
   /// @brief Constructor
   smoc_register_outlet(smoc_register_chan<T> *chan)
@@ -190,8 +190,8 @@ protected:
 template <typename T>
 class smoc_register_entry
   : public smoc_register_entry_base
-  , public smoc_port_out_if<T,::smoc_1d_port_access_if>
-  , public smoc_1d_port_access_if<typename smoc::Detail::StorageTraitsInOut<T>::return_type>
+  , public smoc_port_out_if<T>
+  , public smoc_port_out_if<T>::access_type
 {
   typedef smoc_register_entry<T>                        this_type;
 public:
@@ -199,7 +199,7 @@ public:
   typedef smoc::Detail::Storage<data_type>              storage_type;
   typedef typename this_type::access_out_type           ring_out_type;
   typedef typename this_type::return_type               return_type;
-  typedef smoc_port_out_if<T,::smoc_1d_port_access_if>  iface_type;
+  typedef smoc_port_out_if<T>                           iface_type;
 
   /// @brief Constructor
   smoc_register_entry(smoc_register_chan<T> *chan)
@@ -241,11 +241,11 @@ public:
   /// @brief See PortOutBaseIf
   void lessSpace(size_t) {}
 
-  /// @brief See smoc_port_access_base_if
+  /// @brief See PortBaseIf::AccessIf
   bool tokenIsValid(size_t n) const
     { assert(n == 0); return static_cast<smoc_register_chan<T> *>(chan)->isValid(); }
 
-  /// @brief See smoc_port_access_base_if
+  /// @brief See PortBaseIf::AccessIf
   void setLimit(size_t l) {}
 
   // Interfaces depending on T.

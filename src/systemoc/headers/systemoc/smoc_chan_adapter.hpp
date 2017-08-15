@@ -125,14 +125,14 @@ namespace smoc { namespace Detail {
   template<class IFaceImpl>
   class ChanAdapterMid;
 
-  template<class T, template<class> class R>
-  class ChanAdapterMid<smoc_port_in_if<T,R> >
+  template<class T>
+  class ChanAdapterMid<smoc_port_in_if<T> >
   : public ChanAdapterBase {
-    typedef ChanAdapterMid<smoc_port_in_if<T,R> > this_type;
+    typedef ChanAdapterMid<smoc_port_in_if<T> >   this_type;
     typedef ChanAdapterBase                       base_type;
   protected:
     /// typedefs
-    typedef smoc_port_in_if<T,R> iface_impl_type;
+    typedef smoc_port_in_if<T> iface_impl_type;
 
     smoc_event &dataAvailable;
 
@@ -153,14 +153,14 @@ namespace smoc { namespace Detail {
       { getIface().register_port(p, typeid(iface_impl_type).name()); }
   };
 
-  template<class T, template<class> class R, template<class> class S>
-  class ChanAdapterMid<smoc_port_out_if<T,R,S> >
+  template<class T>
+  class ChanAdapterMid<smoc_port_out_if<T> >
   : public ChanAdapterBase {
-    typedef ChanAdapterMid<smoc_port_out_if<T,R,S> > this_type;
-    typedef ChanAdapterBase                          base_type;
+    typedef ChanAdapterMid<smoc_port_out_if<T> > this_type;
+    typedef ChanAdapterBase                      base_type;
   protected:
     /// typedefs
-    typedef smoc_port_out_if<T,R,S> iface_impl_type;
+    typedef smoc_port_out_if<T> iface_impl_type;
 
     smoc_event &spaceAvailable;
 
@@ -203,18 +203,18 @@ class smoc_chan_adapter {
 /**
  * adapter specialization for blocking tlm get -> smoc channel read
  */
-template<class T, template<class> class R>
+template<class T>
 class smoc_chan_adapter<
-    smoc_port_in_if<T,R>,
+    smoc_port_in_if<T>,
     tlm::tlm_blocking_get_if<T> >
   : public tlm::tlm_blocking_get_if<T>
   , public smoc::Detail::ChanAdapterMid
-      <smoc_port_in_if<T,R> >
+      <smoc_port_in_if<T> >
 {
   template <typename DERIVED, typename CHANTYPE>
   friend class smoc::Detail::ConnectProvider;
 
-  typedef smoc_port_in_if<T,R> iface_impl_type;
+  typedef smoc_port_in_if<T> iface_impl_type;
 
   /// flag if this class is a specialization
   static const bool isAdapter = true;
@@ -223,7 +223,7 @@ public:
   /// - stores reference to wrapped interface
   /// - needs read channel access
   smoc_chan_adapter(iface_impl_type &in_if)
-    : smoc::Detail::ChanAdapterMid<smoc_port_in_if<T,R> >(in_if) {
+    : smoc::Detail::ChanAdapterMid<smoc_port_in_if<T> >(in_if) {
 #ifdef SYSTEMOC_ENABLE_VPC
     // Pre notify this.
     readConsumeEvent->notify();
@@ -259,18 +259,18 @@ private:
 /**
  * adapter specialization for blocking tlm get -> smoc channel read
  */
-template<template<class> class R>
+template<>
 class smoc_chan_adapter<
-    smoc_port_in_if<void,R>,
+    smoc_port_in_if<void>,
     tlm::tlm_blocking_get_if<void> >
   : public tlm::tlm_blocking_get_if<void>,
     public smoc::Detail::ChanAdapterMid
-      <smoc_port_in_if<void,R> >
+      <smoc_port_in_if<void> >
 {
   template <typename DERIVED, typename CHANTYPE>
   friend class smoc::Detail::ConnectProvider;
 
-  typedef smoc_port_in_if<void,R> iface_impl_type;
+  typedef smoc_port_in_if<void> iface_impl_type;
 
   /// flag if this class is a specialization
   static const bool isAdapter = true;
@@ -279,7 +279,7 @@ public:
   /// - stores reference to wrapped interface
   /// - needs read channel access
   smoc_chan_adapter(iface_impl_type &in_if)
-    : smoc::Detail::ChanAdapterMid<smoc_port_in_if<void,R> >(in_if) {
+    : smoc::Detail::ChanAdapterMid<smoc_port_in_if<void> >(in_if) {
 #ifdef SYSTEMOC_ENABLE_VPC
     // Pre notify this.
     readConsumeEvent->notify();
@@ -312,18 +312,18 @@ private:
 /**
  * adapter specialization for nonblocking tlm get -> smoc channel read
  */
-template<class T, template<class> class R>
+template<class T>
 class smoc_chan_adapter<
-    smoc_port_in_if<T,R>,
+    smoc_port_in_if<T>,
     tlm::tlm_nonblocking_get_if<T> >
   : public tlm::tlm_nonblocking_get_if<T>
   , public smoc::Detail::ChanAdapterMid
-      <smoc_port_in_if<T,R> >
+      <smoc_port_in_if<T> >
 {
   template <typename DERIVED, typename CHANTYPE>
   friend class smoc::Detail::ConnectProvider;
 
-  typedef smoc_port_in_if<T,R> iface_impl_type;
+  typedef smoc_port_in_if<T> iface_impl_type;
 
   /// flag if this class is a specialization
   static const bool isAdapter = true;
@@ -334,7 +334,7 @@ public:
   /// - stores reference to wrapped interface
   /// - needs read channel access
   smoc_chan_adapter(iface_impl_type &in_if)
-    : smoc::Detail::ChanAdapterMid<smoc_port_in_if<T,R> >(in_if),
+    : smoc::Detail::ChanAdapterMid<smoc_port_in_if<T> >(in_if),
       scev(this->dataAvailable) {
 #ifdef SYSTEMOC_ENABLE_VPC
     // Pre notify this.
@@ -380,18 +380,18 @@ private:
 /**
  * adapter specialization for nonblocking tlm get -> smoc channel read
  */
-template<template<class> class R>
+template<>
 class smoc_chan_adapter<
-    smoc_port_in_if<void,R>,
+    smoc_port_in_if<void>,
     tlm::tlm_nonblocking_get_if<void> >
   : public tlm::tlm_nonblocking_get_if<void>
   , public smoc::Detail::ChanAdapterMid
-      <smoc_port_in_if<void,R> >
+      <smoc_port_in_if<void> >
 {
   template <typename DERIVED, typename CHANTYPE>
   friend class smoc::Detail::ConnectProvider;
 
-  typedef smoc_port_in_if<void,R> iface_impl_type;
+  typedef smoc_port_in_if<void> iface_impl_type;
 
   /// flag if this class is a specialization
   static const bool isAdapter = true;
@@ -402,7 +402,7 @@ public:
   /// - stores reference to wrapped interface
   /// - needs read channel access
   smoc_chan_adapter(iface_impl_type &in_if)
-    : smoc::Detail::ChanAdapterMid<smoc_port_in_if<void,R> >(in_if),
+    : smoc::Detail::ChanAdapterMid<smoc_port_in_if<void> >(in_if),
       scev(this->dataAvailable) {
 #ifdef SYSTEMOC_ENABLE_VPC
     // Pre notify this.
@@ -448,18 +448,20 @@ private:
 /**
  * adapter specialization for blocking tlm peek -> smoc channel read
  */
-template<class T, template<class> class R>
+template<class T>
 class smoc_chan_adapter<
-    smoc_port_in_if<T,R>,
+    smoc_port_in_if<T>,
     tlm::tlm_blocking_peek_if<T> >
   : public tlm::tlm_blocking_peek_if<T>
   , public smoc::Detail::ChanAdapterMid
-      <smoc_port_in_if<T,R> >
+      <smoc_port_in_if<T> >
 {
   template <typename DERIVED, typename CHANTYPE>
   friend class smoc::Detail::ConnectProvider;
 
-  typedef smoc_port_in_if<T,R> iface_impl_type;
+  typedef smoc_port_in_if<T>                    iface_impl_type;
+  typedef smoc_chan_adapter<iface_impl_type,
+      tlm::tlm_blocking_peek_if<T> >            this_type;
 
   /// flag if this class is a specialization
   static const bool isAdapter = true;
@@ -468,13 +470,13 @@ public:
   /// - stores reference to wrapped interface
   /// - needs read channel access
   smoc_chan_adapter(iface_impl_type &in_if)
-    : smoc::Detail::ChanAdapterMid<smoc_port_in_if<T,R> >(in_if) {}
+    : smoc::Detail::ChanAdapterMid<smoc_port_in_if<T> >(in_if) {}
 
   T peek(tlm::tlm_tag<T> *t = nullptr) const {
     smoc::smoc_wait(this->dataAvailable);
     
     typename iface_impl_type::access_type *ca =
-      this->getIface().getChannelAccess();
+      const_cast<this_type *>(this)->getIface().getChannelAccess();
     
 #if defined(SYSTEMOC_ENABLE_DEBUG)
     // why must we set the limit? 
@@ -487,18 +489,21 @@ public:
 /**
  * adapter specialization for blocking tlm peek -> smoc channel read
  */
-template<template<class> class R>
+template<>
 class smoc_chan_adapter<
-    smoc_port_in_if<void,R>,
+    smoc_port_in_if<void>,
     tlm::tlm_blocking_peek_if<void> >
   : public tlm::tlm_blocking_peek_if<void>
   , public smoc::Detail::ChanAdapterMid
-      <smoc_port_in_if<void,R> >
+      <smoc_port_in_if<void> >
 {
   template <typename DERIVED, typename CHANTYPE>
   friend class smoc::Detail::ConnectProvider;
 
-  typedef smoc_port_in_if<void,R> iface_impl_type;
+  typedef smoc_port_in_if<void>                 iface_impl_type;
+  typedef smoc_chan_adapter<
+      iface_impl_type,
+      tlm::tlm_blocking_peek_if<void> >         this_type;
 
   /// flag if this class is a specialization
   static const bool isAdapter = true;
@@ -507,13 +512,13 @@ public:
   /// - stores reference to wrapped interface
   /// - needs read channel access
   smoc_chan_adapter(iface_impl_type &in_if)
-    : smoc::Detail::ChanAdapterMid<smoc_port_in_if<void,R> >(in_if) {}
+    : smoc::Detail::ChanAdapterMid<smoc_port_in_if<void> >(in_if) {}
 
   void peek(tlm::tlm_tag<void> *t = nullptr) const {
     smoc::smoc_wait(this->dataAvailable);
     
     typename iface_impl_type::access_type *ca =
-      this->getIface().getChannelAccess();
+      const_cast<this_type *>(this)->getIface().getChannelAccess();
     
 #if defined(SYSTEMOC_ENABLE_DEBUG)
     // why must we set the limit? 
@@ -526,18 +531,18 @@ public:
 /**
  * adapter specialization for nonblocking tlm peek -> smoc channel read
  */
-template<class T, template<class> class R>
+template<class T>
 class smoc_chan_adapter<
-    smoc_port_in_if<T,R>,
+    smoc_port_in_if<T>,
     tlm::tlm_nonblocking_peek_if<T> >
   : public tlm::tlm_nonblocking_peek_if<T>
   , public smoc::Detail::ChanAdapterMid
-      <smoc_port_in_if<T,R> >
+      <smoc_port_in_if<T> >
 {
   template <typename DERIVED, typename CHANTYPE>
   friend class smoc::Detail::ConnectProvider;
 
-  typedef smoc_port_in_if<T,R> iface_impl_type;
+  typedef smoc_port_in_if<T> iface_impl_type;
 
   /// flag if this class is a specialization
   static const bool isAdapter = true;
@@ -548,7 +553,7 @@ public:
   /// - stores reference to wrapped interface
   /// - needs read channel access
   smoc_chan_adapter(iface_impl_type &in_if)
-    : smoc::Detail::ChanAdapterMid<smoc_port_in_if<T,R> >(in_if),
+    : smoc::Detail::ChanAdapterMid<smoc_port_in_if<T> >(in_if),
       scev(this->dataAvailable) {}
 
   /// see tlm_nonblocking_peek_if<T>
@@ -557,7 +562,7 @@ public:
       return false;
     
     typename iface_impl_type::access_type *ca =
-      this->getIface().peekChannelAccess();
+      this->getIface().getChannelAccess();
     
 #if defined(SYSTEMOC_ENABLE_DEBUG)
     // why must we set the limit? 
@@ -580,18 +585,18 @@ public:
 /**
  * adapter specialization for nonblocking tlm peek -> smoc channel read
  */
-template<template<class> class R>
+template<>
 class smoc_chan_adapter<
-    smoc_port_in_if<void,R>,
+    smoc_port_in_if<void>,
     tlm::tlm_nonblocking_peek_if<void> >
   : public tlm::tlm_nonblocking_peek_if<void>
   , public smoc::Detail::ChanAdapterMid
-      <smoc_port_in_if<void,R> >
+      <smoc_port_in_if<void> >
 {
   template <typename DERIVED, typename CHANTYPE>
   friend class smoc::Detail::ConnectProvider;
 
-  typedef smoc_port_in_if<void,R> iface_impl_type;
+  typedef smoc_port_in_if<void> iface_impl_type;
 
   /// flag if this class is a specialization
   static const bool isAdapter = true;
@@ -602,7 +607,7 @@ public:
   /// - stores reference to wrapped interface
   /// - needs read channel access
   smoc_chan_adapter(iface_impl_type &in_if)
-    : smoc::Detail::ChanAdapterMid<smoc_port_in_if<void,R> >(in_if),
+    : smoc::Detail::ChanAdapterMid<smoc_port_in_if<void> >(in_if),
       scev(this->dataAvailable) {}
 
   /// see tlm_nonblocking_peek_if<void>
@@ -611,7 +616,7 @@ public:
       return false;
     
     typename iface_impl_type::access_type *ca =
-      this->getIface().peekChannelAccess();
+      this->getIface().getChannelAccess();
     
 #if defined(SYSTEMOC_ENABLE_DEBUG)
     // why must we set the limit? 
@@ -633,18 +638,18 @@ public:
 /**
  * adapter specialization for blocking tlm put -> smoc channel write
  */
-template<class T, template<class> class R, template<class> class S>
+template<class T>
 class smoc_chan_adapter<
-    smoc_port_out_if<T,R,S>,
+    smoc_port_out_if<T>,
     tlm::tlm_blocking_put_if<T> >
   : public tlm::tlm_blocking_put_if<T>
   , public smoc::Detail::ChanAdapterMid
-      <smoc_port_out_if<T,R> >
+      <smoc_port_out_if<T> >
 {
   template <typename DERIVED, typename CHANTYPE>
   friend class smoc::Detail::ConnectProvider;
 
-  typedef smoc_port_out_if<T,R,S> iface_impl_type;
+  typedef smoc_port_out_if<T> iface_impl_type;
 
   /// flag if this class is a specialization
   static const bool isAdapter = true;
@@ -653,7 +658,7 @@ public:
   /// - stores reference to wrapped interface
   /// - needs write channel access
   smoc_chan_adapter(iface_impl_type &out_if)
-    : smoc::Detail::ChanAdapterMid<smoc_port_out_if<T,R,S> >(out_if) {}
+    : smoc::Detail::ChanAdapterMid<smoc_port_out_if<T> >(out_if) {}
 
   /// see tlm::tlm_blocking_put_if<T>
   void put(const T &t) {
@@ -679,18 +684,18 @@ public:
 /**
  * adapter specialization for blocking tlm put -> smoc channel write
  */
-template<template<class> class R, template<class> class S>
+template<>
 class smoc_chan_adapter<
-    smoc_port_out_if<void,R,S>,
+    smoc_port_out_if<void>,
     tlm::tlm_blocking_put_if<void> >
   : public tlm::tlm_blocking_put_if<void>
   , public smoc::Detail::ChanAdapterMid
-      <smoc_port_out_if<void,R,S> >
+      <smoc_port_out_if<void> >
 {
   template <typename DERIVED, typename CHANTYPE>
   friend class smoc::Detail::ConnectProvider;
 
-  typedef smoc_port_out_if<void,R,S> iface_impl_type;
+  typedef smoc_port_out_if<void> iface_impl_type;
 
   /// flag if this class is a specialization
   static const bool isAdapter = true;
@@ -699,7 +704,7 @@ public:
   /// - stores reference to wrapped interface
   /// - needs write channel access
   smoc_chan_adapter(iface_impl_type &out_if)
-    : smoc::Detail::ChanAdapterMid<smoc_port_out_if<void,R,S> >(out_if) {}
+    : smoc::Detail::ChanAdapterMid<smoc_port_out_if<void> >(out_if) {}
 
   /// see tlm::tlm_blocking_put_if<void>
   void put(tlm::tlm_tag<void> * = nullptr) {
@@ -724,18 +729,18 @@ public:
 /**
  * adapter specialization for nonblocking tlm put -> smoc channel write
  */
-template<class T, template<class> class R, template<class> class S>
+template<class T>
 class smoc_chan_adapter<
-    smoc_port_out_if<T,R,S>,
+    smoc_port_out_if<T>,
     tlm::tlm_nonblocking_put_if<T> >
   : public tlm::tlm_nonblocking_put_if<T>
   , public smoc::Detail::ChanAdapterMid
-      <smoc_port_out_if<T,R,S> >
+      <smoc_port_out_if<T> >
 {
   template <typename DERIVED, typename CHANTYPE>
   friend class smoc::Detail::ConnectProvider;
 
-  typedef smoc_port_out_if<T,R,S> iface_impl_type;
+  typedef smoc_port_out_if<T> iface_impl_type;
 
   /// flag if this class is a specialization
   static const bool isAdapter = true;
@@ -746,7 +751,7 @@ public:
   /// - stores reference to wrapped interface
   /// - needs write channel access
   smoc_chan_adapter(iface_impl_type &out_if)
-    : smoc::Detail::ChanAdapterMid<smoc_port_out_if<T,R,S> >(out_if),
+    : smoc::Detail::ChanAdapterMid<smoc_port_out_if<T> >(out_if),
       scev(this->spaceAvailable) {}
 
   /// see tlm::tlm_nonblocking_put_if<T>
@@ -785,18 +790,18 @@ public:
 /**
  * adapter specialization for nonblocking tlm put -> smoc channel write
  */
-template<template<class> class R, template<class> class S>
+template<>
 class smoc_chan_adapter<
-    smoc_port_out_if<void,R,S>,
+    smoc_port_out_if<void>,
     tlm::tlm_nonblocking_put_if<void> >
   : public tlm::tlm_nonblocking_put_if<void>
   , public smoc::Detail::ChanAdapterMid
-      <smoc_port_out_if<void,R,S> >
+      <smoc_port_out_if<void> >
 {
   template <typename DERIVED, typename CHANTYPE>
   friend class smoc::Detail::ConnectProvider;
 
-  typedef smoc_port_out_if<void,R,S> iface_impl_type;
+  typedef smoc_port_out_if<void> iface_impl_type;
 
   /// flag if this class is a specialization
   static const bool isAdapter = true;
@@ -807,7 +812,7 @@ public:
   /// - stores reference to wrapped interface
   /// - needs write channel access
   smoc_chan_adapter(iface_impl_type &out_if)
-    : smoc::Detail::ChanAdapterMid<smoc_port_out_if<void,R,S> >(out_if),
+    : smoc::Detail::ChanAdapterMid<smoc_port_out_if<void> >(out_if),
       scev(this->spaceAvailable) {}
 
   /// see tlm::tlm_nonblocking_put_if<void>
@@ -844,26 +849,26 @@ public:
 /**
  * adapter specialization for nonblocking tlm get and peek -> smoc channel read
  */
-template<class T, template<class> class R>
+template<class T>
 class smoc_chan_adapter<
-    smoc_port_in_if<T,R>,
+    smoc_port_in_if<T>,
     tlm::tlm_nonblocking_get_peek_if<T> >
-  : public smoc_chan_adapter<smoc_port_in_if<T,R>,
+  : public smoc_chan_adapter<smoc_port_in_if<T>,
       tlm::tlm_nonblocking_get_if<T> >
-  , public smoc_chan_adapter<smoc_port_in_if<T,R>,
+  , public smoc_chan_adapter<smoc_port_in_if<T>,
       tlm::tlm_nonblocking_peek_if<T> >
 {
   template <typename DERIVED, typename CHANTYPE>
   friend class smoc::Detail::ConnectProvider;
 
-  typedef smoc_port_in_if<T,R> iface_impl_type;
+  typedef smoc_port_in_if<T> iface_impl_type;
 
   /// flag if this class is a specialization
   static const bool isAdapter = true;
 public:
   smoc_chan_adapter(iface_impl_type &in_if)
-    :  smoc_chan_adapter<smoc_port_in_if<T,R>, tlm::tlm_nonblocking_get_if<T> >(in_if),
-       smoc_chan_adapter<smoc_port_in_if<T,R>, tlm::tlm_nonblocking_peek_if<T> >(in_if) {}
+    :  smoc_chan_adapter<smoc_port_in_if<T>, tlm::tlm_nonblocking_get_if<T> >(in_if),
+       smoc_chan_adapter<smoc_port_in_if<T>, tlm::tlm_nonblocking_peek_if<T> >(in_if) {}
 };
 
 #endif // _INCLUDED_SMOC_CHAN_ADAPTER_HPP
