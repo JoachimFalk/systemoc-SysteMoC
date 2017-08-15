@@ -75,7 +75,7 @@
 
 namespace smoc { namespace Detail { 
 
-  class Node;
+  class NodeBase;
 
 } } // namepsace smoc::Detail
 
@@ -267,7 +267,7 @@ private:
   /**
    * Method to be used by a thread to execute this transition's actions
    */
-  virtual void executeTransition(smoc::Detail::Node *node);
+  virtual void executeTransition(smoc::Detail::NodeBase *node);
   
 #endif //SYSTEMOC_ENABLE_MAESTRO
 
@@ -314,11 +314,11 @@ public:
   bool check(bool debug = false) const;
 
   /// @brief Execute transitions
-  void execute(smoc::Detail::Node *actor);
+  void execute(smoc::Detail::NodeBase *actor);
 
   void *getID() const;
 
-  void before_end_of_elaboration(smoc::Detail::Node *node);
+  void before_end_of_elaboration(smoc::Detail::NodeBase *node);
 
   void end_of_elaboration();
 
@@ -343,7 +343,7 @@ class RuntimeState
     public smoc::Detail::SimCTXBase {
     typedef RuntimeState                    this_type;
 
-    friend class smoc::Detail::Node;
+    friend class smoc::Detail::NodeBase;
     friend class RuntimeTransition;
 
 private:
@@ -361,7 +361,7 @@ public:
   RuntimeTransitionList& getTransitions();
 
   void addTransition(const RuntimeTransition& t,
-                     smoc::Detail::Node *node);
+                     smoc::Detail::NodeBase *node);
 
   void end_of_elaboration();
 
@@ -406,12 +406,12 @@ public:
 
   /// @brief Hierarchical before end-of-elaboration callback
   void before_end_of_elaboration(
-      smoc::Detail::Node    *actor,
+      smoc::Detail::NodeBase    *actor,
       HierarchicalStateImpl *init);
 
   /// @brief Hierarchical end-of-elaboration callback
   void end_of_elaboration(
-      smoc::Detail::Node    *actor);
+      smoc::Detail::NodeBase    *actor);
 
   /// @brief Merge firing FSMs
   void unify(this_type *fr);

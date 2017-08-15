@@ -33,8 +33,8 @@
  */
 
 #include <CoSupport/compatibility-glue/nullptr.h>
-#include <smoc/detail/Node.hpp>
-#include <smoc/detail/Chan.hpp>
+#include <smoc/detail/NodeBase.hpp>
+#include <smoc/detail/ChanBase.hpp>
 #include <systemoc/smoc_config.h>
 
 #include <systemoc/detail/smoc_sysc_port.hpp>

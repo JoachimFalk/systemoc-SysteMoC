@@ -42,11 +42,11 @@
 # include <Maestro/MetaMap/includes.hpp>
 #endif //SYSTEMOC_ENABLE_MAESTRO
 
-#include "detail/Node.hpp"
+#include "detail/NodeBase.hpp"
 
 namespace smoc {
 
-class smoc_actor: public Detail::Node {
+class smoc_actor: public Detail::NodeBase {
 protected:
   smoc_actor(sc_core::sc_module_name name, smoc_hierarchical_state &s, unsigned int thread_stack_size = 0
 #ifdef SYSTEMOC_ENABLE_MAESTRO

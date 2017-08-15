@@ -58,13 +58,13 @@
 #include <smoc/smoc_event.hpp>
 #include <smoc/detail/ConnectProvider.hpp>
 #include <smoc/detail/EventMapManager.hpp>
-#include <smoc/detail/Chan.hpp>
+#include <smoc/detail/ChanBase.hpp>
 
 class smoc_reset_outlet;
 class smoc_reset_entry;
 
 class smoc_reset_chan
-: public smoc::Detail::Chan {
+: public smoc::Detail::ChanBase {
 public:
   friend class smoc_reset_entry;
   friend class smoc_reset_outlet;
@@ -124,8 +124,8 @@ private:
   smoc::smoc_event sae;
   smoc::smoc_event dae;
 
-  typedef std::set<smoc::Detail::Chan *> ChanSet;
-  typedef std::set<smoc::Detail::Node *> NodeSet;
+  typedef std::set<smoc::Detail::ChanBase *> ChanSet;
+  typedef std::set<smoc::Detail::NodeBase *> NodeSet;
 
   ChanSet chans;
   NodeSet nodes;
@@ -294,12 +294,12 @@ public:
   this_type& connect(smoc_reset_port& p)
     { return this_type::con_type::connect(p); }
   
-  this_type& connect(smoc::Detail::Node& n) {
+  this_type& connect(smoc::Detail::NodeBase& n) {
     sassert(getChan()->nodes.insert(&n).second);
     return *this;
   }
 
-  this_type& operator<<(smoc::Detail::Node& n)
+  this_type& operator<<(smoc::Detail::NodeBase& n)
     { return connect(n); }
 
   template<class T>

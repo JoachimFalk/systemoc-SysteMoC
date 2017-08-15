@@ -44,7 +44,7 @@ smoc_register_chan_base::chan_init::chan_init(
 
 smoc_register_chan_base::smoc_register_chan_base(
     const chan_init &i)
-  : Chan(
+  : ChanBase(
   #ifndef SYSTEMOC_ENABLE_MAESTROMM_SPEEDUP
       i.name
   #endif //!defined(SYSTEMOC_ENABLE_MAESTROMM_SPEEDUP)

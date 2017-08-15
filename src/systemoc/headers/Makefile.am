@@ -35,7 +35,7 @@ nobase_include_HEADERS = \
 	smoc/smoc_register.hpp \
 	smoc/smoc_scheduler_top.hpp \
 	smoc/EvalAPI/SchedulingInterface.hpp \
-	smoc/detail/Chan.hpp \
+	smoc/detail/ChanBase.hpp \
 	smoc/detail/ConnectProvider.hpp \
 	smoc/detail/DebugOStream.hpp \
 	smoc/detail/DumpingInterfaces.hpp \
@@ -48,7 +48,7 @@ nobase_include_HEADERS = \
 	smoc/detail/IOPattern.hpp \
 	smoc/detail/LatencyQueue.hpp \
 	smoc/detail/NamedIdedObj.hpp \
-	smoc/detail/Node.hpp \
+	smoc/detail/NodeBase.hpp \
 	smoc/detail/NodeQueue.hpp \
 	smoc/detail/PortBaseIf.hpp \
 	smoc/detail/PortIOBaseIf.hpp \

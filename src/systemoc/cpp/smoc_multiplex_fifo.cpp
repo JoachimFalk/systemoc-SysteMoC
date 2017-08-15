@@ -43,9 +43,9 @@
 
 smoc_multiplex_fifo_chan_base::smoc_multiplex_fifo_chan_base(const chan_init &i)
 #ifdef SYSTEMOC_ENABLE_MAESTROMM_SPEEDUP
-	: Chan(),
+	: ChanBase(),
 #else
-	: Chan(i.name),
+	: ChanBase(i.name),
 #endif
 	
 #ifdef SYSTEMOC_ENABLE_VPC

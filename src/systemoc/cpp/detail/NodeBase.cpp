@@ -44,7 +44,7 @@
 #include <smoc/smoc_event.hpp>
 #include <systemoc/smoc_graph.hpp>
 #include <smoc/detail/DebugOStream.hpp>
-#include <smoc/detail/Node.hpp>
+#include <smoc/detail/NodeBase.hpp>
 #ifdef SYSTEMOC_ENABLE_MAESTRO
 # include <Maestro/MetaMap/MAESTRORuntimeException.hpp>
 #endif //SYSTEMOC_ENABLE_MAESTRO
@@ -53,7 +53,7 @@
 
 namespace smoc { namespace Detail {
 
-Node::Node(sc_core::sc_module_name name, NodeType nodeType, smoc_hierarchical_state &s, unsigned int thread_stack_size)
+NodeBase::NodeBase(sc_core::sc_module_name name, NodeType nodeType, smoc_hierarchical_state &s, unsigned int thread_stack_size)
   :
 #if defined(SYSTEMOC_ENABLE_VPC)
     SystemC_VPC::ScheduledTask(name)
@@ -90,7 +90,7 @@ Node::Node(sc_core::sc_module_name name, NodeType nodeType, smoc_hierarchical_st
 #endif // SYSTEMOC_ENABLE_VPC
 }
 
-void Node::before_end_of_elaboration() {
+void NodeBase::before_end_of_elaboration() {
 #ifdef SYSTEMOC_DEBUG
   if (smoc::Detail::outDbg.isVisible(smoc::Detail::Debug::High)) {
     smoc::Detail::outDbg << "<smoc_root_node::before_end_of_elaboration name=\"" << this->name() << "\">"
@@ -129,7 +129,7 @@ void Node::before_end_of_elaboration() {
 #endif //defined(SYSTEMOC_DEBUG)
 }
 
-void Node::end_of_elaboration() {
+void NodeBase::end_of_elaboration() {
 #ifdef SYSTEMOC_DEBUG
   if (smoc::Detail::outDbg.isVisible(smoc::Detail::Debug::High)) {
     smoc::Detail::outDbg << "<smoc_root_node::end_of_elaboration name=\"" << this->name() << "\">"
@@ -149,7 +149,7 @@ void Node::end_of_elaboration() {
 #endif //defined(SYSTEMOC_DEBUG)
 }
 
-void Node::start_of_simulation() {
+void NodeBase::start_of_simulation() {
 #ifdef SYSTEMOC_DEBUG
   if (smoc::Detail::outDbg.isVisible(smoc::Detail::Debug::High)) {
     smoc::Detail::outDbg << "<smoc_root_node::start_of_simulation name=\"" << this->name() << "\">"
@@ -158,7 +158,7 @@ void Node::start_of_simulation() {
 #endif //defined(SYSTEMOC_DEBUG)
   sc_core::sc_module::start_of_simulation();
   // Don't call the virtual function!
-  Node::doReset();
+  NodeBase::doReset();
 #ifdef SYSTEMOC_DEBUG
   if (smoc::Detail::outDbg.isVisible(smoc::Detail::Debug::High)) {
     smoc::Detail::outDbg << smoc::Detail::Indent::Down << "</smoc_root_node::start_of_simulation>"
@@ -167,7 +167,7 @@ void Node::start_of_simulation() {
 #endif //defined(SYSTEMOC_DEBUG)
 }
 
-smoc_sysc_port_list Node::getPorts() const {
+smoc_sysc_port_list NodeBase::getPorts() const {
   smoc_sysc_port_list ret;
   
   for(
@@ -185,13 +185,13 @@ smoc_sysc_port_list Node::getPorts() const {
   return ret;
 }
 
-Node::~Node() {
+NodeBase::~NodeBase() {
 #ifdef SYSTEMOC_ENABLE_VPC
   delete commState;
 #endif // SYSTEMOC_ENABLE_VPC
 }
 
-void Node::doReset() {
+void NodeBase::doReset() {
 #ifdef SYSTEMOC_DEBUG
   if (smoc::Detail::outDbg.isVisible(smoc::Detail::Debug::High)) {
     smoc::Detail::outDbg << "<smoc_root_node::doReset name=\"" << name() << "\">"
@@ -213,7 +213,7 @@ void Node::doReset() {
 #endif // SYSTEMOC_DEBUG
 }
 
-void Node::renotified(smoc::smoc_event_waiter *e) {
+void NodeBase::renotified(smoc::smoc_event_waiter *e) {
 #ifdef SYSTEMOC_DEBUG
   if (smoc::Detail::outDbg.isVisible(smoc::Detail::Debug::High)) {
     smoc::Detail::outDbg << "<smoc_root_node::renotified name=\"" << name() << "\">"
@@ -231,7 +231,7 @@ void Node::renotified(smoc::smoc_event_waiter *e) {
 #endif // SYSTEMOC_DEBUG
 }
 
-void Node::signaled(smoc::smoc_event_waiter *e) {
+void NodeBase::signaled(smoc::smoc_event_waiter *e) {
 #ifdef SYSTEMOC_DEBUG
   if (smoc::Detail::outDbg.isVisible(smoc::Detail::Debug::High)) {
     smoc::Detail::outDbg << "<smoc_root_node::signaled name=\"" << name() << "\">"
@@ -275,15 +275,15 @@ void Node::signaled(smoc::smoc_event_waiter *e) {
 #endif // SYSTEMOC_DEBUG
 }
 
-void Node::eventDestroyed(smoc::smoc_event_waiter *e) {
+void NodeBase::eventDestroyed(smoc::smoc_event_waiter *e) {
   // should happen when simulation has finished -> ignore
 }
 
-void Node::setInitialState(smoc_hierarchical_state &s) {
+void NodeBase::setInitialState(smoc_hierarchical_state &s) {
   initialStatePtr = s.toPtr();
 }
 
-void Node::setCurrentState(RuntimeState *newState) {
+void NodeBase::setCurrentState(RuntimeState *newState) {
 #ifdef SYSTEMOC_DEBUG
   if (smoc::Detail::outDbg.isVisible(smoc::Detail::Debug::High)) {
     smoc::Detail::outDbg << "<smoc_root_node::setCurrentState name=\"" << name() << "\">"
@@ -328,7 +328,7 @@ void Node::setCurrentState(RuntimeState *newState) {
 #endif // SYSTEMOC_DEBUG
 }
 
-void Node::setUseActivationCallback(bool flag) {
+void NodeBase::setUseActivationCallback(bool flag) {
   if (currentState) {
     if (useActivationCallback && !flag) {
       EventWaiterSet &am = currentState->am;
@@ -353,18 +353,18 @@ void Node::setUseActivationCallback(bool flag) {
     useActivationCallback = flag;
 }
 
-bool Node::getUseActivationCallback() const {
+bool NodeBase::getUseActivationCallback() const {
   return useActivationCallback;
 }
 
-std::string Node::getDestStateName() {
+std::string NodeBase::getDestStateName() {
   if (!ct)
     return "FIXME!!!";
   assert(ct);
   return ct->getDestStateName();
 }
 
-bool Node::searchActiveTransition() {
+bool NodeBase::searchActiveTransition() {
   assert(currentState);
   ct = nullptr;
 
@@ -385,7 +385,7 @@ bool Node::searchActiveTransition() {
   return ct != nullptr;
 }
 
-void Node::schedule() {
+void NodeBase::schedule() {
 #ifdef SYSTEMOC_DEBUG
   if (smoc::Detail::outDbg.isVisible(smoc::Detail::Debug::High)) {
     smoc::Detail::outDbg << "<smoc_root_node::schedule name=\"" << name() << "\">"
@@ -408,18 +408,18 @@ void Node::schedule() {
 #endif // SYSTEMOC_DEBUG
 }
 
-bool Node::canFire() {
+bool NodeBase::canFire() {
   if (!useActivationCallback)
     // Hunt for an enabled transition;
     searchActiveTransition();
   return ct != nullptr;
 }
 
-sc_core::sc_time const &Node::getNextReleaseTime() const
+sc_core::sc_time const &NodeBase::getNextReleaseTime() const
   { return sc_core::sc_time_stamp(); }
 
 #ifdef SYSTEMOC_ENABLE_MAESTRO
-void Node::getCurrentTransition(MetaMap::Transition *&activeTransition)
+void NodeBase::getCurrentTransition(MetaMap::Transition *&activeTransition)
 {
   activeTransition = static_cast<MetaMap::Transition *>(this->ct);
 }

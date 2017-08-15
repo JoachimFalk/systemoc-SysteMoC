@@ -237,7 +237,7 @@ public:
 /**
  * Method to be used by a thread to execute this transition's actions
  */
-void RuntimeTransition::executeTransition(Node* node) {
+void RuntimeTransition::executeTransition(NodeBase* node) {
   this->execute(node);
 }
 
@@ -278,7 +278,7 @@ bool RuntimeTransition::check(bool debug) const {
   return result;
 }
 
-void RuntimeTransition::execute(Node *actor) {
+void RuntimeTransition::execute(NodeBase *actor) {
   enum {
     MODE_DIISTART,
     MODE_DIIEND,
@@ -438,7 +438,7 @@ void RuntimeTransition::execute(Node *actor) {
 #endif
 }
 
-void RuntimeTransition::before_end_of_elaboration(Node *node) {
+void RuntimeTransition::before_end_of_elaboration(NodeBase *node) {
 #ifdef SYSTEMOC_NEED_IDS
   // Allocate Id for myself.
   getSimCTX()->getIdPool().addIdedObj(this);
@@ -548,7 +548,7 @@ RuntimeTransitionList& RuntimeState::getTransitions()
   { return tl; }
   
 void RuntimeState::addTransition(const RuntimeTransition& t,
-                                 Node *node) {
+                                 NodeBase *node) {
   tl.push_back(t);
   tl.back().before_end_of_elaboration(node); // FIXME: Fix this hack!
 }
@@ -639,7 +639,7 @@ bool isImplied(const CondMultiState& c, const ProdState& p) {
 }
 
 void FiringFSMImpl::before_end_of_elaboration(
-    Node        *actorOrGraphNode,
+    NodeBase        *actorOrGraphNode,
     HierarchicalStateImpl *hsinit)
 {
 //  smoc::Detail::outDbg << "FiringFSMImpl::finalise(...) this == " << this << std::endl;
@@ -856,7 +856,7 @@ void FiringFSMImpl::before_end_of_elaboration(
 }
 
 void FiringFSMImpl::end_of_elaboration(
-    Node        *actorOrGraphNode)
+    NodeBase        *actorOrGraphNode)
 {
   RuntimeStateSet::iterator iterEnd = getStates().end();
   for (RuntimeStateSet::iterator iter = getStates().begin(); iter != iterEnd; ++iter) {
