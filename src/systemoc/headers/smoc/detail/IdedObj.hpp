@@ -57,13 +57,17 @@ private:
 protected:
   IdedObj()
     : _id(std::numeric_limits<NgId>::max()) {}
-public:
+
+  // Make class polymorphic in order to make typeid derive correct types for derived instances.
+  virtual ~IdedObj()
+    {}
+
   NgId getId() const
     { return _id; }
 };
 
 class IdedObjAccess {
-protected:
+public:
   static
   NgId getId(IdedObj const *idedObj)
     { return idedObj->_id; }
