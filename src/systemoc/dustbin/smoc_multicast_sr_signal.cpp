@@ -51,7 +51,7 @@ void smoc_multicast_sr_signal_chan_base::setSignalState(SignalState s) {
 
 smoc_multicast_sr_signal_chan_base::smoc_multicast_sr_signal_chan_base(
     const chan_init &i)
-: Chan(
+: ChanBase(
 #ifndef SYSTEMOC_ENABLE_MAESTROMM_SPEEDUP
     i.name
 #endif //!defined(SYSTEMOC_ENABLE_MAESTROMM_SPEEDUP)

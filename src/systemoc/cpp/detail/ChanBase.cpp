@@ -44,8 +44,8 @@
 
 #include <CoSupport/String/Concat.hpp>
 
-#include <smoc/detail/Node.hpp>
-#include <smoc/detail/Chan.hpp>
+#include <smoc/detail/NodeBase.hpp>
+#include <smoc/detail/ChanBase.hpp>
 
 #include "SimulationContext.hpp"
 
@@ -54,7 +54,7 @@ namespace smoc { namespace Detail {
 using CoSupport::String::Concat;
 
 #ifndef SYSTEMOC_ENABLE_MAESTROMM_SPEEDUP
-void Chan::generateName() {
+void ChanBase::generateName() {
   // value_type will be constructed as T(), which initializes primite types to 0!
   static std::map<std::string, size_t> _smoc_channel_name_map;
   
@@ -99,7 +99,7 @@ void Chan::generateName() {
 #endif //!SYSTEMOC_ENABLE_MAESTROMM_SPEEDUP
 
 #ifndef SYSTEMOC_ENABLE_MAESTROMM_SPEEDUP
-Chan::Chan(const std::string& name)
+ChanBase::ChanBase(const std::string& name)
   : sc_core::sc_prim_channel(name.empty()
       ? sc_core::sc_gen_unique_name("smoc_unnamed_channel")
       : name.c_str()),
@@ -108,7 +108,7 @@ Chan::Chan(const std::string& name)
 #endif
 
 /// @brief Remember that reset has been called.
-void Chan::doReset() {
+void ChanBase::doReset() {
 #ifdef SYSTEMOC_DEBUG
   if (smoc::Detail::outDbg.isVisible(smoc::Detail::Debug::High)) {
     smoc::Detail::outDbg << "<smoc_root_chan::doReset name=\"" << name() << "\">"
@@ -122,7 +122,7 @@ void Chan::doReset() {
 #endif // SYSTEMOC_DEBUG
 }
 
-void Chan::before_end_of_elaboration() {
+void ChanBase::before_end_of_elaboration() {
 #ifndef SYSTEMOC_ENABLE_MAESTROMM_SPEEDUP
   // This is required before we use the first call to the name() method!
   generateName();
@@ -146,7 +146,7 @@ void Chan::before_end_of_elaboration() {
 }
 
 /// @brief Resets FIFOs which are not in the SysteMoC hierarchy
-void Chan::start_of_simulation() {
+void ChanBase::start_of_simulation() {
 #ifdef SYSTEMOC_DEBUG
   if (smoc::Detail::outDbg.isVisible(smoc::Detail::Debug::High)) {
     smoc::Detail::outDbg << "<smoc_root_chan::start_of_simulation name=\"" << name() << "\">"
@@ -162,7 +162,7 @@ void Chan::start_of_simulation() {
 #endif //defined(SYSTEMOC_DEBUG)
 }
 
-Chan::~Chan()
+ChanBase::~ChanBase()
   {}
 
 } } // namespace smoc::Detail

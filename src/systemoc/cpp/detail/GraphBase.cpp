@@ -52,7 +52,7 @@ using CoSupport::String::Concat;
 
 GraphBase::GraphBase(
     const sc_core::sc_module_name &name, smoc_firing_state &init)
-  : Node(name, Node::NODE_TYPE_GRAPH, init, 0),
+  : NodeBase(name, NodeBase::NODE_TYPE_GRAPH, init, 0),
     scheduler(nullptr)
 {}
   
@@ -66,18 +66,18 @@ void GraphBase::before_end_of_elaboration() {
   if (scheduler)
     scheduler->_before_end_of_elaboration();
 
-  Node::before_end_of_elaboration();
+  NodeBase::before_end_of_elaboration();
   
   for (std::vector<sc_core::sc_object *>::const_iterator iter = get_child_objects().begin();
        iter != get_child_objects().end();
        ++iter) {
     sassert(childLookupMap.insert(std::make_pair((*iter)->name(), *iter)).second);
     // only processing children which are nodes
-    Node *node = dynamic_cast<Node*>(*iter);
+    NodeBase *node = dynamic_cast<NodeBase*>(*iter);
     if (node)
       nodes.push_back(node);
     // only processing children which are channels
-    Chan *channel = dynamic_cast<Chan*>(*iter);
+    ChanBase *channel = dynamic_cast<ChanBase*>(*iter);
     if (channel)
       channels.push_back(channel);
   }
@@ -99,7 +99,7 @@ void GraphBase::end_of_elaboration() {
   if (scheduler)
     scheduler->_end_of_elaboration();
 
-  Node::end_of_elaboration();
+  NodeBase::end_of_elaboration();
 
 #ifdef SYSTEMOC_DEBUG
   if (smoc::Detail::outDbg.isVisible(smoc::Detail::Debug::High)) {
@@ -141,7 +141,7 @@ void GraphBase::doReset() {
       ++iter)
     (*iter)->doReset();
   // Finally, reset myself.
-  Node::doReset();
+  NodeBase::doReset();
   
 #ifdef SYSTEMOC_DEBUG
   if (smoc::Detail::outDbg.isVisible(smoc::Detail::Debug::High)) {

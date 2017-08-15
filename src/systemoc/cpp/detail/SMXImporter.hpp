@@ -55,7 +55,7 @@ protected:
 
   std::istream   *importSMXFile;
 private:
-  // FIXME: Make this private and provide interface for Node to check if an actor is inside a cluster and,
+  // FIXME: Make this private and provide interface for NodeBase to check if an actor is inside a cluster and,
   // thus, must not be scheduled by itself but by the containing cluster.
 public:
   SGX::NetworkGraphAccess::Ptr pNGX;

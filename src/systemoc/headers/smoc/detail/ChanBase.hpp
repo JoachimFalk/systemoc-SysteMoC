@@ -56,7 +56,7 @@ namespace smoc { namespace Detail {
 
 class GraphBase;
 
-class Chan
+class ChanBase
 : public sc_core::sc_prim_channel,
   public smoc_port_registry,
 #ifdef SYSTEMOC_NEED_IDS
@@ -64,7 +64,7 @@ class Chan
 #endif // SYSTEMOC_NEED_IDS
   public smoc::Detail::SimCTXBase
 {
-  typedef Chan this_type;
+  typedef ChanBase this_type;
   friend class GraphBase; // reset
   friend class ::smoc_reset_chan; // reset
 
@@ -83,7 +83,7 @@ public:
 protected:
 #ifndef SYSTEMOC_ENABLE_MAESTROMM_SPEEDUP
   // constructor
-  Chan(const std::string &name);
+  ChanBase(const std::string &name);
 #endif //!defined(SYSTEMOC_ENABLE_MAESTROMM_SPEEDUP)
 
   virtual void setChannelID( std::string sourceActor,
@@ -98,7 +98,7 @@ protected:
 
   virtual void doReset();
 
-  virtual ~Chan();
+  virtual ~ChanBase();
 private:
 #ifdef SYSTEMOC_NEED_IDS
   // To reflect the generated name or SystemC name back to the NamedIdedObj base class.
@@ -107,7 +107,7 @@ private:
 #endif // SYSTEMOC_NEED_IDS
 };
 
-typedef std::list<Chan *> smoc_chan_list;
+typedef std::list<ChanBase *> smoc_chan_list;
 
 } } // namespace smoc::Detail
 

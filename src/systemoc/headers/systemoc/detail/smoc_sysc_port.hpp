@@ -52,7 +52,7 @@
 
 namespace smoc { namespace Detail {
 
-  class Node;
+  class NodeBase;
   class PortBaseIf;
   class PortInfo;
 
@@ -130,7 +130,7 @@ class smoc_sysc_port
 {
   typedef smoc_sysc_port this_type;
   
-  friend class smoc::Detail::Node;
+  friend class smoc::Detail::NodeBase;
   friend class smoc::smoc_actor;
   friend class smoc::Detail::PortInfo;
   template <class E> friend class smoc::Expr::CommExec;

@@ -42,7 +42,7 @@
 
 #include "../smoc_scheduler_top.hpp"
 
-#include "Node.hpp"
+#include "NodeBase.hpp"
 // FIXME: Migrate these includes to smoc
 #include "../../systemoc/smoc_port.hpp"
 #include "../../systemoc/smoc_fifo.hpp"
@@ -62,12 +62,12 @@ namespace smoc { namespace Detail {
  * derive from this class and build FSM!). If you derive more stuff
  * from this class you have to change apply_visitor.hpp accordingly.
  */
-class GraphBase: public Node
+class GraphBase: public NodeBase
 {
   // need to call *StateChange
   friend class smoc_multireader_fifo_chan_base;
   friend class smoc_reset_chan;
-  friend class Node;
+  friend class NodeBase;
   friend class smoc::smoc_scheduler_top; // doReset
 
   typedef GraphBase this_type;

@@ -33,7 +33,7 @@
  */
 
 #include <CoSupport/compatibility-glue/nullptr.h>
-#include <smoc/detail/Node.hpp>
+#include <smoc/detail/NodeBase.hpp>
 #include <time.h>
 #include <sstream>
 #include <cassert>
@@ -43,7 +43,7 @@
 #include <systemoc/smoc_config.h>
 
 #include <smoc/detail/TraceLog.hpp>
-#include <smoc/detail/Chan.hpp>
+#include <smoc/detail/ChanBase.hpp>
 
 #include <systemoc/detail/smoc_sysc_port.hpp>
 #include <systemoc/detail/smoc_chan_if.hpp>
@@ -529,7 +529,7 @@ void TraceLogStream::createFifoGraph()
     typedef std::map<string, int>::iterator Iter;
     typedef std::pair<Iter, bool> Retval;
     
-    // Node: From
+    // NodeBase: From
     Iter from = actors.find(info.from.name);
     if(from == actors.end()) {
       Retval r = actors.insert(std::make_pair(info.from.name, id++));
@@ -537,7 +537,7 @@ void TraceLogStream::createFifoGraph()
       file << from->second << "[label=\"" << from->first << "\"];" << std::endl;
     }
     
-    // Node: To
+    // NodeBase: To
     Iter to = actors.find(info.to.name);
     if(to == actors.end()) {
       Retval r = actors.insert(std::make_pair(info.to.name, id++));

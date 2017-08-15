@@ -106,7 +106,7 @@ class GraphBase;
  * actors or graphs! If you derive more stuff from this class
  * you have to change apply_visitor.hpp accordingly.
  */
-class Node
+class NodeBase
   :
 #if defined(SYSTEMOC_ENABLE_VPC)
     public SystemC_VPC::ScheduledTask
@@ -132,7 +132,7 @@ class Node
 /// actor or graph if the guard of the transition is also satisfied.
   , private smoc::smoc_event_listener
 {
-  typedef Node this_type;
+  typedef NodeBase this_type;
 
   friend class ::smoc::smoc_periodic_actor;
   friend class ::smoc::smoc_graph;
@@ -217,7 +217,7 @@ private:
   std::string getDestStateName();
 
 protected:
-  Node(sc_core::sc_module_name, NodeType nodeType, smoc_hierarchical_state &s, unsigned int thread_stack_size);
+  NodeBase(sc_core::sc_module_name, NodeType nodeType, smoc_hierarchical_state &s, unsigned int thread_stack_size);
   
   virtual void before_end_of_elaboration();
   virtual void end_of_elaboration();
@@ -296,7 +296,7 @@ public:
   /// @brief Collect ports from child objects
   smoc_sysc_port_list getPorts() const;
 
-  virtual ~Node();
+  virtual ~NodeBase();
 
   void schedule();
 
@@ -305,7 +305,7 @@ public:
   sc_core::sc_time const &getNextReleaseTime() const;
 };
 
-typedef std::list<Node *> NodeList;
+typedef std::list<NodeBase *> NodeList;
 
 } } // namespace smoc::Detail
 

@@ -57,8 +57,8 @@
 #include "apply_visitor.hpp"
 #include "SimulationContext.hpp"
 
-#include <smoc/detail/Node.hpp>
-#include <smoc/detail/Chan.hpp>
+#include <smoc/detail/NodeBase.hpp>
+#include <smoc/detail/ChanBase.hpp>
 #include <systemoc/detail/smoc_sysc_port.hpp>
 #include <systemoc/detail/smoc_firing_rules_impl.hpp>
 #include <systemoc/smoc_actor.hpp>
@@ -274,12 +274,12 @@ void recurse(Visitor &visitor, sc_core::sc_object &obj) {
     }
   }
   {
-    Chan *chan;
+    ChanBase *chan;
     for (sc_object_list::const_iterator iter = obj.get_child_objects().begin();
          iter != obj.get_child_objects().end();
          ++iter) {
       // Channels next!
-      if ((chan = dynamic_cast<Chan *>(*iter)))
+      if ((chan = dynamic_cast<ChanBase *>(*iter)))
         apply_visitor(visitor, *chan);
     }
   }
@@ -549,8 +549,8 @@ public:
     std::cerr << "WTF?! " << pChan.name() << " sc_interface not found!" << std::endl;
   }
 
-  void registerPorts(SGX::Channel &channel, Chan &rc) {
-    for (Chan::EntryMap::const_iterator iter = rc.getEntries().begin();
+  void registerPorts(SGX::Channel &channel, ChanBase &rc) {
+    for (ChanBase::EntryMap::const_iterator iter = rc.getEntries().begin();
          iter != rc.getEntries().end();
          ++iter) {
       SGX::Port p(Concat(getName(&rc))(".in"));
@@ -558,7 +558,7 @@ public:
       channel.ports().push_back(p);
       connectPort(p, iter->first, SGX::Port::Out);
     }
-    for (Chan::OutletMap::const_iterator iter = rc.getOutlets().begin();
+    for (ChanBase::OutletMap::const_iterator iter = rc.getOutlets().begin();
          iter != rc.getOutlets().end();
          ++iter) {
       SGX::Port p(Concat(getName(&rc))(".out"));

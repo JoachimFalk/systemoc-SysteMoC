@@ -63,7 +63,7 @@ void dump_helper(std::pair<size_t,    smoc_vpc_event_p> const &e);
 # include "EventQueue.hpp"
 
 # include "../smoc_event.hpp"
-# include "Chan.hpp"
+# include "ChanBase.hpp"
 # include "SimCTXBase.hpp"
 
 namespace smoc { namespace Detail {
@@ -75,14 +75,14 @@ protected:
   EventQueue<TokenInfo>    requestQueue;
   EventQueue<size_t>       visibleQueue;
   smoc_vpc_event_p         dummy;
-  Chan          *chan;
+  ChanBase          *chan;
 protected:
   /// @brief See EventQueue
   void actorTokenLatencyExpired(TokenInfo ti);
 public:
   LatencyQueue(
       const boost::function<void (size_t)> &latencyExpired,
-      Chan *chan,
+      ChanBase *chan,
       const boost::function<void (size_t)> &latencyExpired_dropped =0)
     : requestQueue(std::bind1st(
         std::mem_fun(&this_type::actorTokenLatencyExpired), this)),

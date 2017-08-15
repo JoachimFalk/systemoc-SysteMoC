@@ -44,9 +44,9 @@ NodeQueue::NodeQueue(sc_core::sc_module_name name)
 };
 
 // register an event with its next releasetime in the EventQueue
-void NodeQueue::registerNode(Node* node, sc_core::sc_time time) {
+void NodeQueue::registerNode(NodeBase* node, sc_core::sc_time time) {
   if (time < sc_core::sc_time_stamp()) {
-    std::cerr << "Warning: re-activation of a time-triggered Node with a release-time in the past! ("
+    std::cerr << "Warning: re-activation of a time-triggered NodeBase with a release-time in the past! ("
               << node->name() << ") "<< time << " < " << sc_core::sc_time_stamp() << std::endl
               << "         Maybe the real execution-time was larger then the period or exceeds the deadline?" << std::endl
               << "         time-triggered activation will be moved to the next periodic point of time in the future" << std::endl;
@@ -65,9 +65,9 @@ void NodeQueue::registerNode(Node* node, sc_core::sc_time time) {
   }
 }
 
-Node *NodeQueue::getNextNode() {
+NodeBase *NodeQueue::getNextNode() {
   TimeNodePair    pair     = pqueue.top();
-  Node *top_node = pair.node;
+  NodeBase *top_node = pair.node;
   pqueue.pop();
   
   if (pqueue.empty() || pqueue.top().time > sc_core::sc_time_stamp()) {

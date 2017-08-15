@@ -38,7 +38,7 @@
 #include <systemoc/smoc_graph.hpp>
 
 smoc_fifo_chan_base::smoc_fifo_chan_base(const chan_init& i)
-: Chan(
+: ChanBase(
 #ifndef SYSTEMOC_ENABLE_MAESTROMM_SPEEDUP
     i.name
 #endif //!defined(SYSTEMOC_ENABLE_MAESTROMM_SPEEDUP)
@@ -54,13 +54,13 @@ smoc_fifo_chan_base::smoc_fifo_chan_base(const chan_init& i)
 {}
 
 void smoc_fifo_chan_base::before_end_of_elaboration() {
-  Chan::before_end_of_elaboration();
+  ChanBase::before_end_of_elaboration();
   assert(getEntries().size() == 1);
   assert(getOutlets().size() == 1);
 }
 
 void smoc_fifo_chan_base::end_of_simulation() {
-  Chan::end_of_simulation();
+  ChanBase::end_of_simulation();
 #ifdef SYSTEMOC_DEBUG
   if (smoc::Detail::outDbg.isVisible(smoc::Detail::Debug::High)) {
     smoc::Detail::outDbg
@@ -84,7 +84,7 @@ void smoc_fifo_chan_base::doReset() {
          << std::endl << smoc::Detail::Indent::Up;
   }
 #endif // SYSTEMOC_DEBUG
-  Chan::doReset();
+  ChanBase::doReset();
   // queue and initial tokens set up by smoc_fifo_storage...
   emmSpace.reset();
   emmData.reset();

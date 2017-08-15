@@ -60,7 +60,7 @@ enum SignalState {undefined, defined, absent};
 
 /// Base class of the MULTICAST_SR_SIGNAL implementation.
 class smoc_multicast_sr_signal_chan_base
-: public Chan {
+: public ChanBase {
   typedef smoc_multicast_sr_signal_chan_base  this_type;
 public:
   friend class smoc_multicast_outlet_base;

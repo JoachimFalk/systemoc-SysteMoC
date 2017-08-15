@@ -55,7 +55,7 @@
 #endif //SYSTEMOC_ENABLE_VPC
 
 #include "detail/smoc_chan_if.hpp"
-#include <smoc/detail/Chan.hpp>
+#include <smoc/detail/ChanBase.hpp>
 //#include "../smoc/detail/Storage.hpp"
 #include "smoc_chan_adapter.hpp"
 #include "smoc_fifo.hpp"
@@ -76,7 +76,7 @@
  * The base channel implementation
  */
 class smoc_multireader_fifo_chan_base
-: public smoc::Detail::Chan,
+: public smoc::Detail::ChanBase,
 #ifdef SYSTEMOC_ENABLE_VPC
   public smoc::Detail::QueueFRVWPtr
 #else
