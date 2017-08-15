@@ -39,7 +39,7 @@
 #include <boost/type_traits/add_const.hpp>
 #include <boost/type_traits/remove_const.hpp>
 #include <smoc/detail/Node.hpp>
-#include <systemoc/detail/smoc_root_chan.hpp>
+#include <smoc/detail/Chan.hpp>
 #include <systemoc/detail/smoc_sysc_port.hpp>
 #include <systemoc/smoc_graph.hpp>
 #include <systemoc/smoc_actor.hpp>
@@ -54,13 +54,13 @@ namespace smoc {
 template<typename Visitor>                                                      \
 typename Visitor::result_type                                                   \
 apply_visitor(Visitor &visitor, typename boost::remove_const<TYPE>::type &obj) {\
-  return smoc::Detail::apply_visitor_helper                                 \
+  return smoc::Detail::apply_visitor_helper                                     \
     <boost::remove_const>(visitor,&obj);                                        \
 }                                                                               \
 template <typename Visitor>                                                     \
 typename Visitor::result_type                                                   \
 apply_visitor(Visitor &visitor, typename boost::add_const<TYPE>::type &obj) {   \
-  return smoc::Detail::apply_visitor_helper                                 \
+  return smoc::Detail::apply_visitor_helper                                     \
     <boost::add_const>(visitor,&obj);                                           \
 }
 #define _SMOC_HANDLE_DERIVED_CLASS(TYPE)                                        \
@@ -168,7 +168,7 @@ _SMOC_GENERATE_APPLY_VISITOR(smoc_reset_chan)
 namespace Detail {
   template<template <class> class M, class Visitor>
   typename Visitor::result_type
-  apply_visitor_helper(Visitor &visitor, typename M<smoc_root_chan>::type *ptr) {
+  apply_visitor_helper(Visitor &visitor, typename M<Chan>::type *ptr) {
     _SMOC_HANDLE_DERIVED_CLASS(smoc_fifo_chan_base);
     _SMOC_HANDLE_DERIVED_CLASS(smoc_multiplex_fifo_chan_base);
     _SMOC_HANDLE_DERIVED_CLASS(smoc_multireader_fifo_chan_base);
@@ -177,7 +177,7 @@ namespace Detail {
   }
 } // namespace Detail
 
-_SMOC_GENERATE_APPLY_VISITOR(smoc_root_chan)
+_SMOC_GENERATE_APPLY_VISITOR(smoc::Detail::Chan)
 
 /* smoc_sysc_port */
 
@@ -216,7 +216,7 @@ namespace smoc { namespace Detail {
   apply_visitor_helper(Visitor &visitor, typename M<sc_core::sc_object>::type *ptr) {
     _SMOC_HANDLE_DERIVED_CLASS(sc_core::sc_module);
     _SMOC_HANDLE_DERIVED_CLASS(sc_core::sc_port_base);
-    _SMOC_HANDLE_DERIVED_CLASS(smoc_root_chan);
+    _SMOC_HANDLE_DERIVED_CLASS(Chan);
     return visitor(*ptr); // fallback
   }
 

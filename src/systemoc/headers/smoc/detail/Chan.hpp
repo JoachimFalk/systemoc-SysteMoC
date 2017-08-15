@@ -33,8 +33,8 @@
  * ENHANCEMENTS, OR MODIFICATIONS.
  */
 
-#ifndef _INCLUDED_DETAIL_SMOC_ROOT_CHAN_HPP
-#define _INCLUDED_DETAIL_SMOC_ROOT_CHAN_HPP
+#ifndef _INCLUDED_SMOC_DETAIL_SMOC_ROOT_CHAN_HPP
+#define _INCLUDED_SMOC_DETAIL_SMOC_ROOT_CHAN_HPP
 
 #include <list>
 
@@ -44,19 +44,19 @@
 
 #include <systemoc/smoc_config.h>
 
-#include "smoc_sysc_port.hpp"
-#include "smoc_port_registry.hpp"
-#include "../../smoc/smoc_event.hpp"
-#include "../../smoc/detail/NamedIdedObj.hpp"
-#include "../smoc_port.hpp"
+#include "../../systemoc/detail/smoc_sysc_port.hpp"
+#include "../../systemoc/detail/smoc_port_registry.hpp"
+#include "../../systemoc/smoc_port.hpp"
+#include "../smoc_event.hpp"
+#include "NamedIdedObj.hpp"
+
+class smoc_reset_chan;
 
 namespace smoc { namespace Detail {
 
-  class GraphBase;
+class GraphBase;
 
-} } // namespace smoc::Detail
-
-class smoc_root_chan
+class Chan
 : public sc_core::sc_prim_channel,
   public smoc_port_registry,
 #ifdef SYSTEMOC_NEED_IDS
@@ -64,9 +64,9 @@ class smoc_root_chan
 #endif // SYSTEMOC_NEED_IDS
   public smoc::Detail::SimCTXBase
 {
-  typedef smoc_root_chan this_type;
-  friend class smoc::Detail::GraphBase; // reset
-  friend class smoc_reset_chan; // reset
+  typedef Chan this_type;
+  friend class GraphBase; // reset
+  friend class ::smoc_reset_chan; // reset
 
 private:
 #ifndef SYSTEMOC_ENABLE_MAESTROMM_SPEEDUP
@@ -83,7 +83,7 @@ public:
 protected:
 #ifndef SYSTEMOC_ENABLE_MAESTROMM_SPEEDUP
   // constructor
-  smoc_root_chan(const std::string &name);
+  Chan(const std::string &name);
 #endif //!defined(SYSTEMOC_ENABLE_MAESTROMM_SPEEDUP)
 
   virtual void setChannelID( std::string sourceActor,
@@ -98,7 +98,7 @@ protected:
 
   virtual void doReset();
 
-  virtual ~smoc_root_chan();
+  virtual ~Chan();
 private:
 #ifdef SYSTEMOC_NEED_IDS
   // To reflect the generated name or SystemC name back to the NamedIdedObj base class.
@@ -107,6 +107,8 @@ private:
 #endif // SYSTEMOC_NEED_IDS
 };
 
-typedef std::list<smoc_root_chan *> smoc_chan_list;
+typedef std::list<Chan *> smoc_chan_list;
 
-#endif // _INCLUDED_DETAIL_SMOC_ROOT_CHAN_HPP
+} } // namespace smoc::Detail
+
+#endif // _INCLUDED_SMOC_DETAIL_SMOC_ROOT_CHAN_HPP

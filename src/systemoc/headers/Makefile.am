@@ -35,6 +35,7 @@ nobase_include_HEADERS = \
 	smoc/smoc_register.hpp \
 	smoc/smoc_scheduler_top.hpp \
 	smoc/EvalAPI/SchedulingInterface.hpp \
+	smoc/detail/Chan.hpp \
 	smoc/detail/ConnectProvider.hpp \
 	smoc/detail/DebugOStream.hpp \
 	smoc/detail/DumpingInterfaces.hpp \
@@ -89,5 +90,4 @@ nobase_include_HEADERS = \
 	systemoc/detail/smoc_func_call.hpp \
 	systemoc/detail/smoc_port_registry.hpp \
 	systemoc/detail/smoc_ring_access.hpp \
-	systemoc/detail/smoc_root_chan.hpp \
 	systemoc/detail/smoc_sysc_port.hpp

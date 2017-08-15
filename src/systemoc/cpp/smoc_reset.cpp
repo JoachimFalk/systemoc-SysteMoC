@@ -49,7 +49,7 @@ smoc_reset_chan::chan_init::chan_init(
 
 smoc_reset_chan::smoc_reset_chan(
     const chan_init &i)
-: smoc_root_chan(
+: Chan(
 #ifndef SYSTEMOC_ENABLE_MAESTROMM_SPEEDUP
     i.name
 #endif //!defined(SYSTEMOC_ENABLE_MAESTROMM_SPEEDUP)
@@ -67,7 +67,7 @@ smoc::Detail::PortInBaseIf  *smoc_reset_chan::createOutlet() {
 
 void smoc_reset_chan::doReset() {
   sae.notify();
-  smoc_root_chan::doReset();
+  Chan::doReset();
 }
 
 void smoc_reset_chan::produce(smoc::Detail::PortOutBaseIf *who)

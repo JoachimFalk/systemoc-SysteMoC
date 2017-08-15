@@ -77,7 +77,7 @@ void GraphBase::before_end_of_elaboration() {
     if (node)
       nodes.push_back(node);
     // only processing children which are channels
-    smoc_root_chan *channel = dynamic_cast<smoc_root_chan*>(*iter);
+    Chan *channel = dynamic_cast<Chan*>(*iter);
     if (channel)
       channels.push_back(channel);
   }

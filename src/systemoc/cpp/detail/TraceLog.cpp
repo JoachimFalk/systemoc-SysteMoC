@@ -43,8 +43,8 @@
 #include <systemoc/smoc_config.h>
 
 #include <smoc/detail/TraceLog.hpp>
+#include <smoc/detail/Chan.hpp>
 
-#include <systemoc/detail/smoc_root_chan.hpp>
 #include <systemoc/detail/smoc_sysc_port.hpp>
 #include <systemoc/detail/smoc_chan_if.hpp>
 #include <systemoc/detail/smoc_port_registry.hpp>

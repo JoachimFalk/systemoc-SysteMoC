@@ -34,11 +34,10 @@
 
 #include <CoSupport/compatibility-glue/nullptr.h>
 #include <smoc/detail/Node.hpp>
+#include <smoc/detail/Chan.hpp>
 #include <systemoc/smoc_config.h>
 
 #include <systemoc/detail/smoc_sysc_port.hpp>
-#include <systemoc/detail/smoc_root_chan.hpp>
-
 #include "detail/SimulationContext.hpp"
 
 using namespace CoSupport;
