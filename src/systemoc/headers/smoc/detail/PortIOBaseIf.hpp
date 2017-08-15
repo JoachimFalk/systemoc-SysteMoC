@@ -46,8 +46,6 @@ class smoc_multireader_fifo_chan_base;
 template<class, class> class smoc_chan_adapter;
 template<class, class> class smoc_multiplex_fifo_chan;
 
-class smoc_sysc_port;
-
 namespace smoc { namespace Detail {
 
 template<class IFaceImpl>

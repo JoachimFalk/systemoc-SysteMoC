@@ -140,8 +140,8 @@ class smoc_reset_chan;
 
 
 class smoc_reset_outlet
-  : public smoc_port_in_if<void,::smoc_1d_port_access_if>,
-    public smoc_1d_port_access_if<void>
+  : public smoc_port_in_if<void>,
+    public smoc_port_in_if<void>::access_type
 {
 public:
   typedef void              data_type;
@@ -197,8 +197,8 @@ private:
 };
 
 class smoc_reset_entry
-  : public smoc_port_out_if<void,::smoc_1d_port_access_if>,
-    public smoc_1d_port_access_if<void>
+  : public smoc_port_out_if<void>,
+    public smoc_port_out_if<void>::access_type
 {
 public:
   typedef void              data_type;

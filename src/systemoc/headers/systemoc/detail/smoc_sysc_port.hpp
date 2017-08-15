@@ -53,7 +53,6 @@
 namespace smoc { namespace Detail {
 
   class NodeBase;
-  class PortBaseIf;
   class PortInfo;
 
 } } // namespace smoc::Detail
@@ -75,47 +74,6 @@ namespace smoc {
   class smoc_actor;
 
 } // namespace smoc
-
-
-class smoc_port_access_base_if {
-public:
-#if defined(SYSTEMOC_ENABLE_DEBUG)
-  virtual void setLimit(size_t) = 0;
-#endif
-  virtual bool tokenIsValid(size_t) const = 0;
-
-  virtual ~smoc_port_access_base_if() {}
-};
-
-template<class T>
-class smoc_1d_port_access_if
-: public smoc_port_access_base_if {
-  typedef smoc_1d_port_access_if<T> this_type;
-public:
-  typedef T return_type;
-
-  // Access methods
-  virtual return_type operator[](size_t)              = 0;
-  virtual const return_type operator[](size_t) const  = 0;
-};
-
-template<>
-class smoc_1d_port_access_if<void>
-: public smoc_port_access_base_if {
-  typedef smoc_1d_port_access_if<void> this_type;
-public:
-  typedef void return_type;
-  // return_type == void => No access methods needed
-};
-
-template<>
-class smoc_1d_port_access_if<const void>
-: public smoc_port_access_base_if {
-  typedef smoc_1d_port_access_if<const void> this_type;
-public:
-  typedef const void return_type;
-  // return_type == const void => No access methods needed
-};
 
 /****************************************************************************/
 
@@ -147,7 +105,7 @@ public:
   typedef std::vector<smoc::Detail::PortBaseIf *>       Interfaces;
   typedef std::vector<smoc::Detail::PortBaseIf const *> ConstInterfaces;
 protected:
-  typedef std::vector<smoc_port_access_base_if *>       PortAccesses;
+  typedef std::vector<smoc::Detail::PortBaseIf::access_type *> PortAccesses;
 private:
   typedef std::map<size_t, smoc::smoc_event_and_list>   BlockEventMap;
 

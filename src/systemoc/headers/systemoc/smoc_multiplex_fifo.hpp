@@ -63,7 +63,6 @@
 //#include "../smoc/detail/Storage.hpp"
 #include "smoc_chan_adapter.hpp"
 #include "smoc_fifo.hpp"
-#include "detail/smoc_ring_access.hpp"
 #include <smoc/detail/ConnectProvider.hpp>
 #include <smoc/detail/EventMapManager.hpp>
 #ifdef SYSTEMOC_ENABLE_VPC
@@ -521,8 +520,7 @@ protected:
  * This class implements the channel out interface
  */
 template<class T, class A>
-class smoc_multiplex_fifo_entry
-: public smoc_port_out_if<T,smoc_1d_port_access_if> {
+class smoc_multiplex_fifo_entry: public smoc_port_out_if<T> {
   typedef smoc_multiplex_fifo_entry<T,A> this_type;
 private:
   /// @brief The channel implementation
@@ -565,8 +563,7 @@ protected:
  * This class implements the channel in interface
  */
 template<class T, class A>
-class smoc_multiplex_fifo_outlet
-: public smoc_port_in_if<T,smoc_1d_port_access_if> {
+class smoc_multiplex_fifo_outlet: public smoc_port_in_if<T> {
   typedef smoc_multiplex_fifo_outlet<T,A> this_type;
 private:
   /// @brief The channel implementation
@@ -606,8 +603,7 @@ protected:
 };
 
 template<class T, class A>
-class smoc_multiplex_vfifo_outlet
-: public smoc_port_in_if<T,smoc_1d_port_access_if> {
+class smoc_multiplex_vfifo_outlet: public smoc_port_in_if<T> {
   typedef smoc_multiplex_vfifo_outlet<T,A> this_type;
   // Ugh need this friend decl for the AccessImpl friend decl in
   // smoc_multiplex_fifo_chan
@@ -742,8 +738,8 @@ protected:
 };
 
 template<class T, class A>
-class smoc_multiplex_vfifo_entry
-: public smoc_port_out_if<T,smoc_1d_port_access_if> {
+class smoc_multiplex_vfifo_entry: public smoc_port_out_if<T>
+{
   typedef smoc_multiplex_vfifo_entry<T,A> this_type;
   // Ugh need this friend decl for the AccessImpl friend decl in
   // smoc_multiplex_fifo_chan
