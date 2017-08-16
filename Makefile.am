@@ -33,10 +33,11 @@
 
 include $(auxdir)/jfrules.mk
 
-# This is only needed if there is a configure.in in this directory
-ACLOCAL_AMFLAGS=-I ../BuildSystem/m4
-
 SUBDIRS= @SUBDIRS@
+
+AUTOMAKE_OPTIONS = nostdinc
+# This is only needed if there is a configure.ac in this directory
+ACLOCAL_AMFLAGS=-I ../BuildSystem/m4
 
 if SYNTH_SW
   SW_SYNTH_SUBDIR     = synthesis-sw
