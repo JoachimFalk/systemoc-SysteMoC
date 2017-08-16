@@ -25,7 +25,8 @@ include ../BuildSystem/doxygen.am
 
 SUBDIRS = src/systemoc/headers
 
-# This is only needed if there is a configure.in in this directory
+AUTOMAKE_OPTIONS = nostdinc
+# This is only needed if there is a configure.ac in this directory
 ACLOCAL_AMFLAGS=-I ../BuildSystem/m4
 
 AM_CPPFLAGS= @AM_CPPFLAGS@ \
