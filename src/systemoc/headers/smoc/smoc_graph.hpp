@@ -52,11 +52,14 @@ namespace smoc {
  */
 class smoc_graph: public Detail::GraphBase {
 public:
-  // construct graph with name
-  explicit smoc_graph(const sc_core::sc_module_name &name);
+//// construct graph with generated name
+//COSUPPORT_ATTRIBUTE_DEPRECATED
+//smoc_graph();
 
-  // construct graph with generated name
-  smoc_graph();
+  // construct graph with name
+  smoc_graph(const sc_core::sc_module_name &name);
+  // construct graph with name and FSM
+  smoc_graph(const sc_core::sc_module_name &name, smoc_hierarchical_state &state);
   
   /**
    * disables the executability of an actor
@@ -71,26 +74,8 @@ protected:
   /// @brief See GraphBase
   virtual void before_end_of_elaboration();
 private:
-  // graph scheduler FSM state
-  smoc_firing_state run;
-
   // common constructor code
   void constructor();
-
-/*
-  void initDDF();
-
-  // schedule children of this graph
-  void scheduleDDF();
-
-  // a list containing the transitions of the graph's children
-  // that may be executed
-
-  typedef CoSupport::SystemC::EventOrList<smoc_root_node>
-          smoc_node_ready_list;
-
-  smoc_node_ready_list ol;
- */
 };
 
 } // namespace smoc

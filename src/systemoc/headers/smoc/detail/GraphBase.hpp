@@ -285,7 +285,7 @@ protected:
 #endif // SYSTEMOC_ENABLE_MAESTRO
 
 protected:
-  GraphBase(const sc_core::sc_module_name &name, smoc_firing_state &init);
+  GraphBase(const sc_core::sc_module_name &name, smoc_hierarchical_state *init);
 
   virtual void before_end_of_elaboration();
   virtual void end_of_elaboration();
