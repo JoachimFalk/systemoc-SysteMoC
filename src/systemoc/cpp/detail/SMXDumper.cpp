@@ -765,6 +765,94 @@ public:
   }
 };
 
+class DumpFiringFSM: public NamedIdedObjAccess {
+public:
+  typedef SGX::FiringFSM::Ptr result_type;
+
+protected:
+  ProcessSubVisitor &sv;
+
+  struct TransitionInfo {
+    SGX::Action::Ptr  actionPtr;
+    SGX::ASTNode::Ptr astPtr;
+  };
+
+  typedef std::map<const RuntimeState *, SGX::FiringState::Ptr> StateMap;
+  typedef std::map<void *, TransitionInfo>                      TransitionInfoMap;
+public:
+  DumpFiringFSM(ProcessSubVisitor &sv)
+    : sv(sv) {}
+
+  result_type operator ()(FiringFSMImpl *smocFSM) {
+    if (!smocFSM)
+      return nullptr;
+
+    SGX::FiringFSM              sgxFSM;
+//  FiringFSMImpl              *smocFSM       = a.getFiringFSM();
+    SGX::FiringStateList::Ref   sgxStateList  = sgxFSM.states();
+    StateMap                    stateMap;
+    TransitionInfoMap           transitionInfoMap;
+
+    ActionNGXVisitor            actionVisitor;
+    ExprNGXVisitor              exprVisitor(sv.ports);
+
+    const RuntimeStateSet      &smocStates    = smocFSM->getStates();
+    // Create states
+    for (RuntimeStateSet::const_iterator sIter = smocStates.begin();
+         sIter != smocStates.end();
+         ++sIter) {
+      std::string stateName = getName(*sIter);
+      // Eleminate actor name from state name, e.g.,
+      // sqrroot.a1:smoc_firing_state_0 => smoc_firing_state_0.
+      std::string::size_type colonPos = stateName.find(':');
+      if (colonPos != std::string::npos)
+        stateName = stateName.substr(colonPos+1);
+      SGX::FiringState sgxState(stateName, getId(*sIter));
+      sassert(stateMap.insert(std::make_pair(*sIter, &sgxState)).second);
+      sgxStateList.push_back(sgxState);
+    }
+    // Setup initial state
+    {
+      StateMap::const_iterator iIter = stateMap.find(smocFSM->getInitialState());
+      assert(iIter != stateMap.end());
+      sgxFSM.startState() = iIter->second;
+    }
+    // Insert transitions
+    for (StateMap::iterator sIter = stateMap.begin();
+         sIter != stateMap.end();
+         ++sIter) {
+      const RuntimeState             &smocState = *sIter->first;
+      SGX::FiringState::Ref           sgxState  = *sIter->second;
+      const RuntimeTransitionList    &smocTrans = smocState.getTransitions();
+      SGX::FiringTransitionList::Ref  sgxTrans  = sgxState.outTransitions();
+
+      for (RuntimeTransitionList::const_iterator tIter = smocTrans.begin();
+           tIter != smocTrans.end();
+           ++tIter) {
+        SGX::FiringTransition sgxTran(getId(&*tIter));
+        sgxTrans.push_back(sgxTran);
+        StateMap::const_iterator dIter = stateMap.find(tIter->getDestState());
+        assert(dIter != stateMap.end());
+        sgxTran.dstState() = dIter->second;
+        std::pair<TransitionInfoMap::iterator, bool> inserted =
+          transitionInfoMap.insert(std::make_pair(tIter->getID(), TransitionInfo()));
+        if (inserted.second) {
+          inserted.first->second.actionPtr = boost::apply_visitor(actionVisitor,
+            const_cast<smoc_action &>(tIter->getAction()));
+          if (sv.ctx.simCTX->isSMXDumpingASTEnabled()) {
+            boost::scoped_ptr<SGX::ASTNode> astNode(
+              Expr::evalTo(exprVisitor, tIter->getExpr()));
+            inserted.first->second.astPtr = astNode->toPtr();
+          }
+        }
+        sgxTran.action()            = inserted.first->second.actionPtr;
+        sgxTran.activationPattern() = inserted.first->second.astPtr;
+      }
+    }
+    return sgxFSM.toPtr();
+  }
+};
+
 class DumpActor: public NamedIdedObjAccess {
 public:
   typedef void result_type;
@@ -803,72 +891,7 @@ public:
     }
     // Dump firingFSM
     {
-      typedef std::map<const RuntimeState *, SGX::FiringState::Ptr> StateMap;
-      typedef std::map<void *, TransitionInfo>                      TransitionInfoMap;
-      
-      SGX::FiringFSM              sgxFSM;
-      FiringFSMImpl              *smocFSM       = a.getFiringFSM();
-      SGX::FiringStateList::Ref   sgxStateList  = sgxFSM.states();
-      StateMap                    stateMap;
-      TransitionInfoMap           transitionInfoMap;
-      
-      ActionNGXVisitor            actionVisitor;
-      ExprNGXVisitor              exprVisitor(sv.ports);
-      
-      const RuntimeStateSet      &smocStates    = smocFSM->getStates();
-      // Create states
-      for (RuntimeStateSet::const_iterator sIter = smocStates.begin();
-           sIter != smocStates.end();
-           ++sIter) {
-        std::string stateName = getName(*sIter);
-        // Eleminate actor name from state name, e.g.,
-        // sqrroot.a1:smoc_firing_state_0 => smoc_firing_state_0.
-        std::string::size_type colonPos = stateName.find(':');
-        if (colonPos != std::string::npos)
-          stateName = stateName.substr(colonPos+1);
-        SGX::FiringState sgxState(stateName, getId(*sIter));
-        sassert(stateMap.insert(std::make_pair(*sIter, &sgxState)).second);
-        sgxStateList.push_back(sgxState);
-      }
-      // Setup initial state
-      {
-        StateMap::const_iterator iIter = stateMap.find(smocFSM->getInitialState());
-        assert(iIter != stateMap.end());
-        sgxFSM.startState() = iIter->second;
-      }
-      // Insert transitions
-      for (StateMap::iterator sIter = stateMap.begin();
-           sIter != stateMap.end();
-           ++sIter) {
-        const RuntimeState             &smocState = *sIter->first;
-        SGX::FiringState::Ref           sgxState  = *sIter->second;
-        const RuntimeTransitionList    &smocTrans = smocState.getTransitions();
-        SGX::FiringTransitionList::Ref  sgxTrans  = sgxState.outTransitions();
-        
-        for (RuntimeTransitionList::const_iterator tIter = smocTrans.begin();
-             tIter != smocTrans.end();
-             ++tIter) {
-          SGX::FiringTransition sgxTran(getId(&*tIter));
-          sgxTrans.push_back(sgxTran);
-          StateMap::const_iterator dIter = stateMap.find(tIter->getDestState());
-          assert(dIter != stateMap.end());
-          sgxTran.dstState() = dIter->second;
-          std::pair<TransitionInfoMap::iterator, bool> inserted =
-            transitionInfoMap.insert(std::make_pair(tIter->getID(), TransitionInfo()));
-          if (inserted.second) {
-            inserted.first->second.actionPtr = boost::apply_visitor(actionVisitor,
-              const_cast<smoc_action &>(tIter->getAction()));
-            if (gsv.ctx.simCTX->isSMXDumpingASTEnabled()) {
-              boost::scoped_ptr<SGX::ASTNode> astNode(
-                Expr::evalTo(exprVisitor, tIter->getExpr()));
-              inserted.first->second.astPtr = astNode->toPtr();
-            }
-          }
-          sgxTran.action()            = inserted.first->second.actionPtr;
-          sgxTran.activationPattern() = inserted.first->second.astPtr;
-        }
-      }
-      actor.firingFSM() = &sgxFSM;
+      actor.firingFSM() = DumpFiringFSM(sv)(a.getFiringFSM());
     }
     gsv.pg.processes().push_back(actor);
 #ifdef SYSTEMOC_DEBUG
@@ -926,6 +949,7 @@ public:
     gsv.pg.processes().push_back(rp);
     SGX::ProblemGraph   pg(getName(&g), getId(&g));
     pg.cxxClass() = typeid(g).name();
+    pg.firingFSM() = DumpFiringFSM(gsv)(g.getFiringFSM());
     rp.refinements().push_back(pg);
     GraphSubVisitor sv(gsv.ctx, gsv, rp, pg);
     recurse(sv, g);
