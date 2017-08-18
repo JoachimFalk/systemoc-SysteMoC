@@ -86,26 +86,26 @@ class PortBase
 {
   typedef PortBase this_type;
   
-  friend class smoc::Detail::NodeBase;
+  friend class NodeBase;
+  friend class PortInfo;
   friend class smoc::smoc_actor;
-  friend class smoc::Detail::PortInfo;
-  template <class E> friend class smoc::Expr::CommExec;
+  template <class E> friend class Expr::CommExec;
 #if defined(SYSTEMOC_ENABLE_DEBUG)
-  template <class E> friend class smoc::Expr::CommSetup;
-  template <class E> friend class smoc::Expr::CommReset;
+  template <class E> friend class Expr::CommSetup;
+  template <class E> friend class Expr::CommReset;
 #endif
-  template <class E> friend class smoc::Expr::Sensitivity;
-  template <class E> friend class smoc::Expr::Value;
+  template <class E> friend class Expr::Sensitivity;
+  template <class E> friend class Expr::Value;
 
-  template <class PORT, class IFACE> friend class smoc::Detail::PortInBaseIf::PortMixin;
-  template <class PORT, class IFACE> friend class smoc::Detail::PortOutBaseIf::PortMixin;
+  template <class PORT, class IFACE> friend class PortInBaseIf::PortMixin;
+  template <class PORT, class IFACE> friend class PortOutBaseIf::PortMixin;
 public:
-  typedef std::vector<smoc::Detail::PortBaseIf *>       Interfaces;
-  typedef std::vector<smoc::Detail::PortBaseIf const *> ConstInterfaces;
+  typedef std::vector<PortBaseIf *>       Interfaces;
+  typedef std::vector<PortBaseIf const *> ConstInterfaces;
 protected:
-  typedef std::vector<smoc::Detail::PortBaseIf::access_type *> PortAccesses;
+  typedef std::vector<PortBaseIf::access_type *> PortAccesses;
 private:
-  typedef std::map<size_t, smoc::smoc_event_and_list>   BlockEventMap;
+  typedef std::map<size_t, smoc_event_and_list>   BlockEventMap;
 
   PortBase *parent;
   // FIXME: In the future the FIFO may not be at the lca level of the connected actors.
