@@ -179,7 +179,7 @@ private:
 public:
 #endif
   /// @brief Initial firing state
-  smoc_hierarchical_state      &initialState;
+  smoc_hierarchical_state      *initialState;
   smoc_hierarchical_state::Ptr  initialStatePtr;
 public:
 #ifdef SYSTEMOC_ENABLE_MAESTRO
@@ -217,7 +217,7 @@ private:
   std::string getDestStateName();
 
 protected:
-  NodeBase(sc_core::sc_module_name, NodeType nodeType, smoc_hierarchical_state &s, unsigned int thread_stack_size);
+  NodeBase(sc_core::sc_module_name, NodeType nodeType, smoc_hierarchical_state *s, unsigned int thread_stack_size);
   
   virtual void before_end_of_elaboration();
   virtual void end_of_elaboration();
@@ -278,8 +278,7 @@ public:
   bool isActor() const
     { return nodeType == NODE_TYPE_ACTOR; }
 
-  FiringFSMImpl *getFiringFSM() const
-    { return CoSupport::DataTypes::FacadeCoreAccess::getImpl(initialState)->getFiringFSM(); }
+  FiringFSMImpl *getFiringFSM() const;
 
   RuntimeState *getCurrentState() const
     { return currentState; }

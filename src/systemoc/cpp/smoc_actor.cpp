@@ -45,7 +45,7 @@ smoc_actor::smoc_actor(sc_core::sc_module_name name, smoc_hierarchical_state &s,
 #ifdef SYSTEMOC_ENABLE_MAESTRO
     , bool useLogFile
 #endif //defined(SYSTEMOC_ENABLE_MAESTRO)
-  ) : NodeBase(name, NODE_TYPE_ACTOR, s, thread_stack_size)
+  ) : NodeBase(name, NODE_TYPE_ACTOR, &s, thread_stack_size)
 {
 #ifdef SYSTEMOC_ENABLE_MAESTRO
   this->setName(this->name());
@@ -57,7 +57,7 @@ smoc_actor::smoc_actor(smoc_hierarchical_state &s, unsigned int thread_stack_siz
 #ifdef SYSTEMOC_ENABLE_MAESTRO
     , bool useLogFile
 #endif //defined(SYSTEMOC_ENABLE_MAESTRO)
-  ) : NodeBase(sc_core::sc_gen_unique_name("smoc_actor"), NODE_TYPE_ACTOR, s, thread_stack_size)
+  ) : NodeBase(sc_core::sc_gen_unique_name("smoc_actor"), NODE_TYPE_ACTOR, &s, thread_stack_size)
 {
 #ifdef SYSTEMOC_ENABLE_MAESTRO
   this->setName(this->name());

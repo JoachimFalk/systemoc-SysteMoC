@@ -49,26 +49,26 @@ namespace smoc {
 
 using CoSupport::String::Concat;
 
+//smoc_graph::smoc_graph()
+//  : smoc::Detail::GraphBase(sc_core::sc_gen_unique_name("smoc_graph"), nullptr)
+//  { constructor(); }
+
 smoc_graph::smoc_graph(const sc_core::sc_module_name &name)
-  : smoc::Detail::GraphBase(name, run)
-  , run("run")
-{
+  : smoc::Detail::GraphBase(name, nullptr)
+  { constructor(); }
+
+smoc_graph::smoc_graph(const sc_core::sc_module_name &name, smoc_hierarchical_state &state)
+  : smoc::Detail::GraphBase(name, &state)
+  { constructor(); }
+
+void smoc_graph::constructor() {
 #ifdef SYSTEMOC_ENABLE_MAESTRO
   this->setName(this->name());
 #endif //SYSTEMOC_ENABLE_MAESTRO
-  constructor();
+  // if there is at least one active transition: execute it
+  //run = smoc::Expr::till(ol) >> SMOC_CALL(smoc_graph::scheduleDDF) >> run;
 }
 
-smoc_graph::smoc_graph()
-  : smoc::Detail::GraphBase(sc_core::sc_gen_unique_name("smoc_graph"), run)
-  , run("run")
-{
-#ifdef SYSTEMOC_ENABLE_MAESTRO
-  this->setName(this->name());
-#endif //SYSTEMOC_ENABLE_MAESTRO
-  constructor();
-}
-  
 void smoc_graph::before_end_of_elaboration() {
 #ifdef SYSTEMOC_DEBUG
   if (smoc::Detail::outDbg.isVisible(smoc::Detail::Debug::High)) {
@@ -86,59 +86,6 @@ void smoc_graph::before_end_of_elaboration() {
   }
 #endif // SYSTEMOC_DEBUG
 }
-
-void smoc_graph::constructor() {
-
-  // if there is at least one active transition: execute it
-  //run = smoc::Expr::till(ol) >> SMOC_CALL(smoc_graph::scheduleDDF) >> run;
-}
-
-/*
-void smoc_graph::initDDF() {
-  // FIXME if this an initial transition, ol must be cleared
-  // up to now, this is called in before_end_of_elaboration...
-  for (smoc_node_list::const_iterator iter = getNodes().begin();
-       iter != getNodes().end();
-       ++iter)
-    ol |= **iter;
-}
-
-void smoc_graph::scheduleDDF() {
-#ifdef SYSTEMOC_DEBUG
-  if (smoc::Detail::outDbg.isVisible(smoc::Detail::Debug::High)) {
-    smoc::Detail::outDbg << "<smoc_graph::scheduleDDF name=\"" << name() << "\">"
-           << std::endl << smoc::Detail::Indent::Up;
-  }
-#endif // SYSTEMOC_DEBUG
-
-  while(ol) {
-#ifdef SYSTEMOC_DEBUG
-    if (smoc::Detail::outDbg.isVisible(smoc::Detail::Debug::High)) {
-      smoc::Detail::outDbg << ol << std::endl;
-    }
-#endif // SYSTEMOC_DEBUG
-    smoc_root_node &n = ol.getEventTrigger();
-#ifdef SYSTEMOC_DEBUG
-    if (smoc::Detail::outDbg.isVisible(smoc::Detail::Debug::High)) {
-      smoc::Detail::outDbg << "<node name=\"" << n.name() << "\">" << std::endl
-             << smoc::Detail::Indent::Up;
-    }
-#endif // SYSTEMOC_DEBUG
-    n.schedule();
-#ifdef SYSTEMOC_DEBUG
-    if (smoc::Detail::outDbg.isVisible(smoc::Detail::Debug::High)) {
-      smoc::Detail::outDbg << smoc::Detail::Indent::Down << "</node>" << std::endl;
-    }
-#endif // SYSTEMOC_DEBUG
-  }
-
-#ifdef SYSTEMOC_DEBUG
-  if (smoc::Detail::outDbg.isVisible(smoc::Detail::Debug::High)) {
-    smoc::Detail::outDbg << smoc::Detail::Indent::Down << "</smoc_graph::scheduleDDF>" << std::endl;
-  }
-#endif // SYSTEMOC_DEBUG
-}
-*/
 
 void smoc_graph::disableActor(std::string const &actorName) {
   smoc_actor *obj = dynamic_cast<smoc_actor *>(getChild(actorName));
