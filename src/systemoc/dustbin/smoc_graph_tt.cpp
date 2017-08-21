@@ -116,7 +116,7 @@ void smoc_graph_tt::scheduleTT() {
 #endif // SYSTEMOC_DEBUG
     n.schedule();
     smoc_periodic_actor *p_node = dynamic_cast<smoc_periodic_actor *>( &n);
-    if(p_node){ // it is a TT-Node
+    if(p_node){ // it is a TT-NodeBase
       //remove it from ddf_nodes_activations and re-register it as a tt-node
       ddf_nodes_activations.remove(n);
       ttNodeQueue.registerNode(p_node, p_node->getNextReleaseTime());
@@ -140,9 +140,9 @@ void smoc_graph_tt::scheduleTT() {
     if(nodeDisabled[entry] == false){
       entry->schedule();
 #ifdef SYSTEMOC_ENABLE_VPC
-      if(entry->inCommState()){ // Node needs some time to process (VPC is used), switch node to DDF
+      if(entry->inCommState()){ // NodeBase needs some time to process (VPC is used), switch node to DDF
         ddf_nodes_activations |= *next;
-      }else{ // Node completely processed -> re-register it in the ttNodeQueue
+      }else{ // NodeBase completely processed -> re-register it in the ttNodeQueue
 #endif //SYSTEMOC_ENABLE_VPC
         ttNodeQueue.registerNode(entry, entry->getNextReleaseTime());
 #ifdef SYSTEMOC_ENABLE_VPC

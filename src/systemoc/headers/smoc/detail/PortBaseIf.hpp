@@ -49,9 +49,6 @@
 #include "VpcInterface.hpp"
 #endif // SYSTEMOC_ENABLE_VPC
 
-class smoc_sysc_port;
-class smoc_port_access_base_if;
-
 namespace smoc { namespace Detail {
 
 #ifdef SYSTEMOC_PORT_ACCESS_COUNTER
@@ -72,6 +69,8 @@ private:
 };
 #endif // SYSTEMOC_PORT_ACCESS_COUNTER
 
+class PortBase;
+
 class PortBaseIf
 : public virtual sc_core::sc_interface
   , public SimCTXBase
@@ -83,19 +82,32 @@ class PortBaseIf
 #endif //SYSTEMOC_ENABLE_VPC
   , private boost::noncopyable
 {
-  friend class ::smoc_sysc_port;
+  friend class PortBase;
+public:
+  // FIXME: Why not merge this with PortBaseIf?!
+  class access_type {
+  public:
+    typedef void return_type;
+
+  #if defined(SYSTEMOC_ENABLE_DEBUG)
+    virtual void setLimit(size_t) = 0;
+  #endif
+    virtual bool tokenIsValid(size_t) const = 0;
+
+    virtual ~access_type() {}
+  };
 protected:
 #ifdef SYSTEMOC_ENABLE_DATAFLOW_TRACE
-  virtual void        traceCommSetup(size_t req) {}
+  virtual void         traceCommSetup(size_t req) {}
 #endif //SYSTEMOC_ENABLE_DATAFLOW_TRACE
-  virtual smoc_event &blockEvent(size_t n) = 0;
-  virtual size_t      availableCount() const = 0;
+  virtual smoc_event  &blockEvent(size_t n) = 0;
+  virtual size_t       availableCount() const = 0;
 #ifdef SYSTEMOC_ENABLE_VPC
-  virtual void        commExec(size_t n, VpcInterface vpcIf) = 0;
+  virtual void         commExec(size_t n, VpcInterface vpcIf) = 0;
 #else //!defined(SYSTEMOC_ENABLE_VPC)
-  virtual void        commExec(size_t n) = 0;
+  virtual void         commExec(size_t n) = 0;
 #endif //!defined(SYSTEMOC_ENABLE_VPC)
-  virtual smoc_port_access_base_if *getChannelAccess() = 0;
+  virtual access_type *getChannelAccess() = 0;
 };
 
 } } // namespace smoc::Detail

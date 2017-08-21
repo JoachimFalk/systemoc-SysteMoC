@@ -58,7 +58,7 @@ struct IdPoolTypes {
 
   /// @brief Value type of IdMap
   struct IdMapEntry {
-    /// @brief Node defining the Id
+    /// @brief NodeBase defining the Id
     IdedObj *node;
 
     /// @brief Default constructor

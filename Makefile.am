@@ -51,13 +51,15 @@ CLEANFILES=$(nodist_pkgconfig_DATA)
 lib_LTLIBRARIES = libsystemoc.la
 
 libsystemoc_la_SOURCES = \
+	src/systemoc/cpp/detail/ChanBase.cpp \
 	src/systemoc/cpp/detail/DebugOStream.cpp \
 	src/systemoc/cpp/detail/GraphBase.cpp \
 	src/systemoc/cpp/detail/IdPool.cpp \
 	src/systemoc/cpp/detail/IOPattern.cpp \
 	src/systemoc/cpp/detail/LatencyQueue.cpp \
-	src/systemoc/cpp/detail/Node.cpp \
+	src/systemoc/cpp/detail/NodeBase.cpp \
 	src/systemoc/cpp/detail/NodeQueue.cpp \
+	src/systemoc/cpp/detail/PortBase.cpp \
 	src/systemoc/cpp/detail/SimulationContext.cpp \
 	src/systemoc/cpp/detail/SMXDumper.cpp \
 	src/systemoc/cpp/detail/SMXImporter.cpp \
@@ -79,9 +81,7 @@ libsystemoc_la_SOURCES = \
 	src/systemoc/cpp/smoc_periodic_actor.cpp \
 	src/systemoc/cpp/smoc_register.cpp \
 	src/systemoc/cpp/smoc_reset.cpp \
-	src/systemoc/cpp/smoc_root_chan.cpp \
-	src/systemoc/cpp/smoc_scheduler_top.cpp \
-	src/systemoc/cpp/smoc_sysc_port.cpp
+	src/systemoc/cpp/smoc_scheduler_top.cpp
 
 libsystemoc_la_CPPFLAGS = $(AM_CPPFLAGS) \
 	$(BOOST_CPPFLAGS) \

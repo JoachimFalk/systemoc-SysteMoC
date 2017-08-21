@@ -57,9 +57,9 @@
 #include "apply_visitor.hpp"
 #include "SimulationContext.hpp"
 
-#include <smoc/detail/Node.hpp>
-#include <systemoc/detail/smoc_root_chan.hpp>
-#include <systemoc/detail/smoc_sysc_port.hpp>
+#include <smoc/detail/NodeBase.hpp>
+#include <smoc/detail/ChanBase.hpp>
+#include <smoc/detail/PortBase.hpp>
 #include <systemoc/detail/smoc_firing_rules_impl.hpp>
 #include <systemoc/smoc_actor.hpp>
 #include <systemoc/smoc_fifo.hpp>
@@ -131,9 +131,9 @@ public:
   result_type visitLiteral(const std::string &type, const std::string &value);
   result_type visitMemGuard(const std::string &name, const std::string& cxxType, const std::string &reType, const ParamInfoList &params);
   result_type visitEvent(const std::string &name);
-  result_type visitPortTokens(smoc_sysc_port &p);
-  result_type visitToken(smoc_sysc_port &p, size_t n);
-  result_type visitComm(smoc_sysc_port &p, boost::function<result_type (base_type &)> e);
+  result_type visitPortTokens(PortBase &p);
+  result_type visitToken(PortBase &p, size_t n);
+  result_type visitComm(PortBase &p, boost::function<result_type (base_type &)> e);
   result_type visitUnOp(OpUnT op, boost::function<result_type (base_type &)> e);
   result_type visitBinOp(OpBinT op, boost::function<result_type (base_type &)> a, boost::function<result_type (base_type &)> b);
 };
@@ -176,7 +176,7 @@ ExprNGXVisitor::result_type ExprNGXVisitor::visitEvent(const std::string &name) 
   return astNode.release();
 }
 
-ExprNGXVisitor::result_type ExprNGXVisitor::visitPortTokens(smoc_sysc_port &p) {
+ExprNGXVisitor::result_type ExprNGXVisitor::visitPortTokens(PortBase &p) {
   std::unique_ptr<SGX::ASTNodePortTokens> astNode(new SGX::ASTNodePortTokens);
   SCPortBase2Port::iterator iter = ports.find(&p);
   assert(iter != ports.end() && "WTF?!: Got port in activation pattern which is not from the same actor as the FSM?!");
@@ -185,7 +185,7 @@ ExprNGXVisitor::result_type ExprNGXVisitor::visitPortTokens(smoc_sysc_port &p) {
   return astNode.release();
 }
 
-ExprNGXVisitor::result_type ExprNGXVisitor::visitToken(smoc_sysc_port &p, size_t n) {
+ExprNGXVisitor::result_type ExprNGXVisitor::visitToken(PortBase &p, size_t n) {
   std::unique_ptr<SGX::ASTNodeToken> astNode(new SGX::ASTNodeToken);
   SCPortBase2Port::iterator iter = ports.find(&p);
   assert(iter != ports.end() && "WTF?!: Got port in activation pattern which is not from the same actor as the FSM?!");
@@ -194,7 +194,7 @@ ExprNGXVisitor::result_type ExprNGXVisitor::visitToken(smoc_sysc_port &p, size_t
   return astNode.release();
 }
 
-ExprNGXVisitor::result_type ExprNGXVisitor::visitComm(smoc_sysc_port &p, boost::function<result_type (base_type &)> e) {
+ExprNGXVisitor::result_type ExprNGXVisitor::visitComm(PortBase &p, boost::function<result_type (base_type &)> e) {
   std::unique_ptr<SGX::ASTNodeComm> astNode(new SGX::ASTNodeComm);
   SCPortBase2Port::iterator iter = ports.find(&p);
   assert(iter != ports.end() && "WTF?!: Got port in activation pattern which is not from the same actor as the FSM?!");
@@ -274,12 +274,12 @@ void recurse(Visitor &visitor, sc_core::sc_object &obj) {
     }
   }
   {
-    smoc_root_chan *chan;
+    ChanBase *chan;
     for (sc_object_list::const_iterator iter = obj.get_child_objects().begin();
          iter != obj.get_child_objects().end();
          ++iter) {
       // Channels next!
-      if ((chan = dynamic_cast<smoc_root_chan *>(*iter)))
+      if ((chan = dynamic_cast<ChanBase *>(*iter)))
         apply_visitor(visitor, *chan);
     }
   }
@@ -347,7 +347,7 @@ public:
   ProcessSubVisitor(SMXDumpCTX &ctx, ExpectedPortConnections &epc, SGX::Process &proc)
     : ctx(ctx), epc(epc), proc(proc) {}
 
-  void operator ()(smoc_sysc_port &obj);
+  void operator ()(PortBase &obj);
 
   void operator ()(sc_core::sc_port_base &obj);
 
@@ -409,7 +409,7 @@ public:
   DumpPort(ProcessSubVisitor &psv)
     : psv(psv) {}
 
-  result_type operator ()(smoc_sysc_port &p) {
+  result_type operator ()(PortBase &p) {
 #ifdef SYSTEMOC_DEBUG
     if (outDbg.isVisible(Debug::Low)) {
       outDbg << "DumpPort::operator ()(smoc_sysc_port &) [BEGIN]" << std::endl;
@@ -425,7 +425,7 @@ public:
         outDbg << getName(&p) << " => expectedChannelConnections";
       }
 #endif //defined(SYSTEMOC_DEBUG)
-      for (smoc_sysc_port::Interfaces::const_iterator iter = p.get_interfaces().begin();
+      for (PortBase::Interfaces::const_iterator iter = p.get_interfaces().begin();
            iter != p.get_interfaces().end();
            ++iter) {
 #ifdef SYSTEMOC_DEBUG
@@ -549,8 +549,8 @@ public:
     std::cerr << "WTF?! " << pChan.name() << " sc_interface not found!" << std::endl;
   }
 
-  void registerPorts(SGX::Channel &channel, smoc_root_chan &rc) {
-    for (smoc_root_chan::EntryMap::const_iterator iter = rc.getEntries().begin();
+  void registerPorts(SGX::Channel &channel, ChanBase &rc) {
+    for (ChanBase::EntryMap::const_iterator iter = rc.getEntries().begin();
          iter != rc.getEntries().end();
          ++iter) {
       SGX::Port p(Concat(getName(&rc))(".in"));
@@ -558,7 +558,7 @@ public:
       channel.ports().push_back(p);
       connectPort(p, iter->first, SGX::Port::Out);
     }
-    for (smoc_root_chan::OutletMap::const_iterator iter = rc.getOutlets().begin();
+    for (ChanBase::OutletMap::const_iterator iter = rc.getOutlets().begin();
          iter != rc.getOutlets().end();
          ++iter) {
       SGX::Port p(Concat(getName(&rc))(".out"));
@@ -765,6 +765,94 @@ public:
   }
 };
 
+class DumpFiringFSM: public NamedIdedObjAccess {
+public:
+  typedef SGX::FiringFSM::Ptr result_type;
+
+protected:
+  ProcessSubVisitor &sv;
+
+  struct TransitionInfo {
+    SGX::Action::Ptr  actionPtr;
+    SGX::ASTNode::Ptr astPtr;
+  };
+
+  typedef std::map<const RuntimeState *, SGX::FiringState::Ptr> StateMap;
+  typedef std::map<void *, TransitionInfo>                      TransitionInfoMap;
+public:
+  DumpFiringFSM(ProcessSubVisitor &sv)
+    : sv(sv) {}
+
+  result_type operator ()(FiringFSMImpl *smocFSM) {
+    if (!smocFSM)
+      return nullptr;
+
+    SGX::FiringFSM              sgxFSM;
+//  FiringFSMImpl              *smocFSM       = a.getFiringFSM();
+    SGX::FiringStateList::Ref   sgxStateList  = sgxFSM.states();
+    StateMap                    stateMap;
+    TransitionInfoMap           transitionInfoMap;
+
+    ActionNGXVisitor            actionVisitor;
+    ExprNGXVisitor              exprVisitor(sv.ports);
+
+    const RuntimeStateSet      &smocStates    = smocFSM->getStates();
+    // Create states
+    for (RuntimeStateSet::const_iterator sIter = smocStates.begin();
+         sIter != smocStates.end();
+         ++sIter) {
+      std::string stateName = getName(*sIter);
+      // Eleminate actor name from state name, e.g.,
+      // sqrroot.a1:smoc_firing_state_0 => smoc_firing_state_0.
+      std::string::size_type colonPos = stateName.find(':');
+      if (colonPos != std::string::npos)
+        stateName = stateName.substr(colonPos+1);
+      SGX::FiringState sgxState(stateName, getId(*sIter));
+      sassert(stateMap.insert(std::make_pair(*sIter, &sgxState)).second);
+      sgxStateList.push_back(sgxState);
+    }
+    // Setup initial state
+    {
+      StateMap::const_iterator iIter = stateMap.find(smocFSM->getInitialState());
+      assert(iIter != stateMap.end());
+      sgxFSM.startState() = iIter->second;
+    }
+    // Insert transitions
+    for (StateMap::iterator sIter = stateMap.begin();
+         sIter != stateMap.end();
+         ++sIter) {
+      const RuntimeState             &smocState = *sIter->first;
+      SGX::FiringState::Ref           sgxState  = *sIter->second;
+      const RuntimeTransitionList    &smocTrans = smocState.getTransitions();
+      SGX::FiringTransitionList::Ref  sgxTrans  = sgxState.outTransitions();
+
+      for (RuntimeTransitionList::const_iterator tIter = smocTrans.begin();
+           tIter != smocTrans.end();
+           ++tIter) {
+        SGX::FiringTransition sgxTran(getId(&*tIter));
+        sgxTrans.push_back(sgxTran);
+        StateMap::const_iterator dIter = stateMap.find(tIter->getDestState());
+        assert(dIter != stateMap.end());
+        sgxTran.dstState() = dIter->second;
+        std::pair<TransitionInfoMap::iterator, bool> inserted =
+          transitionInfoMap.insert(std::make_pair(tIter->getID(), TransitionInfo()));
+        if (inserted.second) {
+          inserted.first->second.actionPtr = boost::apply_visitor(actionVisitor,
+            const_cast<smoc_action &>(tIter->getAction()));
+          if (sv.ctx.simCTX->isSMXDumpingASTEnabled()) {
+            boost::scoped_ptr<SGX::ASTNode> astNode(
+              Expr::evalTo(exprVisitor, tIter->getExpr()));
+            inserted.first->second.astPtr = astNode->toPtr();
+          }
+        }
+        sgxTran.action()            = inserted.first->second.actionPtr;
+        sgxTran.activationPattern() = inserted.first->second.astPtr;
+      }
+    }
+    return sgxFSM.toPtr();
+  }
+};
+
 class DumpActor: public NamedIdedObjAccess {
 public:
   typedef void result_type;
@@ -803,72 +891,7 @@ public:
     }
     // Dump firingFSM
     {
-      typedef std::map<const RuntimeState *, SGX::FiringState::Ptr> StateMap;
-      typedef std::map<void *, TransitionInfo>                      TransitionInfoMap;
-      
-      SGX::FiringFSM              sgxFSM;
-      FiringFSMImpl              *smocFSM       = a.getFiringFSM();
-      SGX::FiringStateList::Ref   sgxStateList  = sgxFSM.states();
-      StateMap                    stateMap;
-      TransitionInfoMap           transitionInfoMap;
-      
-      ActionNGXVisitor            actionVisitor;
-      ExprNGXVisitor              exprVisitor(sv.ports);
-      
-      const RuntimeStateSet      &smocStates    = smocFSM->getStates();
-      // Create states
-      for (RuntimeStateSet::const_iterator sIter = smocStates.begin();
-           sIter != smocStates.end();
-           ++sIter) {
-        std::string stateName = getName(*sIter);
-        // Eleminate actor name from state name, e.g.,
-        // sqrroot.a1:smoc_firing_state_0 => smoc_firing_state_0.
-        std::string::size_type colonPos = stateName.find(':');
-        if (colonPos != std::string::npos)
-          stateName = stateName.substr(colonPos+1);
-        SGX::FiringState sgxState(stateName, (*sIter)->getId());
-        sassert(stateMap.insert(std::make_pair(*sIter, &sgxState)).second);
-        sgxStateList.push_back(sgxState);
-      }
-      // Setup initial state
-      {
-        StateMap::const_iterator iIter = stateMap.find(smocFSM->getInitialState());
-        assert(iIter != stateMap.end());
-        sgxFSM.startState() = iIter->second;
-      }
-      // Insert transitions
-      for (StateMap::iterator sIter = stateMap.begin();
-           sIter != stateMap.end();
-           ++sIter) {
-        const RuntimeState             &smocState = *sIter->first;
-        SGX::FiringState::Ref           sgxState  = *sIter->second;
-        const RuntimeTransitionList    &smocTrans = smocState.getTransitions();
-        SGX::FiringTransitionList::Ref  sgxTrans  = sgxState.outTransitions();
-        
-        for (RuntimeTransitionList::const_iterator tIter = smocTrans.begin();
-             tIter != smocTrans.end();
-             ++tIter) {
-          SGX::FiringTransition sgxTran(tIter->getId());
-          sgxTrans.push_back(sgxTran);
-          StateMap::const_iterator dIter = stateMap.find(tIter->getDestState());
-          assert(dIter != stateMap.end());
-          sgxTran.dstState() = dIter->second;
-          std::pair<TransitionInfoMap::iterator, bool> inserted =
-            transitionInfoMap.insert(std::make_pair(tIter->getID(), TransitionInfo()));
-          if (inserted.second) {
-            inserted.first->second.actionPtr = boost::apply_visitor(actionVisitor,
-              const_cast<smoc_action &>(tIter->getAction()));
-            if (gsv.ctx.simCTX->isSMXDumpingASTEnabled()) {
-              boost::scoped_ptr<SGX::ASTNode> astNode(
-                Expr::evalTo(exprVisitor, tIter->getExpr()));
-              inserted.first->second.astPtr = astNode->toPtr();
-            }
-          }
-          sgxTran.action()            = inserted.first->second.actionPtr;
-          sgxTran.activationPattern() = inserted.first->second.astPtr;
-        }
-      }
-      actor.firingFSM() = &sgxFSM;
+      actor.firingFSM() = DumpFiringFSM(sv)(a.getFiringFSM());
     }
     gsv.pg.processes().push_back(actor);
 #ifdef SYSTEMOC_DEBUG
@@ -926,6 +949,7 @@ public:
     gsv.pg.processes().push_back(rp);
     SGX::ProblemGraph   pg(getName(&g), getId(&g));
     pg.cxxClass() = typeid(g).name();
+    pg.firingFSM() = DumpFiringFSM(gsv)(g.getFiringFSM());
     rp.refinements().push_back(pg);
     GraphSubVisitor sv(gsv.ctx, gsv, rp, pg);
     recurse(sv, g);
@@ -937,7 +961,7 @@ public:
   }
 };
 
-void ProcessSubVisitor::operator ()(smoc_sysc_port &obj) {
+void ProcessSubVisitor::operator ()(PortBase &obj) {
   DumpPort(*this)(obj);
 }
 
@@ -986,7 +1010,7 @@ void dumpSMX(std::ostream &file, SimulationContextSMXDumping *simCTX, GraphBase 
   SMXDumpCTX              ctx(simCTX);
   ExpectedPortConnections epc;
   SGX::RefinedProcess     rp;
-  SGX::ProblemGraph       pg(g.name(), g.getId());
+  SGX::ProblemGraph       pg(g.name(), IdedObjAccess::getId(&g));
   
   rp.refinements().push_back(pg);
   GraphSubVisitor sv(ctx,epc,rp,pg);

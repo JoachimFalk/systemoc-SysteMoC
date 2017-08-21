@@ -52,19 +52,18 @@
 #include "smoc_multireader_fifo.hpp"
 #include "smoc_multiplex_fifo.hpp"
 
-#include "detail/smoc_root_chan.hpp"
 #include "detail/smoc_chan_if.hpp"
 //#include "../smoc/detail/Storage.hpp"
-#include "detail/smoc_sysc_port.hpp"
 #include <smoc/smoc_event.hpp>
 #include <smoc/detail/ConnectProvider.hpp>
 #include <smoc/detail/EventMapManager.hpp>
+#include <smoc/detail/ChanBase.hpp>
 
 class smoc_reset_outlet;
 class smoc_reset_entry;
 
 class smoc_reset_chan
-: public smoc_root_chan {
+: public smoc::Detail::ChanBase {
 public:
   friend class smoc_reset_entry;
   friend class smoc_reset_outlet;
@@ -124,8 +123,8 @@ private:
   smoc::smoc_event sae;
   smoc::smoc_event dae;
 
-  typedef std::set<smoc_root_chan*> ChanSet;
-  typedef std::set<smoc::Detail::Node*> NodeSet;
+  typedef std::set<smoc::Detail::ChanBase *> ChanSet;
+  typedef std::set<smoc::Detail::NodeBase *> NodeSet;
 
   ChanSet chans;
   NodeSet nodes;
@@ -140,8 +139,8 @@ class smoc_reset_chan;
 
 
 class smoc_reset_outlet
-  : public smoc_port_in_if<void,::smoc_1d_port_access_if>,
-    public smoc_1d_port_access_if<void>
+  : public smoc_port_in_if<void>,
+    public smoc_port_in_if<void>::access_type
 {
 public:
   typedef void              data_type;
@@ -197,8 +196,8 @@ private:
 };
 
 class smoc_reset_entry
-  : public smoc_port_out_if<void,::smoc_1d_port_access_if>,
-    public smoc_1d_port_access_if<void>
+  : public smoc_port_out_if<void>,
+    public smoc_port_out_if<void>::access_type
 {
 public:
   typedef void              data_type;
@@ -294,12 +293,12 @@ public:
   this_type& connect(smoc_reset_port& p)
     { return this_type::con_type::connect(p); }
   
-  this_type& connect(smoc::Detail::Node& n) {
+  this_type& connect(smoc::Detail::NodeBase& n) {
     sassert(getChan()->nodes.insert(&n).second);
     return *this;
   }
 
-  this_type& operator<<(smoc::Detail::Node& n)
+  this_type& operator<<(smoc::Detail::NodeBase& n)
     { return connect(n); }
 
   template<class T>

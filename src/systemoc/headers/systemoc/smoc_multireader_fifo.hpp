@@ -55,7 +55,7 @@
 #endif //SYSTEMOC_ENABLE_VPC
 
 #include "detail/smoc_chan_if.hpp"
-#include "detail/smoc_root_chan.hpp"
+#include <smoc/detail/ChanBase.hpp>
 //#include "../smoc/detail/Storage.hpp"
 #include "smoc_chan_adapter.hpp"
 #include "smoc_fifo.hpp"
@@ -76,7 +76,7 @@
  * The base channel implementation
  */
 class smoc_multireader_fifo_chan_base
-: public smoc_root_chan,
+: public smoc::Detail::ChanBase,
 #ifdef SYSTEMOC_ENABLE_VPC
   public smoc::Detail::QueueFRVWPtr
 #else
@@ -189,16 +189,14 @@ template<class> class smoc_multireader_fifo_chan;
  * data to an input port, therefore is an outlet.
  */
 template<class T>
-class smoc_multireader_fifo_outlet
-: public smoc_port_in_if<T,smoc_1d_port_access_if>
-{
+class smoc_multireader_fifo_outlet: public smoc_port_in_if<T> {
+  typedef smoc_multireader_fifo_outlet<T>  this_type;
 public:
-  typedef smoc_multireader_fifo_outlet<T>           this_type;
-  typedef typename this_type::access_type           access_type; 
-  typedef smoc_port_in_if<T,smoc_1d_port_access_if> iface_type;
+  typedef smoc_port_in_if<T>               iface_type;
+  typedef typename iface_type::access_type access_type;
 
   /// @brief Constructor
-  smoc_multireader_fifo_outlet(smoc_multireader_fifo_chan<T>& chan)
+  smoc_multireader_fifo_outlet(smoc_multireader_fifo_chan<T> &chan)
     : chan(chan)
     {}
 
@@ -255,16 +253,14 @@ private:
  * data from an output port, therefore is an entry.
  */
 template<class T>
-class smoc_multireader_fifo_entry
-: public smoc_port_out_if<T,smoc_1d_port_access_if>
-{
+class smoc_multireader_fifo_entry: public smoc_port_out_if<T> {
+  typedef smoc_multireader_fifo_entry<T>   this_type;
 public:
-  typedef smoc_multireader_fifo_entry<T>              this_type;
-  typedef typename this_type::access_type             access_type; 
-  typedef smoc_port_out_if<T,smoc_1d_port_access_if>  iface_type;
+  typedef smoc_port_out_if<T>              iface_type;
+  typedef typename iface_type::access_type access_type;
 
   /// @brief Constructor
-  smoc_multireader_fifo_entry(smoc_multireader_fifo_chan<T>& chan)
+  smoc_multireader_fifo_entry(smoc_multireader_fifo_chan<T> &chan)
     : chan(chan)
     {}
 

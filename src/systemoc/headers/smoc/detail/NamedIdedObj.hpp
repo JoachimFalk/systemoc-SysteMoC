@@ -54,7 +54,7 @@ protected:
 };
 
 class NamedIdedObjAccess: public IdedObjAccess {
-protected:
+public:
   static
   const char *getName(NamedIdedObj const *namedIdedObj)
     { return namedIdedObj->_name(); }

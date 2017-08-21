@@ -38,14 +38,14 @@
 
 #include <systemoc/smoc_config.h>
 
-#include "smoc_sysc_port.hpp"
+#include "smoc_chan_if.hpp"
 
-template<class S, class T>
-class smoc_ring_access: public smoc_1d_port_access_if<T> {
-  typedef smoc_ring_access<S,T> this_type;
+template<class T, class PortIf>
+class smoc_ring_access: public PortIf {
+  typedef smoc_ring_access<T,PortIf>                 this_type;
 public:
-  typedef T                     return_type;
-  typedef S                     storage_type;
+  typedef typename PortIf::access_type::return_type  return_type;
+  typedef smoc::Detail::Storage<T>                   storage_type;
 private:
 #if defined(SYSTEMOC_ENABLE_DEBUG)
   mutable size_t ringLimit;
@@ -89,12 +89,12 @@ public:
   }
 };
 
-template <>
-class smoc_ring_access<void, void>: public smoc_1d_port_access_if<void> {
-  typedef smoc_ring_access<void,void> this_type;
+template <class PortIf>
+class smoc_ring_access<void, PortIf>: public PortIf {
+  typedef smoc_ring_access<void, PortIf> this_type;
 public:
-  typedef void                        return_type;
-  typedef void                        storage_type;
+  typedef void                           return_type;
+  typedef void                           storage_type;
 private:
 public:
   smoc_ring_access()

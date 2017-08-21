@@ -39,12 +39,13 @@
 
 #include <systemoc/smoc_config.h>
 
-#include <systemoc/detail/smoc_sysc_port.hpp>
-#include <systemoc/smoc_firing_rules.hpp>
-#include <smoc/smoc_event.hpp>
-#include <systemoc/smoc_graph.hpp>
 #include <smoc/detail/DebugOStream.hpp>
-#include <smoc/detail/Node.hpp>
+#include <smoc/detail/NodeBase.hpp>
+#include <smoc/detail/PortBase.hpp>
+#include <smoc/smoc_event.hpp>
+
+#include <systemoc/smoc_firing_rules.hpp>
+#include <systemoc/smoc_graph.hpp>
 #ifdef SYSTEMOC_ENABLE_MAESTRO
 # include <Maestro/MetaMap/MAESTRORuntimeException.hpp>
 #endif //SYSTEMOC_ENABLE_MAESTRO
@@ -53,7 +54,7 @@
 
 namespace smoc { namespace Detail {
 
-Node::Node(sc_core::sc_module_name name, NodeType nodeType, smoc_hierarchical_state &s, unsigned int thread_stack_size)
+NodeBase::NodeBase(sc_core::sc_module_name name, NodeType nodeType, smoc_hierarchical_state *s, unsigned int thread_stack_size)
   :
 #if defined(SYSTEMOC_ENABLE_VPC)
     SystemC_VPC::ScheduledTask(name)
@@ -90,7 +91,7 @@ Node::Node(sc_core::sc_module_name name, NodeType nodeType, smoc_hierarchical_st
 #endif // SYSTEMOC_ENABLE_VPC
 }
 
-void Node::before_end_of_elaboration() {
+void NodeBase::before_end_of_elaboration() {
 #ifdef SYSTEMOC_DEBUG
   if (smoc::Detail::outDbg.isVisible(smoc::Detail::Debug::High)) {
     smoc::Detail::outDbg << "<smoc_root_node::before_end_of_elaboration name=\"" << this->name() << "\">"
@@ -109,15 +110,12 @@ void Node::before_end_of_elaboration() {
     if (sgxProcPtr) {
       std::cerr << "Found myself " << sgxProcPtr->name() << " " << this->name() << std::endl;
     }
-    getSimCTX()->pNGX->routings();
   }
 #endif //SYSTEMOC_ENABLE_SGX
 
-
-  getFiringFSM()->before_end_of_elaboration(this,
-    initialStatePtr
-    ? CoSupport::DataTypes::FacadeCoreAccess::getImpl(initialStatePtr)
-    : CoSupport::DataTypes::FacadeCoreAccess::getImpl(initialState));
+  if (getFiringFSM())
+    getFiringFSM()->before_end_of_elaboration(this,
+      CoSupport::DataTypes::FacadeCoreAccess::getImpl(*initialState));
 //#ifdef SYSTEMOC_ENABLE_VPC
 //  getCommState()->before_end_of_elaboration(this);
 //#endif // SYSTEMOC_ENABLE_VPC
@@ -129,7 +127,7 @@ void Node::before_end_of_elaboration() {
 #endif //defined(SYSTEMOC_DEBUG)
 }
 
-void Node::end_of_elaboration() {
+void NodeBase::end_of_elaboration() {
 #ifdef SYSTEMOC_DEBUG
   if (smoc::Detail::outDbg.isVisible(smoc::Detail::Debug::High)) {
     smoc::Detail::outDbg << "<smoc_root_node::end_of_elaboration name=\"" << this->name() << "\">"
@@ -137,7 +135,8 @@ void Node::end_of_elaboration() {
   }
 #endif //defined(SYSTEMOC_DEBUG)
   sc_core::sc_module::end_of_elaboration();
-  getFiringFSM()->end_of_elaboration(this);
+  if (getFiringFSM())
+    getFiringFSM()->end_of_elaboration(this);
 #ifdef SYSTEMOC_ENABLE_VPC
   getCommState()->end_of_elaboration();
 #endif // SYSTEMOC_ENABLE_VPC
@@ -149,7 +148,7 @@ void Node::end_of_elaboration() {
 #endif //defined(SYSTEMOC_DEBUG)
 }
 
-void Node::start_of_simulation() {
+void NodeBase::start_of_simulation() {
 #ifdef SYSTEMOC_DEBUG
   if (smoc::Detail::outDbg.isVisible(smoc::Detail::Debug::High)) {
     smoc::Detail::outDbg << "<smoc_root_node::start_of_simulation name=\"" << this->name() << "\">"
@@ -158,7 +157,7 @@ void Node::start_of_simulation() {
 #endif //defined(SYSTEMOC_DEBUG)
   sc_core::sc_module::start_of_simulation();
   // Don't call the virtual function!
-  Node::doReset();
+  NodeBase::doReset();
 #ifdef SYSTEMOC_DEBUG
   if (smoc::Detail::outDbg.isVisible(smoc::Detail::Debug::High)) {
     smoc::Detail::outDbg << smoc::Detail::Indent::Down << "</smoc_root_node::start_of_simulation>"
@@ -167,7 +166,7 @@ void Node::start_of_simulation() {
 #endif //defined(SYSTEMOC_DEBUG)
 }
 
-smoc_sysc_port_list Node::getPorts() const {
+smoc_sysc_port_list NodeBase::getPorts() const {
   smoc_sysc_port_list ret;
   
   for(
@@ -179,19 +178,19 @@ smoc_sysc_port_list Node::getPorts() const {
       get_child_objects().begin();
     iter != get_child_objects().end(); ++iter)
   {
-    if(smoc_sysc_port* p = dynamic_cast<smoc_sysc_port*>(*iter))
+    if(PortBase* p = dynamic_cast<PortBase*>(*iter))
       ret.push_back(p);
   }
   return ret;
 }
 
-Node::~Node() {
+NodeBase::~NodeBase() {
 #ifdef SYSTEMOC_ENABLE_VPC
   delete commState;
 #endif // SYSTEMOC_ENABLE_VPC
 }
 
-void Node::doReset() {
+void NodeBase::doReset() {
 #ifdef SYSTEMOC_DEBUG
   if (smoc::Detail::outDbg.isVisible(smoc::Detail::Debug::High)) {
     smoc::Detail::outDbg << "<smoc_root_node::doReset name=\"" << name() << "\">"
@@ -202,9 +201,11 @@ void Node::doReset() {
   // call user-defined reset code (->re-evaluate guards!!!)
   reset();
   // will re-evaluate guards
-  setCurrentState(getFiringFSM()->getInitialState());
-  if (useActivationCallback)
-    setActivation(searchActiveTransition());
+  if (getFiringFSM()) {
+    setCurrentState(getFiringFSM()->getInitialState());
+    if (useActivationCallback)
+      setActivation(searchActiveTransition());
+  }
 
 #ifdef SYSTEMOC_DEBUG
   if (smoc::Detail::outDbg.isVisible(smoc::Detail::Debug::High)) {
@@ -213,7 +214,7 @@ void Node::doReset() {
 #endif // SYSTEMOC_DEBUG
 }
 
-void Node::renotified(smoc::smoc_event_waiter *e) {
+void NodeBase::renotified(smoc::smoc_event_waiter *e) {
 #ifdef SYSTEMOC_DEBUG
   if (smoc::Detail::outDbg.isVisible(smoc::Detail::Debug::High)) {
     smoc::Detail::outDbg << "<smoc_root_node::renotified name=\"" << name() << "\">"
@@ -231,7 +232,7 @@ void Node::renotified(smoc::smoc_event_waiter *e) {
 #endif // SYSTEMOC_DEBUG
 }
 
-void Node::signaled(smoc::smoc_event_waiter *e) {
+void NodeBase::signaled(smoc::smoc_event_waiter *e) {
 #ifdef SYSTEMOC_DEBUG
   if (smoc::Detail::outDbg.isVisible(smoc::Detail::Debug::High)) {
     smoc::Detail::outDbg << "<smoc_root_node::signaled name=\"" << name() << "\">"
@@ -275,15 +276,27 @@ void Node::signaled(smoc::smoc_event_waiter *e) {
 #endif // SYSTEMOC_DEBUG
 }
 
-void Node::eventDestroyed(smoc::smoc_event_waiter *e) {
+void NodeBase::eventDestroyed(smoc::smoc_event_waiter *e) {
   // should happen when simulation has finished -> ignore
 }
 
-void Node::setInitialState(smoc_hierarchical_state &s) {
+void NodeBase::setInitialState(smoc_hierarchical_state &s) {
+  // We store a pointer here to increase the refcount to the state.
   initialStatePtr = s.toPtr();
+  // This reinterpret_cast is a hack that only works because the Facade
+  // and the FacadePtr have the same internal layout only consisting of
+  // a single smart ptr to the real implementation.
+  initialState    = reinterpret_cast<smoc_hierarchical_state *>(&initialStatePtr);
 }
 
-void Node::setCurrentState(RuntimeState *newState) {
+FiringFSMImpl *NodeBase::getFiringFSM() const {
+  if (initialState)
+    return CoSupport::DataTypes::FacadeCoreAccess::getImpl(*initialState)->getFiringFSM();
+  else
+    return nullptr;
+}
+
+void NodeBase::setCurrentState(RuntimeState *newState) {
 #ifdef SYSTEMOC_DEBUG
   if (smoc::Detail::outDbg.isVisible(smoc::Detail::Debug::High)) {
     smoc::Detail::outDbg << "<smoc_root_node::setCurrentState name=\"" << name() << "\">"
@@ -328,7 +341,7 @@ void Node::setCurrentState(RuntimeState *newState) {
 #endif // SYSTEMOC_DEBUG
 }
 
-void Node::setUseActivationCallback(bool flag) {
+void NodeBase::setUseActivationCallback(bool flag) {
   if (currentState) {
     if (useActivationCallback && !flag) {
       EventWaiterSet &am = currentState->am;
@@ -353,18 +366,18 @@ void Node::setUseActivationCallback(bool flag) {
     useActivationCallback = flag;
 }
 
-bool Node::getUseActivationCallback() const {
+bool NodeBase::getUseActivationCallback() const {
   return useActivationCallback;
 }
 
-std::string Node::getDestStateName() {
+std::string NodeBase::getDestStateName() {
   if (!ct)
     return "FIXME!!!";
   assert(ct);
   return ct->getDestStateName();
 }
 
-bool Node::searchActiveTransition() {
+bool NodeBase::searchActiveTransition() {
   assert(currentState);
   ct = nullptr;
 
@@ -385,7 +398,7 @@ bool Node::searchActiveTransition() {
   return ct != nullptr;
 }
 
-void Node::schedule() {
+void NodeBase::schedule() {
 #ifdef SYSTEMOC_DEBUG
   if (smoc::Detail::outDbg.isVisible(smoc::Detail::Debug::High)) {
     smoc::Detail::outDbg << "<smoc_root_node::schedule name=\"" << name() << "\">"
@@ -408,18 +421,18 @@ void Node::schedule() {
 #endif // SYSTEMOC_DEBUG
 }
 
-bool Node::canFire() {
+bool NodeBase::canFire() {
   if (!useActivationCallback)
     // Hunt for an enabled transition;
     searchActiveTransition();
   return ct != nullptr;
 }
 
-sc_core::sc_time const &Node::getNextReleaseTime() const
+sc_core::sc_time const &NodeBase::getNextReleaseTime() const
   { return sc_core::sc_time_stamp(); }
 
 #ifdef SYSTEMOC_ENABLE_MAESTRO
-void Node::getCurrentTransition(MetaMap::Transition *&activeTransition)
+void NodeBase::getCurrentTransition(MetaMap::Transition *&activeTransition)
 {
   activeTransition = static_cast<MetaMap::Transition *>(this->ct);
 }

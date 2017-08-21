@@ -35,7 +35,6 @@
 #include <systemoc/smoc_config.h>
 
 #include <systemoc/detail/smoc_chan_if.hpp>
-#include <systemoc/detail/smoc_root_chan.hpp>
 #include <smoc/detail/DebugOStream.hpp>
 
 #include <map>
@@ -44,15 +43,18 @@
 #include <CoSupport/compatibility-glue/nullptr.h>
 
 #include <CoSupport/String/Concat.hpp>
-#include <smoc/detail/Node.hpp>
 
-#include "detail/SimulationContext.hpp"
+#include <smoc/detail/NodeBase.hpp>
+#include <smoc/detail/ChanBase.hpp>
 
-using namespace smoc::Detail;
+#include "SimulationContext.hpp"
+
+namespace smoc { namespace Detail {
+
 using CoSupport::String::Concat;
 
 #ifndef SYSTEMOC_ENABLE_MAESTROMM_SPEEDUP
-void smoc_root_chan::generateName() {
+void ChanBase::generateName() {
   // value_type will be constructed as T(), which initializes primite types to 0!
   static std::map<std::string, size_t> _smoc_channel_name_map;
   
@@ -68,7 +70,7 @@ void smoc_root_chan::generateName() {
       for (EntryMap::const_iterator iter = entries.begin();
            iter != entries.end();
            ++iter ) {
-        smoc_sysc_port        const *p  = dynamic_cast<smoc_sysc_port *>(iter->second);
+        PortBase        const *p  = dynamic_cast<PortBase *>(iter->second);
         sc_core::sc_port_base const *ap = p != nullptr ? p->getActorPort() : iter->second;
         genName
           << (iter == entries.begin() ? "" : "|")
@@ -82,7 +84,7 @@ void smoc_root_chan::generateName() {
       for (OutletMap::const_iterator iter = outlets.begin();
            iter != outlets.end();
            ++iter ) {
-        smoc_sysc_port        const *p  = dynamic_cast<smoc_sysc_port *>(iter->second);
+        PortBase        const *p  = dynamic_cast<PortBase *>(iter->second);
         sc_core::sc_port_base const *ap = p != nullptr ? p->getActorPort() : iter->second;
         genName
           << (iter == outlets.begin() ? "" : "|")
@@ -97,7 +99,7 @@ void smoc_root_chan::generateName() {
 #endif //!SYSTEMOC_ENABLE_MAESTROMM_SPEEDUP
 
 #ifndef SYSTEMOC_ENABLE_MAESTROMM_SPEEDUP
-smoc_root_chan::smoc_root_chan(const std::string& name)
+ChanBase::ChanBase(const std::string& name)
   : sc_core::sc_prim_channel(name.empty()
       ? sc_core::sc_gen_unique_name("smoc_unnamed_channel")
       : name.c_str()),
@@ -106,7 +108,7 @@ smoc_root_chan::smoc_root_chan(const std::string& name)
 #endif
 
 /// @brief Remember that reset has been called.
-void smoc_root_chan::doReset() {
+void ChanBase::doReset() {
 #ifdef SYSTEMOC_DEBUG
   if (smoc::Detail::outDbg.isVisible(smoc::Detail::Debug::High)) {
     smoc::Detail::outDbg << "<smoc_root_chan::doReset name=\"" << name() << "\">"
@@ -120,7 +122,7 @@ void smoc_root_chan::doReset() {
 #endif // SYSTEMOC_DEBUG
 }
 
-void smoc_root_chan::before_end_of_elaboration() {
+void ChanBase::before_end_of_elaboration() {
 #ifndef SYSTEMOC_ENABLE_MAESTROMM_SPEEDUP
   // This is required before we use the first call to the name() method!
   generateName();
@@ -144,7 +146,7 @@ void smoc_root_chan::before_end_of_elaboration() {
 }
 
 /// @brief Resets FIFOs which are not in the SysteMoC hierarchy
-void smoc_root_chan::start_of_simulation() {
+void ChanBase::start_of_simulation() {
 #ifdef SYSTEMOC_DEBUG
   if (smoc::Detail::outDbg.isVisible(smoc::Detail::Debug::High)) {
     smoc::Detail::outDbg << "<smoc_root_chan::start_of_simulation name=\"" << name() << "\">"
@@ -160,5 +162,7 @@ void smoc_root_chan::start_of_simulation() {
 #endif //defined(SYSTEMOC_DEBUG)
 }
 
-smoc_root_chan::~smoc_root_chan()
+ChanBase::~ChanBase()
   {}
+
+} } // namespace smoc::Detail
