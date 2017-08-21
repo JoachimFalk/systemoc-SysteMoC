@@ -46,8 +46,6 @@ namespace smoc { namespace Detail {
 
 class SimulationContext;
 
-namespace SGX = SystemCoDesigner::SGX;
-
 class SimulationContextSMXImporting {
   friend void importSMX(SimulationContext *simCTX);
 protected:
@@ -58,7 +56,7 @@ private:
   // FIXME: Make this private and provide interface for NodeBase to check if an actor is inside a cluster and,
   // thus, must not be scheduled by itself but by the containing cluster.
 public:
-  SGX::NetworkGraphAccess::Ptr pNGX;
+  SystemCoDesigner::SGX::NetworkGraphAccess::Ptr pNGX;
 public:
   bool isSMXImportingEnabled() const
     { return importSMXFile; }

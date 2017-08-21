@@ -190,6 +190,9 @@ public:
 
   size_t numAvailable() const
     { return this->availableCount(); }
+
+  this_type *dupPort(const char *name)
+    { return new this_type(name); }
 };
 
 template <typename T>
@@ -239,6 +242,9 @@ protected:
     base_type::commExec(n);
 #endif //!defined(SYSTEMOC_ENABLE_VPC)
   }
+
+  this_type *dupPort(const char *name)
+    { return new this_type(name); }
 };
 
 template <>
@@ -267,6 +273,9 @@ public:
 
   size_t numFree() const
     { return this->availableCount(); }
+
+  this_type *dupPort(const char *name)
+    { return new this_type(name); }
 };
 
 typedef smoc_port_out<void> smoc_reset_port;

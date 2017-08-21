@@ -66,6 +66,11 @@ void IdPool::addIdedObj(NamedIdedObj *n) {
   setId(n, iter->first);
 }
 
+void IdPool::addIdedObj(const NgId id, IdedObj *n) {
+  sassert(idMap.insert(std::make_pair(id, n)).second);
+  setId(n, id);
+}
+
 } } // namespace smoc::Detail
 
 #endif // SYSTEMOC_NEED_IDS

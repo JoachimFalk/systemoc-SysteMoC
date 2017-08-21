@@ -141,6 +141,8 @@ protected:
 
   virtual ~PortBase();
 
+  virtual PortBase *dupPort(const char *name) = 0;
+
 #ifdef SYSTEMOC_PORT_ACCESS_COUNTER
   size_t      getAccessCount() const;
   void        resetAccessCount();
@@ -160,18 +162,15 @@ protected:
   void setLimit(size_t req);
 #endif //SYSTEMOC_ENABLE_DEBUG
 public:
+  // FIXME: Make this protected
+  PortBase       *copyPort(const char *name, NgId id);
+
   PortBase const *getParentPort() const;
   PortBase const *getActorPort() const;
 
   virtual bool isInput()  const = 0;
   bool         isOutput() const
     { return !isInput(); }
-
-//// get the first interface without checking for nil
-//smoc::Detail::PortBaseIf       *get_interface()
-//  { return interfaces.front(); }
-//smoc::Detail::PortBaseIf const *get_interface() const
-//  { return interfaces.front(); }
 
   Interfaces      const &get_interfaces()
     { return interfaces; }
