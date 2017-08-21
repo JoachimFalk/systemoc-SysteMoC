@@ -83,8 +83,9 @@ void PortBase::before_end_of_elaboration() {
 #endif // SYSTEMOC_DEBUG
   sc_core::sc_port_base::before_end_of_elaboration();
 #ifdef SYSTEMOC_NEED_IDS  
-  // Allocate Id for myself.
-  getSimCTX()->getIdPool().addIdedObj(this);
+  // Allocate Id for myself if not already present.
+  if (IdedObjAccess::getId(this) == std::numeric_limits<NgId>::max())
+    getSimCTX()->getIdPool().addIdedObj(this);
 #endif // SYSTEMOC_NEED_IDS
 #ifdef SYSTEMOC_DEBUG
   outDbg << Indent::Down << "</smoc_sysc_port::before_end_of_elaboration>" << std::endl;
@@ -116,6 +117,17 @@ PortBase const *PortBase::getActorPort() const {
     retval = retval->child;
   return retval;
 }
+
+PortBase       *PortBase::copyPort(const char *name, NgId id) {
+  this_type *retval = this->dupPort(name);
+  getSimCTX()->getIdPool().addIdedObj(id, retval);
+  for (Interfaces::iterator iter = interfaces.begin();
+       iter != interfaces.end();
+       ++iter)
+    retval->add_interface(*iter);
+  return retval;
+}
+
 
 #ifdef SYSTEMOC_ENABLE_VPC
 void PortBase::finaliseVpcLink(std::string actorName){

@@ -949,10 +949,10 @@ public:
     gsv.pg.processes().push_back(rp);
     SGX::ProblemGraph   pg(getName(&g), getId(&g));
     pg.cxxClass() = typeid(g).name();
-    pg.firingFSM() = DumpFiringFSM(gsv)(g.getFiringFSM());
-    rp.refinements().push_back(pg);
     GraphSubVisitor sv(gsv.ctx, gsv, rp, pg);
+    rp.refinements().push_back(pg);
     recurse(sv, g);
+    pg.firingFSM() = DumpFiringFSM(sv)(g.getFiringFSM());
 #ifdef SYSTEMOC_DEBUG
     if (outDbg.isVisible(Debug::Low)) {
       outDbg << "DumpGraph::operator ()(...) [END]" << std::endl;

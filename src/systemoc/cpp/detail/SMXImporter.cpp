@@ -40,22 +40,27 @@
 
 #ifdef SYSTEMOC_ENABLE_SGX
 
-#include <map>
-#include <utility>
-#include <memory>
-
 #include <CoSupport/compatibility-glue/nullptr.h>
 #include <CoSupport/String/Concat.hpp>
 
 #include <smoc/detail/DebugOStream.hpp>
+#include <smoc/detail/PortBase.hpp>
+#include <smoc/smoc_graph.hpp>
+
+#include <sgxutils/ASTTools.hpp>
 
 #include <boost/variant/static_visitor.hpp>
+
+#include <map>
+#include <utility>
+#include <memory>
+#include <string>
 
 //#define SYSTEMOC_DEBUG
 
 namespace smoc { namespace Detail {
 
-namespace SGX = SystemCoDesigner::SGX;
+namespace SGX = SystemCoDesigner::SGXUtils;
 
 using CoSupport::String::Concat;
 
@@ -63,11 +68,133 @@ SimulationContextSMXImporting::SimulationContextSMXImporting()
   : importSMXFile(nullptr)
   {}
 
+class ASTEvaluator
+: public SGX::ASTTools::ASTEvaluator<
+    ASTEvaluator,
+    boost::mpl::vector<Expr::Ex<bool>::type, PortBase *, int> > {
+
+private:
+  IdPool &idPool;
+
+public:
+  ASTEvaluator(IdPool &idPool)
+    : idPool(idPool) {}
+
+  inline
+  result_type translateASTNode(const SGX::ASTLeafNode &)
+    { return boost::blank(); }
+
+  inline
+  result_type translateASTNode(const SGX::ASTNodePortTokens &portTokens) {
+    PortBase *smocClusterPort =
+        dynamic_cast<PortBase *>(idPool.getNodeById(portTokens.port()->id()));
+    assert(smocClusterPort);
+    return smocClusterPort;
+  }
+
+  inline
+  result_type translateASTNode(const SGX::ASTNodeLiteral &literal) {
+    return std::stoi(literal.value());
+  }
+
+  template <typename T2>
+  inline
+  result_type translateASTNode(const SGX::ASTUnNode &, const T2 &)
+    { return boost::blank(); }
+
+  template <typename T2, typename T3>
+  inline
+  result_type translateASTNode(const SGX::ASTBinNode &, const T2 &, const T3 &)
+    { return boost::blank(); }
+
+  inline
+  result_type translateASTNode(const SGX::ASTNodeBinOpLAnd &, boost::blank, Expr::Ex<bool>::type const &rhs)
+    { return rhs; }
+
+  inline
+  result_type translateASTNode(const SGX::ASTNodeBinOpLAnd &, Expr::Ex<bool>::type const &lhs, boost::blank)
+    { return lhs; }
+
+  inline
+  result_type translateASTNode(const SGX::ASTNodeBinOpLAnd &, Expr::Ex<bool>::type const &lhs, Expr::Ex<bool>::type const &rhs)
+    { return lhs && rhs; }
+
+  inline
+  result_type translateASTNode(const SGX::ASTNodeBinOpGe &, PortBase *p, int request) {
+    // FIXME: This should reuse smoc_port_in<T>::communicate / smoc_port_out<T>::communicate.
+    return
+      Expr::comm(*p,
+                 Expr::DLiteral<size_t>(0),
+                 Expr::DLiteral<size_t>(request))
+      && //FIXME: Expr::comm knows n and m -> should remove Expr::portTokens
+      Expr::portTokens(*p) >= request;
+  }
+
+};
+
+class MyCluster
+: public smoc_graph
+, public NamedIdedObjAccess
+{
+
+private:
+  smoc_firing_state initState;
+public:
+  MyCluster(sc_core::sc_module_name name, SGX::RefinedProcess const &rp)
+    : smoc_graph(name, initState)
+    , initState("initState")
+  {
+    std::cerr << "Creating cluster " << this->name() << std::endl;
+    for (SGX::Port::ConstRef sgxPort : rp.ports()) {
+      PortBase *smocActorPort =
+          dynamic_cast<PortBase *>(getSimCTX()->getIdPool().getNodeById(sgxPort.actorPort()->id()));
+      assert(smocActorPort != nullptr);
+      PortBase *smocClusterPort = smocActorPort->copyPort(sgxPort.name().get().c_str(), sgxPort.id());
+      std::cerr << "Creating port " << smocClusterPort->name() << " of cluster" << std::endl;
+    }
+    SGX::FiringFSM::ConstRef sgxFSM = *rp.refinements().front().firingFSM();
+
+    typedef std::map<NgId, smoc_firing_state::Ptr> SMoCStates;
+    SMoCStates smocStates;
+
+    for (SGX::FiringState::ConstRef sgxState : sgxFSM.states()) {
+      bool success = smocStates.insert(std::make_pair(
+              sgxState.id(),
+              sgxFSM.startState() == sgxState.toPtr()
+               ? initState.toPtr()
+               : smoc_firing_state(sgxState.name().get()).toPtr())).second;
+      assert(success);
+    }
+
+    for (SGX::FiringState::ConstRef sgxSrcState : sgxFSM.states()) {
+      SMoCStates::iterator srcStateIter = smocStates.find(sgxSrcState.id());
+      assert(srcStateIter != smocStates.end());
+
+      for (SGX::FiringTransition::ConstRef sgxTransition : sgxSrcState.outTransitions()) {
+        SMoCStates::iterator dstStateIter = smocStates.find(sgxTransition.dstState()->id());
+        assert(dstStateIter != smocStates.end());
+
+        ASTEvaluator astEvaluator(getSimCTX()->getIdPool());
+        *srcStateIter->second |=
+            boost::get<Expr::Ex<bool>::type>(astEvaluator.evaluate(*sgxTransition.activationPattern())) >>
+            SMOC_CALL(MyCluster::flummy) >> *dstStateIter->second;
+          ;
+      }
+    }
+
+
+  }
+protected:
+  void flummy() {
+    std::cerr << "flummy" << std::endl;
+  }
+};
+
 class ProcessVisitor
   : public boost::static_visitor<void> {
 public:
   // Only match "RefinedProcess"es.
-  result_type operator()(SGX::RefinedProcess const &p);
+  result_type operator()(SGX::RefinedProcess const &rp);
 
   // This is the fallback operator that matches all else.
   result_type operator()(SGX::Process const &p);
@@ -81,11 +208,12 @@ void iterateGraphs(SGX::ProblemGraph const &pg, ProcessVisitor &pv) {
     apply_visitor(pv, proc);
 }
 
-ProcessVisitor::result_type ProcessVisitor::operator()(SGX::RefinedProcess const &p) {
-  assert(p.refinements().size() == 1);
-  SGX::ProblemGraph const &pg = p.refinements().front();
+ProcessVisitor::result_type ProcessVisitor::operator()(SGX::RefinedProcess const &rp) {
+  assert(rp.refinements().size() == 1);
+  SGX::ProblemGraph const &pg = rp.refinements().front();
   if (pg.firingFSM()) {
     std::cerr << pg.name() << " is a cluster!" << std::endl;
+    new MyCluster(pg.name().get().c_str(), rp);
   } else {
     iterateGraphs(pg, *this);
   }
