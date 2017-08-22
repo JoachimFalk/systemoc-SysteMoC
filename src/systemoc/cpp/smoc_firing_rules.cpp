@@ -278,45 +278,40 @@ bool RuntimeTransition::check(bool debug) const {
   return result;
 }
 
-void RuntimeTransition::execute(NodeBase *actor) {
+void RuntimeTransition::execute(NodeBase *node) {
   enum {
     MODE_DIISTART,
-    MODE_DIIEND,
-    MODE_GRAPH
+    MODE_DIIEND
   } execMode;
   
-  // Don't use RTTI due to performance reasons!
-  if (actor->isActor()) { 
-    execMode =
+  execMode =
 #ifdef SYSTEMOC_ENABLE_VPC
-      actor->getCurrentState() != actor->getCommState()
-        ? MODE_DIISTART
-        : MODE_DIIEND;
+    node->getCurrentState() != node->getCommState()
+      ? MODE_DIISTART
+      : MODE_DIIEND;
 #else //!SYSTEMOC_ENABLE_VPC
-      MODE_DIISTART;
+    MODE_DIISTART;
 #endif //!SYSTEMOC_ENABLE_VPC
-  } else { // !actor->isActor()
-#ifdef SYSTEMOC_ENABLE_VPC
-    assert(actor->getCurrentState() != actor->getCommState());
-#endif //SYSTEMOC_ENABLE_VPC
-    execMode = MODE_GRAPH;
-  }
   
 #ifdef SYSTEMOC_DEBUG
-  static const char *execModeName[] = { "diiStart", "diiEnd", "graph" };
+  static const char *execModeName[] = { "diiStart", "diiEnd" };
 
   if (smoc::Detail::outDbg.isVisible(smoc::Detail::Debug::Medium)) {
-    smoc::Detail::outDbg << "<transition actor=\"" << actor->name()
+    smoc::Detail::outDbg << "<transition actor=\"" << node->name()
          << "\" mode=\"" << execModeName[execMode]
          << "\">" << std::endl << smoc::Detail::Indent::Up;
   }
 #endif //SYSTEMOC_DEBUG
   
 #ifdef SYSTEMOC_ENABLE_DATAFLOW_TRACE
-  if (execMode != MODE_GRAPH)
-    this->getSimCTX()->getDataflowTraceLog()->traceStartActor(actor, execMode == MODE_DIISTART ? "s" : "e");
-  if (execMode == MODE_DIISTART) {
-    this->getSimCTX()->getDataflowTraceLog()->traceTransition(getId());
+  switch (execMode) {
+    case MODE_DIISTART:
+      this->getSimCTX()->getDataflowTraceLog()->traceStartActor(node, "s");
+      this->getSimCTX()->getDataflowTraceLog()->traceTransition(getId());
+      break;
+    case MODE_DIIEND:
+      this->getSimCTX()->getDataflowTraceLog()->traceStartActor(node, "e");
+      break;
   }
 #endif //SYSTEMOC_ENABLE_DATAFLOW_TRACE
  
@@ -329,10 +324,10 @@ void RuntimeTransition::execute(NodeBase *actor) {
     if (!hookingValid) {
       actionStr = boost::apply_visitor(ActionNameVisitor(), f);
       
-      for (std::list<smoc::Hook::Detail::TransitionHook>::const_iterator iter = actor->transitionHooks.begin();
-           iter != actor->transitionHooks.end();
+      for (std::list<smoc::Hook::Detail::TransitionHook>::const_iterator iter = node->transitionHooks.begin();
+           iter != node->transitionHooks.end();
            ++iter) {
-        if (boost::regex_search(actor->getCurrentState()->name(), iter->srcState) &&
+        if (boost::regex_search(node->getCurrentState()->name(), iter->srcState) &&
             boost::regex_search(actionStr, iter->action) &&
             boost::regex_search( dest->name(), iter->dstState)) {
           preHooks.push_back(&iter->preCallback);
@@ -344,7 +339,7 @@ void RuntimeTransition::execute(NodeBase *actor) {
     for (PreHooks::const_iterator iter = preHooks.begin();
          iter != preHooks.end();
          ++iter) {
-      (*iter)->operator()(static_cast<smoc_actor *>(actor), actor->getCurrentState()->name(), actionStr, dest->name());
+      (*iter)->operator()(static_cast<smoc_actor *>(node), node->getCurrentState()->name(), actionStr, dest->name());
     }
 //  std::cerr << actor->name() << ": " << actor->getCurrentState()->name() << " => " << dest->name() << std::endl;
   }
@@ -379,7 +374,7 @@ void RuntimeTransition::execute(NodeBase *actor) {
     for (PostHooks::const_iterator iter = postHooks.begin();
          iter != postHooks.end();
          ++iter) {
-      (*iter)->operator()(static_cast<smoc_actor *>(actor), actor->getCurrentState()->name(), actionStr, dest->name());
+      (*iter)->operator()(static_cast<smoc_actor *>(node), node->getCurrentState()->name(), actionStr, dest->name());
     }
   }
 #endif // SYSTEMOC_ENABLE_HOOKING
@@ -398,17 +393,17 @@ void RuntimeTransition::execute(NodeBase *actor) {
     
     // Insert magic commstate by saving nextState in the sole outgoing
     // transition of the commState
-    actor->getCommState()->getTransitions().front().dest = nextState;
+    node->getCommState()->getTransitions().front().dest = nextState;
     // and overriding nextState with commState.
-    nextState = actor->getCommState();
+    nextState = node->getCommState();
     
 # ifdef SYSTEMOC_ENABLE_DATAFLOW_TRACE
     if(!*events.latency) {
       // latency event not signaled
-      events.latency->addListener(new smoc::Detail::DeferedTraceLogDumper(actor, "l"));
+      events.latency->addListener(new smoc::Detail::DeferedTraceLogDumper(node, "l"));
     } else {
-      this->getSimCTX()->getDataflowTraceLog()->traceStartActor(actor, "l");
-      this->getSimCTX()->getDataflowTraceLog()->traceEndActor(actor);
+      this->getSimCTX()->getDataflowTraceLog()->traceStartActor(node, "l");
+      this->getSimCTX()->getDataflowTraceLog()->traceEndActor(node);
     }
 # endif //SYSTEMOC_ENABLE_DATAFLOW_TRACE
   } else {
@@ -423,11 +418,10 @@ void RuntimeTransition::execute(NodeBase *actor) {
 #endif
 
 #ifdef SYSTEMOC_ENABLE_DATAFLOW_TRACE
-  if(execMode != MODE_GRAPH)
-    this->getSimCTX()->getDataflowTraceLog()->traceEndActor(actor);
+  this->getSimCTX()->getDataflowTraceLog()->traceEndActor(node);
 #endif //SYSTEMOC_ENABLE_DATAFLOW_TRACE
 
-  actor->setCurrentState(nextState);
+  node->setCurrentState(nextState);
   ///todo:delete r
   //cout << "NextState: " << nextState->name() << " for actor: "<< actor->name() << endl;
 
@@ -443,43 +437,41 @@ void RuntimeTransition::before_end_of_elaboration(NodeBase *node) {
   // Allocate Id for myself.
   getSimCTX()->getIdPool().addIdedObj(this);
 #endif // SYSTEMOC_NEED_IDS
+#if defined(SYSTEMOC_ENABLE_VPC) || defined(SYSTEMOC_ENABLE_TRANSITION_TRACE)
+  FunctionNames guardNames;
+  FunctionNames actionNames;
+
+  smoc::Detail::GuardNameVisitor visitor(guardNames);
+  smoc::Expr::evalTo(visitor, getExpr());
+
+  boost::apply_visitor(
+      smoc::Detail::ActionNameVisitor(actionNames), getAction());
+#endif // defined(SYSTEMOC_ENABLE_VPC) || defined(SYSTEMOC_ENABLE_TRANSITION_TRACE)
 #ifdef SYSTEMOC_ENABLE_VPC
-  smoc_actor * actor = dynamic_cast<smoc_actor *>(node);
-  if (actor != nullptr) {
-    FunctionNames guardNames;
-    FunctionNames actionNames;
-
-    smoc::Detail::GuardNameVisitor visitor(guardNames);
-    smoc::Expr::evalTo(visitor, getExpr());
-
-    boost::apply_visitor(
-        smoc::Detail::ActionNameVisitor(actionNames), getAction());
-
-    //calculate delay for guard
-    //initialize VpcTaskInterface
-    this->transitionImpl->diiEvent = node->diiEvent;
-    this->transitionImpl->vpcTask =
-      SystemC_VPC::Director::getInstance().registerActor(actor,
-                  node->name(), actionNames, guardNames, visitor.getComplexity());
+  //calculate delay for guard
+  //initialize VpcTaskInterface
+  this->transitionImpl->diiEvent = node->diiEvent;
+  this->transitionImpl->vpcTask =
+    SystemC_VPC::Director::getInstance().registerActor(node,
+                node->name(), actionNames, guardNames, visitor.getComplexity());
 # ifdef SYSTEMOC_DEBUG_VPC_IF
-    this->transitionImpl->actor = node->name();
+  this->transitionImpl->actor = node->name();
 # endif // SYSTEMOC_DEBUG_VPC_IF
-#ifdef SYSTEMOC_ENABLE_TRANSITION_TRACE
-    if (getSimCTX()->isTraceDumpingEnabled()){
-      getSimCTX()->getTraceFile() << "<functions transition_id=\"" << getId() << "\">";
-      for(FunctionNames::const_iterator iter = guardNames.begin();
-          iter != guardNames.end();
-          ++iter){
-        getSimCTX()->getTraceFile() << " " << *iter;
-      }
-      for(FunctionNames::const_iterator iter = actionNames.begin();
-          iter != actionNames.end();
-          ++iter){
-        getSimCTX()->getTraceFile() << " " << *iter;
-      }
-      getSimCTX()->getTraceFile() << "</functions>\n";
-    }
 #endif //SYSTEMOC_ENABLE_TRANSITION_TRACE
+#ifdef SYSTEMOC_ENABLE_TRANSITION_TRACE
+  if (getSimCTX()->isTraceDumpingEnabled()){
+    getSimCTX()->getTraceFile() << "<functions transition_id=\"" << getId() << "\">";
+    for(FunctionNames::const_iterator iter = guardNames.begin();
+        iter != guardNames.end();
+        ++iter){
+      getSimCTX()->getTraceFile() << " " << *iter;
+    }
+    for(FunctionNames::const_iterator iter = actionNames.begin();
+        iter != actionNames.end();
+        ++iter){
+      getSimCTX()->getTraceFile() << " " << *iter;
+    }
+    getSimCTX()->getTraceFile() << "</functions>\n";
   }
 #endif //SYSTEMOC_ENABLE_VPC
 #ifdef SYSTEMOC_ENABLE_MAESTRO
