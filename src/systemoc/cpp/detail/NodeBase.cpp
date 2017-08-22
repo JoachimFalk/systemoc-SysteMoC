@@ -73,22 +73,20 @@ NodeBase::NodeBase(sc_core::sc_module_name name, NodeType nodeType, smoc_hierarc
   , executing(false)
   , useActivationCallback(true)
 #ifdef SYSTEMOC_ENABLE_VPC
-  , commState(new RuntimeState())
-  , diiEvent(new smoc::smoc_vpc_event())
+  , commState(nullptr)
+  , diiEvent(nullptr)
 #endif // SYSTEMOC_ENABLE_VPC
   , initialState(s)
 #ifdef SYSTEMOC_ENABLE_MAESTRO
   , scheduled(false)
 #endif //SYSTEMOC_ENABLE_MAESTRO
 {
-#ifdef SYSTEMOC_ENABLE_VPC
-  commState->addTransition(
-      RuntimeTransition(
-        boost::shared_ptr<TransitionImpl>(new TransitionImpl(
-          smoc::Expr::till(*diiEvent),
-          smoc_func_call_list()))),
-      this);
-#endif // SYSTEMOC_ENABLE_VPC
+#ifdef SYSTEMOC_NEED_IDS
+  // Allocate Id for myself. This must be here and not in before_end_of_elaboration
+  // due to the requirement that ids must already present for SMXImport in the
+  // before_end_of_elaboration phase.
+  getSimCTX()->getIdPool().addIdedObj(this);
+#endif // SYSTEMOC_NEED_IDS
 }
 
 void NodeBase::before_end_of_elaboration() {
@@ -99,26 +97,23 @@ void NodeBase::before_end_of_elaboration() {
   }
 #endif //defined(SYSTEMOC_DEBUG)
   sc_core::sc_module::before_end_of_elaboration();
-#ifdef SYSTEMOC_NEED_IDS
-  // Allocate Id for myself.
-  getSimCTX()->getIdPool().addIdedObj(this);
-#endif // SYSTEMOC_NEED_IDS
-#ifdef SYSTEMOC_ENABLE_SGX
-  if (getSimCTX()->pNGX) {
-    SystemCoDesigner::SGX::Process::Ptr sgxProcPtr =
-        getSimCTX()->pNGX->objByIdAs<SystemCoDesigner::SGX::Process>(this->getId());
-    if (sgxProcPtr) {
-      std::cerr << "Found myself " << sgxProcPtr->name() << " " << this->name() << std::endl;
-    }
-  }
-#endif //SYSTEMOC_ENABLE_SGX
-
-  if (getFiringFSM())
+  if (getFiringFSM()) {
+#ifdef SYSTEMOC_ENABLE_VPC
+    this->commState = new RuntimeState();
+    this->diiEvent.reset(new smoc::smoc_vpc_event());
+    commState->addTransition(
+        RuntimeTransition(
+          boost::shared_ptr<TransitionImpl>(new TransitionImpl(
+            smoc::Expr::till(*diiEvent),
+            smoc_func_call_list()))),
+        this);
+#endif // SYSTEMOC_ENABLE_VPC
     getFiringFSM()->before_end_of_elaboration(this,
       CoSupport::DataTypes::FacadeCoreAccess::getImpl(*initialState));
 //#ifdef SYSTEMOC_ENABLE_VPC
 //  getCommState()->before_end_of_elaboration(this);
 //#endif // SYSTEMOC_ENABLE_VPC
+  }
 #ifdef SYSTEMOC_DEBUG
   if (smoc::Detail::outDbg.isVisible(smoc::Detail::Debug::High)) {
     smoc::Detail::outDbg << smoc::Detail::Indent::Down << "</smoc_root_node::before_end_of_elaboration>"
@@ -135,11 +130,12 @@ void NodeBase::end_of_elaboration() {
   }
 #endif //defined(SYSTEMOC_DEBUG)
   sc_core::sc_module::end_of_elaboration();
-  if (getFiringFSM())
+  if (getFiringFSM()) {
     getFiringFSM()->end_of_elaboration(this);
 #ifdef SYSTEMOC_ENABLE_VPC
-  getCommState()->end_of_elaboration();
+    getCommState()->end_of_elaboration();
 #endif // SYSTEMOC_ENABLE_VPC
+  }
 #ifdef SYSTEMOC_DEBUG
   if (smoc::Detail::outDbg.isVisible(smoc::Detail::Debug::High)) {
     smoc::Detail::outDbg << smoc::Detail::Indent::Down << "</smoc_root_node::end_of_elaboration>"

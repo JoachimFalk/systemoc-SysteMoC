@@ -132,15 +132,14 @@ public:
 
 };
 
-class MyCluster
+class QSSCluster
 : public smoc_graph
 , public NamedIdedObjAccess
 {
-
 private:
   smoc_firing_state initState;
 public:
-  MyCluster(sc_core::sc_module_name name, SGX::RefinedProcess const &rp)
+  QSSCluster(sc_core::sc_module_name name, SGX::RefinedProcess const &rp)
     : smoc_graph(name, initState)
     , initState("initState")
   {
@@ -177,7 +176,7 @@ public:
         ASTEvaluator astEvaluator(getSimCTX()->getIdPool());
         *srcStateIter->second |=
             boost::get<Expr::Ex<bool>::type>(astEvaluator.evaluate(*sgxTransition.activationPattern())) >>
-            SMOC_CALL(MyCluster::flummy) >> *dstStateIter->second;
+            SMOC_CALL(QSSCluster::flummy) >> *dstStateIter->second;
           ;
       }
     }
@@ -192,7 +191,12 @@ protected:
 
 class ProcessVisitor
   : public boost::static_visitor<void> {
+protected:
+  SimulationContext *simCTX;
 public:
+  ProcessVisitor(SimulationContext *simCTX)
+    : simCTX(simCTX) {}
+
   // Only match "RefinedProcess"es.
   result_type operator()(SGX::RefinedProcess const &rp);
 
@@ -213,7 +217,16 @@ ProcessVisitor::result_type ProcessVisitor::operator()(SGX::RefinedProcess const
   SGX::ProblemGraph const &pg = rp.refinements().front();
   if (pg.firingFSM()) {
     std::cerr << pg.name() << " is a cluster!" << std::endl;
-    new MyCluster(pg.name().get().c_str(), rp);
+    new QSSCluster(pg.name().get().c_str(), rp);
+    // This disables all actors in the cluster. Scheduling
+    // of these actors must be performed by the FSM created
+    // in QSSCluster.
+    for (SGX::Process::ConstRef sgxProc: pg.actors()) {
+      NodeBase *smocProcess =
+          dynamic_cast<NodeBase *>(simCTX->getIdPool().getNodeById(sgxProc.id()));
+      assert(smocProcess);
+      smocProcess->setActive(false);
+    }
   } else {
     iterateGraphs(pg, *this);
   }
@@ -229,7 +242,7 @@ void importSMX(SimulationContext *simCTX) {
 
   SGX::NetworkGraphAccess ngx(*simCTX->importSMXFile);
   
-  ProcessVisitor pv;
+  ProcessVisitor pv(simCTX);
 
   iterateGraphs(ngx.problemGraph(), pv);
 
