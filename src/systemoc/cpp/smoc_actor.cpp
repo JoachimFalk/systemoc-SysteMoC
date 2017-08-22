@@ -33,8 +33,8 @@
 
 #include <CoSupport/compatibility-glue/nullptr.h>
 
-#include <systemoc/smoc_actor.hpp>
-#include <systemoc/smoc_graph.hpp>
+#include <smoc/smoc_actor.hpp>
+#include <smoc/smoc_graph.hpp>
 #ifdef SYSTEMOC_ENABLE_MAESTRO
 # include <Maestro/MetaMap/ClockI.hpp>
 #endif //SYSTEMOC_ENABLE_MAESTRO

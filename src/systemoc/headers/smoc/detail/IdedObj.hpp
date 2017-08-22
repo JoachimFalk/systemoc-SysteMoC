@@ -72,8 +72,10 @@ public:
   NgId getId(IdedObj const *idedObj)
     { return idedObj->_id; }
   static
-  void setId(IdedObj *idedObj, NgId id)
-    { idedObj->_id = id; }
+  void setId(IdedObj *idedObj, NgId id) {
+    assert(idedObj->_id == std::numeric_limits<NgId>::max());
+    idedObj->_id = id;
+  }
 };
 
 } } // namespace smoc::Detail

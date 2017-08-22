@@ -111,6 +111,9 @@ public:
 
   // set "id"-attribute to id
   void addIdedObj(NamedIdedObj *n);
+
+  // Register IdedObj *n with given id and set "id"-attribute of n.
+  void addIdedObj(const NgId id, IdedObj *n);
 };
 
 } } // namespace smoc::Detail

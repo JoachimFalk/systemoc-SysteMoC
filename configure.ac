@@ -171,8 +171,12 @@ dnl AM_CONDITIONAL([SYSTEMOC_ENABLE_SGX], [test x"$enable_sgx" = x"yes"])
 # This is a define for src/systemoc/headers/systemoc/smoc_config.h to guarantee
 # consistency for Examples and Testcases
 if test x"$enable_sgx" = x"yes"; then
+  ACJF_CHECK_LIB_SGXUTILS([enable_sgxutils=yes], [enable_sgxutils=no])
+  if test x"$enable_sgxutils" != x"yes"; then
+    AC_MSG_ERROR([If libsgx is enable, we also require libsgxutils. However libsgxutils is missing, bailing out!])
+  fi
   AC_DEFINE([SYSTEMOC_ENABLE_SGX], [yes], [Defined if SGX support is enabled])
-  SYSTEMOC_OPTIONAL_REQUIRES="${SYSTEMOC_OPTIONAL_REQUIRES} libsgx"
+  SYSTEMOC_OPTIONAL_REQUIRES="${SYSTEMOC_OPTIONAL_REQUIRES} libsgx libsgxutils"
 fi
 
 ACJF_CHECK_LIB_SYSTEMC_VPC([enable_vpc=yes], [enable_vpc=no])
