@@ -10,7 +10,7 @@
 namespace smoc { namespace Detail {
 
 SysteMoCScheduler::SysteMoCScheduler(sc_core::sc_module_name name)
-  : sc_core::sc_module(name), active(true)
+  : sc_core::sc_module(name)
 {
   SC_METHOD(scheduleRequestMethod);
   sensitive << scheduleRequest;
@@ -18,7 +18,7 @@ SysteMoCScheduler::SysteMoCScheduler(sc_core::sc_module_name name)
 }
 
 void SysteMoCScheduler::scheduleRequestMethod() {
-  while (canFire())
+  while (getActive() && canFire())
     schedule();
 }
 
@@ -28,8 +28,5 @@ void SysteMoCScheduler::setActivation(bool activation) {
   else
     scheduleRequest.cancel();
 }
-
-void SysteMoCScheduler::setActive(bool active)
-  { assert(!"Implement this"); this->active = active; }
 
 } } // namespace smoc::Detail

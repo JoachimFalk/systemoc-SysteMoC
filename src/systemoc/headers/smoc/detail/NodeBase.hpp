@@ -140,6 +140,8 @@ class NodeBase
   friend class ::smoc_reset_chan;
   friend class ::RuntimeTransition;
   friend class GraphBase;
+  friend class DumpActor; // To access constrArgs by SMXDumper
+  friend class ProcessVisitor; // To disable actors by SMXImporter.
 #ifdef SYSTEMOC_ENABLE_HOOKING
   // To manipulate transitionHooks
   friend void smoc::Hook::Detail::addTransitionHook(smoc_actor *, const smoc::Hook::Detail::TransitionHook &);
@@ -150,79 +152,18 @@ protected:
     NODE_TYPE_ACTOR   = 1,
     NODE_TYPE_GRAPH   = 2
   };
-private:
-
-  /// @brief is this an actor, a graph, or something else.
-  NodeType           nodeType;
-  /// @brief current firing state
-  RuntimeState      *currentState;
-  /// @brief current enabled firing transition
-  RuntimeTransition *ct;
-
-  bool               executing;
-  bool               useActivationCallback;
-
-#ifdef SYSTEMOC_ENABLE_VPC
-  RuntimeState *commState;
-
-  // vpc_event_xxx must be constructed before commState
-  /// @brief VPC data introduction interval event
-  smoc::smoc_vpc_event_p diiEvent;
-#endif // SYSTEMOC_ENABLE_VPC
-
-#ifdef SYSTEMOC_ENABLE_HOOKING
-  std::list<smoc::Hook::Detail::TransitionHook> transitionHooks;
-#endif //SYSTEMOC_ENABLE_HOOKING
-
-
-#ifdef SYSTEMOC_ENABLE_MAESTRO
-public:
-#endif
-  /// @brief Initial firing state
-  smoc_hierarchical_state      *initialState;
-  smoc_hierarchical_state::Ptr  initialStatePtr;
-public:
-#ifdef SYSTEMOC_ENABLE_MAESTRO
-  /**
-   * Flag to determine if the actor can be executed if its schedulers enables it
-   */
-  bool scheduled;
-
-  void getCurrentTransition(MetaMap::Transition*& activeTransition);
-#endif //SYSTEMOC_ENABLE_MAESTRO
-
-private:
-#ifdef SYSTEMOC_NEED_IDS
-  // To reflect SystemC name back to NamedIdedObj base class.
-  const char *_name() const
-    { return this->sc_core::sc_module::name(); }
-#endif // SYSTEMOC_NEED_IDS
-
-  /// @brief Resets this node, calls reset()
-  virtual void doReset();
-
-  void signaled(smoc::smoc_event_waiter *e);
-  void eventDestroyed(smoc::smoc_event_waiter *e);
-  void renotified(smoc::smoc_event_waiter *e);
-
-  void setCurrentState(RuntimeState *s);
-  bool searchActiveTransition();
-
-  // Implement use activation callback interface from
-  // EvalAPI::SchedulingInterface.
-  void setUseActivationCallback(bool flags);
-  bool getUseActivationCallback() const;
-
-  // Implement getDestStateName from  EvalAPI::SchedulingInterface.
-  std::string getDestStateName();
-
 protected:
   NodeBase(sc_core::sc_module_name, NodeType nodeType, smoc_hierarchical_state *s, unsigned int thread_stack_size);
-  
-  virtual void before_end_of_elaboration();
-  virtual void end_of_elaboration();
-  virtual void start_of_simulation();
 
+  // This method will be implemented by SysteMoC and can be used
+  // to enable (true) or disable (false) the scheduling of the
+  // SysteMoC actor.
+  virtual void setActive(bool);
+
+  // This method will be implemented by SysteMoC and is the
+  // corresponding getter for the setActive method.
+  virtual bool getActive() const;
+  
   /// @brief User reset method (do not put functionality in there)
   virtual void reset() {};
 
@@ -259,12 +200,6 @@ protected:
   till(smoc::smoc_event_waiter &e, const char *name = "")
     { return smoc::Expr::till(e,name); }
 
-public:
-  // FIXME: (Maybe) Only actors have this info => move to smoc_actor?
-  // FIXME: This should be protected for the SysteMoC user but accessible
-  // for SysteMoC visitors
-  smoc::Detail::ParamInfoVisitor constrArgs;
-protected:
   template<class T>
   void registerParam(const std::string& name, const T& t) {
     constrArgs(name, t);
@@ -272,6 +207,11 @@ protected:
 
   void setInitialState(smoc_hierarchical_state &s);
 
+  virtual void before_end_of_elaboration();
+  virtual void end_of_elaboration();
+  virtual void start_of_simulation();
+
+  virtual ~NodeBase();
 public:
   /// Function to determine if the current node is an actor or a graph
   /// to avoid expensive RTTI dynamic_cast calls
@@ -295,8 +235,83 @@ public:
   /// @brief Collect ports from child objects
   smoc_sysc_port_list getPorts() const;
 
-  virtual ~NodeBase();
+private:
 
+  /// @brief Initial firing state
+  smoc_hierarchical_state      *initialState;
+  /// @brief Initial firing state as a smart pointer. This
+  /// enables the state provided to setInitialState to go
+  /// out of scope.
+  smoc_hierarchical_state::Ptr  initialStatePtr;
+  /// @brief current firing state
+  RuntimeState                 *currentState;
+  /// @brief current enabled firing transition
+  RuntimeTransition            *ct;
+
+#ifdef SYSTEMOC_ENABLE_VPC
+  RuntimeState                 *commState;
+  // vpc_event_xxx must be constructed before commState
+  /// @brief VPC data introduction interval event
+  smoc::smoc_vpc_event_p        diiEvent;
+#endif // SYSTEMOC_ENABLE_VPC
+
+  /// @brief is this an actor, a graph, or something else.
+  NodeType           nodeType;
+  /// This should be true if an action of the actor is currently executing
+  /// and false otherwise.
+  bool               executing;
+  /// This should be true if SysteMoC should call setActivation to interface
+  /// to the scheduler. If this is false, then the scheduler has to use
+  /// canFire to inquire if the actor can be fired.
+  bool               useActivationCallback;
+  /// This should be true if the actor is enable and false otherwise.
+  /// Use setActive(flag) to modify this status.
+  bool               active;
+
+  // FIXME: (Maybe) Only actors have this info => move to smoc_actor?
+  ParamInfoVisitor   constrArgs;
+
+#ifdef SYSTEMOC_ENABLE_HOOKING
+  std::list<smoc::Hook::Detail::TransitionHook> transitionHooks;
+#endif //SYSTEMOC_ENABLE_HOOKING
+
+
+#ifdef SYSTEMOC_ENABLE_MAESTRO
+public:
+  /**
+   * Flag to determine if the actor can be executed if its schedulers enables it
+   */
+  bool scheduled;
+
+  void getCurrentTransition(MetaMap::Transition*& activeTransition);
+private:
+#endif //SYSTEMOC_ENABLE_MAESTRO
+
+#ifdef SYSTEMOC_NEED_IDS
+  // To reflect SystemC name back to NamedIdedObj base class.
+  const char *_name() const
+    { return this->sc_core::sc_module::name(); }
+#endif // SYSTEMOC_NEED_IDS
+
+  /// @brief Resets this node, calls reset()
+  virtual void doReset();
+
+  void signaled(smoc::smoc_event_waiter *e);
+  void eventDestroyed(smoc::smoc_event_waiter *e);
+  void renotified(smoc::smoc_event_waiter *e);
+
+  void setCurrentState(RuntimeState *s);
+  bool searchActiveTransition();
+
+  // Implement use activation callback interface from
+  // EvalAPI::SchedulingInterface.
+  void setUseActivationCallback(bool flags);
+  bool getUseActivationCallback() const;
+
+  void addMySelfAsListener(RuntimeState *state);
+  void delMySelfAsListener(RuntimeState *state);
+
+protected:
   void schedule();
 
   bool canFire();
