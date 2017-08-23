@@ -67,16 +67,17 @@ NodeBase::NodeBase(sc_core::sc_module_name name, NodeType nodeType, smoc_hierarc
 #else // !defined(SYSTEMOC_ENABLE_VPC) && !defined(SYSTEMOC_ENABLE_MAESTRO)
     smoc::Detail::SysteMoCScheduler(name)
 #endif
-  , nodeType(nodeType)
+  , initialState(s)
   , currentState(nullptr)
   , ct(nullptr)
-  , executing(false)
-  , useActivationCallback(true)
 #ifdef SYSTEMOC_ENABLE_VPC
   , commState(nullptr)
   , diiEvent(nullptr)
 #endif // SYSTEMOC_ENABLE_VPC
-  , initialState(s)
+  , nodeType(nodeType)
+  , executing(false)
+  , useActivationCallback(true)
+  , active(true)
 #ifdef SYSTEMOC_ENABLE_MAESTRO
   , scheduled(false)
 #endif //SYSTEMOC_ENABLE_MAESTRO
@@ -199,7 +200,7 @@ void NodeBase::doReset() {
   // will re-evaluate guards
   if (getFiringFSM()) {
     setCurrentState(getFiringFSM()->getInitialState());
-    if (useActivationCallback)
+    if (useActivationCallback && active)
       setActivation(searchActiveTransition());
   }
 
@@ -235,7 +236,7 @@ void NodeBase::signaled(smoc::smoc_event_waiter *e) {
          << std::endl << smoc::Detail::Indent::Up;
   }
 #endif // SYSTEMOC_DEBUG
-  assert(useActivationCallback);
+  assert(useActivationCallback && active);
   if (!executing) {
     // Never execute t->evaluateGuard() if events are reseted as the state of
     // all smoc::smoc_event_and_list dependent on the state of the reseted basic
@@ -305,26 +306,13 @@ void NodeBase::setCurrentState(RuntimeState *newState) {
 #endif //SYSTEMOC_ENABLE_MAESTRO
   assert(newState);
   
-  if (useActivationCallback) {
+  if (useActivationCallback && active) {
     // also del/add me as listener
     if (currentState != newState) {
-      if (currentState) {
-        EventWaiterSet &am = currentState->am;
-
-        for (EventWaiterSet::iterator iter = am.begin();
-             iter != am.end();
-             ++iter)
-          (*iter)->delListener(this);
-      }
-      {
-        EventWaiterSet &am = newState->am;
-
-        for (EventWaiterSet::iterator iter = am.begin();
-             iter != am.end();
-             ++iter)
-          (*iter)->addListener(this);
-      }
+      if (currentState)
+        delMySelfAsListener(currentState);
       currentState = newState;
+      addMySelfAsListener(currentState);
     }
   } else
     currentState = newState;
@@ -337,41 +325,60 @@ void NodeBase::setCurrentState(RuntimeState *newState) {
 #endif // SYSTEMOC_DEBUG
 }
 
+void NodeBase::addMySelfAsListener(RuntimeState *state) {
+  EventWaiterSet &am = state->am;
+
+  for (EventWaiterSet::iterator iter = am.begin();
+       iter != am.end();
+       ++iter)
+    (*iter)->addListener(this);
+}
+
+void NodeBase::delMySelfAsListener(RuntimeState *state) {
+  EventWaiterSet &am = state->am;
+
+  for (EventWaiterSet::iterator iter = am.begin();
+       iter != am.end();
+       ++iter)
+    (*iter)->delListener(this);
+}
 void NodeBase::setUseActivationCallback(bool flag) {
   if (currentState) {
-    if (useActivationCallback && !flag) {
-      EventWaiterSet &am = currentState->am;
-
-      for (EventWaiterSet::iterator iter = am.begin();
-           iter != am.end();
-           ++iter)
-        (*iter)->delListener(this);
-      useActivationCallback = flag;
-    } else if (!useActivationCallback && flag) {
-      EventWaiterSet &am = currentState->am;
-
-      for (EventWaiterSet::iterator iter = am.begin();
-           iter != am.end();
-           ++iter)
-        (*iter)->addListener(this);
-      useActivationCallback = flag;
-      setActivation(searchActiveTransition());
-    } else
-      assert(useActivationCallback == flag);
-  } else
+    bool oldState = active && useActivationCallback;
     useActivationCallback = flag;
+    bool newState = active && useActivationCallback;
+    if (oldState && !newState) {
+      delMySelfAsListener(currentState);
+      setActivation(false);
+    } else if (!oldState && newState) {
+      addMySelfAsListener(currentState);
+      setActivation(searchActiveTransition());
+    }
+  } else
+    active = flag;
 }
 
-bool NodeBase::getUseActivationCallback() const {
-  return useActivationCallback;
+bool NodeBase::getUseActivationCallback() const
+  { return useActivationCallback; }
+
+void NodeBase::setActive(bool flag) {
+  if (currentState) {
+    bool oldState = active && useActivationCallback;
+    active = flag;
+    bool newState = active && useActivationCallback;
+    if (oldState && !newState) {
+      delMySelfAsListener(currentState);
+      setActivation(false);
+    } else if (!oldState && newState) {
+      addMySelfAsListener(currentState);
+      setActivation(searchActiveTransition());
+    }
+  } else
+    active = flag;
 }
 
-std::string NodeBase::getDestStateName() {
-  if (!ct)
-    return "FIXME!!!";
-  assert(ct);
-  return ct->getDestStateName();
-}
+bool NodeBase::getActive() const
+  { return active; }
 
 bool NodeBase::searchActiveTransition() {
   assert(currentState);
@@ -402,6 +409,7 @@ void NodeBase::schedule() {
   }
 #endif // SYSTEMOC_DEBUG
   
+  assert(active);
   assert(ct);
   assert(ct->check(true));
   executing = true;
@@ -418,10 +426,13 @@ void NodeBase::schedule() {
 }
 
 bool NodeBase::canFire() {
-  if (!useActivationCallback)
-    // Hunt for an enabled transition;
-    searchActiveTransition();
-  return ct != nullptr;
+  if (active) {
+    if (!useActivationCallback)
+      // Hunt for an enabled transition;
+      searchActiveTransition();
+    return ct != nullptr;
+  } else
+    return false;
 }
 
 sc_core::sc_time const &NodeBase::getNextReleaseTime() const

@@ -26,18 +26,9 @@ namespace smoc { namespace Detail {
   protected:
     SysteMoCScheduler(sc_core::sc_module_name);
 
-    bool useActivationCallback() const
-      { return true; }
-
     // This will be called by SysteMoC if useActivationCallback()
     // return true.
     void setActivation(bool activation);
-
-    // setActive(false) will disable the scheduling of this actor
-    // setActive(true) will enable the scheduling of this actor
-    void setActive(bool);
-    bool getActive() const
-      { return active; }
 
   private:
     /// This event will be notified by setActivation if
@@ -46,8 +37,6 @@ namespace smoc { namespace Detail {
     sc_core::sc_event scheduleRequest;
 
     void scheduleRequestMethod();
-
-    bool active;
   };
 
 } } // namespace smoc::Detail
