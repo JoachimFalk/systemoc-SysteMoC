@@ -34,33 +34,32 @@
 
 // This pulls systemoc/smoc_config.h which defines SYSTEMOC_ENABLE_HOOKING if
 // hooking support is enabled.
-#include <smoc/smoc_hooking.hpp>
+#include "TransitionHook.hpp"
 
 #ifdef SYSTEMOC_ENABLE_HOOKING
 
 #include <systemoc/smoc_actor.hpp>
 
-namespace smoc { namespace Hook {
+namespace smoc {
 
 namespace Detail {
 
   TransitionHook::TransitionHook(
       const std::string &srcState, const std::string &action, const std::string &dstState,
-      const PreCallback &pre, const PostCallback &post)
+      const smoc_pre_hook_callback &pre, const smoc_post_hook_callback &post)
     : srcState(srcState), action(action), dstState(dstState),
       preCallback(pre), postCallback(post) {}
 
-  void addTransitionHook(smoc_actor *p, const TransitionHook &h)
-    { p->transitionHooks.push_back(h); }
-
 } // namespace Detail
 
-void addTransitionHook(smoc_actor *p,
+void smoc_add_transition_hook(smoc_actor *node,
   const std::string &srcState, const std::string &action, const std::string &dstState,
-  const PreCallback &pre, const PostCallback &post) {
-  Detail::addTransitionHook(p, Detail::TransitionHook(srcState, action, dstState, pre, post));
+  const smoc_pre_hook_callback &pre, const smoc_post_hook_callback &post)
+{
+  node->transitionHooks.push_back(
+      new Detail::TransitionHook(srcState, action, dstState, pre, post));
 }
 
-} } // namespace smoc::Hook
+} // namespace smoc::Hook
 
 #endif // SYSTEMOC_ENABLE_HOOKING

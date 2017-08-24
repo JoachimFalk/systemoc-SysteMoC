@@ -45,14 +45,20 @@
 
 namespace smoc {
 
-  class smoc_actor;
+namespace Detail {
 
-  typedef boost::function<bool (smoc_actor *, const std::string &, const std::string &, const std::string &)> smoc_pre_hook_callback;
-  typedef boost::function<void (smoc_actor *, const std::string &, const std::string &, const std::string &)> smoc_post_hook_callback;
+  struct TransitionHook;
 
-  void addTransitionHook(smoc_actor *,
-    const std::string &srcState, const std::string &action, const std::string &dstState,
-    const smoc_pre_hook_callback &pre, const smoc_post_hook_callback &post);
+} // namespace Detail
+
+class smoc_actor;
+
+typedef boost::function<bool (smoc_actor *, const std::string &, const std::string &, const std::string &)> smoc_pre_hook_callback;
+typedef boost::function<void (smoc_actor *, const std::string &, const std::string &, const std::string &)> smoc_post_hook_callback;
+
+void smoc_add_transition_hook(smoc_actor *,
+  const std::string &srcState, const std::string &action, const std::string &dstState,
+  const smoc_pre_hook_callback &pre, const smoc_post_hook_callback &post);
 
 } // namespace smoc
 

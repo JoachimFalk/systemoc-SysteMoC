@@ -240,9 +240,9 @@ private:
 #ifdef SYSTEMOC_ENABLE_VPC
 namespace smoc { namespace Detail {
 
-  using SystemC_VPC::FunctionNames;
+using SystemC_VPC::FunctionNames;
 
-  class ActionNameVisitor {
+class ActionNameVisitor {
 public:
   typedef void result_type;
 

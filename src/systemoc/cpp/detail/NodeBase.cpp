@@ -93,7 +93,7 @@ NodeBase::NodeBase(sc_core::sc_module_name name, NodeType nodeType, smoc_hierarc
 void NodeBase::before_end_of_elaboration() {
 #ifdef SYSTEMOC_DEBUG
   if (smoc::Detail::outDbg.isVisible(smoc::Detail::Debug::High)) {
-    smoc::Detail::outDbg << "<smoc_root_node::before_end_of_elaboration name=\"" << this->name() << "\">"
+    smoc::Detail::outDbg << "<NodeBase::before_end_of_elaboration name=\"" << this->name() << "\">"
          << std::endl << smoc::Detail::Indent::Up;
   }
 #endif //defined(SYSTEMOC_DEBUG)
@@ -117,7 +117,7 @@ void NodeBase::before_end_of_elaboration() {
   }
 #ifdef SYSTEMOC_DEBUG
   if (smoc::Detail::outDbg.isVisible(smoc::Detail::Debug::High)) {
-    smoc::Detail::outDbg << smoc::Detail::Indent::Down << "</smoc_root_node::before_end_of_elaboration>"
+    smoc::Detail::outDbg << smoc::Detail::Indent::Down << "</NodeBase::before_end_of_elaboration>"
          << std::endl;
   }
 #endif //defined(SYSTEMOC_DEBUG)
@@ -126,7 +126,7 @@ void NodeBase::before_end_of_elaboration() {
 void NodeBase::end_of_elaboration() {
 #ifdef SYSTEMOC_DEBUG
   if (smoc::Detail::outDbg.isVisible(smoc::Detail::Debug::High)) {
-    smoc::Detail::outDbg << "<smoc_root_node::end_of_elaboration name=\"" << this->name() << "\">"
+    smoc::Detail::outDbg << "<NodeBase::end_of_elaboration name=\"" << this->name() << "\">"
          << std::endl << smoc::Detail::Indent::Up;
   }
 #endif //defined(SYSTEMOC_DEBUG)
@@ -134,12 +134,12 @@ void NodeBase::end_of_elaboration() {
   if (getFiringFSM()) {
     getFiringFSM()->end_of_elaboration(this);
 #ifdef SYSTEMOC_ENABLE_VPC
-    getCommState()->end_of_elaboration();
+    getCommState()->end_of_elaboration(this);
 #endif // SYSTEMOC_ENABLE_VPC
   }
 #ifdef SYSTEMOC_DEBUG
   if (smoc::Detail::outDbg.isVisible(smoc::Detail::Debug::High)) {
-    smoc::Detail::outDbg << smoc::Detail::Indent::Down << "</smoc_root_node::end_of_elaboration>"
+    smoc::Detail::outDbg << smoc::Detail::Indent::Down << "</NodeBase::end_of_elaboration>"
          << std::endl;
   }
 #endif //defined(SYSTEMOC_DEBUG)
@@ -148,7 +148,7 @@ void NodeBase::end_of_elaboration() {
 void NodeBase::start_of_simulation() {
 #ifdef SYSTEMOC_DEBUG
   if (smoc::Detail::outDbg.isVisible(smoc::Detail::Debug::High)) {
-    smoc::Detail::outDbg << "<smoc_root_node::start_of_simulation name=\"" << this->name() << "\">"
+    smoc::Detail::outDbg << "<NodeBase::start_of_simulation name=\"" << this->name() << "\">"
          << std::endl << smoc::Detail::Indent::Up;
   }
 #endif //defined(SYSTEMOC_DEBUG)
@@ -157,7 +157,7 @@ void NodeBase::start_of_simulation() {
   NodeBase::doReset();
 #ifdef SYSTEMOC_DEBUG
   if (smoc::Detail::outDbg.isVisible(smoc::Detail::Debug::High)) {
-    smoc::Detail::outDbg << smoc::Detail::Indent::Down << "</smoc_root_node::start_of_simulation>"
+    smoc::Detail::outDbg << smoc::Detail::Indent::Down << "</NodeBase::start_of_simulation>"
          << std::endl;
   }
 #endif //defined(SYSTEMOC_DEBUG)
@@ -190,7 +190,7 @@ NodeBase::~NodeBase() {
 void NodeBase::doReset() {
 #ifdef SYSTEMOC_DEBUG
   if (smoc::Detail::outDbg.isVisible(smoc::Detail::Debug::High)) {
-    smoc::Detail::outDbg << "<smoc_root_node::doReset name=\"" << name() << "\">"
+    smoc::Detail::outDbg << "<NodeBase::doReset name=\"" << name() << "\">"
          << std::endl << smoc::Detail::Indent::Up;
   }
 #endif // SYSTEMOC_DEBUG
@@ -206,7 +206,7 @@ void NodeBase::doReset() {
 
 #ifdef SYSTEMOC_DEBUG
   if (smoc::Detail::outDbg.isVisible(smoc::Detail::Debug::High)) {
-    smoc::Detail::outDbg << smoc::Detail::Indent::Down << "</smoc_root_node::doReset>" << std::endl;
+    smoc::Detail::outDbg << smoc::Detail::Indent::Down << "</NodeBase::doReset>" << std::endl;
   }
 #endif // SYSTEMOC_DEBUG
 }
@@ -214,7 +214,7 @@ void NodeBase::doReset() {
 void NodeBase::renotified(smoc::smoc_event_waiter *e) {
 #ifdef SYSTEMOC_DEBUG
   if (smoc::Detail::outDbg.isVisible(smoc::Detail::Debug::High)) {
-    smoc::Detail::outDbg << "<smoc_root_node::renotified name=\"" << name() << "\">"
+    smoc::Detail::outDbg << "<NodeBase::renotified name=\"" << name() << "\">"
          << std::endl << smoc::Detail::Indent::Up;
   }
 #endif // SYSTEMOC_DEBUG
@@ -224,7 +224,7 @@ void NodeBase::renotified(smoc::smoc_event_waiter *e) {
 
 #ifdef SYSTEMOC_DEBUG
   if (smoc::Detail::outDbg.isVisible(smoc::Detail::Debug::High)) {
-    smoc::Detail::outDbg << smoc::Detail::Indent::Down << "</smoc_root_node::renotified>" << std::endl;
+    smoc::Detail::outDbg << smoc::Detail::Indent::Down << "</NodeBase::renotified>" << std::endl;
   }
 #endif // SYSTEMOC_DEBUG
 }
@@ -232,7 +232,7 @@ void NodeBase::renotified(smoc::smoc_event_waiter *e) {
 void NodeBase::signaled(smoc::smoc_event_waiter *e) {
 #ifdef SYSTEMOC_DEBUG
   if (smoc::Detail::outDbg.isVisible(smoc::Detail::Debug::High)) {
-    smoc::Detail::outDbg << "<smoc_root_node::signaled name=\"" << name() << "\">"
+    smoc::Detail::outDbg << "<NodeBase::signaled name=\"" << name() << "\">"
          << std::endl << smoc::Detail::Indent::Up;
   }
 #endif // SYSTEMOC_DEBUG
@@ -268,7 +268,7 @@ void NodeBase::signaled(smoc::smoc_event_waiter *e) {
   
 #ifdef SYSTEMOC_DEBUG
   if (smoc::Detail::outDbg.isVisible(smoc::Detail::Debug::High)) {
-    smoc::Detail::outDbg << smoc::Detail::Indent::Down << "</smoc_root_node::signaled>" << std::endl;
+    smoc::Detail::outDbg << smoc::Detail::Indent::Down << "</NodeBase::signaled>" << std::endl;
   }
 #endif // SYSTEMOC_DEBUG
 }
@@ -296,7 +296,7 @@ FiringFSMImpl *NodeBase::getFiringFSM() const {
 void NodeBase::setCurrentState(RuntimeState *newState) {
 #ifdef SYSTEMOC_DEBUG
   if (smoc::Detail::outDbg.isVisible(smoc::Detail::Debug::High)) {
-    smoc::Detail::outDbg << "<smoc_root_node::setCurrentState name=\"" << name() << "\">"
+    smoc::Detail::outDbg << "<NodeBase::setCurrentState name=\"" << name() << "\">"
           << std::endl << smoc::Detail::Indent::Up;
   }
 #endif // SYSTEMOC_DEBUG
@@ -320,7 +320,7 @@ void NodeBase::setCurrentState(RuntimeState *newState) {
 
 #ifdef SYSTEMOC_DEBUG
   if (smoc::Detail::outDbg.isVisible(smoc::Detail::Debug::High)) {
-    smoc::Detail::outDbg << smoc::Detail::Indent::Down << "</smoc_root_node::setCurrentState>" << std::endl;
+    smoc::Detail::outDbg << smoc::Detail::Indent::Down << "</NodeBase::setCurrentState>" << std::endl;
   }
 #endif // SYSTEMOC_DEBUG
 }
@@ -404,25 +404,80 @@ bool NodeBase::searchActiveTransition() {
 void NodeBase::schedule() {
 #ifdef SYSTEMOC_DEBUG
   if (smoc::Detail::outDbg.isVisible(smoc::Detail::Debug::High)) {
-    smoc::Detail::outDbg << "<smoc_root_node::schedule name=\"" << name() << "\">"
+    smoc::Detail::outDbg << "<NodeBase::schedule name=\"" << name() << "\">"
          << std::endl << smoc::Detail::Indent::Up;
   }
 #endif // SYSTEMOC_DEBUG
-  
   assert(active);
   assert(ct);
   assert(ct->check(true));
   executing = true;
-  ct->execute(this);
+  setCurrentState(ct->execute(this));
   executing = false;
   assert(!ct);
   if (useActivationCallback)
     searchActiveTransition();
 #ifdef SYSTEMOC_DEBUG
   if (smoc::Detail::outDbg.isVisible(smoc::Detail::Debug::High)) {
-    smoc::Detail::outDbg << smoc::Detail::Indent::Down << "</smoc_root_node::schedule>" << std::endl;
+    smoc::Detail::outDbg << smoc::Detail::Indent::Down << "</NodeBase::schedule>" << std::endl;
   }
 #endif // SYSTEMOC_DEBUG
+}
+
+// FIXME: Remove this interface after SystemC-VPC has been modified to
+// always use the schedule call above.
+//
+// This will execute the actor. The actor must be fireable if this method is called.
+// This will be implemented by the SysteMoC actor and called by the scheduler.
+// In comparison to the schedule method this method will insert the commState
+// into every transition. The commState is left if the DII event is notified
+// by SystemC-VPC.
+void NodeBase::scheduleLegacyWithCommState() {
+#ifdef SYSTEMOC_ENABLE_VPC
+  enum {
+    MODE_DIISTART,
+    MODE_DIIEND
+  } execMode =
+    getCurrentState() != getCommState()
+      ? MODE_DIISTART
+      : MODE_DIIEND;
+
+# ifdef SYSTEMOC_DEBUG
+  if (smoc::Detail::outDbg.isVisible(smoc::Detail::Debug::High)) {
+    static const char *execModeName[] = { "diiStart", "diiEnd" };
+
+    smoc::Detail::outDbg << "<NodeBase::scheduleLegacyWithCommState name=\"" << name()
+        << "\" mode=\"" << execModeName[execMode]
+        << "\">" << std::endl << smoc::Detail::Indent::Up;
+  }
+# endif // SYSTEMOC_DEBUG
+  assert(active);
+  assert(ct);
+  assert(ct->check(true));
+  if (execMode == MODE_DIISTART) {
+    executing = true;
+    RuntimeState *nextState = ct->execute(this);
+    // Insert the magic commState by saving nextState in the sole outgoing
+    // transition of the commState
+    getCommState()->getTransitions().front().dest = nextState;
+    // and setting our current state to the commState.
+    setCurrentState(getCommState());
+    executing = false;
+  } else {
+    // Get out of commState into saved nextState.
+    setCurrentState(ct->dest);
+  }
+  assert(!ct);
+  if (useActivationCallback)
+    searchActiveTransition();
+#ifdef SYSTEMOC_DEBUG
+  if (smoc::Detail::outDbg.isVisible(smoc::Detail::Debug::High)) {
+    smoc::Detail::outDbg << smoc::Detail::Indent::Down << "</NodeBase::scheduleLegacyWithCommState>" << std::endl;
+  }
+#endif // SYSTEMOC_DEBUG
+#else // !defined(SYSTEMOC_ENABLE_VPC)
+  assert(!"Never use this! Only for SystemC-VPC legacy support!");
+#endif
 }
 
 bool NodeBase::canFire() {

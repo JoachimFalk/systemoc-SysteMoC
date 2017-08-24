@@ -41,7 +41,7 @@
 
 #include <string>
 
-#include "../smoc_hooking.hpp"
+#include <smoc/smoc_hooking.hpp>
 
 #include <boost/function.hpp>
 #include <boost/regex.hpp>
@@ -60,8 +60,6 @@ struct TransitionHook {
     const std::string &srcState, const std::string &action, const std::string &dstState,
     const smoc_pre_hook_callback &pre, const smoc_post_hook_callback &post);
 };
-
-void addTransitionHook(smoc_actor *, const TransitionHook &);
 
 } } // namespace smoc::Detail
 
