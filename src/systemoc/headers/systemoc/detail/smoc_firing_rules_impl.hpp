@@ -257,6 +257,7 @@ class RuntimeTransition
   typedef RuntimeTransition this_type;
 
   friend class RuntimeState; // for ap
+  friend class smoc::Detail::NodeBase; // for dest
 private:
   boost::shared_ptr<TransitionImpl> transitionImpl;
 
@@ -272,13 +273,12 @@ private:
 #endif //SYSTEMOC_ENABLE_MAESTRO
 
 #ifdef SYSTEMOC_ENABLE_HOOKING
-  typedef std::vector<const smoc::Hook::PreCallback  *> PreHooks;
-  typedef std::vector<const smoc::Hook::PostCallback *> PostHooks;
+  typedef std::vector<const smoc::smoc_pre_hook_callback  *> PreHooks;
+  typedef std::vector<const smoc::smoc_post_hook_callback *> PostHooks;
 
-  bool        hookingValid;
-  std::string actionStr;
-  PreHooks    preHooks;
-  PostHooks   postHooks;
+  std::string  actionStr;
+  PreHooks     preHooks;
+  PostHooks    postHooks;
 #endif //SYSTEMOC_ENABLE_HOOKING
 public:
   /// @brief Constructor
@@ -314,13 +314,13 @@ public:
   bool check(bool debug = false) const;
 
   /// @brief Execute transitions
-  void execute(smoc::Detail::NodeBase *actor);
+  RuntimeState *execute(smoc::Detail::NodeBase *actor);
 
   void *getID() const;
 
   void before_end_of_elaboration(smoc::Detail::NodeBase *node);
 
-  void end_of_elaboration();
+  void end_of_elaboration(smoc::Detail::NodeBase *node);
 
 #ifdef SYSTEMOC_ENABLE_MAESTRO
   virtual bool hasWaitAction();
@@ -363,9 +363,12 @@ public:
   void addTransition(const RuntimeTransition& t,
                      smoc::Detail::NodeBase *node);
 
-  void end_of_elaboration();
+  void end_of_elaboration(smoc::Detail::NodeBase *node);
 
   EventWaiterSet am;
+
+  const char *name()
+    { return stateName.c_str(); }
 
   ~RuntimeState();
 private:

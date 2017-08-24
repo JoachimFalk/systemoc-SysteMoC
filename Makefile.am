@@ -64,6 +64,7 @@ libsystemoc_la_SOURCES = \
 	src/systemoc/cpp/detail/SMXImporter.cpp \
 	src/systemoc/cpp/detail/SysteMoCScheduler.cpp \
 	src/systemoc/cpp/detail/TraceLog.cpp \
+	src/systemoc/cpp/detail/TransitionHook.cpp \
 	src/systemoc/cpp/detail/VpcInterface.cpp \
 	src/systemoc/cpp/smoc_actor.cpp \
 	src/systemoc/cpp/smoc_chan_if.cpp \
@@ -73,7 +74,6 @@ libsystemoc_la_SOURCES = \
 	src/systemoc/cpp/smoc_firing_rules.cpp \
 	src/systemoc/cpp/smoc_func_call.cpp \
 	src/systemoc/cpp/smoc_graph.cpp \
-	src/systemoc/cpp/smoc_hooking.cpp \
 	src/systemoc/cpp/smoc_main.cpp \
 	src/systemoc/cpp/smoc_multiplex_fifo.cpp \
 	src/systemoc/cpp/smoc_multireader_fifo.cpp \
