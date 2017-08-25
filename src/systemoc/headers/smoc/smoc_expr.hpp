@@ -65,13 +65,8 @@
 #include "detail/IOPattern.hpp"
 
 #ifdef SYSTEMOC_ENABLE_VPC
-#include "detail/VpcInterface.hpp"
+# include "detail/VpcInterface.hpp"
 #endif // SYSTEMOC_ENABLE_VPC
-
-#ifdef SYSTEMOC_ENABLE_SGX
-# include <sgx.hpp>
-#endif // SYSTEMOC_ENABLE_SGX
-
 
 //forward declaration
 template <typename IFACE>
@@ -166,10 +161,7 @@ namespace smoc { namespace Detail {
 
   };
 
-#ifdef SYSTEMOC_ENABLE_SGX
-  using SystemCoDesigner::SGX::OpUnT;
-#else // SYSTEMOC_ENABLE_SGX
-  // WARNING: Always sync this with OpUnT in LibSGX!!!
+  // WARNING: Always sync this with SystemCoDesigner::SGX::OpUnT in LibSGX!!!
   class OpUnT {
     typedef OpUnT this_type;
   public:
@@ -187,12 +179,8 @@ namespace smoc { namespace Detail {
     this_type &operator =(Op _op) { op = _op; return *this; }
     operator Op() const           { return op; }
   };
-#endif // SYSTEMOC_ENABLE_SGX
 
-#ifdef SYSTEMOC_ENABLE_SGX
-  using SystemCoDesigner::SGX::OpBinT;
-#else // SYSTEMOC_ENABLE_SGX
-  // WARNING: Always sync this with OpBinT in LibSGX!!!
+  // WARNING: Always sync this with SystemCoDesigner::SGX::OpBinT in LibSGX!!!
   class OpBinT {
     typedef OpBinT this_type;
   public:
@@ -209,7 +197,6 @@ namespace smoc { namespace Detail {
     this_type &operator =(Op _op) { op = _op; return *this; }
     operator Op() const           { return op; }
   };
-#endif // SYSTEMOC_ENABLE_SGX
 
   enum _XXX {
     _DISABLED = -1,
@@ -277,8 +264,6 @@ namespace smoc { namespace Detail {
  */
 
 namespace smoc { namespace Expr {
-
-//namespace Detail = smoc::Detail;
 
 using Detail::OpBinT;
 using Detail::OpUnT;
@@ -441,7 +426,7 @@ private:
 #if defined(SYSTEMOC_ENABLE_DEBUG)
   friend class CommSetup<this_type>;
   friend class CommReset<this_type>;
-#endif
+#endif // defined(SYSTEMOC_ENABLE_DEBUG)
   friend class Sensitivity<this_type>;
   friend class Value<this_type>;
 private:
@@ -458,7 +443,7 @@ private:
 #if defined(SYSTEMOC_ENABLE_DEBUG)
     virtual void       evalToCommReset()   const = 0;
     virtual void       evalToCommSetup()   const = 0;
-#endif
+#endif //defined(SYSTEMOC_ENABLE_DEBUG)
     virtual void       evalToSensitivity(
        Detail::IOPattern &ap)              const = 0;
     virtual T          evalToValue()       const = 0;
@@ -479,21 +464,21 @@ private:
 #if defined(SYSTEMOC_ENABLE_VPC)
     void       evalToCommExec(
         smoc::Detail::VpcInterface vpcIf) const
-      { return CommExec<E>::apply(e, vpcIf); }
+      { CommExec<E>::apply(e, vpcIf); }
 #else // !defined(SYSTEMOC_ENABLE_VPC)
     void       evalToCommExec() const
-      { return CommExec<E>::apply(e); }
+      { CommExec<E>::apply(e); }
 #endif // !defined(SYSTEMOC_ENABLE_VPC)
 
 #if defined(SYSTEMOC_ENABLE_DEBUG)
     void       evalToCommReset() const
-      { return CommReset<E>::apply(e); }
+      { CommReset<E>::apply(e); }
     void       evalToCommSetup() const
-      { return CommSetup<E>::apply(e); }
-#endif
+      { CommSetup<E>::apply(e); }
+#endif //defined(SYSTEMOC_ENABLE_DEBUG)
     void       evalToSensitivity(
          Detail::IOPattern &ap) const
-      { return Sensitivity<E>::apply(e, ap); }
+      { Sensitivity<E>::apply(e, ap); }
     T          evalToValue() const
       { return Value<E>::apply(e); }
   };
@@ -603,7 +588,7 @@ public:
 # endif //defined(SYSTEMOC_DEBUG)
   }
 };
-#endif
+#endif //defined(SYSTEMOC_ENABLE_DEBUG)
 
 template <typename T>
 class Sensitivity<DVirtual<T> >
@@ -622,11 +607,11 @@ public:
     }
 #endif //defined(SYSTEMOC_DEBUG)
     e.v->evalToSensitivity(ap);
-# ifdef SYSTEMOC_DEBUG
+#ifdef SYSTEMOC_DEBUG
     if (Detail::outDbg.isVisible(Detail::Debug::Low)) {
       Detail::outDbg << Detail::Indent::Down;
     }
-# endif //defined(SYSTEMOC_DEBUG)
+#endif //defined(SYSTEMOC_DEBUG)
   }
 };
 
@@ -665,7 +650,7 @@ private:
 #if defined(SYSTEMOC_ENABLE_DEBUG)
   friend class CommSetup<this_type>;
   friend class CommReset<this_type>;
-#endif
+#endif //defined(SYSTEMOC_ENABLE_DEBUG)
   friend class Sensitivity<this_type>;
   friend class Value<this_type>;
 private:
@@ -728,7 +713,7 @@ private:
 #if defined(SYSTEMOC_ENABLE_DEBUG)
   friend class CommSetup<this_type>;
   friend class CommReset<this_type>;
-#endif
+#endif //defined(SYSTEMOC_ENABLE_DEBUG)
   friend class Sensitivity<this_type>;
   friend class Value<this_type>;
 private:
@@ -791,7 +776,7 @@ private:
 #if defined(SYSTEMOC_ENABLE_DEBUG)
   friend class CommSetup<this_type>;
   friend class CommReset<this_type>;
-#endif
+#endif //defined(SYSTEMOC_ENABLE_DEBUG)
   friend class Sensitivity<this_type>;
   friend class Value<this_type>;
 private:
@@ -867,7 +852,7 @@ private:
 #if defined(SYSTEMOC_ENABLE_DEBUG)
   friend class CommSetup<this_type>;
   friend class CommReset<this_type>;
-#endif
+#endif //defined(SYSTEMOC_ENABLE_DEBUG)
   friend class Sensitivity<this_type>;
   friend class Value<this_type>;
 private:
@@ -898,7 +883,7 @@ struct Value<DSMOCEvent> {
   result_type apply(const DSMOCEvent &e) {
 #if defined(SYSTEMOC_ENABLE_DEBUG)
     assert(e.v);
-#endif
+#endif //defined(SYSTEMOC_ENABLE_DEBUG)
     return result_type();
   }
 };
@@ -953,7 +938,7 @@ private:
 #if defined(SYSTEMOC_ENABLE_DEBUG)
   friend class CommSetup<this_type>;
   friend class CommReset<this_type>;
-#endif
+#endif //defined(SYSTEMOC_ENABLE_DEBUG)
   friend class Sensitivity<this_type>;
   friend class Value<this_type>;
 private:
@@ -1105,7 +1090,7 @@ public:
 # endif //defined(SYSTEMOC_DEBUG)
   }
 };
-#endif
+#endif //defined(SYSTEMOC_ENABLE_DEBUG)
 
 template <class A, class B, OpBinT::Op Op>
 class Sensitivity<DBinOp<A,B,Op> >
@@ -1346,7 +1331,7 @@ struct DBinOpExecute<Detail::ENABLED,bool,Expr::OpBinT::LAnd,Value>
   result_type apply(const A &a, const B &b) {
 #if defined(SYSTEMOC_ENABLE_DEBUG)
     Value<A>::apply(a);
-#endif
+#endif //defined(SYSTEMOC_ENABLE_DEBUG)
     return Value<B>::apply(b);
   }
 };
@@ -1362,7 +1347,7 @@ struct DBinOpExecute<bool,Detail::ENABLED,Expr::OpBinT::LAnd,Value>
     result_type r = Value<A>::apply(a);
 #if defined(SYSTEMOC_ENABLE_DEBUG)
     Value<B>::apply(b);
-#endif
+#endif //defined(SYSTEMOC_ENABLE_DEBUG)
     return r;
   }
 };
@@ -1378,7 +1363,7 @@ struct DBinOpExecute<Detail::ENABLED,Detail::ENABLED,Expr::OpBinT::LAnd,Value>
 #if defined(SYSTEMOC_ENABLE_DEBUG)
     Value<A>::apply(a);
     Value<B>::apply(b);
-#endif
+#endif //defined(SYSTEMOC_ENABLE_DEBUG)
     return result_type();
   }
 };
@@ -1416,7 +1401,7 @@ private:
 #if defined(SYSTEMOC_ENABLE_DEBUG)
   friend class CommSetup<this_type>;
   friend class CommReset<this_type>;
-#endif
+#endif //defined(SYSTEMOC_ENABLE_DEBUG)
   friend class Sensitivity<this_type>;
   friend class Value<this_type>;
 private:
@@ -1565,7 +1550,7 @@ class DPortTokens {
 #if defined(SYSTEMOC_ENABLE_DEBUG)
   template <class E> friend class CommSetup;
   template <class E> friend class CommReset;
-#endif
+#endif //defined(SYSTEMOC_ENABLE_DEBUG)
   template <class E> friend class Value;
 private:
   P &p; ///< The smoc port
@@ -1670,7 +1655,7 @@ struct Value<DBinOp<DPortTokens<P>,E,Expr::OpBinT::Ge> >
     assert(e.a.p.availableCount() >= req);
     // FIXME: WHY is this needed? This should already be done by CommSetup!
     e.a.p.setLimit(req); 
-#endif
+#endif //defined(SYSTEMOC_ENABLE_DEBUG)
     return result_type();
   }
 };
@@ -1688,7 +1673,7 @@ class DComm {
 #if defined(SYSTEMOC_ENABLE_DEBUG)
   friend class CommSetup<this_type>;
   friend class CommReset<this_type>;
-#endif
+#endif //defined(SYSTEMOC_ENABLE_DEBUG)
   friend class Sensitivity<this_type>;
   friend class Value<this_type>;
 private:
@@ -1821,7 +1806,7 @@ public:
 #if defined(SYSTEMOC_ENABLE_DEBUG)
   friend class CommSetup<this_type>;
   friend class CommReset<this_type>;
-#endif
+#endif //defined(SYSTEMOC_ENABLE_DEBUG)
   friend class Sensitivity<this_type>;
   friend class Value<this_type>;
 private:

@@ -209,7 +209,15 @@ ExprNGXVisitor::result_type ExprNGXVisitor::visitUnOp(
     boost::function<result_type (base_type &)> e)
 {
   std::unique_ptr<SGX::ASTNodeUnOp> astNode(new SGX::ASTNodeUnOp);
-  astNode->opType() = op;
+  SGX::OpUnT sgxOp(-1);
+  switch (op) {
+    case OpUnT::LNot:  sgxOp = SGX::OpUnT::LNot; break;
+    case OpUnT::BNot:  sgxOp = SGX::OpUnT::BNot; break;
+    case OpUnT::Ref:   sgxOp = SGX::OpUnT::Ref; break;
+    case OpUnT::DeRef: sgxOp = SGX::OpUnT::DeRef; break;
+    case OpUnT::Type:  sgxOp = SGX::OpUnT::Type; break;
+  }
+  astNode->opType() = sgxOp;
   std::unique_ptr<SGX::ASTNode> childNode(e(*this));
   astNode->childNode() = childNode->toPtr();
   return astNode.release();
@@ -221,7 +229,27 @@ ExprNGXVisitor::result_type ExprNGXVisitor::visitBinOp(
     boost::function<result_type (base_type &)> b)
 {
   std::unique_ptr<SGX::ASTNodeBinOp> astNode(new SGX::ASTNodeBinOp);
-  astNode->opType() = op;
+  SGX::OpBinT sgxOp(-1);
+  switch (op) {
+    case OpBinT::Add:      sgxOp = SGX::OpBinT::Add; break;
+    case OpBinT::Sub:      sgxOp = SGX::OpBinT::Sub; break;
+    case OpBinT::Multiply: sgxOp = SGX::OpBinT::Multiply; break;
+    case OpBinT::Divide:   sgxOp = SGX::OpBinT::Divide; break;
+    case OpBinT::Eq:       sgxOp = SGX::OpBinT::Eq; break;
+    case OpBinT::Ne:       sgxOp = SGX::OpBinT::Ne; break;
+    case OpBinT::Lt:       sgxOp = SGX::OpBinT::Lt; break;
+    case OpBinT::Le:       sgxOp = SGX::OpBinT::Le; break;
+    case OpBinT::Gt:       sgxOp = SGX::OpBinT::Gt; break;
+    case OpBinT::Ge:       sgxOp = SGX::OpBinT::Ge; break;
+    case OpBinT::BAnd:     sgxOp = SGX::OpBinT::BAnd; break;
+    case OpBinT::BOr:      sgxOp = SGX::OpBinT::BOr; break;
+    case OpBinT::BXor:     sgxOp = SGX::OpBinT::BXor; break;
+    case OpBinT::LAnd:     sgxOp = SGX::OpBinT::LAnd; break;
+    case OpBinT::LOr:      sgxOp = SGX::OpBinT::LOr; break;
+    case OpBinT::LXor:     sgxOp = SGX::OpBinT::LXor; break;
+    case OpBinT::Field:    sgxOp = SGX::OpBinT::Field; break;
+  }
+  astNode->opType() = sgxOp;
   std::unique_ptr<SGX::ASTNode> leftNode(a(*this));
   astNode->leftNode() = leftNode->toPtr();
   std::unique_ptr<SGX::ASTNode> rightNode(b(*this));
