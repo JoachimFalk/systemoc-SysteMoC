@@ -166,6 +166,7 @@ if test x"$enable_hooking" = x"yes"; then
 fi
 
 SYSTEMOC_OPTIONAL_REQUIRES=""
+SYSTEMOC_OPTIONAL_REQUIRES_PRIVATE=""
 ACJF_CHECK_LIB_SGX([enable_sgx=yes], [enable_sgx=no])
 dnl AM_CONDITIONAL([SYSTEMOC_ENABLE_SGX], [test x"$enable_sgx" = x"yes"])
 # This is a define for src/systemoc/headers/systemoc/smoc_config.h to guarantee
@@ -176,7 +177,7 @@ if test x"$enable_sgx" = x"yes"; then
     AC_MSG_ERROR([If libsgx is enable, we also require libsgxutils. However libsgxutils is missing, bailing out!])
   fi
   AC_DEFINE([SYSTEMOC_ENABLE_SGX], [yes], [Defined if SGX support is enabled])
-  SYSTEMOC_OPTIONAL_REQUIRES="${SYSTEMOC_OPTIONAL_REQUIRES} libsgx libsgxutils"
+  SYSTEMOC_OPTIONAL_REQUIRES="${SYSTEMOC_OPTIONAL_REQUIRES_PRIVATE} libsgx libsgxutils"
 fi
 
 ACJF_CHECK_LIB_SYSTEMC_VPC([enable_vpc=yes], [enable_vpc=no])
@@ -197,6 +198,7 @@ if test x"$enable_maestro_metamap" = x"yes"; then
   SYSTEMOC_OPTIONAL_REQUIRES="${SYSTEMOC_OPTIONAL_REQUIRES} libmaestro-metamap >= 0.3"
 fi
 AC_SUBST([SYSTEMOC_OPTIONAL_REQUIRES])
+AC_SUBST([SYSTEMOC_OPTIONAL_REQUIRES_PRIVATE])
 
 AC_CONFIG_FILES([
   Makefile
