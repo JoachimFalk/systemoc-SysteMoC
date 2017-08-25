@@ -61,7 +61,6 @@ nobase_include_HEADERS = \
 	smoc/detail/Storage.hpp \
 	smoc/detail/SysteMoCScheduler.hpp \
 	smoc/detail/TraceLog.hpp \
-	smoc/detail/TransitionHook.hpp \
 	smoc/detail/VpcInterface.hpp \
 	\
 	systemoc/smoc_moc.hpp \

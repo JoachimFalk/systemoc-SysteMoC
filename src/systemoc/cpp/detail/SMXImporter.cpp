@@ -50,6 +50,7 @@
 #include <sgxutils/ASTTools.hpp>
 
 #include <boost/variant/static_visitor.hpp>
+#include <boost/type_traits/is_same.hpp>
 
 #include <map>
 #include <utility>
@@ -99,21 +100,19 @@ public:
 
   template <typename T2>
   inline
-  result_type translateASTNode(const SGX::ASTUnNode &, const T2 &)
+  result_type translateASTNode(const SGX::ASTUnNode &, T2 const &)
     { return boost::blank(); }
 
   template <typename T2, typename T3>
   inline
-  result_type translateASTNode(const SGX::ASTBinNode &, const T2 &, const T3 &)
-    { return boost::blank(); }
-
-  inline
-  result_type translateASTNode(const SGX::ASTNodeBinOpLAnd &, boost::blank, Expr::Ex<bool>::type const &rhs)
-    { return rhs; }
-
-  inline
-  result_type translateASTNode(const SGX::ASTNodeBinOpLAnd &, Expr::Ex<bool>::type const &lhs, boost::blank)
-    { return lhs; }
+  result_type translateASTNode(const SGX::ASTBinNode &, T2 const &lhs, T3 const &rhs) {
+    if (boost::is_same<boost::blank, T2>::value)
+      return rhs;
+    else if (boost::is_same<boost::blank, T3>::value)
+      return lhs;
+    else
+      return boost::blank();
+  }
 
   inline
   result_type translateASTNode(const SGX::ASTNodeBinOpLAnd &, Expr::Ex<bool>::type const &lhs, Expr::Ex<bool>::type const &rhs)
@@ -128,6 +127,60 @@ public:
                  Expr::DLiteral<size_t>(request))
       && //FIXME: Expr::comm knows n and m -> should remove Expr::portTokens
       Expr::portTokens(*p) >= request;
+  }
+
+};
+
+class ActionVisitor
+: public boost::static_visitor<boost::function<void ()> > {
+
+public:
+  result_type operator()(const SGX::ActorFiring &action) const {
+    SGX::MSizeT repeat = action.repeat();
+    return boost::bind(&actorFiringAction,
+        repeat.isDefined() ? repeat.get() : 1,
+        action.actor()->name().get());
+  }
+
+  result_type operator()(const SGX::CompoundAction &actions) const {
+    std::vector<boost::function<void ()> > smocActions;
+
+    for (SGX::Action::ConstRef action : actions.actions())
+      smocActions.push_back(apply_visitor(ActionVisitor(), action));
+    SGX::MSizeT repeat = actions.repeat();
+
+    return boost::bind(&compoundAction, repeat.isDefined() ? repeat.get() : 1, smocActions);
+  }
+
+  result_type operator()(const SGX::Function &action) const {
+    assert(!"Oops, a cluster must not have a function in its actions!");
+    return error;
+  }
+
+  result_type operator()(const SGX::RepetitionVector &action) const {
+    assert(!"Oops, a cluster must not have a function in its actions!");
+    return error;
+  }
+private:
+  static
+  void actorFiringAction(int repeat, std::string const &name) {
+    for (int n = 0; n < repeat; ++n) {
+      std::cout << name << "::schedule()" << std::endl;
+    }
+  }
+
+  static
+  void compoundAction(int repeat,  std::vector<boost::function<void ()> > const &childActions) {
+    for (int n = 0; n < repeat; ++n) {
+      for (boost::function<void ()> action : childActions)
+        action();
+    }
+  }
+
+  static
+  void error() {
+    std::cerr << "Error: Invalid action!" << std::endl;
+    exit(-1);
   }
 
 };
@@ -176,7 +229,7 @@ public:
         ASTEvaluator astEvaluator(getSimCTX()->getIdPool());
         *srcStateIter->second |=
             boost::get<Expr::Ex<bool>::type>(astEvaluator.evaluate(*sgxTransition.activationPattern())) >>
-            SMOC_CALL(QSSCluster::flummy) >> *dstStateIter->second;
+            SMOC_CALL(QSSCluster::flummy)(apply_visitor(ActionVisitor(), *sgxTransition.action())) >> *dstStateIter->second;
           ;
       }
     }
@@ -184,8 +237,8 @@ public:
 
   }
 protected:
-  void flummy() {
-    std::cerr << "flummy" << std::endl;
+  void flummy(boost::function<void ()> indirectAction) {
+    indirectAction();
   }
 };
 

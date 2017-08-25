@@ -144,7 +144,9 @@ class NodeBase
   friend class ProcessVisitor; // To disable actors by SMXImporter.
 #ifdef SYSTEMOC_ENABLE_HOOKING
   // To manipulate transitionHooks
-  friend void smoc::Hook::Detail::addTransitionHook(smoc_actor *, const smoc::Hook::Detail::TransitionHook &);
+  friend void ::smoc::smoc_add_transition_hook(smoc_actor *node,
+      const std::string &srcState, const std::string &action, const std::string &dstState,
+      const smoc_pre_hook_callback &pre, const smoc_post_hook_callback &post);
 #endif //SYSTEMOC_ENABLE_HOOKING
 protected:
   // This is used by smoc_actor and smoc_graph.
@@ -272,7 +274,7 @@ private:
   ParamInfoVisitor   constrArgs;
 
 #ifdef SYSTEMOC_ENABLE_HOOKING
-  std::list<smoc::Hook::Detail::TransitionHook> transitionHooks;
+  std::list<Detail::TransitionHook *> transitionHooks;
 #endif //SYSTEMOC_ENABLE_HOOKING
 
 
@@ -313,6 +315,8 @@ private:
 
 protected:
   void schedule();
+
+  void scheduleLegacyWithCommState();
 
   bool canFire();
 

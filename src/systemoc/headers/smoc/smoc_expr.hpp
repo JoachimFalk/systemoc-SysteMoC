@@ -644,7 +644,7 @@ public:
 template<class T>
 struct D<DVirtual<T> >: public DBase<DVirtual<T> > {
   template <class E>
-  D(const E& e): DBase<DVirtual<T> >(e) {}
+  D(const D<E> &e): DBase<DVirtual<T> >(e) {}
 };
 
 template <typename T>
