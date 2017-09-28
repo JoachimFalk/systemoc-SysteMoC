@@ -46,6 +46,7 @@
 #include <smoc/detail/DebugOStream.hpp>
 #include <smoc/detail/PortBase.hpp>
 #include <smoc/smoc_graph.hpp>
+#include <smoc/smoc_actor.hpp>
 
 #include <sgxutils/ASTTools.hpp>
 
@@ -131,22 +132,32 @@ public:
 
 };
 
-class ActionVisitor
+class QSSActionVisitor
 : public boost::static_visitor<boost::function<void ()> > {
 
+private:
+  IdPool const &idPool;
+
 public:
+  QSSActionVisitor(IdPool const &idPool)
+    : idPool(idPool) {}
+
   result_type operator()(const SGX::ActorFiring &action) const {
     SGX::MSizeT repeat = action.repeat();
+
+    smoc_actor *smocActor = dynamic_cast<smoc_actor *>
+      (idPool.getNodeById(action.actor()->id()));
+    assert(smocActor != nullptr);
     return boost::bind(&actorFiringAction,
         repeat.isDefined() ? repeat.get() : 1,
-        action.actor()->name().get());
+            smocActor);
   }
 
   result_type operator()(const SGX::CompoundAction &actions) const {
     std::vector<boost::function<void ()> > smocActions;
 
     for (SGX::Action::ConstRef action : actions.actions())
-      smocActions.push_back(apply_visitor(ActionVisitor(), action));
+      smocActions.push_back(apply_visitor(*this, action));
     SGX::MSizeT repeat = actions.repeat();
 
     return boost::bind(&compoundAction, repeat.isDefined() ? repeat.get() : 1, smocActions);
@@ -163,9 +174,10 @@ public:
   }
 private:
   static
-  void actorFiringAction(int repeat, std::string const &name) {
+  void actorFiringAction(int repeat, smoc_actor *actor) {
     for (int n = 0; n < repeat; ++n) {
-      std::cout << name << "::schedule()" << std::endl;
+      sassert(actor->searchActiveTransition(true));
+      actor->schedule();
     }
   }
 
@@ -229,7 +241,8 @@ public:
         ASTEvaluator astEvaluator(getSimCTX()->getIdPool());
         *srcStateIter->second |=
             boost::get<Expr::Ex<bool>::type>(astEvaluator.evaluate(*sgxTransition.activationPattern())) >>
-            SMOC_CALL(QSSCluster::flummy)(apply_visitor(ActionVisitor(), *sgxTransition.action())) >> *dstStateIter->second;
+            SMOC_CALL(QSSCluster::flummy)(
+                apply_visitor(QSSActionVisitor(getSimCTX()->getIdPool()), *sgxTransition.action())) >> *dstStateIter->second;
           ;
       }
     }
@@ -253,9 +266,11 @@ public:
   // Only match "RefinedProcess"es.
   result_type operator()(SGX::RefinedProcess const &rp);
 
+  // This matches all FIFO channels
+  result_type operator()(SGX::Fifo const &c);
+
   // This is the fallback operator that matches all else.
   result_type operator()(SGX::Process const &p);
-
 };
 
 void iterateGraphs(SGX::ProblemGraph const &pg, ProcessVisitor &pv) {
@@ -283,6 +298,16 @@ ProcessVisitor::result_type ProcessVisitor::operator()(SGX::RefinedProcess const
   } else {
     iterateGraphs(pg, *this);
   }
+}
+
+// This matches all FIFO channels
+ProcessVisitor::result_type ProcessVisitor::operator()(SGX::Fifo const &c) {
+  size_t newSize = c.size().get();
+  assert(newSize);
+  smoc_fifo_chan_base *smocFifo =
+      dynamic_cast<smoc_fifo_chan_base *>(simCTX->getIdPool().getNodeById(c.id()));
+  smocFifo->resize(newSize);
+  assert(smocFifo->qfSize() == newSize+1);
 }
 
 ProcessVisitor::result_type ProcessVisitor::operator()(SGX::Process const &p) {

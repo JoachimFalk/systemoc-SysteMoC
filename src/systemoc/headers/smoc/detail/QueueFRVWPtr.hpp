@@ -101,6 +101,11 @@ namespace smoc { namespace Detail {
       base_type::resetQueue();
     }
 
+    void resize(size_t n) {
+      assert(findex == 0);
+      base_type::resize(n);
+    }
+
     /// Invalidate n tokens in the visible area. Update findex and rindex
     /// assuming that the tokens in the queue are moved to the right.
     void dropRVisible(size_t n)   { base_type::dropRVisible(n); fpp(n); }

@@ -142,6 +142,7 @@ class NodeBase
   friend class GraphBase;
   friend class DumpActor; // To access constrArgs by SMXDumper
   friend class ProcessVisitor; // To disable actors by SMXImporter.
+  friend class QSSActionVisitor; // To schedule contained actors
 #ifdef SYSTEMOC_ENABLE_HOOKING
   // To manipulate transitionHooks
   friend void ::smoc::smoc_add_transition_hook(smoc_actor *node,
@@ -303,7 +304,7 @@ private:
   void renotified(smoc::smoc_event_waiter *e);
 
   void setCurrentState(RuntimeState *s);
-  bool searchActiveTransition();
+  bool searchActiveTransition(bool debug = false);
 
   // Implement use activation callback interface from
   // EvalAPI::SchedulingInterface.
