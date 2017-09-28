@@ -355,7 +355,7 @@ void NodeBase::setUseActivationCallback(bool flag) {
       setActivation(searchActiveTransition());
     }
   } else
-    active = flag;
+    useActivationCallback = flag;
 }
 
 bool NodeBase::getUseActivationCallback() const
@@ -380,7 +380,7 @@ void NodeBase::setActive(bool flag) {
 bool NodeBase::getActive() const
   { return active; }
 
-bool NodeBase::searchActiveTransition() {
+bool NodeBase::searchActiveTransition(bool debug) {
   assert(currentState);
   ct = nullptr;
 
@@ -389,9 +389,9 @@ bool NodeBase::searchActiveTransition() {
   for (RuntimeTransitionList::iterator t = tl.begin();
        t != tl.end();
        ++t) {
-    if (t->check(
+    if (t->check(debug ||
 #ifdef SYSTEMOC_ENABLE_VPC
-        currentState == commState
+          currentState == commState
 #endif // SYSTEMOC_ENABLE_VPC
       )) {
       ct = &*t;
@@ -408,7 +408,7 @@ void NodeBase::schedule() {
          << std::endl << smoc::Detail::Indent::Up;
   }
 #endif // SYSTEMOC_DEBUG
-  assert(active);
+//assert(active);
   assert(ct);
   assert(ct->check(true));
   executing = true;

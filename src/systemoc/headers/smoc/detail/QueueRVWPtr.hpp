@@ -103,6 +103,11 @@ namespace smoc { namespace Detail {
       base_type::resetQueue();
     }
 
+    void resize(size_t n) {
+      assert(vindex == 0);
+      base_type::resize(n);
+    }
+
     /// Invalidate n tokens in the invisible area. Update rindex and vindex
     /// assuming that the tokens in the queue are moved to the right. This
     /// method will be overloaded in QueueFRVWPtr to also update the findex

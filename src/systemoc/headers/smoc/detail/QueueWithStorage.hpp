@@ -135,6 +135,11 @@ protected:
     base_type::resetQueue();
   }
 
+  void resize(size_t n) {
+    assert(!"Implement this!");
+    base_type::resize(n);
+  }
+
   /// @brief Destructor
   ~QueueWithStorageHelper()
     { delete[] storage; }

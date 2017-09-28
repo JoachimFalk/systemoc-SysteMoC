@@ -131,6 +131,12 @@ namespace smoc { namespace Detail {
       windex = 0;
     }
 
+    void resize(size_t n) {
+      assert(rindex == 0);
+      assert(windex <= n);
+      fsize = MG::M(n + 1);
+    }
+
     /// Invalidate n tokens in the visible area. Update rindex assuming that
     /// the tokens in the queue are moved to the right. This method will be
     /// overloaded in QueueFRVWPtr to also update the findex (free index).
