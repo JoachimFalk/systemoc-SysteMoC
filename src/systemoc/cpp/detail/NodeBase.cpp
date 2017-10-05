@@ -389,9 +389,9 @@ bool NodeBase::searchActiveTransition(bool debug) {
   for (RuntimeTransitionList::iterator t = tl.begin();
        t != tl.end();
        ++t) {
-    if (t->check(debug ||
+    if (t->check(debug
 #ifdef SYSTEMOC_ENABLE_VPC
-          currentState == commState
+          || currentState == commState
 #endif // SYSTEMOC_ENABLE_VPC
       )) {
       ct = &*t;

@@ -237,10 +237,10 @@ private:
   RuntimeState *dest;
 };
 
-#ifdef SYSTEMOC_ENABLE_VPC
+#if defined(SYSTEMOC_ENABLE_VPC) || defined(SYSTEMOC_ENABLE_TRANSITION_TRACE)
 namespace smoc { namespace Detail {
 
-using SystemC_VPC::FunctionNames;
+typedef std::vector<std::string> FunctionNames;
 
 class ActionNameVisitor {
 public:
@@ -317,8 +317,9 @@ private:
   int                   complexity;
   std::vector<std::string>   val;
 };
+
 } } // namespace smoc::Detail
-#endif // SYSTEMOC_ENABLE_VPC
+#endif // defined(SYSTEMOC_ENABLE_VPC) || defined(SYSTEMOC_ENABLE_TRANSITION_TRACE)
 
 #ifdef SYSTEMOC_ENABLE_MAESTRO
 //////////////TODO: REVIEW THIS SECTION CODE (Visitor's)
