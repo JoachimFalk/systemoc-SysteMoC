@@ -175,7 +175,7 @@ void smoc::dMM::TransitionOnThreadVisitor::executeTransition(const smoc_func_cal
 
 #endif //MAESTRO_ENABLE_POLYPHONIC
 
-#ifdef SYSTEMOC_ENABLE_VPC
+#if defined(SYSTEMOC_ENABLE_VPC) || defined(SYSTEMOC_ENABLE_TRANSITION_TRACE)
 namespace smoc { namespace Detail {
 
 ActionNameVisitor::ActionNameVisitor(FunctionNames & names)
@@ -188,4 +188,4 @@ void ActionNameVisitor::operator()(const smoc_func_call_list &f) const {
 }
 
 } } // namespace smoc::Detail
-#endif // SYSTEMOC_ENABLE_VPC
+#endif // defined(SYSTEMOC_ENABLE_VPC) || defined(SYSTEMOC_ENABLE_TRANSITION_TRACE)
