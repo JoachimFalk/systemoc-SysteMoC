@@ -33,31 +33,10 @@
  * ENHANCEMENTS, OR MODIFICATIONS.
  */
 
-#include <cstdlib>
-#include <iostream>
+#include "smoc_synth_std_includes.hpp"
 
 #include <systemoc/smoc_moc.hpp>
 
-template<typename T, int SIZE>
-  class Token {
-  public:
-    T Data[SIZE];
-    Token(){}; // default constructor is needed for software synthese
-    T &operator[](int index)
-    {
-      assert(0 <= index && index < SIZE);
-      return Token<T, SIZE>::Data[index];
-    }
-  };
-
-template<typename T, int SIZE>
-  inline std::ostream &operator <<(std::ostream &out,
-      const Token<T, SIZE> &token) {
-    out << "...";
-    return out;
-  }
-
-//template <typename T>
 class m_h_src: public smoc_actor {
 public:
   smoc_port_out<Token<int, 1> > out;
@@ -67,9 +46,10 @@ private:
   
   void src() {
     Token<int, 1> &frame = out[0]; // create output reference
-    std::cout << name() << ": generate token with value " << i << std::endl;
+
+    std::cout << "src: generate token with value " << i << std::endl;
+    frame.Data[0] = i;
     i++;
-    frame.Data[i] = i;
     --iter;
   }
   smoc_firing_state start;
@@ -85,17 +65,15 @@ public:
   }
 };
 
-
-//template <typename T>
 class m_h_sink: public smoc_actor {
 public:
-  smoc_port_out<Token<int, 1> > in;
+  smoc_port_in<Token<int, 1> > in;
 private:
   
   void sink(void) {
     Token<int, 1> frame;
     frame = in[0];
-    std::cout << name() << ": received token with value " << frame.Data[0] << std::endl;
+    std::cout << "sink: received token with value " << frame.Data[0] << std::endl;
   }
   
   smoc_firing_state start;
@@ -114,10 +92,10 @@ public:
 
   m_h_top(sc_core::sc_module_name name, unsigned int iter)
     : smoc_graph(name),
-      src("src", iter), snk("snk") {
+      src("src", iter),
+      snk("snk") {
     connectNodePorts(src.out,snk.in);
-    //smoc_fifo<Token<int, 1> >q("queue", 2);
-    //q.connect(src.out).connect(snk.in);
+
   }
 };
 
@@ -130,5 +108,6 @@ int sc_main (int argc, char **argv) {
   smoc_top_moc<m_h_top> top("top", iter);
   sc_core::sc_start();
   std::cout << "Program ends !!!" << std::endl;
+
   return 0;
 }
