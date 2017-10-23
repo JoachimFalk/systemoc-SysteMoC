@@ -85,13 +85,11 @@ noinst_PROGRAMS= \
 	test-src-snk-multiplex \
 	test-src-snk-multireader \
 	test-src-snk-multiwriter \
-	test-src-snk-references \
 	test-src-snk-noconsume \
 	test-src-snk-void \
 	test-src-snk-register \
 	test-systemc-blocking-cosim \
-	test-systemc-nonblocking-cosim 
-
+	test-systemc-nonblocking-cosim
 
 %.smx: %
 	./'$<' --systemoc-export-smx='$@'
@@ -341,23 +339,6 @@ test-src-snk-plain-%.log test-src-snk-plain-%-CPU.vcd: test-src-snk-plain src/te
 endif
 
 # More integration required! Maybe check for VPC?
-test_src_snk_references_LDADD			= $(SYSTEMOC_LIBS)
-test_src_snk_references_DEPENDENCIES			= $(SYSTEMOC_DEPENDENCIES)
-test_src_snk_references_SOURCES			= \
-	src/test-src-snk-references/cpp/design-src-snk-references.cpp 
-
-# .PHONY is outside conditionals to make automake happy
-.PHONY: synth-sw-src-snk-ref synth-pthread-src-snk-ref
-if SYNTH_SW
-SW_SYNTH_TEST_SRC_REF_CPPFLAGS = -I$(srcdir)/src/test-src-snk-references/cpp
-synth-sw-src-snk-ref: test-src-snk-references-$(SW_SYNTH_SUBDIR)/top
-endif
-if SYNTH_PTHREAD
-PTHREAD_SYNTH_TEST_SRC_REF_CPPFLAGS = -I$(srcdir)/src/test-src-snk-references/cpp
-synth-pthread-src-snk-ref: test-src-snk-references-$(PTHREAD_SYNTH_SUBDIR)/top
-endif
-	
-# More integration required! Maybe check for VPC?
 test_src_snk_multirate_LDADD			= $(SYSTEMOC_LIBS)
 test_src_snk_multirate_DEPENDENCIES		= $(SYSTEMOC_DEPENDENCIES)
 test_src_snk_multirate_SOURCES			= \
@@ -543,7 +524,7 @@ endif
 .PHONY: synth
 .PHONY: synth-sw synth-sw-clu
 if SYNTH_SW
-synth-sw: synth-sw-fir synth-sw-sqr synth-sw-sqr-int synth-sw-src-snk-ref
+synth-sw: synth-sw-fir synth-sw-sqr synth-sw-sqr-int
 synth: synth-sw
 if CLUSTERING
 synth-sw-clu: synth-sw-sqr-clu synth-sw-sqr-int-clu
@@ -553,7 +534,7 @@ endif
 # .PHONY is outside conditionals to make automake happy
 .PHONY: synth-pthread 
 if SYNTH_PTHREAD
-synth-pthread: synth-pthread-fir synth-pthread-sqr synth-pthread-sqr-int synth-pthread-src-snk-ref
+synth-pthread: synth-pthread-fir synth-pthread-sqr synth-pthread-sqr-int
 synth: synth-pthread
 if CLUSTERING
 synth-pthread-clu: synth-pthread-sqr-clu synth-pthread-sqr-int-clu
