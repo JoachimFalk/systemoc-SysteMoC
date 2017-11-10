@@ -77,6 +77,7 @@ noinst_PROGRAMS= \
 	test-sqr \
 	test-systemc-sqr \
 	test-sqr-int \
+	test-clustering-simple \
 	test-src-snk-plain \
 	test-src-snk-multirate \
 	test-src-snk-hierarchy \
@@ -280,6 +281,38 @@ PTHREAD_SYNTH_TEST_SQR_CPPFLAGS = -I$(srcdir)/src/test-sqr/cpp
 synth-pthread-sqr: test-sqr-$(PTHREAD_SYNTH_SUBDIR)/top
 if CLUSTERING
 synth-pthread-sqr-clu: test-sqr-after-binding-fsm-sched-$(PTHREAD_SYNTH_SUBDIR)/top
+endif
+endif
+
+# More integration required! check and synthesis
+test_clustering_simple_LDADD			= $(SYSTEMOC_LIBS)
+test_clustering_simple_DEPENDENCIES		= $(SYSTEMOC_DEPENDENCIES)
+test_clustering_simple_CPPFLAGS			= $(AM_CPPFLAGS) -DDEBUG_ACTIONS
+test_clustering_simple_SOURCES			= \
+	src/test-clustering-simple/cpp/clustering-simple.cpp
+
+test-clustering-simple.log: test-clustering-simple
+	SRC_ITERS=100 ./'$<' 2> "$@" || { rm -f "$@"; exit 1; }
+test-clustering-simple-%.log: test-clustering-simple.log
+	grep '$*:' '$<' > '$@' || { rm -f "$@"; exit 1; }
+
+# Needed by all synthesis targets for sqr
+test-clustering-simple.cpp: $(test_clustering_simple_SOURCES)
+	{ for i in $^; do echo "#include \"$$i\""; done; } > $@
+# .PHONY is outside conditionals to make automake happy
+.PHONY: synth-sw-clustering-simple synth-sw-clustering-simple-clu synth-pthread-clustering-simple synth-pthread-clustering-simple-clu
+if SYNTH_SW
+SW_SYNTH_TEST_CLUSTERING_SIMPLE_CPPFLAGS = -I$(srcdir)/src/test-clustering-simple/cpp
+synth-sw-clustering-simple: test-clustering-simple-$(SW_SYNTH_SUBDIR)/top
+if CLUSTERING
+synth-sw-clustering-simple-clu: test-clustering-simple-fsm-sched-$(SW_SYNTH_SUBDIR)/top
+endif
+endif
+if SYNTH_PTHREAD
+PTHREAD_SYNTH_TEST_SQR_CPPFLAGS = -I$(srcdir)/src/test-clustering-simple/cpp
+synth-pthread-clustering-simple: test-clustering-simple-$(PTHREAD_SYNTH_SUBDIR)/top
+if CLUSTERING
+synth-pthread-clustering-simple-clu: test-clustering-simple-after-binding-fsm-sched-$(PTHREAD_SYNTH_SUBDIR)/top
 endif
 endif
 

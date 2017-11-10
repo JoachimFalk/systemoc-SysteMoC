@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE vpcconfiguration SYSTEM "vpc.dtd">
+
+<vpcconfiguration>
+  <resources>
+    <component name="cpu3" scheduler="RRNOPRE">
+      <attribute type="tracing" value="PAJE" />
+    </component>
+    <component name="cpu2" scheduler="RRNOPRE">
+      <attribute type="tracing" value="PAJE" />
+    </component>
+    <component name="cpu1" scheduler="RRNOPRE">
+      <attribute type="tracing" value="PAJE" />
+    </component>
+  </resources>
+  <mappings>
+    <mapping source="pgTop.a1_8" target="cpu2">
+      <timing latency="11.47" dii="11.47" />
+      <timing fname="funca" delay="14" />
+      <timing fname="funcb" delay="17" />
+    </mapping>
+    <mapping source="pgTop.a1_9" target="cpu3">
+      <timing latency="11.47" dii="11.47" />
+      <timing fname="funca" delay="14" />
+      <timing fname="funcb" delay="17" />
+    </mapping>
+    <mapping source="pgTop.a1_10" target="cpu2">
+      <timing latency="11.47" dii="11.47" />
+      <timing fname="funca" delay="14" />
+      <timing fname="funcb" delay="17" />
+    </mapping>
+    <mapping source="pgTop.a1_2" target="cpu2">
+      <timing latency="11.47" dii="11.47" />
+      <timing fname="funca" delay="14" />
+      <timing fname="funcb" delay="17" />
+    </mapping>
+    <mapping source="pgTop.a1_3" target="cpu2">
+      <timing latency="11.47" dii="11.47" />
+      <timing fname="funca" delay="14" />
+      <timing fname="funcb" delay="17" />
+    </mapping>
+    <mapping source="pgTop.a1_1" target="cpu3">
+      <timing latency="11.47" dii="11.47" />
+      <timing fname="funca" delay="14" />
+      <timing fname="funcb" delay="17" />
+    </mapping>
+    <mapping source="pgTop.source" target="cpu1">
+      <timing latency="11.47" dii="11.47" />
+      <timing fname="funca" delay="14" />
+      <timing fname="funcb" delay="17" />
+    </mapping>
+    <mapping source="pgTop.a1_7" target="cpu2">
+      <timing latency="11.47" dii="11.47" />
+      <timing fname="funca" delay="14" />
+      <timing fname="funcb" delay="17" />
+    </mapping>
+    <mapping source="pgTop.a1_4" target="cpu2">
+      <timing latency="11.47" dii="11.47" />
+      <timing fname="funca" delay="14" />
+      <timing fname="funcb" delay="17" />
+    </mapping>
+    <mapping source="pgTop.a1_5" target="cpu2">
+      <timing latency="11.47" dii="11.47" />
+      <timing fname="funca" delay="14" />
+      <timing fname="funcb" delay="17" />
+    </mapping>
+    <mapping source="pgTop.a1_6" target="cpu2">
+      <timing latency="11.47" dii="11.47" />
+      <timing fname="funca" delay="14" />
+      <timing fname="funcb" delay="17" />
+    </mapping>
+  </mappings>
+  <topology tracing="true">
+    <route source="pgTop.a1_4" destination="cf_a1_4_a1_8" />
+    <route source="cf_a1_4_a1_8" destination="pgTop.a1_8" />
+    <route source="pgTop.a1_7" destination="cf_a1_7_a1_8" />
+    <route source="cf_a1_7_a1_8" destination="pgTop.a1_8" />
+    <route source="pgTop.a1_5" destination="cf_a1_5_a1_2" />
+    <route source="cf_a1_5_a1_2" destination="pgTop.a1_2" />
+    <route source="pgTop.a1_1" destination="cf_a1_1_a1_4" />
+    <route source="cf_a1_1_a1_4" destination="pgTop.a1_4" />
+    <route source="pgTop.a1_8" destination="cf_a1_8_a1_3" />
+    <route source="cf_a1_8_a1_3" destination="pgTop.a1_3" />
+    <route source="pgTop.a1_8" destination="cf_a1_8_a1_2" />
+    <route source="cf_a1_8_a1_2" destination="pgTop.a1_2" />
+    <route source="pgTop.a1_9" destination="cf_a1_9_a1_4" />
+    <route source="cf_a1_9_a1_4" destination="pgTop.a1_4" />
+    <route source="pgTop.source" destination="cf_source_a1_1" />
+    <route source="cf_source_a1_1" destination="pgTop.a1_1" />
+    <route source="pgTop.a1_10" destination="cf_a1_10_a1_9" />
+    <route source="cf_a1_10_a1_9" destination="pgTop.a1_9" />
+    <route source="pgTop.a1_7" destination="cf_a1_7_a1_3" />
+    <route source="cf_a1_7_a1_3" destination="pgTop.a1_3" />
+    <route source="pgTop.a1_6" destination="cf_a1_6_a1_5" />
+    <route source="cf_a1_6_a1_5" destination="pgTop.a1_5" />
+    <route source="pgTop.a1_2" destination="cf_a1_2_a1_3" />
+    <route source="cf_a1_2_a1_3" destination="pgTop.a1_3" />
+    <route source="pgTop.a1_6" destination="cf_a1_6_a1_6" />
+    <route source="cf_a1_6_a1_6" destination="pgTop.a1_6" />
+    <route source="pgTop.a1_5" destination="cf_a1_5_a1_8_1" />
+    <route source="cf_a1_5_a1_8_1" destination="pgTop.a1_8" />
+    <route source="pgTop.a1_5" destination="cf_a1_5_a1_10" />
+    <route source="cf_a1_5_a1_10" destination="pgTop.a1_10" />
+    <route source="pgTop.a1_4" destination="cf_a1_4_a1_3" />
+    <route source="cf_a1_4_a1_3" destination="pgTop.a1_3" />
+    <route source="pgTop.a1_3" destination="cf_a1_3_a1_6" />
+    <route source="cf_a1_3_a1_6" destination="pgTop.a1_6" />
+    <route source="pgTop.a1_3" destination="cf_a1_3_a1_7" />
+    <route source="cf_a1_3_a1_7" destination="pgTop.a1_7" />
+    <route source="pgTop.a1_5" destination="cf_a1_5_a1_8" />
+    <route source="cf_a1_5_a1_8" destination="pgTop.a1_8" />
+    <route source="pgTop.a1_10" destination="cf_a1_10_a1_5" />
+    <route source="cf_a1_10_a1_5" destination="pgTop.a1_5" />
+    <route source="pgTop.a1_10" destination="cf_a1_10_a1_7" />
+    <route source="cf_a1_10_a1_7" destination="pgTop.a1_7" />
+    <route source="pgTop.a1_6" destination="cf_a1_6_a1_10" />
+    <route source="cf_a1_6_a1_10" destination="pgTop.a1_10" />
+  </topology>
+</vpcconfiguration>
+

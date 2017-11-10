@@ -33,6 +33,8 @@
     <timing fname="SqrLoop::copyApprox" delay="100 ns"/>
   </mapping>
 
+  <mapping source="sqrroot.clusterappx" target="CPU"/>
+  
   <mapping source="sqrroot.a3" target="CPU">
     <timing delay="100 ns"/>
     <timing fname="Approx::approx" delay="100 ns"/>
@@ -42,7 +44,7 @@
     <timing delay="100 ns"/>
     <timing fname="Dup::dup" delay="100 ns"/>
   </mapping>
-
+  
   <mapping source="sqrroot.a5" target="CPU">
     <timing delay="100 ns"/>
     <timing fname="Sink::sink" delay="100 ns"/>
@@ -66,34 +68,34 @@
     <hop name="Mem" />
   </route>
   <route source="cf_sqrroot.a2_sqrroot.a3_1" destination="sqrroot.a3">
-    <hop name="Mem" />
+<!--<hop name="Mem" />
     <hop name="Bus" />
-    <hop name="CPU" />
+    <hop name="CPU" /> -->
   </route>
   <route source="cf_sqrroot.a4_sqrroot.a3_1" destination="sqrroot.a3">
-    <hop name="Mem" />
+<!--<hop name="Mem" />
     <hop name="Bus" />
-    <hop name="CPU" />
+    <hop name="CPU" /> -->
   </route>
   <route source="sqrroot.a3" destination="cf_sqrroot.a3_sqrroot.a4_1">
-    <hop name="CPU" />
+<!--<hop name="CPU" />
     <hop name="Bus" />
-    <hop name="Mem" />
+    <hop name="Mem" /> -->
   </route>
   <route source="cf_sqrroot.a3_sqrroot.a4_1" destination="sqrroot.a4">
-    <hop name="Mem" />
+<!--<hop name="Mem" />
     <hop name="Bus" />
-    <hop name="CPU" />
+    <hop name="CPU" /> -->
   </route>
   <route source="sqrroot.a4" destination="cf_sqrroot.a4_sqrroot.a3_1">
-    <hop name="CPU" />
+<!--<hop name="CPU" />
     <hop name="Bus" />
-    <hop name="Mem" />
+    <hop name="Mem" /> -->
   </route>
   <route source="sqrroot.a4" destination="cf_sqrroot.a4_sqrroot.a2_1">
-    <hop name="CPU" />
+<!--<hop name="CPU" />
     <hop name="Bus" />
-    <hop name="Mem" />
+    <hop name="Mem" /> -->
   </route>
   <route source="cf_sqrroot.a4_sqrroot.a2_1" destination="sqrroot.a2">
     <hop name="Mem" />
