@@ -6,7 +6,9 @@
 		<project>BuildSystem</project>
 		<project>LibSGX</project>
 		<project>Support</project>
+		<project>Maestro-MetaMap</project>
 		<project>SystemC-VPC</project>
+		<project>LibSGXUtils</project>
 	</projects>
 	<buildSpec>
 		<buildCommand>
@@ -38,7 +40,7 @@
 		<link>
 			<name>obj</name>
 			<type>2</type>
-			<locationURI>$%7BWORKSPACE_LOC%7D/obj/SysteMoC</locationURI>
+			<locationURI>WORKSPACE_LOC/obj/SysteMoC</locationURI>
 		</link>
 	</linkedResources>
 </projectDescription>
