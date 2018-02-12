@@ -54,6 +54,11 @@ if SYNTH_TLM
   TLM_SYNTH_INST_FLAGS = --no-preprocess-macros
   -include $(pkg_synthesis_tlm_builddir)/mk/Rules-Synth-II.mk
 endif
+if SYNTH_VIVADOHLS
+  VIVADOHLS_SYNTH_SUBDIR     = synthesis-vivadohls
+  VIVADOHLS_SYNTH_INST_FLAGS = --no-preprocess-macros
+  -include $(pkg_synthesis_vivadohls_builddir)/mk/Rules-Synth-II.mk
+endif
 if CLUSTERING
   -include $(pkg_clustering_builddir)/mk/Rules-Synth-II.mk
 endif
@@ -66,6 +71,7 @@ noinst_PROGRAMS= \
 	test-dynamic-fsm \
 	test-event \
 	test-fir \
+	test-fir-nostl \
 	test-fsm-and-composition \
 	test-fsm-and-composition-diss-falk \
 	test-fsm-junction-state \
@@ -90,7 +96,9 @@ noinst_PROGRAMS= \
 	test-src-snk-void \
 	test-src-snk-register \
 	test-systemc-blocking-cosim \
-	test-systemc-nonblocking-cosim
+	test-systemc-nonblocking-cosim \
+	test-sequence-alttoksize 
+	
 
 %.smx: %
 	./'$<' --systemoc-export-smx='$@'
@@ -153,7 +161,7 @@ test-fir.log: test-fir
 test-fir.cpp: $(test_fir_SOURCES)
 	{ for i in $^; do echo "#include \"$$i\""; done; } > $@
 # .PHONY is outside conditionals to make automake happy
-.PHONY: synth-sw-fir synth-pthread-fir
+.PHONY: synth-sw-fir synth-pthread-fir synth-vivadohls-fir
 if SYNTH_SW
 SW_SYNTH_TEST_FIR_CPPFLAGS = -I$(srcdir)/src/test-fir/cpp
 synth-sw-fir: test-fir-$(SW_SYNTH_SUBDIR)/top
@@ -161,6 +169,63 @@ endif
 if SYNTH_PTHREAD
 PTHREAD_SYNTH_TEST_FIR_CPPFLAGS = -I$(srcdir)/src/test-fir/cpp
 synth-pthread-fir: test-fir-$(PTHREAD_SYNTH_SUBDIR)/top
+endif
+if SYNTH_VIVADOHLS
+VIVADOHLS_SYNTH_TEST_FIR_CPPFLAGS = -I$(srcdir)/src/test-fir/cpp
+synth-vivadohls-fir: test-fir-$(VIVADOHLS_SYNTH_SUBDIR)/top
+endif
+
+# More integration required! check and synthesis
+test_fir_nostl_LDADD                                    = $(SYSTEMOC_LIBS)
+test_fir_nostl_DEPENDENCIES                             = $(SYSTEMOC_DEPENDENCIES)
+test_fir_nostl_SOURCES                          = \
+        src/test-fir-nostl/cpp/design-fir-nostl.cpp
+
+test-fir-nostl.log: test-fir-nostl
+	./'$<' 100 > "$@" || { rm -f "$@"; exit 1; }
+
+# Needed by all synthesis targets for sqr
+test-fir-nostl.cpp: $(test_fir_nostl_SOURCES)
+	{ for i in $^; do echo "#include \"$$i\""; done; } > $@
+# .PHONY is outside conditionals to make automake happy
+.PHONY: synth-sw-fir-nostl synth-vivadohls-fir-nostl synth-pthread-fir-nostl
+if SYNTH_SW
+SW_SYNTH_TEST_FIR_NOSTL_CPPFLAGS = -I$(srcdir)/src/test-fir-nostl/cpp
+synth-sw-fir-nostl: test-fir-nostl-$(SW_SYNTH_SUBDIR)/top
+endif
+
+if SYNTH_VIVADOHLS
+VIVADOHLS_SYNTH_TEST_FIR_NOSTL_CPPFLAGS = -I$(srcdir)/src/test-fir-nostl/cpp
+synth-vivadohls-fir-nostl: test-fir-nostl-$(VIVADOHLS_SYNTH_SUBDIR)/top
+endif
+
+if SYNTH_PTHREAD
+PTHREAD_SYNTH_TEST_FIR_NOSTL_CPPFLAGS = -I$(srcdir)/src/test-fir-nostl/cpp
+synth-pthread-fir-nostl: test-fir-nostl-$(PTHREAD_SYNTH_SUBDIR)/top
+endif
+
+# More integration required! check and synthesis
+test_sequence_alttoksize_LDADD					= $(SYSTEMOC_LIBS)
+test_sequence_alttoksize_DEPENDENCIES				= $(SYSTEMOC_DEPENDENCIES)
+test_sequence_alttoksize_SOURCES				= \
+	src/test-sequence-alttoksize/cpp/design-test-sequence-alttoksize.cpp
+
+test-sequence-alttoksize.log: test-sequence-alttoksize
+	./'$<' 100 > "$@" || { rm -f "$@"; exit 1; }
+
+# Needed by all synthesis targets for sqr
+test-sequence-alttoksize.cpp: $(test_sequence_alttoksize_SOURCES)
+	{ for i in $^; do echo "#include \"$$i\""; done; } > $@
+# .PHONY is outside conditionals to make automake happy
+.PHONY: synth-sw-sequence-alttoksize synth-vivadohls-sequence-alttoksize
+if SYNTH_SW
+SW_SYNTH_TEST_SEQUENCE_ALTTOKSIZE_CPPFLAGS = -I$(srcdir)/src/test-sequence-alttoksize/cpp
+synth-sw-sequence-alttoksize: test-sequence-alttoksize-$(SW_SYNTH_SUBDIR)/top
+endif
+
+if SYNTH_VIVADOHLS
+VIVADOHLS_SYNTH_TEST_SEQUENCE_ALTTOKSIZE_CPPFLAGS = -I$(srcdir)/src/test-sequence-alttoksize/cpp
+synth-vivadohls-sequence-alttoksize: test-sequence-alttoksize-$(VIVADOHLS_SYNTH_SUBDIR)/top
 endif
 
 # More integration required! check
@@ -269,7 +334,7 @@ test-sqr-sqrroot.%.log: test-sqr.log
 test-sqr.cpp: $(test_sqr_SOURCES)
 	{ for i in $^; do echo "#include \"$$i\""; done; } > $@
 # .PHONY is outside conditionals to make automake happy
-.PHONY: synth-sw-sqr synth-sw-sqr-clu synth-pthread-sqr synth-pthread-sqr-clu
+.PHONY: synth-sw-sqr synth-sw-sqr-clu synth-vivadohls-sqr synth-pthread-sqr synth-pthread-sqr-clu
 if SYNTH_SW
 SW_SYNTH_TEST_SQR_CPPFLAGS = -I$(srcdir)/src/test-sqr/cpp
 synth-sw-sqr: test-sqr-$(SW_SYNTH_SUBDIR)/top
@@ -277,6 +342,12 @@ if CLUSTERING
 synth-sw-sqr-clu: test-sqr-fsm-sched-$(SW_SYNTH_SUBDIR)/top
 endif
 endif
+
+if SYNTH_VIVADOHLS
+VIVADOHLS_SYNTH_TEST_SQR_CPPFLAGS = -I$(srcdir)/src/test-sqr/cpp
+synth-vivadohls-sqr: test-sqr-$(VIVADOHLS_SYNTH_SUBDIR)/top
+endif
+
 if SYNTH_PTHREAD
 PTHREAD_SYNTH_TEST_SQR_CPPFLAGS = -I$(srcdir)/src/test-sqr/cpp
 synth-pthread-sqr: test-sqr-$(PTHREAD_SYNTH_SUBDIR)/top
@@ -308,7 +379,7 @@ test-sqr-int-%.log: test-sqr-int.log
 test-sqr-int.cpp: $(test_sqr_int_SOURCES)
 	{ for i in $^; do echo "#include \"$$i\""; done; } > $@
 # .PHONY is outside conditionals to make automake happy
-.PHONY: synth-sw-sqr-int synth-sw-sqr-int-clu synth-pthread-sqr-int synth-pthread-sqr-int-clu
+.PHONY: synth-sw-sqr-int synth-sw-sqr-int-clu synth-vivadohls-sqr-int synth-pthread-sqr-int synth-pthread-sqr-int-clu
 if SYNTH_SW
 SW_SYNTH_TEST_SQR_INT_CPPFLAGS = -I$(srcdir)/src/test-sqr-int/cpp
 synth-sw-sqr-int: test-sqr-int-$(SW_SYNTH_SUBDIR)/top
@@ -316,6 +387,12 @@ if CLUSTERING
 synth-sw-sqr-int-clu: test-sqr-int-fsm-sched-$(SW_SYNTH_SUBDIR)/top
 endif
 endif
+
+if SYNTH_VIVADOHLS
+VIVADOHLS_SYNTH_TEST_SQR_INT_CPPFLAGS = -I$(srcdir)/src/test-sqr-int/cpp
+synth-vivadohls-sqr-int: test-sqr-int-$(VIVADOHLS_SYNTH_SUBDIR)/top
+endif
+
 if SYNTH_PTHREAD
 PTHREAD_SYNTH_TEST_SQR_INT_CPPFLAGS = -I$(srcdir)/src/test-sqr-int/cpp
 synth-pthread-sqr-int: test-sqr-int-$(PTHREAD_SYNTH_SUBDIR)/top
@@ -552,6 +629,14 @@ synth-sw-clu: synth-sw-sqr-clu synth-sw-sqr-int-clu
 synth: synth-sw-clu
 endif
 endif
+# .PHONY is outside conditionals to make automake happy
+.PHONY: synth
+.PHONY: synth-vivadohls
+if SYNTH_VIVADOHLS
+synth-vivadohls: synth-vivadohls-fir synth-vivadohls-fir-nostl synth-vivadohls-sqr synth-vivadohls-sqr-int synth-vivadohls-sequence-alttoksize
+synth: synth-vivadohls
+endif
+
 # .PHONY is outside conditionals to make automake happy
 .PHONY: synth-pthread 
 if SYNTH_PTHREAD
