@@ -1,0 +1,50 @@
+\documentclass[a4paper, 12pt, BCOR2cm, headsepline, pointlessnumbers, bibtotoc, idxtotoc, german, english, american]{scrbook}
+
+\renewcommand*\chaptermarkformat{\thechapter. \quad}
+\renewcommand*\chapterformat{\thechapter. \ }
+
+\input{hscd-common.tex}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% NEWCOMMAND \hscdtitle
+%%
+%% \hscdtitle{Title}{Author}{Matrikennummer}{Betreuer}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\newcommand{\hscdtitle}[3]{
+  \begin{titlepage}
+    \titlehead
+    { \hspace*{-18mm}
+      \parbox[t]{14.4cm}{
+	  \parbox{76mm}{
+	  \vspace*{-25mm}
+	  \includegraphics[width=35mm]{logos/codesign/codesign}
+	}
+ 	\hfill
+	\parbox{65mm}{
+	  \vspace*{-27mm}
+	  \includegraphics[width=76mm]{logos/fau/FAU_tech_cmyk}
+	}
+      }
+    }
+    \title{{\parbox{0mm}{}\\[1cm]\huge \sffamily \bfseries{#1}}}
+               
+  \author{
+          \Large #2\\[4mm]
+          \Large Lehrstuhl für Informatik 12\\
+          \Large (Hardware-Software-Co-Design)\\
+          \Large Universität Erlangen-Nürnberg\\
+          \Large Cauerstraße 11\\
+          \Large 91058 Erlangen \\[7mm]
+          \Large {\bf Co-Design-Report #3}\\[16mm]}
+% \date{\today}
+  \thispagestyle{empty}
+  \end{titlepage}   
+  \hypersetup{
+    pdftitle   = {#1},
+    pdfauthor  = {#2},
+    pdfsubject = {#3}
+  }
+  \maketitle
+}
+
+\makeindex

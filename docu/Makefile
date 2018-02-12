@@ -11,4 +11,4 @@ TEX_SOURCES=smoc-docu.tex
 TEXINPUTS:=../figs:$(TEXINPUTS)
 TEXCLEANDIRS:=../figs .
 
-include $(RESDIR)/Rules-TeX.mk
+include $(RESDIR)/Rules-TeX-PDF.mk

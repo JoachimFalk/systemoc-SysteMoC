@@ -11,4 +11,4 @@ TEX_SOURCES=docu.tex
 TEXINPUTS:=figs:$(RESDIR):$(TEXINPUTS)
 TEXCLEANDIRS:=figs $(RESDIR) .
 
-include $(RESDIR)/Rules-TeX.mk
+include $(RESDIR)/Rules-TeX-PDF.mk

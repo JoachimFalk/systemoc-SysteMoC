@@ -13,7 +13,7 @@ SUBDIRS=
 TEXINPUTS:=../figs:$(RESDIR):$(RESDIR)/beamer-latex-styles:$(TEXINPUTS)
 TEXCLEANDIRS=../figs .
 
-include $(RESDIR)/Rules-TeX.mk
+include $(RESDIR)/Rules-TeX-PDF.mk
 
 todo:
 	grep -n todo *.tex
