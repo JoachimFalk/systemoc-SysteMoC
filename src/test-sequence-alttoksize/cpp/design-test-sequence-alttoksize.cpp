@@ -136,17 +136,17 @@ private:
   void sink_5(void) {
     for(unsigned int count = 0; count < 5; ++count)
     {
-      std::cout << "sink: " << in[count] << std::endl;
+      std::cout << "sink_5: " << in[count] << std::endl;
     }
   }
   void sink_3(void) {
     for(unsigned int count = 0; count < 3; ++count)
     {
-      std::cout << "sink: " << in[count] << std::endl;
+      std::cout << "sink_3: " << in[count] << std::endl;
     }
   }
   void sink_1(void) {
-    std::cout << "sink: " << in[0] << std::endl;
+    std::cout << "sink_1: " << in[0] << std::endl;
   }
   
   smoc_firing_state start_5;

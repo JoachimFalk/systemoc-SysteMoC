@@ -37,6 +37,7 @@
 
 #include <cmath>
 #include <cstdlib>
+#include <iostream>
 
 template<typename T, int SIZE>
 struct Token {

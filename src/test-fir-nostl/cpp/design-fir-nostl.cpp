@@ -34,7 +34,6 @@
  */
 
 #include <cstdlib>
-#include <iostream>
 
 #include <systemoc/smoc_moc.hpp>
 #include <systemoc/smoc_port.hpp>
