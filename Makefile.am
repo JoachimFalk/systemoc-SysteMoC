@@ -563,6 +563,7 @@ check-logs: $(TEST_LOGS)
 		fi; \
 	      else \
 	        status=success; \
+	        shopt -s nullglob; \
 	        for log in $(srcdir)/src/$${test}/golden-*.log; do \
 		  if ! diff -u $${test}-$${log##*/golden-} $${log} > /dev/null; then \
 		    status=failed; \
