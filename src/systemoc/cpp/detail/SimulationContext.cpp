@@ -1,6 +1,6 @@
 // vim: set sw=2 ts=8:
 /*
- * Copyright (c) 2004-2017 Hardware-Software-CoDesign, University of Erlangen-Nuremberg.
+ * Copyright (c) 2004-2018 Hardware-Software-CoDesign, University of Erlangen-Nuremberg.
  * 
  *   This library is free software; you can redistribute it and/or modify it under
  *   the terms of the GNU Lesser General Public License as published by the Free
@@ -58,6 +58,8 @@
 #include "SimulationContext.hpp"
 #include "SMXImporter.hpp"
 
+#include <smoc/SimulatorAPI/SimulatorInterface.hpp>
+
 namespace smoc { namespace Detail {
 
 namespace po = boost::program_options;
@@ -66,7 +68,7 @@ namespace po = boost::program_options;
 SimulationContext *currentSimCTX = nullptr;
 
 SimulationContext::SimulationContext(int _argc, char *_argv[])
-  : argv()
+  : simulatorInterface(nullptr)
 #ifdef SYSTEMOC_ENABLE_TRANSITION_TRACE
   , dumpTraceFile(nullptr)
 #endif // SYSTEMOC_ENABLE_TRANSITION_TRACE
@@ -136,15 +138,15 @@ SimulationContext::SimulationContext(int _argc, char *_argv[])
      "Dump dataflow trace")
     ;
   
-#ifdef SYSTEMOC_ENABLE_VPC
-  systemocOptions.add_options()
-#else // !SYSTEMOC_ENABLE_VPC
-  backwardCompatibilityCruftOptions.add_options()
-#endif // !SYSTEMOC_ENABLE_VPC
-    ("systemoc-vpc-config",
-     po::value<std::string>(),
-     "use specified SystemC-VPC configuration file")
-    ;
+//#ifdef SYSTEMOC_ENABLE_VPC
+//  systemocOptions.add_options()
+//#else // !SYSTEMOC_ENABLE_VPC
+//  backwardCompatibilityCruftOptions.add_options()
+//#endif // !SYSTEMOC_ENABLE_VPC
+//    ("systemoc-vpc-config",
+//     po::value<std::string>(),
+//     "use specified SystemC-VPC configuration file")
+//    ;
   
   // Backward compatibility cruft
   backwardCompatibilityCruftOptions.add_options()
@@ -154,21 +156,68 @@ SimulationContext::SimulationContext(int _argc, char *_argv[])
      po::value<std::string>())
     ("import-smx",
      po::value<std::string>())
-    ("vpc-config",
-     po::value<std::string>())
+//  ("vpc-config",
+//   po::value<std::string>())
     ;
+
+  for (SimulatorAPI::SimulatorInterface *simulator : SimulatorAPI::registeredSimulators)
+    simulator->populateOptionsDescription(_argc, _argv,
+        systemocOptions, backwardCompatibilityCruftOptions);
   // All options
   po::options_description od;
   od.add(systemocOptions).add(backwardCompatibilityCruftOptions);
   po::parsed_options parsed =
     po::command_line_parser(_argc, _argv).options(od).allow_unregistered().run();
+  po::variables_map vm;
+  po::store(parsed, vm);
+  po::notify(vm);
 
 #ifdef SYSTEMOC_DEBUG
   outDbg.setLevel(Debug::None);
   outDbg << Debug::High;
 #endif // !SYSTEMOC_DEBUG
   
-  argv.push_back(strdup(_argc >= 1 ? _argv[0] : "???"));
+  // Create new argv from not handled options
+  {
+    argv.push_back(strdup(_argc >= 1 ? _argv[0] : "???"));
+    for (po::basic_option<char> const &option : parsed.options)
+      if (option.unregistered || option.position_key != -1)
+        for(std::string const &arg : option.original_tokens)
+          argv.push_back(strdup(arg.c_str()));
+    argv.push_back(nullptr);
+  }
+
+  // Select the simulator back end from the list of registered simulators.
+  {
+    typedef std::pair<
+        SimulatorAPI::SimulatorInterface::EnablementStatus,
+        SimulatorAPI::SimulatorInterface *>
+      SimulatorEnablementStatus;
+
+    std::vector<SimulatorEnablementStatus> simulatorStates;
+    for (SimulatorAPI::SimulatorInterface *simulator : SimulatorAPI::registeredSimulators)
+      simulatorStates.push_back(std::make_pair(simulator->evaluateOptionsMap(vm), simulator));
+    for (SimulatorEnablementStatus simState : simulatorStates) {
+      if (simState.first == SimulatorAPI::SimulatorInterface::MUSTBE_ACTIVE) {
+        if (!this->simulatorInterface)
+          this->simulatorInterface = simState.second;
+        else {
+          std::ostringstream str;
+          str << "Enabling of multiple simulator back ends leads to a clash. Please only select one of them!";
+          throw std::runtime_error(str.str().c_str());
+        }
+      }
+    }
+    if (!this->simulatorInterface) {
+      for (SimulatorEnablementStatus simState : simulatorStates) {
+        if (simState.first == SimulatorAPI::SimulatorInterface::MAYBE_ACTIVE) {
+          this->simulatorInterface = simState.second;
+          break;
+        }
+      }
+    }
+  }
+  assert(this->simulatorInterface);
   
   for (std::vector<po::basic_option<char> >::const_iterator i = parsed.options.begin();
        i != parsed.options.end();
@@ -295,13 +344,13 @@ SimulationContext::SimulationContext(int _argc, char *_argv[])
       str << "SysteMoC configured without vpc support: --" << i->string_key << " option not provided!";
       throw std::runtime_error(str.str().c_str());
 #endif // !SYSTEMOC_ENABLE_VPC
-    } else if (i->unregistered || i->position_key != -1) {
+/*  } else if (i->unregistered || i->position_key != -1) {
       for(std::vector<std::string>::const_iterator j = i->original_tokens.begin();
           j != i->original_tokens.end();
           ++j)
         argv.push_back(strdup(j->c_str()));
     } else {
-      assert(!"WTF?! UNHANDLED OPTION!");
+      assert(!"WTF?! UNHANDLED OPTION!"); */
     }
   }
   if (getenv("VPCCONFIGURATION") != nullptr) {
@@ -323,11 +372,9 @@ SimulationContext::SimulationContext(int _argc, char *_argv[])
 #endif // !SYSTEMOC_ENABLE_VPC
   }
   
-  argv.push_back(nullptr);
-  
 #ifdef SYSTEMOC_ENABLE_VPC
   SystemC_VPC::Director::getInstance();
-#endif
+#endif //!defined(SYSTEMOC_ENABLE_VPC)
   
   if (currentSimCTX == nullptr)
     defCurrentCTX();

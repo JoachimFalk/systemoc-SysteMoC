@@ -33,6 +33,8 @@
 
 #include <smoc/smoc_periodic_actor.hpp>
 
+#include <smoc/SimulatorAPI/SchedulerInterface.hpp>
+
 namespace smoc {
 
 //constructor sets the period, offset and EventQueue
@@ -80,7 +82,7 @@ bool smoc_periodic_actor::canFire() {
   if (active &&
       getNextReleaseTime() > sc_core::sc_time_stamp() &&
       useActivationCallback) {
-    setActivation(true);
+    getScheduler()->notifyActivation(this, true);
     return false;
   } else
     return active;

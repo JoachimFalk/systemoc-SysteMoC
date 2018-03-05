@@ -34,7 +34,9 @@ nobase_include_HEADERS = \
 	smoc/smoc_periodic_actor.hpp \
 	smoc/smoc_register.hpp \
 	smoc/smoc_scheduler_top.hpp \
-	smoc/EvalAPI/SchedulingInterface.hpp \
+	smoc/SimulatorAPI/SchedulerInterface.hpp \
+	smoc/SimulatorAPI/SimulatorInterface.hpp \
+	smoc/SimulatorAPI/TaskInterface.hpp \
 	smoc/detail/ChanBase.hpp \
 	smoc/detail/ConnectProvider.hpp \
 	smoc/detail/DebugOStream.hpp \
@@ -59,7 +61,6 @@ nobase_include_HEADERS = \
 	smoc/detail/QueueWithStorage.hpp \
 	smoc/detail/SimCTXBase.hpp \
 	smoc/detail/Storage.hpp \
-	smoc/detail/SysteMoCScheduler.hpp \
 	smoc/detail/TraceLog.hpp \
 	smoc/detail/VpcInterface.hpp \
 	\

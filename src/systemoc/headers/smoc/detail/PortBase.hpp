@@ -181,9 +181,10 @@ private:
   sc_core::sc_interface       *get_interface();
   sc_core::sc_interface const *get_interface() const;
 
+public:
 #ifdef SYSTEMOC_NEED_IDS
   // To reflect SystemC name back to NamedIdedObj base class.
-  const char *_name() const
+  const char *name() const
     { return this->sc_core::sc_port_base::name(); }
 #endif // SYSTEMOC_NEED_IDS
 };

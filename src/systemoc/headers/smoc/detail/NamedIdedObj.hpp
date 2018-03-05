@@ -49,7 +49,7 @@ class NamedIdedObjAccess;
 class NamedIdedObj: public IdedObj {
   friend class NamedIdedObjAccess;
 protected:
-  virtual const char *_name() const = 0;
+  virtual const char *name() const = 0;
   virtual ~NamedIdedObj() {}
 };
 
@@ -57,7 +57,7 @@ class NamedIdedObjAccess: public IdedObjAccess {
 public:
   static
   const char *getName(NamedIdedObj const *namedIdedObj)
-    { return namedIdedObj->_name(); }
+    { return namedIdedObj->name(); }
 };
 
 } } // namespace smoc::Detail
