@@ -374,7 +374,7 @@ public:
 private:
 #ifdef SYSTEMOC_NEED_IDS
   // To reflect stateName back to NamedIdedObj base class.
-  const char *_name() const
+  const char *name() const
     { return stateName.c_str(); }
 #endif // SYSTEMOC_NEED_IDS
 };

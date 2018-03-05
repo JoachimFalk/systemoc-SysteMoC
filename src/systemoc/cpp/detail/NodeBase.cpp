@@ -55,18 +55,13 @@
 namespace smoc { namespace Detail {
 
 NodeBase::NodeBase(sc_core::sc_module_name name, NodeType nodeType, smoc_hierarchical_state *s, unsigned int thread_stack_size)
-  :
-#if defined(SYSTEMOC_ENABLE_VPC)
-    SystemC_VPC::ScheduledTask(name)
-#elif defined(SYSTEMOC_ENABLE_MAESTRO)
-    sc_core::sc_module(name)
+  : sc_core::sc_module(name)
+#if defined(SYSTEMOC_ENABLE_MAESTRO)
   , MetaMap::SMoCActor(thread_stack_size)
 # ifdef MAESTRO_ENABLE_POLYPHONIC
   , MAESTRO::PolyphoniC::psmoc_root_node()
 # endif
-#else // !defined(SYSTEMOC_ENABLE_VPC) && !defined(SYSTEMOC_ENABLE_MAESTRO)
-    smoc::Detail::SysteMoCScheduler(name)
-#endif
+#endif // defined(SYSTEMOC_ENABLE_MAESTRO)
   , initialState(s)
   , currentState(nullptr)
   , ct(nullptr)
@@ -98,6 +93,7 @@ void NodeBase::before_end_of_elaboration() {
   }
 #endif //defined(SYSTEMOC_DEBUG)
   sc_core::sc_module::before_end_of_elaboration();
+  setScheduler(getSimCTX()->getSimulatorInterface()->registerTask(this));
   if (getFiringFSM()) {
 #ifdef SYSTEMOC_ENABLE_VPC
     this->commState = new RuntimeState();
@@ -201,7 +197,7 @@ void NodeBase::doReset() {
   if (getFiringFSM()) {
     setCurrentState(getFiringFSM()->getInitialState());
     if (useActivationCallback && active)
-      setActivation(searchActiveTransition());
+      getScheduler()->notifyActivation(this, searchActiveTransition());
   }
 
 #ifdef SYSTEMOC_DEBUG
@@ -257,12 +253,12 @@ void NodeBase::signaled(smoc::smoc_event_waiter *e) {
 #ifdef SYSTEMOC_ENABLE_MAESTRO
         ct->notifyListenersTransitionReady();
 #endif //SYSTEMOC_ENABLE_MAESTRO
-        setActivation(true);
+        getScheduler()->notifyActivation(this, true);
       }
     } else if (ct) {
       searchActiveTransition();
       if (!ct)
-        setActivation(false);
+        getScheduler()->notifyActivation(this, false);
     }
   }
   
@@ -349,10 +345,10 @@ void NodeBase::setUseActivationCallback(bool flag) {
     bool newState = active && useActivationCallback;
     if (oldState && !newState) {
       delMySelfAsListener(currentState);
-      setActivation(false);
+      getScheduler()->notifyActivation(this, false);
     } else if (!oldState && newState) {
       addMySelfAsListener(currentState);
-      setActivation(searchActiveTransition());
+      getScheduler()->notifyActivation(this, searchActiveTransition());
     }
   } else
     useActivationCallback = flag;
@@ -368,10 +364,10 @@ void NodeBase::setActive(bool flag) {
     bool newState = active && useActivationCallback;
     if (oldState && !newState) {
       delMySelfAsListener(currentState);
-      setActivation(false);
+      getScheduler()->notifyActivation(this, false);
     } else if (!oldState && newState) {
       addMySelfAsListener(currentState);
-      setActivation(searchActiveTransition());
+      getScheduler()->notifyActivation(this, searchActiveTransition());
     }
   } else
     active = flag;

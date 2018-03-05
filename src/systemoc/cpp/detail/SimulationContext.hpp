@@ -42,6 +42,7 @@
 
 #include <systemoc/smoc_config.h>
 
+#include <smoc/SimulatorAPI/SimulatorInterface.hpp>
 #include <smoc/detail/SimCTXBase.hpp>
 
 #ifdef MAESTRO_ENABLE_POLYPHONIC
@@ -65,7 +66,10 @@ class SimulationContext
 #endif //SYSTEMOC_ENABLE_SGX
 {
 private:
-  std::vector<char *> argv;
+  typedef SimulatorAPI::SimulatorInterface SI;
+
+  std::vector<char *>  argv;
+  SI                  *simulatorInterface;
 
 #ifdef SYSTEMOC_ENABLE_TRANSITION_TRACE
   std::ostream   *dumpTraceFile;
@@ -79,12 +83,16 @@ private:
 public:
   SimulationContext(int _argc, char *_argv[]);
 
+
 #ifdef MAESTRO_ENABLE_POLYPHONIC
   boost::mutex* event_mutex;
 #endif
 
   int    getArgc();
   char **getArgv();
+
+  SI    *getSimulatorInterface()
+    { return simulatorInterface; }
 
 #ifdef SYSTEMOC_NEED_IDS
   Detail::IdPool &getIdPool()

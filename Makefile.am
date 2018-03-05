@@ -63,10 +63,13 @@ libsystemoc_la_SOURCES = \
 	src/systemoc/cpp/detail/SimulationContext.cpp \
 	src/systemoc/cpp/detail/SMXDumper.cpp \
 	src/systemoc/cpp/detail/SMXImporter.cpp \
-	src/systemoc/cpp/detail/SysteMoCScheduler.cpp \
+	src/systemoc/cpp/detail/SysteMoCSimulator.cpp \
 	src/systemoc/cpp/detail/TraceLog.cpp \
 	src/systemoc/cpp/detail/TransitionHook.cpp \
 	src/systemoc/cpp/detail/VpcInterface.cpp \
+	src/systemoc/cpp/SimulatorAPI/SchedulerInterface.cpp \
+	src/systemoc/cpp/SimulatorAPI/SimulatorInterface.cpp \
+	src/systemoc/cpp/SimulatorAPI/TaskInterface.cpp \
 	src/systemoc/cpp/smoc_actor.cpp \
 	src/systemoc/cpp/smoc_chan_if.cpp \
 	src/systemoc/cpp/smoc_elab_and_sim.cpp \

@@ -1,5 +1,4 @@
-//  -*- tab-width:8; intent-tabs-mode:nil;  c-basic-offset:2; -*-
-// vim: set sw=2 ts=8:
+// vim: set sw=2 ts=8 et:
 /*
  * Copyright (c) 2004-2018 Hardware-Software-CoDesign, University of Erlangen-Nuremberg.
  * 
@@ -33,40 +32,22 @@
  * ENHANCEMENTS, OR MODIFICATIONS.
  */
 
-#ifndef _INCLUDED_SMOC_SMOC_SCHEDULER_TOP_HPP
-#define _INCLUDED_SMOC_SMOC_SCHEDULER_TOP_HPP
+#ifndef _INCLUDED_SMOC_SIMULATORAPI_SCHEDULERINTERFACE_HPP
+#define _INCLUDED_SMOC_SIMULATORAPI_SCHEDULERINTERFACE_HPP
 
-#include <systemc>
+namespace smoc { namespace SimulatorAPI {
 
-#include "detail/SimCTXBase.hpp"
+  class TaskInterface;
 
-namespace smoc {
+  class SchedulerInterface {
+  public:
+    // This must be implemented by the scheduler and will be called by the
+    // SysteMoC task if task->getUseActivationCallback() returns true.
+    virtual void notifyActivation(TaskInterface *task, bool activation) = 0;
 
-namespace Detail {
-  class GraphBase;
-} // namespace Detail
+    virtual ~SchedulerInterface() {}
+  };
 
-class smoc_scheduler_top
-: public sc_core::sc_module,
-  public Detail::SimCTXBase {
+} } // namespace smoc::SimulatorAPI
 
-  friend class Detail::GraphBase;
-public:
-  smoc_scheduler_top(Detail::GraphBase *g);
-  smoc_scheduler_top(Detail::GraphBase &g);
-  ~smoc_scheduler_top();
-
-protected:
-  void start_of_simulation();
-  void end_of_simulation();
-  void _before_end_of_elaboration();
-  void _end_of_elaboration();
-
-private:
-  Detail::GraphBase *g;
-  bool               simulation_running;
-};
-
-} // namespace smoc
-
-#endif // _INCLUDED_SMOC_SMOC_SCHEDULER_TOP_HPP
+#endif // _INCLUDED_SMOC_SIMULATORAPI_SCHEDULERINTERFACE_HPP

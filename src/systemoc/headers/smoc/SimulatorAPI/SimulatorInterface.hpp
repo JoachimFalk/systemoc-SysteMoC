@@ -1,5 +1,4 @@
-//  -*- tab-width:8; intent-tabs-mode:nil;  c-basic-offset:2; -*-
-// vim: set sw=2 ts=8:
+// vim: set sw=2 ts=8 et:
 /*
  * Copyright (c) 2004-2018 Hardware-Software-CoDesign, University of Erlangen-Nuremberg.
  * 
@@ -33,40 +32,42 @@
  * ENHANCEMENTS, OR MODIFICATIONS.
  */
 
-#ifndef _INCLUDED_SMOC_SMOC_SCHEDULER_TOP_HPP
-#define _INCLUDED_SMOC_SMOC_SCHEDULER_TOP_HPP
+#ifndef _INCLUDED_SMOC_SIMULATORAPI_SIMULATORINTERFACE_HPP
+#define _INCLUDED_SMOC_SIMULATORAPI_SIMULATORINTERFACE_HPP
 
-#include <systemc>
+#include "TaskInterface.hpp"
+#include "SchedulerInterface.hpp"
 
-#include "detail/SimCTXBase.hpp"
+#include <boost/program_options/options_description.hpp>
+#include <boost/program_options/variables_map.hpp>
 
-namespace smoc {
+#include <vector>
 
-namespace Detail {
-  class GraphBase;
-} // namespace Detail
+namespace smoc { namespace SimulatorAPI {
 
-class smoc_scheduler_top
-: public sc_core::sc_module,
-  public Detail::SimCTXBase {
+  class SimulatorInterface {
+  public:
+    enum EnablementStatus {
+      IS_DISABLED,
+      MAYBE_ACTIVE,
+      MUSTBE_ACTIVE
+    };
 
-  friend class Detail::GraphBase;
-public:
-  smoc_scheduler_top(Detail::GraphBase *g);
-  smoc_scheduler_top(Detail::GraphBase &g);
-  ~smoc_scheduler_top();
+    virtual void populateOptionsDescription(
+        int &argc, char ** &argv,
+        boost::program_options::options_description &pub,
+        boost::program_options::options_description &priv) = 0;
 
-protected:
-  void start_of_simulation();
-  void end_of_simulation();
-  void _before_end_of_elaboration();
-  void _end_of_elaboration();
+    virtual EnablementStatus evaluateOptionsMap(
+        boost::program_options::variables_map &vm) = 0;
 
-private:
-  Detail::GraphBase *g;
-  bool               simulation_running;
-};
+    virtual SchedulerInterface *registerTask(TaskInterface *task) = 0;
 
-} // namespace smoc
+    virtual ~SimulatorInterface();
+  };
 
-#endif // _INCLUDED_SMOC_SMOC_SCHEDULER_TOP_HPP
+  extern std::vector<SimulatorInterface *> registeredSimulators;
+
+} } // namespace smoc::SimulatorAPI
+
+#endif // _INCLUDED_SMOC_SIMULATORAPI_SIMULATORINTERFACE_HPP

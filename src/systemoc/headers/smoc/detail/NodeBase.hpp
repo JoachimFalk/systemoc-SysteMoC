@@ -52,7 +52,6 @@
 #include <systemoc/smoc_config.h>
 
 #include "NamedIdedObj.hpp"
-#include "SysteMoCScheduler.hpp"
 #include "../smoc_expr.hpp"
 #include "../../systemoc/smoc_firing_rules.hpp"
 #include "../../systemoc/detail/smoc_firing_rules_impl.hpp"
@@ -62,13 +61,11 @@
 # include <smoc/smoc_hooking.hpp>
 #endif //SYSTEMOC_ENABLE_HOOKING
 
-#ifdef SYSTEMOC_ENABLE_VPC
-# include <systemcvpc/ScheduledTask.hpp>
-#endif //SYSTEMOC_ENABLE_VPC
-
 #ifdef MAESTRO_ENABLE_POLYPHONIC
 # include <PolyphoniC/Callip.h>
 #endif //MAESTRO_ENABLE_POLYPHONIC
+
+#include <smoc/SimulatorAPI/TaskInterface.hpp>
 
 // FIXME: These macros are all obsolete, delete them!
 #define VAR(variable)       this->var(variable, #variable)
@@ -107,30 +104,27 @@ class GraphBase;
  * you have to change apply_visitor.hpp accordingly.
  */
 class NodeBase
-  :
-#if defined(SYSTEMOC_ENABLE_VPC)
-    public SystemC_VPC::ScheduledTask
-#elif defined(SYSTEMOC_ENABLE_MAESTRO)
-    public sc_core::sc_module
+  : public sc_core::sc_module
+  , public SimCTXBase
+  /// This smoc_event_listener base class is used to listen for events
+  /// denoting sufficient available tokens and free spaces for at least
+  /// one outgoing transition of the current state <currentState>.
+  /// If sufficient tokens and free places are available, the
+  /// signaled method of smoc_event_listener is called. This
+  /// Method is overwritten in this class to maybe schedule the
+  /// actor or graph if the guard of the transition is also satisfied.
+  , private smoc::smoc_event_listener
+#ifdef SYSTEMOC_NEED_IDS
+  , public NamedIdedObj
+#endif // SYSTEMOC_NEED_IDS
+#if !defined(SYSTEMOC_ENABLE_MAESTRO)
+  , public SimulatorAPI::TaskHandle
+#else //defined(SYSTEMOC_ENABLE_MAESTRO)
   , public MetaMap::SMoCActor
 # ifdef MAESTRO_ENABLE_POLYPHONIC
   , public MAESTRO::PolyphoniC::psmoc_root_node
 # endif
-#else // !defined(def SYSTEMOC_ENABLE_VPC) && !defined(SYSTEMOC_ENABLE_MAESTRO)
-    public smoc::Detail::SysteMoCScheduler
-#endif
-#ifdef SYSTEMOC_NEED_IDS
-  , public smoc::Detail::NamedIdedObj
-#endif // SYSTEMOC_NEED_IDS
-  , public smoc::Detail::SimCTXBase
-/// This smoc_event_listener base class is used to listen for events
-/// denoting sufficient available tokens and free spaces for at least
-/// one outgoing transition of the current state <currentState>.
-/// If sufficient tokens and free places are available, the
-/// signaled method of smoc_event_listener is called. This
-/// Method is overwritten in this class to maybe schedule the
-/// actor or graph if the guard of the transition is also satisfied.
-  , private smoc::smoc_event_listener
+#endif // defined(SYSTEMOC_ENABLE_MAESTRO)
 {
   typedef NodeBase this_type;
 
@@ -238,6 +232,11 @@ public:
   /// @brief Collect ports from child objects
   smoc_sysc_port_list getPorts() const;
 
+  // To reflect SystemC name back to NamedIdedObj -- if present -- and
+  // TaskInterface base classes
+  const char *name() const
+    { return this->sc_core::sc_module::name(); }
+
 private:
 
   /// @brief Initial firing state
@@ -263,7 +262,7 @@ private:
   /// This should be true if an action of the actor is currently executing
   /// and false otherwise.
   bool               executing;
-  /// This should be true if SysteMoC should call setActivation to interface
+  /// This should be true if SysteMoC should call notifyActivation to interface
   /// to the scheduler. If this is false, then the scheduler has to use
   /// canFire to inquire if the actor can be fired.
   bool               useActivationCallback;
@@ -290,12 +289,6 @@ public:
 private:
 #endif //SYSTEMOC_ENABLE_MAESTRO
 
-#ifdef SYSTEMOC_NEED_IDS
-  // To reflect SystemC name back to NamedIdedObj base class.
-  const char *_name() const
-    { return this->sc_core::sc_module::name(); }
-#endif // SYSTEMOC_NEED_IDS
-
   /// @brief Resets this node, calls reset()
   virtual void doReset();
 
@@ -307,7 +300,7 @@ private:
   bool searchActiveTransition(bool debug = false);
 
   // Implement use activation callback interface from
-  // EvalAPI::SchedulingInterface.
+  // SimulatorAPI::TaskInterface.
   void setUseActivationCallback(bool flags);
   bool getUseActivationCallback() const;
 

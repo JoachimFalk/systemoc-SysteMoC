@@ -66,24 +66,19 @@ class ChanBase
   typedef ChanBase this_type;
   friend class GraphBase; // reset
   friend class ::smoc_reset_chan; // reset
-
-private:
-#ifndef SYSTEMOC_ENABLE_MAESTROMM_SPEEDUP
-  std::string myName; // patched in before_end_of_elaboration
-
-  void generateName();
-#endif //!defined(SYSTEMOC_ENABLE_MAESTROMM_SPEEDUP)
 public:
-#ifndef SYSTEMOC_ENABLE_MAESTROMM_SPEEDUP
-  /// @brief Overwrite SystemC name method to provide our own version of channel names.
+#if defined(SYSTEMOC_NEED_IDS) || !defined(SYSTEMOC_ENABLE_MAESTROMM_SPEEDUP)
+  // To reflect the generated name or SystemC name back to the NamedIdedObj base class
+  // or to replace the SystemC name with out generated name.
   const char *name() const
+# if !defined(SYSTEMOC_ENABLE_MAESTROMM_SPEEDUP)
     { assert(myName != ""); return myName.c_str(); }
-#endif //!defined(SYSTEMOC_ENABLE_MAESTROMM_SPEEDUP)
+# else //defined(SYSTEMOC_ENABLE_MAESTROMM_SPEEDUP)
+    { return this->sc_core::sc_prim_channel::name(); }
+# endif //defined(SYSTEMOC_ENABLE_MAESTROMM_SPEEDUP)
+#endif // defined(SYSTEMOC_NEED_IDS) || !defined(SYSTEMOC_ENABLE_MAESTROMM_SPEEDUP)
 protected:
-#ifndef SYSTEMOC_ENABLE_MAESTROMM_SPEEDUP
-  // constructor
   ChanBase(const std::string &name);
-#endif //!defined(SYSTEMOC_ENABLE_MAESTROMM_SPEEDUP)
 
   virtual void setChannelID( std::string sourceActor,
                              CoSupport::SystemC::ChannelId id,
@@ -99,11 +94,11 @@ protected:
 
   virtual ~ChanBase();
 private:
-#ifdef SYSTEMOC_NEED_IDS
-  // To reflect the generated name or SystemC name back to the NamedIdedObj base class.
-  const char *_name() const
-    { return this->name(); }
-#endif // SYSTEMOC_NEED_IDS
+#ifndef SYSTEMOC_ENABLE_MAESTROMM_SPEEDUP
+  std::string myName; // patched in before_end_of_elaboration
+
+  void generateName();
+#endif //!defined(SYSTEMOC_ENABLE_MAESTROMM_SPEEDUP)
 };
 
 typedef std::list<ChanBase *> smoc_chan_list;
