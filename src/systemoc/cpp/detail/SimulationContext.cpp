@@ -138,16 +138,6 @@ SimulationContext::SimulationContext(int _argc, char *_argv[])
      "Dump dataflow trace")
     ;
   
-//#ifdef SYSTEMOC_ENABLE_VPC
-//  systemocOptions.add_options()
-//#else // !SYSTEMOC_ENABLE_VPC
-//  backwardCompatibilityCruftOptions.add_options()
-//#endif // !SYSTEMOC_ENABLE_VPC
-//    ("systemoc-vpc-config",
-//     po::value<std::string>(),
-//     "use specified SystemC-VPC configuration file")
-//    ;
-  
   // Backward compatibility cruft
   backwardCompatibilityCruftOptions.add_options()
     ("export-smx",
@@ -156,8 +146,6 @@ SimulationContext::SimulationContext(int _argc, char *_argv[])
      po::value<std::string>())
     ("import-smx",
      po::value<std::string>())
-//  ("vpc-config",
-//   po::value<std::string>())
     ;
 
   for (SimulatorAPI::SimulatorInterface *simulator : SimulatorAPI::registeredSimulators)
@@ -177,13 +165,17 @@ SimulationContext::SimulationContext(int _argc, char *_argv[])
   outDbg << Debug::High;
 #endif // !SYSTEMOC_DEBUG
   
+  bool vpc = false;
+
   // Create new argv from not handled options
   {
     argv.push_back(strdup(_argc >= 1 ? _argv[0] : "???"));
     for (po::basic_option<char> const &option : parsed.options)
-      if (option.unregistered || option.position_key != -1)
+      if (option.unregistered || option.position_key != -1) {
+        vpc |= option.string_key.find("systemoc-vpc") == 0;
         for(std::string const &arg : option.original_tokens)
           argv.push_back(strdup(arg.c_str()));
+      }
     argv.push_back(nullptr);
   }
 
@@ -328,22 +320,6 @@ SimulationContext::SimulationContext(int _argc, char *_argv[])
       str << "SysteMoC configured without dataflow trace support: --" << i->string_key << " option not provided!";
       throw std::runtime_error(str.str().c_str());
 #endif // !SYSTEMOC_ENABLE_DATAFLOW_TRACE
-    } else if (i->string_key == "systemoc-vpc-config" ||
-               i->string_key == "vpc-config") {
-      assert(!i->value.empty());
-#ifdef SYSTEMOC_ENABLE_VPC
-# ifdef _MSC_VER
-      std::string env="VPCCONFIGURATION";
-      env += i->value.front().c_str();
-      putenv(env.c_str());
-# else
-      setenv("VPCCONFIGURATION", i->value.front().c_str(), 1);
-# endif // _MSC_VER
-#else  // !SYSTEMOC_ENABLE_VPC
-      std::ostringstream str;
-      str << "SysteMoC configured without vpc support: --" << i->string_key << " option not provided!";
-      throw std::runtime_error(str.str().c_str());
-#endif // !SYSTEMOC_ENABLE_VPC
 /*  } else if (i->unregistered || i->position_key != -1) {
       for(std::vector<std::string>::const_iterator j = i->original_tokens.begin();
           j != i->original_tokens.end();
@@ -354,27 +330,15 @@ SimulationContext::SimulationContext(int _argc, char *_argv[])
     }
   }
   if (getenv("VPCCONFIGURATION") != nullptr) {
-#ifdef SYSTEMOC_ENABLE_VPC
-    bool validConfig = SystemC_VPC::Director::getInstance().hasValidConfig();
-# ifdef SYSTEMOC_DEBUG
-    if (outDbg.isVisible(Debug::High)) {
-      if (validConfig) {
-        outDbg << "SystemC_VPC has valid configuration " << getenv("VPCCONFIGURATION") << " => turning VPC on" << std::endl;
-      } else {
-        outDbg << "SystemC_VPC has invalid configuration " << getenv("VPCCONFIGURATION") << " => VPC still off" << std::endl;
-      }
-    }
-# endif // !SYSTEMOC_DEBUG
-#else  // !SYSTEMOC_ENABLE_VPC
     std::ostringstream str;
     str << "SysteMoC configured without VPC support: Support for VPCCONFIGURATION environment variable is not provided!";
     throw std::runtime_error(str.str().c_str());
-#endif // !SYSTEMOC_ENABLE_VPC
   }
-  
-#ifdef SYSTEMOC_ENABLE_VPC
-  SystemC_VPC::Director::getInstance();
-#endif //!defined(SYSTEMOC_ENABLE_VPC)
+  if (vpc) {
+    std::ostringstream str;
+    str << "SysteMoC configured without VPC support: Support for --systemoc-vpc-* options is not provided!";
+    throw std::runtime_error(str.str().c_str());
+  }
   
   if (currentSimCTX == nullptr)
     defCurrentCTX();
