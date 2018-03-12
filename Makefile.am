@@ -586,7 +586,7 @@ check-logs: $(TEST_LOGS)
 if VPC
 
 diff_vcd_ignore_date=-I '[[:blank:]]*[[:alpha:]]\{3\}[[:blank:]][[:digit:]]\{2\},[[:blank:]][[:digit:]]\{4\}[[:blank:]]*[[:digit:]]\{1,2\}:[[:digit:]]\{2\}:[[:digit:]]\{2\}$$'
-diff_vcd_ignore_systemc_version=-I 'SystemC[[:blank:]]2.2.0[[:blank:]]---[[:blank:]]'
+diff_vcd_ignore_systemc_version=-I 'SystemC[[:blank:]][[:digit:].]\+\(-Accellera\)\?[[:blank:]]---[[:blank:]]'
 diff_vcd_ignore=$(diff_vcd_ignore_date) $(diff_vcd_ignore_systemc_version)
 
 check-am: check-vcds
