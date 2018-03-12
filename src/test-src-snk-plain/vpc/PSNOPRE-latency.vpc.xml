@@ -5,17 +5,19 @@
  <measurefile name=""/>
 
  <resources>
-  <component name="CPU" scheduler="FCFS">
+  <component name="CPU" scheduler="PSNOPRE">
    <attribute type="tracing" value="VCD"/>
   </component>
  </resources>
 
  <mappings>
   <mapping source="top.src" target="CPU">
-    <timing fname="m_h_src::src"   delay="7.5 ms"/>
+    <timing dii="7.5 ms" latency="10 ms" />
+    <attribute type="priority" value="1" />
   </mapping>
   <mapping source="top.snk" target="CPU">
-    <timing fname="m_h_sink::sink" delay="10.0 ms"/>
+    <timing delay="10.0 ms"/>
+    <attribute type="priority" value="0" />
   </mapping>
  </mappings>
 

@@ -12,10 +12,10 @@
 
  <mappings>
   <mapping source="top.src" target="CPU">
-    <timing fname="m_h_src::src"   delay="7.5 ms"/>
+    <timing fname="m_h_src::src"   dii="7.5 ms" latency="15.5 ms"/>
   </mapping>
   <mapping source="top.snk" target="CPU">
-    <timing fname="m_h_sink::sink" delay="10.0 ms"/>
+    <timing fname="m_h_sink::sink" dii="10.0 ms" latency="12.5 ms"/>
   </mapping>
  </mappings>
 

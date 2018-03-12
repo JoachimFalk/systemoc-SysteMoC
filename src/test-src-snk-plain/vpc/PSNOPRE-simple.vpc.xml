@@ -12,12 +12,12 @@
 
  <mappings>
   <mapping source="top.src" target="CPU">
-    <timing fname="m_h_src::src"   dii="74 ns" latency="75 ns"/>
-    <attribute type="priority" value="1" />
+    <timing delay="7.5 ms"/>
+    <attribute type="priority" value="0" />
   </mapping>
   <mapping source="top.snk" target="CPU">
-    <timing fname="m_h_sink::sink" dii="99 ns" latency="100 ns"/>
-    <attribute type="priority" value="0" />
+    <timing delay="10.0 ms"/>
+    <attribute type="priority" value="1" />
   </mapping>
  </mappings>
 
