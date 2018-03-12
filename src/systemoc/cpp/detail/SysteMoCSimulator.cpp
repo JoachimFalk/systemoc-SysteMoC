@@ -9,12 +9,6 @@
 #include <smoc/SimulatorAPI/TaskInterface.hpp>
 #include <smoc/SimulatorAPI/SimulatorInterface.hpp>
 
-namespace smoc { namespace SimulatorAPI {
-
-  std::vector<SimulatorInterface *> registeredSimulators;
-
-} } // namespace smoc::SimulatorAPI
-
 namespace smoc { namespace Detail {
 
 class SysteMoCScheduler
@@ -81,7 +75,6 @@ public:
 };
 
 SysteMoCSimulator::SysteMoCSimulator() {
-  SimulatorAPI::registeredSimulators.push_back(this);
 }
 
 void SysteMoCSimulator::populateOptionsDescription(

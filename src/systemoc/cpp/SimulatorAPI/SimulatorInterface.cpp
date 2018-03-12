@@ -36,10 +36,16 @@
 
 namespace smoc { namespace SimulatorAPI {
 
+  SimulatorInterface::SimulatorInterface() {
+    getRegisteredSimulators().push_back(this);
+  }
+
   SimulatorInterface::~SimulatorInterface()
     {}
 
-//Moved to SysteMoCSimulator.cpp
-//std::vector<SimulatorInterface *> registeredSimulators;
+  std::vector<SimulatorInterface *> &SimulatorInterface::getRegisteredSimulators() {
+    static std::vector<SimulatorInterface *> registeredSimulators;
+    return registeredSimulators;
+  }
 
 } } // namespace smoc::SimulatorAPI
