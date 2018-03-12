@@ -64,6 +64,8 @@ namespace smoc { namespace Detail {
 
 namespace po = boost::program_options;
 
+using SimulatorAPI::SimulatorInterface;
+
 // This global variable will also be used in <smoc/detail/SimCTXBase.hpp>
 SimulationContext *currentSimCTX = nullptr;
 
@@ -148,7 +150,7 @@ SimulationContext::SimulationContext(int _argc, char *_argv[])
      po::value<std::string>())
     ;
 
-  for (SimulatorAPI::SimulatorInterface *simulator : SimulatorAPI::registeredSimulators)
+  for (SimulatorInterface *simulator : SimulatorInterface::getRegisteredSimulators())
     simulator->populateOptionsDescription(_argc, _argv,
         systemocOptions, backwardCompatibilityCruftOptions);
   // All options
@@ -182,15 +184,15 @@ SimulationContext::SimulationContext(int _argc, char *_argv[])
   // Select the simulator back end from the list of registered simulators.
   {
     typedef std::pair<
-        SimulatorAPI::SimulatorInterface::EnablementStatus,
-        SimulatorAPI::SimulatorInterface *>
+        SimulatorInterface::EnablementStatus,
+        SimulatorInterface *>
       SimulatorEnablementStatus;
 
     std::vector<SimulatorEnablementStatus> simulatorStates;
-    for (SimulatorAPI::SimulatorInterface *simulator : SimulatorAPI::registeredSimulators)
+    for (SimulatorInterface *simulator : SimulatorInterface::getRegisteredSimulators())
       simulatorStates.push_back(std::make_pair(simulator->evaluateOptionsMap(vm), simulator));
     for (SimulatorEnablementStatus simState : simulatorStates) {
-      if (simState.first == SimulatorAPI::SimulatorInterface::MUSTBE_ACTIVE) {
+      if (simState.first == SimulatorInterface::MUSTBE_ACTIVE) {
         if (!this->simulatorInterface)
           this->simulatorInterface = simState.second;
         else {
@@ -202,7 +204,7 @@ SimulationContext::SimulationContext(int _argc, char *_argv[])
     }
     if (!this->simulatorInterface) {
       for (SimulatorEnablementStatus simState : simulatorStates) {
-        if (simState.first == SimulatorAPI::SimulatorInterface::MAYBE_ACTIVE) {
+        if (simState.first == SimulatorInterface::MAYBE_ACTIVE) {
           this->simulatorInterface = simState.second;
           break;
         }
@@ -401,5 +403,11 @@ void SimulationContext::endOfSystemcSimulation(){
 #endif
   }
 }
+
+/// This stuff is here to pull SysteMoCSimulator.cpp into the link.
+class SysteMoCSimulator;
+extern SysteMoCSimulator systeMoCSimulator;
+static __attribute__ ((unused))
+SysteMoCSimulator *pSimulator = &systeMoCSimulator;
 
 } } // namespace smoc::Detail
