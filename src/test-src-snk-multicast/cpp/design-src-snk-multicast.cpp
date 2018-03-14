@@ -72,8 +72,6 @@ class m_h_sink: public smoc_actor {
 public:
   smoc_port_in<T> in;
 private:
-  int i;
-  
   void sink(void) {
     std::cout
       << name() << ": received token with value " << in[0] << std::endl;
