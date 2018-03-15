@@ -57,7 +57,7 @@ void NodeQueue::registerNode(NodeBase* node, sc_core::sc_time time) {
     }
   }
   TimeNodePair tnp(time, node);
-  pqueue.push(tnp);	
+  pqueue.push(tnp);
   //is the new node earlier to release then the current node? or is there currently no node aktiv? -> reactivate the waiter
   if ((current!=nullptr && time < current->time) ||
        current==nullptr) {

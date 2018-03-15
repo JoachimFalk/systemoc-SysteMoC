@@ -750,7 +750,7 @@ void FiringFSMImpl::before_end_of_elaboration(
             // FIXME: construct state name and pass to RuntimeState
             ProdState f = ins.first->first;
 #if defined(SYSTEMOC_ENABLE_MAESTRO) && defined(MAESTRO_ENABLE_BRUCKNER)
-            ins.first->second = *rts.insert(new RuntimeState(Concat("")(f), dynamic_cast<Bruckner::Model::Hierarchical*>(actorOrGraphNode)	)).first;
+            ins.first->second = *rts.insert(new RuntimeState(Concat("")(f), dynamic_cast<Bruckner::Model::Hierarchical*>(actorOrGraphNode))).first;
 #else //!defined(SYSTEMOC_ENABLE_MAESTRO) || !defined(MAESTRO_ENABLE_BRUCKNER)
             ins.first->second = *rts.insert(new RuntimeState(Concat(actorOrGraphNode->name())(":")(f))).first;
 #endif //!defined(SYSTEMOC_ENABLE_MAESTRO) || !defined(MAESTRO_ENABLE_BRUCKNER)
@@ -1474,18 +1474,16 @@ std::string smoc_hierarchical_state::getHierarchicalName() const
 #ifdef SYSTEMOC_ENABLE_MAESTRO
 /**
 * @rosales: Clone method to enable the reassigment of the initial state
-*			Rationale: States have a overloaded assignment operator
+* Rationale: States have a overloaded assignment operator
 */
 smoc_hierarchical_state& smoc_hierarchical_state::clone(const smoc_hierarchical_state &st) {
+  HierarchicalStateImpl* copyImp = st.getImpl();
+  HierarchicalStateImpl* thisImp = this->getImpl();
 
-	HierarchicalStateImpl* copyImp = st.getImpl();
-	HierarchicalStateImpl* thisImp = this->getImpl();
+  *thisImp = *copyImp;
+  this->pImpl = st.pImpl;
 
-	*thisImp = *copyImp;
-	this->pImpl = st.pImpl;
-
-
-	return *this;
+  return *this;
 }
 #endif
 
