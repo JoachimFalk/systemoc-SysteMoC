@@ -120,17 +120,17 @@ void smoc_actor::registerTransitionReadyListener(MetaMap::TransitionReadyListene
 # ifdef MAESTRO_ENABLE_POLYPHONIC
 void smoc_actor::registerThreadDoneListener(MetaMap::ThreadDoneListener& listener)
 {
-	//For all states
-	RuntimeStateSet states = this->getFiringFSM()->getStates();
+  //For all states
+  RuntimeStateSet states = this->getFiringFSM()->getStates();
 
-	for (RuntimeStateSet::iterator si = states.begin(); si != states.end(); si++)
-	{
-		//For all state transitions
-		for (list<RuntimeTransition>::iterator ti = (*si)->getTransitions().begin(); ti != (*si)->getTransitions().end(); ti++)
-		{
-			(*ti).registerThreadDoneListener(listener);
-		}
-	}
+  for (RuntimeStateSet::iterator si = states.begin(); si != states.end(); si++) {
+    //For all state transitions
+    for (list<RuntimeTransition>::iterator ti = (*si)->getTransitions().begin();
+         ti != (*si)->getTransitions().end();
+         ti++) {
+      (*ti).registerThreadDoneListener(listener);
+    }
+  }
 
 }
 # endif
@@ -148,9 +148,9 @@ void smoc_actor::execute()
 void smoc_actor::wait(double v, sc_core::sc_time_unit tu )
 {
 # ifdef MAESTRO_ENABLE_POLYPHONIC
-	this->waitListener->notifyWillWaitTime(*this);
+  this->waitListener->notifyWillWaitTime(*this);
 # endif
-        sc_core::sc_module::wait(v,tu);
+  sc_core::sc_module::wait(v,tu);
 # ifdef MAESTRO_ENABLE_POLYPHONIC
   this->waitListener->notifyTimeEllapsedAndAwaken(*this);
 # endif

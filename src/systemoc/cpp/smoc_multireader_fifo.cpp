@@ -45,9 +45,9 @@
 
 smoc_multireader_fifo_chan_base::smoc_multireader_fifo_chan_base(const chan_init &i)
 #ifdef SYSTEMOC_ENABLE_MAESTROMM_SPEEDUP
-	: ChanBase(),
+  : ChanBase(),
 #else
-	: ChanBase(i.name),
+  : ChanBase(i.name),
 #endif
   
 #ifdef SYSTEMOC_ENABLE_VPC

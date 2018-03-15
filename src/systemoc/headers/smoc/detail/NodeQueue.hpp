@@ -49,7 +49,7 @@ class NodeQueue
   : public sc_core::sc_module,
     public smoc::smoc_event
 {
-  SC_HAS_PROCESS(NodeQueue);	
+  SC_HAS_PROCESS(NodeQueue);
 public:
   NodeQueue(sc_core::sc_module_name name);
   

@@ -140,7 +140,7 @@ protected:
 public:
 
 #ifdef SYSTEMOC_ENABLE_MAESTRO
-	this_type& clone(const this_type &);
+  this_type& clone(const this_type &);
 #endif
 
   ImplType *getImpl() const;
