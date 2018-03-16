@@ -1,4 +1,5 @@
-/* vim: set sw=2 ts=8: */
+// -*- tab-width:8; intent-tabs-mode:nil; c-basic-offset:2; -*-
+// vim: set sw=2 ts=8 et:
 /*
  * Copyright (c) 2004-2017 Hardware-Software-CoDesign, University of Erlangen-Nuremberg.
  * 

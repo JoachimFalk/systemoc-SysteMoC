@@ -1,3 +1,5 @@
+// -*- tab-width:8; intent-tabs-mode:nil; c-basic-offset:2; -*-
+// vim: set sw=2 ts=8 et:
 /*
  * SysteMoCScheduler.cpp
  *
