@@ -36,9 +36,15 @@
 #ifndef _INCLUDED_SMOC_HPP
 #define _INCLUDED_SMOC_HPP
 
+// This should be the main header for SysteMoC with smoc namespace.
+// If there are additional headers required, please add them here.
+#include "smoc/smoc_actor.hpp"
 #include "smoc/smoc_event.hpp"
 #include "smoc/smoc_expr.hpp"
 #include "smoc/smoc_graph.hpp"
 #include "smoc/smoc_hooking.hpp"
+#include "smoc/smoc_periodic_actor.hpp"
+#include "smoc/smoc_register.hpp"
+#include "smoc/smoc_scheduler_top.hpp"
 
 #endif // _INCLUDED_SMOC_HPP
