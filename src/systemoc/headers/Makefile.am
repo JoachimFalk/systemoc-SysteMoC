@@ -88,7 +88,6 @@ nobase_include_HEADERS = \
 	systemoc/smoc_tt.hpp \
 	systemoc/detail/smoc_chan_if.hpp \
 	systemoc/detail/smoc_fifo_storage.hpp \
-	systemoc/detail/smoc_firing_rules_impl.hpp \
 	systemoc/detail/smoc_func_call.hpp \
 	systemoc/detail/smoc_port_registry.hpp \
 	systemoc/detail/smoc_ring_access.hpp

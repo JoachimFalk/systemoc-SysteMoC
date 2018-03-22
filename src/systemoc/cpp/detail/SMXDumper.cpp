@@ -46,25 +46,25 @@
 #include <smoc/smoc_expr.hpp>
 
 #include <sgx.hpp>
-#include <CoSupport/compatibility-glue/nullptr.h>
 
+#include <CoSupport/compatibility-glue/nullptr.h>
 #include <CoSupport/String/Concat.hpp>
 
 #include <smoc/detail/DebugOStream.hpp>
 #include <smoc/detail/DumpingInterfaces.hpp>
 #include <smoc/detail/NamedIdedObj.hpp>
 
-#include "apply_visitor.hpp"
-#include "SimulationContext.hpp"
-
 #include <smoc/detail/NodeBase.hpp>
 #include <smoc/detail/ChanBase.hpp>
 #include <smoc/detail/PortBase.hpp>
-#include <systemoc/detail/smoc_firing_rules_impl.hpp>
 #include <systemoc/smoc_actor.hpp>
 #include <systemoc/smoc_fifo.hpp>
 #include <systemoc/smoc_multiplex_fifo.hpp>
 #include <systemoc/smoc_multireader_fifo.hpp>
+
+#include "apply_visitor.hpp"
+#include "SimulationContext.hpp"
+#include "smoc_firing_rules_impl.hpp"
 
 //#define SYSTEMOC_DEBUG
 

@@ -54,7 +54,7 @@
 #include "NamedIdedObj.hpp"
 #include "../smoc_expr.hpp"
 #include "../../systemoc/smoc_firing_rules.hpp"
-#include "../../systemoc/detail/smoc_firing_rules_impl.hpp"
+//#include "../../systemoc/detail/smoc_firing_rules_impl.hpp"
 #include "PortBase.hpp"
 
 #ifdef SYSTEMOC_ENABLE_HOOKING
@@ -97,6 +97,9 @@ namespace smoc {
 namespace smoc { namespace Detail {
 
 class GraphBase;
+class FiringFSMImpl;
+class RuntimeState;
+class RuntimeTransition;
 
 /**
  * smoc_root_node is the base class of all systemoc nodes be it
@@ -128,11 +131,11 @@ class NodeBase
 {
   typedef NodeBase this_type;
 
-  friend class ::smoc::smoc_periodic_actor;
-  friend class ::smoc::smoc_graph;
   // To call doReset()
   friend class ::smoc_reset_chan;
-  friend class ::RuntimeTransition;
+  friend class smoc::smoc_periodic_actor;
+  friend class smoc::smoc_graph;
+  friend class RuntimeTransition;
   friend class GraphBase;
   friend class DumpActor; // To access constrArgs by SMXDumper
   friend class ProcessVisitor; // To disable actors by SMXImporter.

@@ -62,6 +62,13 @@
 
 #include <smoc/detail/SimCTXBase.hpp>
 
+namespace smoc { namespace Detail {
+
+  class RuntimeState;
+
+} } // namespace smoc::Detail
+
+
 /**
  * TODO: replace smoc_member_func_interface, smoc_member_func,
  *       smoc_func_call with boost::function
@@ -203,8 +210,6 @@ public:
 //bool operator <(const smoc_func_call &lhs, const smoc_func_call &rhs)
 //  { return lhs.k < rhs.k; }
 
-class RuntimeState;
-
 class smoc_func_call_list
 : public std::list<smoc_func_call> {
 public:
@@ -227,15 +232,15 @@ smoc_action merge(const smoc_action& a, const smoc_action& b);
 
 class ActionVisitor : public smoc::Detail::SimCTXBase {
 public:
-  typedef RuntimeState* result_type;
+  typedef smoc::Detail::RuntimeState *result_type;
 
 public:
-  ActionVisitor(RuntimeState *dest);
+  ActionVisitor(result_type dest);
 
-  result_type operator()(const smoc_func_call_list& f) const;
+  result_type operator()(const smoc_func_call_list &f) const;
 
 private:
-  RuntimeState *dest;
+  result_type dest;
 };
 
 #if defined(SYSTEMOC_ENABLE_VPC) || defined(SYSTEMOC_ENABLE_TRANSITION_TRACE)
@@ -338,15 +343,15 @@ namespace smoc { namespace dMM {
 
 class TransitionOnThreadVisitor : public smoc::Detail::SimCTXBase {
 public:
-  typedef RuntimeState* result_type;
+  typedef smoc::Detail::RuntimeState *result_type;
 
 public:
-  TransitionOnThreadVisitor(RuntimeState* dest, MetaMap::Transition* transition);
+  TransitionOnThreadVisitor(result_type dest, MetaMap::Transition* transition);
 
   result_type operator()(const smoc_func_call_list& f) const;
 
 private:
-  RuntimeState* dest;
+  result_type dest;
 
   MetaMap::Transition* transition;
 
