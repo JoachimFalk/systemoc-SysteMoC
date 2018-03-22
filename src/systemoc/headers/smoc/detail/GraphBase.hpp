@@ -66,7 +66,6 @@ class GraphBase: public NodeBase
 {
   // need to call *StateChange
   friend class smoc_multireader_fifo_chan_base;
-  friend class smoc_reset_chan;
   friend class NodeBase;
   friend class smoc::smoc_scheduler_top; // doReset
 

@@ -36,13 +36,14 @@
 #include <systemoc/smoc_config.h>
 
 #include <systemoc/detail/smoc_func_call.hpp>
-#include <systemoc/detail/smoc_firing_rules_impl.hpp>
 #include <smoc/detail/TraceLog.hpp>
 #include <smoc/detail/DebugOStream.hpp>
 
 #ifdef MAESTRO_ENABLE_POLYPHONIC
 # include <Maestro/PolyphoniC/polyphonic_smoc_func_call.h>
 #endif //MAESTRO_ENABLE_POLYPHONIC
+
+#include "detail/smoc_firing_rules_impl.hpp"
 
 smoc_action merge(const smoc_action& a, const smoc_action& b) {
   if(const smoc_func_call_list* _a = boost::get<smoc_func_call_list>(&a)) {
@@ -64,10 +65,10 @@ smoc_action merge(const smoc_action& a, const smoc_action& b) {
   assert(0);
 }
 
-ActionVisitor::ActionVisitor(RuntimeState *dest)
+ActionVisitor::ActionVisitor(result_type dest)
   : dest(dest) {}
 
-RuntimeState *ActionVisitor::operator()(const smoc_func_call_list& f) const {
+ActionVisitor::result_type ActionVisitor::operator()(const smoc_func_call_list& f) const {
   // Function call
   for(smoc_func_call_list::const_iterator i = f.begin(); i != f.end(); ++i) {
 #ifdef SYSTEMOC_ENABLE_DATAFLOW_TRACE
@@ -96,11 +97,11 @@ RuntimeState *ActionVisitor::operator()(const smoc_func_call_list& f) const {
 
 #ifdef MAESTRO_ENABLE_POLYPHONIC
 
-smoc::dMM::TransitionOnThreadVisitor::TransitionOnThreadVisitor(RuntimeState* dest, MetaMap::Transition* tr)
+smoc::dMM::TransitionOnThreadVisitor::TransitionOnThreadVisitor(result_type dest, MetaMap::Transition* tr)
   : dest(dest), transition(tr)
 {}
 
-RuntimeState* smoc::dMM::TransitionOnThreadVisitor::operator()(const smoc_func_call_list& f) const
+smoc::dMM::TransitionOnThreadVisitor::result_type smoc::dMM::TransitionOnThreadVisitor::operator()(const smoc_func_call_list& f) const
 {
   boost::thread privateThread;
 

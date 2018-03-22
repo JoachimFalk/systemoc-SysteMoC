@@ -38,7 +38,6 @@
 
 #include <systemc>
 
-class RuntimeTransition;
 
 namespace smoc {
 
@@ -48,6 +47,7 @@ namespace smoc {
 
 namespace smoc { namespace Detail {
 
+  class RuntimeTransition;
   class NodeBase;
 
 } } // namespace smoc::Detail
@@ -143,7 +143,7 @@ namespace smoc { namespace SimulatorAPI {
   {
     friend class smoc::smoc_periodic_actor;
     friend class smoc::Detail::NodeBase;
-    friend class ::RuntimeTransition;
+    friend class smoc::Detail::RuntimeTransition;
   public:
     virtual ~TaskHandle();
   };

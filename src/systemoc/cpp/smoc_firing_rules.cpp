@@ -57,9 +57,9 @@
 #include <systemoc/smoc_graph.hpp>
 #include <smoc/detail/TraceLog.hpp>
 #include <systemoc/smoc_firing_rules.hpp>
-#include <systemoc/detail/smoc_firing_rules_impl.hpp>
 #include <smoc/detail/DebugOStream.hpp>
 
+#include "detail/smoc_firing_rules_impl.hpp"
 #include "detail/SimulationContext.hpp"
 
 #ifdef SYSTEMOC_ENABLE_HOOKING
@@ -71,13 +71,15 @@
 # include <Maestro/PolyphoniC/ActionOnThreadVisitor.hpp>
 #endif // MAESTRO_ENABLE_POLYPHONIC
 
-using namespace CoSupport::DataTypes;
-using namespace smoc::Detail;
 using CoSupport::String::Concat;
 using CoSupport::String::asStr;
 
 // Prints duration of FiringFSMImpl::finalise() in secs.
 //#define FSM_FINALIZE_BENCHMARK
+
+namespace smoc { namespace Detail {
+
+using namespace CoSupport::DataTypes;
 
 static const char HIERARCHY_SEPARATOR = '.';
 static const char PRODSTATE_SEPARATOR = ',';
@@ -102,25 +104,6 @@ struct ModelingError : public std::runtime_error {
     : std::runtime_error(desc)
   {}
 };
-
-TransitionBase::TransitionBase(
-    Guard const &g,
-    const smoc_action& f)
-  : guard(g), f(f), ioPattern(NULL) {}
-
-PartialTransition::PartialTransition(
-    Guard const &g,
-    const smoc_action& f,
-    FiringStateBaseImpl* dest)
-  : TransitionBase(g, f),
-    dest(dest)
-{}
-
-FiringStateBaseImpl* PartialTransition::getDestState() const
-  { return dest; }
-
-
-  
 
 ExpandedTransition::ExpandedTransition(
     const HierarchicalStateImpl* src,
@@ -863,71 +846,6 @@ void FiringFSMImpl::unify(this_type *fr) {
   }
 }
 
-FiringStateBaseImpl::FiringStateBaseImpl()
-  : fsm(new FiringFSMImpl()) {
-//  std::cerr << "FiringStateBaseImpl::FiringStateBaseImpl() this == "
-//            << this << std::endl;
-  fsm->addState(this);
-}
-
-FiringStateBaseImpl::~FiringStateBaseImpl() {
-//  std::cerr << "FiringStateBaseImpl::~FiringStateBaseImpl() this == "
-//            << this << std::endl;
-}
-
-FiringFSMImpl *FiringStateBaseImpl::getFiringFSM() const
-  { return fsm; }
-
-void FiringStateBaseImpl::setFiringFSM(FiringFSMImpl *f)
-  { fsm = f; }
-
-//const PartialTransitionList& FiringStateBaseImpl::getPTL() const
-//  { return ptl; }
-
-void FiringStateBaseImpl::addTransition(const smoc_transition_list& stl) {
-  for(smoc_transition_list::const_iterator st = stl.begin();
-      st != stl.end(); ++st)
-  {
-    addTransition(
-        PartialTransition(
-          st->getExpr(),
-          st->getInterfaceAction().getAction(),
-          st->getInterfaceAction().getDestState()->getImpl()));
-  }
-}
-  
-void FiringStateBaseImpl::addTransition(const PartialTransitionList& ptl) {
-  for(PartialTransitionList::const_iterator pt = ptl.begin();
-      pt != ptl.end(); ++pt)
-  {
-    addTransition(*pt);
-  }
-}
-
-void FiringStateBaseImpl::addTransition(const PartialTransition& pt) {
-  ptl.push_back(pt);
-
-  FiringStateBaseImpl* s = pt.getDestState();
-  if(s) fsm->unify(s->getFiringFSM());
-}
-
-void FiringStateBaseImpl::clearTransition()
-  { ptl.clear(); }
-
-#ifdef FSM_FINALIZE_BENCHMARK
-void FiringStateBaseImpl::countStates(size_t& nLeaf, size_t& nAnd, size_t& nXOR, size_t& nTrans) const {
-  nTrans += ptl.size();
-}
-#endif // FSM_FINALIZE_BENCHMARK
-
-void intrusive_ptr_add_ref(FiringStateBaseImpl *p)
-  { p->getFiringFSM()->addRef(); }
-
-void intrusive_ptr_release(FiringStateBaseImpl *p)
-  { if(p->getFiringFSM()->delRef()) delete p->getFiringFSM(); }
-
-
-
 
 
 HierarchicalStateImpl::HierarchicalStateImpl(const std::string& name)
@@ -1423,34 +1341,9 @@ void intrusive_ptr_add_ref(MultiStateImpl *p)
 void intrusive_ptr_release(MultiStateImpl *p)
   { intrusive_ptr_release(static_cast<FiringStateBaseImpl*>(p)); }
 
+} } // namespace smoc::Detail
 
-
-smoc_firing_state_base::smoc_firing_state_base(const SmartPtr &p)
-  : FFType(p) {}
-
-void smoc_firing_state_base::addTransition(const smoc_transition_list &tl)
-  { getImpl()->addTransition(tl); }
-
-void smoc_firing_state_base::clearTransition()
-  { getImpl()->clearTransition(); }
-
-smoc_firing_state_base::ImplType *smoc_firing_state_base::getImpl() const 
-  { return CoSupport::DataTypes::FacadeCoreAccess::getImpl(*this); }
-
-smoc_firing_state_base& smoc_firing_state_base::operator = (const smoc_transition_list &tl) {
-  getImpl()->clearTransition();
-  getImpl()->addTransition(tl);
-  return *this;
-}
-
-smoc_firing_state_base& smoc_firing_state_base::operator |= (const smoc_transition_list &tl) {
-  getImpl()->addTransition(tl);
-  return *this;
-}
-
-
-
-
+using namespace smoc::Detail;
 
 smoc_hierarchical_state::smoc_hierarchical_state(const SmartPtr &p)
   : FFType(_StorageType(p)) {}
@@ -1487,8 +1380,6 @@ smoc_hierarchical_state& smoc_hierarchical_state::clone(const smoc_hierarchical_
   return *this;
 }
 #endif
-
-
 
 smoc_firing_state::smoc_firing_state(const SmartPtr &p)
   : FFType(_StorageType(p)) {}

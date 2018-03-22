@@ -56,6 +56,7 @@
 #include <systemoc/smoc_config.h>
 
 #include "detail/smoc_func_call.hpp"
+#include "../smoc/detail/FiringStateBase.hpp"
 
 #include <boost/static_assert.hpp>
 
@@ -65,71 +66,43 @@
 
 typedef smoc::Expr::Ex<bool>::type Guard;
 
-// FIXME: this should be in Detail but conflicts with other
-// Detail namespaces...
+namespace smoc { namespace Detail {
 
-template <class T>
-struct FT: public CoSupport::DataTypes::FacadeTraits<T> {};
+  template <class T>
+  struct FT: public CoSupport::DataTypes::FacadeTraits<T> {};
 
-class PartialTransition;
+  class HierarchicalStateImpl;
+  DECL_INTRUSIVE_REFCOUNT_PTR(HierarchicalStateImpl, PHierarchicalStateImpl);
 
-class FiringStateBaseImpl;
-DECL_INTRUSIVE_REFCOUNT_PTR(FiringStateBaseImpl, PFiringStateBaseImpl);
+  class FiringStateImpl;
+  DECL_INTRUSIVE_REFCOUNT_PTR(FiringStateImpl, PFiringStateImpl);
 
-class HierarchicalStateImpl;
-DECL_INTRUSIVE_REFCOUNT_PTR(HierarchicalStateImpl, PHierarchicalStateImpl);
+  class XORStateImpl;
+  DECL_INTRUSIVE_REFCOUNT_PTR(XORStateImpl, PXORStateImpl);
 
-class FiringStateImpl;
-DECL_INTRUSIVE_REFCOUNT_PTR(FiringStateImpl, PFiringStateImpl);
+  class ANDStateImpl;
+  DECL_INTRUSIVE_REFCOUNT_PTR(ANDStateImpl, PANDStateImpl);
 
-class XORStateImpl;
-DECL_INTRUSIVE_REFCOUNT_PTR(XORStateImpl, PXORStateImpl);
+  class JunctionStateImpl;
+  DECL_INTRUSIVE_REFCOUNT_PTR(JunctionStateImpl, PJunctionStateImpl);
 
-class ANDStateImpl;
-DECL_INTRUSIVE_REFCOUNT_PTR(ANDStateImpl, PANDStateImpl);
+  class MultiStateImpl;
+  DECL_INTRUSIVE_REFCOUNT_PTR(MultiStateImpl, PMultiStateImpl);
 
-class JunctionStateImpl;
-DECL_INTRUSIVE_REFCOUNT_PTR(JunctionStateImpl, PJunctionStateImpl);
-
-class MultiStateImpl;
-DECL_INTRUSIVE_REFCOUNT_PTR(MultiStateImpl, PMultiStateImpl);
+} } // namespace smoc::Detail
 
 class smoc_transition_list;
 
-class smoc_firing_state_base
-: public CoSupport::DataTypes::FacadeFoundation<
-    smoc_firing_state_base,
-    FiringStateBaseImpl
-  >
-{
-public:
-  typedef smoc_firing_state_base this_type;
-
-  friend class FiringStateBaseImpl;
-protected:
-  explicit smoc_firing_state_base(_StorageType const &x): FFType(x) {}
-  smoc_firing_state_base(SmartPtr const &p);
-public:
-  ImplType *getImpl() const;
-
-  /// @brief Add transitions to state
-  void addTransition(const smoc_transition_list &tl);
-
-  /// @brief Clear all transitions
-  void clearTransition();
-  
-  this_type& operator=(const smoc_transition_list &tl);
-  this_type& operator|=(const smoc_transition_list &tl);
-};
 
 class smoc_hierarchical_state
 : public CoSupport::DataTypes::FacadeFoundation<
     smoc_hierarchical_state,
-    HierarchicalStateImpl,
-    smoc_firing_state_base
+    smoc::Detail::HierarchicalStateImpl,
+    smoc::Detail::FiringStateBase
   >
 {
-  typedef smoc_hierarchical_state this_type;
+  typedef smoc_hierarchical_state       this_type;
+  typedef smoc::Detail::FiringStateBase base_type;
 
 protected:
   explicit smoc_hierarchical_state(_StorageType const &x): FFType(x) {}
@@ -146,7 +119,7 @@ public:
 #endif
 
   ImplType *getImpl() const;
-  using smoc_firing_state_base::operator=;
+  using base_type::operator=;
 
   smoc_hierarchical_state::Ref select(
       const std::string& name);
@@ -160,12 +133,12 @@ public:
 class smoc_firing_state
 : public CoSupport::DataTypes::FacadeFoundation<
     smoc_firing_state,
-    FiringStateImpl,
+    smoc::Detail::FiringStateImpl,
     smoc_hierarchical_state
   >
 {
-  typedef smoc_firing_state this_type;
-
+  typedef smoc_firing_state       this_type;
+  typedef smoc_hierarchical_state base_type;
 protected:
   explicit smoc_firing_state(_StorageType const &x): FFType(x) {}
   smoc_firing_state(SmartPtr const &p);
@@ -177,19 +150,18 @@ public:
   smoc_firing_state(const std::string& name = "");
 
   ImplType *getImpl() const;
-  using smoc_firing_state_base::operator=;
+  using base_type::operator=;
 };
 
 class smoc_xor_state
 : public CoSupport::DataTypes::FacadeFoundation<
     smoc_xor_state,
-    XORStateImpl,
+    smoc::Detail::XORStateImpl,
     smoc_hierarchical_state
   >
 {
-public:
-  typedef smoc_xor_state this_type;
-
+  typedef smoc_xor_state          this_type;
+  typedef smoc_hierarchical_state base_type;
 protected:
   friend class smoc_and_state;
   
@@ -207,19 +179,18 @@ public:
   this_type& init(const smoc_hierarchical_state &state);
 
   ImplType *getImpl() const;
-  using smoc_firing_state_base::operator=;
+  using base_type::operator=;
 };
 
 class smoc_and_state
 : public CoSupport::DataTypes::FacadeFoundation<
     smoc_and_state,
-    ANDStateImpl,
+    smoc::Detail::ANDStateImpl,
     smoc_hierarchical_state
   >
 {
-public:
-  typedef smoc_and_state this_type;
-
+  typedef smoc_and_state          this_type;
+  typedef smoc_hierarchical_state base_type;
 protected:
   explicit smoc_and_state(_StorageType const &x): FFType(x) {}
   smoc_and_state(const SmartPtr &p);
@@ -233,19 +204,18 @@ public:
   this_type& add(const smoc_hierarchical_state &state);
 
   ImplType *getImpl() const;
-  using smoc_firing_state_base::operator=;
+  using base_type::operator=;
 };
 
 class smoc_junction_state
 : public CoSupport::DataTypes::FacadeFoundation<
     smoc_junction_state,
-    JunctionStateImpl,
-    smoc_firing_state_base
+    smoc::Detail::JunctionStateImpl,
+    smoc::Detail::FiringStateBase
   >
 {
-public:
-  typedef smoc_junction_state this_type;
-
+  typedef smoc_junction_state           this_type;
+  typedef smoc::Detail::FiringStateBase base_type;
 protected:
   explicit smoc_junction_state(_StorageType const &x): FFType(x) {}
   smoc_junction_state(SmartPtr const &p);
@@ -257,7 +227,7 @@ public:
   smoc_junction_state();
 
   ImplType *getImpl() const;
-  using smoc_firing_state_base::operator=;
+  using base_type::operator=;
 };
 #ifdef _MSC_VER
 // Visual Studio defines "IN" 
@@ -275,13 +245,12 @@ struct IN {
 class smoc_multi_state
 : public CoSupport::DataTypes::FacadeFoundation<
     smoc_multi_state,
-    MultiStateImpl,
-    smoc_firing_state_base
+    smoc::Detail::MultiStateImpl,
+    smoc::Detail::FiringStateBase
   >
 {
-public:
-  typedef smoc_multi_state this_type;
-
+  typedef smoc_multi_state              this_type;
+  typedef smoc::Detail::FiringStateBase base_type;
 protected:
   explicit smoc_multi_state(_StorageType const &x): FFType(x) {}
   smoc_multi_state(SmartPtr const &p);
@@ -297,7 +266,7 @@ public:
   this_type& operator,(const IN& s);
 
   ImplType *getImpl() const;
-  using smoc_firing_state_base::operator=;
+  using base_type::operator=;
 };
 
 
@@ -307,7 +276,7 @@ public:
 
 private:
   /// @brief Target state
-  smoc_firing_state_base::ConstPtr dest;
+  smoc::Detail::FiringStateBase::ConstPtr dest;
 
   /// @brief Action
   smoc_action f;
@@ -315,16 +284,16 @@ private:
 public:
   /// @brief Constructor
   explicit smoc_interface_action(
-      smoc_firing_state_base::ConstRef &t)
+      smoc::Detail::FiringStateBase::ConstRef &t)
     : dest(t.toPtr()) {}
 
   /// @brief Constructor
   explicit smoc_interface_action(
-      smoc_firing_state_base::ConstRef &t,
+      smoc::Detail::FiringStateBase::ConstRef &t,
       const smoc_action &f)
     : dest(t.toPtr()), f(f) {}
 
-  const smoc_firing_state_base::ConstPtr& getDestState() const
+  const smoc::Detail::FiringStateBase::ConstPtr& getDestState() const
     { return dest; }
 
   const smoc_action& getAction() const
@@ -383,19 +352,19 @@ public:
   /// @brief Constructor
   explicit smoc_transition(
       const smoc_action &f,
-      smoc_firing_state_base::ConstRef &t)
+      smoc::Detail::FiringStateBase::ConstRef &t)
     : guard(smoc::Expr::literal(true)), ia(t,f) {}
   
   /// @brief Constructor
   explicit smoc_transition(
       Guard const &g,
-      smoc_firing_state_base::ConstRef &t)
+      smoc::Detail::FiringStateBase::ConstRef &t)
     : guard(g), ia(t) {}
   
   /// @brief Constructor
   explicit smoc_transition(
       const smoc_transition_part &tp,
-      smoc_firing_state_base::ConstRef &t)
+      smoc::Detail::FiringStateBase::ConstRef &t)
     : guard(tp.getExpr()),
       ia(t, tp.getAction()) {}
   
@@ -474,25 +443,25 @@ smoc_transition_part operator >> (
 inline
 smoc_transition operator >> (
     const smoc_func_call &f,
-    smoc_firing_state_base::ConstRef &s)
+    smoc::Detail::FiringStateBase::ConstRef &s)
   { return smoc_transition(smoc_action(f), s); }
 
 inline
 smoc_transition operator >> (
     const smoc_accum_action &f,
-    smoc_firing_state_base::ConstRef &s)
+    smoc::Detail::FiringStateBase::ConstRef &s)
   { return smoc_transition(f.getAction(), s); }
 
 inline
 smoc_transition operator >> (
     const smoc_transition_part &tp,
-    smoc_firing_state_base::ConstRef &s)
+    smoc::Detail::FiringStateBase::ConstRef &s)
   { return smoc_transition(tp,s); }
 
 template <class E>
 smoc_transition operator >> (
     const smoc::Expr::D<E> &g,
-    smoc_firing_state_base::ConstRef &s)
+    smoc::Detail::FiringStateBase::ConstRef &s)
   { return smoc_transition(Guard(g),s); }
 
 inline

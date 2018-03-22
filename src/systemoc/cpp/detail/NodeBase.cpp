@@ -52,6 +52,7 @@
 #endif //SYSTEMOC_ENABLE_MAESTRO
 
 #include "SimulationContext.hpp"
+#include "smoc_firing_rules_impl.hpp"
 
 namespace smoc { namespace Detail {
 
