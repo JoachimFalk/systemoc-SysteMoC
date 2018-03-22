@@ -94,7 +94,7 @@ void NodeBase::before_end_of_elaboration() {
   }
 #endif //defined(SYSTEMOC_DEBUG)
   sc_core::sc_module::before_end_of_elaboration();
-  setScheduler(getSimCTX()->getSimulatorInterface()->registerTask(this));
+  getSimCTX()->getSimulatorInterface()->registerTask(this);
   if (getFiringFSM()) {
 #ifdef SYSTEMOC_ENABLE_VPC
     this->commState = new RuntimeState();
