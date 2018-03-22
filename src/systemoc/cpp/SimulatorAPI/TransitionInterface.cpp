@@ -33,64 +33,15 @@
  * ENHANCEMENTS, OR MODIFICATIONS.
  */
 
-#ifndef _INCLUDED_SMOC_SIMULATORAPI_SIMULATORINTERFACE_HPP
-#define _INCLUDED_SMOC_SIMULATORAPI_SIMULATORINTERFACE_HPP
-
-#include "TaskInterface.hpp"
-#include "TransitionInterface.hpp"
-#include "SchedulerInterface.hpp"
-
-
-#include <boost/program_options/options_description.hpp>
-#include <boost/program_options/variables_map.hpp>
-
-#include <vector>
-
-namespace smoc { namespace Detail {
-
-class SimulationContext;
-
-} } // namespace smoc::Detail
+#include <smoc/SimulatorAPI/TransitionInterface.hpp>
 
 namespace smoc { namespace SimulatorAPI {
 
-  class SimulatorInterface {
-    // This is needed for SimulationContext
-    // to access getRegisteredSimulators().
-    friend class Detail::SimulationContext;
-  public:
-    enum EnablementStatus {
-      IS_DISABLED,
-      MAYBE_ACTIVE,
-      MUSTBE_ACTIVE
-    };
+  TransitionInterface::TransitionInterface()
+    : schedulerInfo(nullptr)
+    {}
 
-    SimulatorInterface();
-
-    virtual void populateOptionsDescription(
-        int &argc, char ** &argv,
-        boost::program_options::options_description &pub,
-        boost::program_options::options_description &priv) = 0;
-
-    virtual EnablementStatus evaluateOptionsMap(
-        boost::program_options::variables_map &vm) = 0;
-
-    virtual void registerTask(TaskInterface *task) = 0;
-
-    virtual void registerTransition(TransitionInterface *transition) = 0;
-
-    virtual ~SimulatorInterface();
-  private:
-    // Global CTOR initialization order is undefined between translation units.
-    // Hence, using std::vector<SimulatorInterface *> registeredSimulator as a
-    // global variable or static member variable does not insure that this variable
-    // will already have been initialized during the CTOR call used for other
-    // global variables. Hence, we use the below given helper function to guarantee
-    // this property.
-    static
-    std::vector<SimulatorInterface *> &getRegisteredSimulators();
-  };
+  TransitionInterface::~TransitionInterface()
+    {}
 
 } } // namespace smoc::SimulatorAPI
-
-#endif // _INCLUDED_SMOC_SIMULATORAPI_SIMULATORINTERFACE_HPP

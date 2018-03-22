@@ -70,6 +70,7 @@ libsystemoc_la_SOURCES = \
 	src/systemoc/cpp/SimulatorAPI/SchedulerInterface.cpp \
 	src/systemoc/cpp/SimulatorAPI/SimulatorInterface.cpp \
 	src/systemoc/cpp/SimulatorAPI/TaskInterface.cpp \
+	src/systemoc/cpp/SimulatorAPI/TransitionInterface.cpp \
 	src/systemoc/cpp/smoc_actor.cpp \
 	src/systemoc/cpp/smoc_chan_if.cpp \
 	src/systemoc/cpp/smoc_elab_and_sim.cpp \

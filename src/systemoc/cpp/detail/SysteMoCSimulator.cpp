@@ -72,8 +72,9 @@ public:
   EnablementStatus evaluateOptionsMap(
       boost::program_options::variables_map &vm);
 
-  SimulatorAPI::SchedulerInterface *registerTask(SimulatorAPI::TaskInterface *task);
+  void registerTask(SimulatorAPI::TaskInterface *task);
 
+  void registerTransition(SimulatorAPI::TransitionInterface *transition);
 };
 
 SysteMoCSimulator::SysteMoCSimulator() {
@@ -93,10 +94,17 @@ SysteMoCSimulator::EnablementStatus SysteMoCSimulator::evaluateOptionsMap(
   return SysteMoCSimulator::MAYBE_ACTIVE;
 }
 
-SimulatorAPI::SchedulerInterface *SysteMoCSimulator::registerTask(SimulatorAPI::TaskInterface *task)
+void SysteMoCSimulator::registerTask(
+    SimulatorAPI::TaskInterface *task)
 {
   // Prefix all SysteMoC internal modules with __smoc_ to enable filtering out the module on smx dump!
-  return new SysteMoCScheduler("__smoc_scheduler", task);
+  task->setScheduler(new SysteMoCScheduler("__smoc_scheduler", task));
+}
+
+void SysteMoCSimulator::registerTransition(
+    SimulatorAPI::TransitionInterface *transition)
+{
+  // Do nothing
 }
 
 SysteMoCSimulator systeMoCSimulator;
