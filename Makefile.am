@@ -72,6 +72,7 @@ noinst_PROGRAMS= \
 	test-fir \
 	test-fir-nostl \
 	test-fsm-action-parameters \
+	test-fsm-action-sequences \
 	test-fsm-dynamic \
 	test-fsm-hierarchy-and \
 	test-fsm-hierarchy-and-diss-falk \
@@ -202,6 +203,16 @@ test_fsm_action_parameters_SOURCES		= \
 test-fsm-action-parameters.log: test-fsm-action-parameters
 	./'$<' 100 > "$@" || { rm -f "$@"; exit 1; }
 test-fsm-action-parameters-%.log: test-fsm-action-parameters.log
+	grep '$*:' '$<' > '$@' || { rm -f "$@"; exit 1; }
+
+test_fsm_action_sequences_LDADD			= $(SYSTEMOC_LIBS)
+test_fsm_action_sequences_DEPENDENCIES		= $(SYSTEMOC_DEPENDENCIES)
+test_fsm_action_sequences_SOURCES		= \
+	src/test-fsm-action-sequences/cpp/design-fsm-action-sequences.cpp
+
+test-fsm-action-sequences.log: test-fsm-action-sequences
+	./'$<' 100 > "$@" || { rm -f "$@"; exit 1; }
+test-fsm-action-sequences-%.log: test-fsm-action-sequences.log
 	grep '$*:' '$<' > '$@' || { rm -f "$@"; exit 1; }
 
 test_fsm_dynamic_LDADD				= $(SYSTEMOC_LIBS)
