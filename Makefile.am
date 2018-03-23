@@ -1,6 +1,6 @@
 ## Process this file with automake to produce Makefile.in
 #
-# Copyright (c) 2004-2017 Hardware-Software-CoDesign, University of Erlangen-Nuremberg.
+# Copyright (c) 2004-2018 Hardware-Software-CoDesign, University of Erlangen-Nuremberg.
 #
 #   This library is free software; you can redistribute it and/or modify it under
 #   the terms of the GNU Lesser General Public License as published by the Free
@@ -68,37 +68,37 @@ AM_LDFLAGS = @AM_LDFLAGS@  $(SYSTEMOC_LDFLAGS) $(BOOST_LDFLAGS)
 
 noinst_PROGRAMS= \
 	test-cluster-example \
-	test-dynamic-fsm \
 	test-event \
 	test-fir \
 	test-fir-nostl \
-	test-fsm-and-composition \
-	test-fsm-and-composition-diss-falk \
+	test-fsm-action-parameters \
+	test-fsm-dynamic \
+	test-fsm-hierarchy-and \
+	test-fsm-hierarchy-and-diss-falk \
+	test-fsm-hierarchy-xor \
+	test-fsm-hierarchy-xor-diss-falk \
 	test-fsm-junction-state \
-	test-fsm-xor-composition \
-	test-fsm-xor-composition-diss-falk \
 	test-getValueAt \
 	test-periodic \
 	test-sdf \
 	test-select \
+	test-sequence-alttoksize \
 	test-sqr \
-	test-systemc-sqr \
 	test-sqr-int \
-	test-src-snk-plain \
-	test-src-snk-multirate \
 	test-src-snk-hierarchy \
 	test-src-snk-multicast \
 	test-src-snk-multiplex \
+	test-src-snk-multirate \
 	test-src-snk-multireader \
 	test-src-snk-multiwriter \
-	test-src-snk-references \
 	test-src-snk-noconsume \
-	test-src-snk-void \
+	test-src-snk-plain \
+	test-src-snk-references \
 	test-src-snk-register \
+	test-src-snk-void \
 	test-systemc-blocking-cosim \
 	test-systemc-nonblocking-cosim \
-	test-sequence-alttoksize 
-	
+	test-systemc-sqr
 
 %.smx: %
 	./'$<' --systemoc-export-smx='$@'
@@ -129,16 +129,6 @@ test_cluster_example_SOURCES			= \
 
 test-cluster-example.log: test-cluster-example
 	./'$<' > "$@" || { rm -f "$@"; exit 1; }
-
-test_dynamic_fsm_LDADD				= $(SYSTEMOC_LIBS)
-test_dynamic_fsm_DEPENDENCIES			= $(SYSTEMOC_DEPENDENCIES)
-test_dynamic_fsm_SOURCES			= \
-	src/test-dynamic-fsm/cpp/design-dynamic-fsm.cpp
-
-test-dynamic-fsm.log: test-dynamic-fsm
-	./'$<' 100 > "$@" || { rm -f "$@"; exit 1; }
-test-dynamic-fsm-%.log: test-dynamic-fsm.log
-	grep '$*:' '$<' > '$@' || { rm -f "$@"; exit 1; }
 
 test_event_LDADD				= $(SYSTEMOC_LIBS)
 test_event_DEPENDENCIES				= $(SYSTEMOC_DEPENDENCIES)
@@ -176,10 +166,10 @@ synth-vivadohls-fir: test-fir-$(VIVADOHLS_SYNTH_SUBDIR)/top
 endif
 
 # More integration required! check and synthesis
-test_fir_nostl_LDADD                                    = $(SYSTEMOC_LIBS)
-test_fir_nostl_DEPENDENCIES                             = $(SYSTEMOC_DEPENDENCIES)
-test_fir_nostl_SOURCES                          = \
-        src/test-fir-nostl/cpp/design-fir-nostl.cpp
+test_fir_nostl_LDADD				= $(SYSTEMOC_LIBS)
+test_fir_nostl_DEPENDENCIES			= $(SYSTEMOC_DEPENDENCIES)
+test_fir_nostl_SOURCES				= \
+	src/test-fir-nostl/cpp/design-fir-nostl.cpp
 
 test-fir-nostl.log: test-fir-nostl
 	./'$<' 100 > "$@" || { rm -f "$@"; exit 1; }
@@ -204,53 +194,68 @@ PTHREAD_SYNTH_TEST_FIR_NOSTL_CPPFLAGS = -I$(srcdir)/src/test-fir-nostl/cpp
 synth-pthread-fir-nostl: test-fir-nostl-$(PTHREAD_SYNTH_SUBDIR)/top
 endif
 
-# More integration required! check and synthesis
-test_sequence_alttoksize_LDADD					= $(SYSTEMOC_LIBS)
-test_sequence_alttoksize_DEPENDENCIES				= $(SYSTEMOC_DEPENDENCIES)
-test_sequence_alttoksize_SOURCES				= \
-	src/test-sequence-alttoksize/cpp/design-test-sequence-alttoksize.cpp
+test_fsm_action_parameters_LDADD		= $(SYSTEMOC_LIBS)
+test_fsm_action_parameters_DEPENDENCIES		= $(SYSTEMOC_DEPENDENCIES)
+test_fsm_action_parameters_SOURCES		= \
+	src/test-fsm-action-parameters/cpp/design-fsm-action-parameters.cpp
 
-test-sequence-alttoksize.log: test-sequence-alttoksize
+test-fsm-action-parameters.log: test-fsm-action-parameters
 	./'$<' 100 > "$@" || { rm -f "$@"; exit 1; }
+test-fsm-action-parameters-%.log: test-fsm-action-parameters.log
+	grep '$*:' '$<' > '$@' || { rm -f "$@"; exit 1; }
 
-# Needed by all synthesis targets for sqr
-test-sequence-alttoksize.cpp: $(test_sequence_alttoksize_SOURCES)
-	{ for i in $^; do echo "#include \"$$i\""; done; } > $@
-# .PHONY is outside conditionals to make automake happy
-.PHONY: synth-sw-sequence-alttoksize synth-vivadohls-sequence-alttoksize
-if SYNTH_SW
-SW_SYNTH_TEST_SEQUENCE_ALTTOKSIZE_CPPFLAGS = -I$(srcdir)/src/test-sequence-alttoksize/cpp
-synth-sw-sequence-alttoksize: test-sequence-alttoksize-$(SW_SYNTH_SUBDIR)/top
-endif
+test_fsm_dynamic_LDADD				= $(SYSTEMOC_LIBS)
+test_fsm_dynamic_DEPENDENCIES			= $(SYSTEMOC_DEPENDENCIES)
+test_fsm_dynamic_SOURCES			= \
+	src/test-fsm-dynamic/cpp/design-fsm-dynamic.cpp
 
-if SYNTH_VIVADOHLS
-VIVADOHLS_SYNTH_TEST_SEQUENCE_ALTTOKSIZE_CPPFLAGS = -I$(srcdir)/src/test-sequence-alttoksize/cpp
-synth-vivadohls-sequence-alttoksize: test-sequence-alttoksize-$(VIVADOHLS_SYNTH_SUBDIR)/top
-endif
+test-fsm-dynamic.log: test-fsm-dynamic
+	./'$<' 100 > "$@" || { rm -f "$@"; exit 1; }
+test-fsm-dynamic-%.log: test-fsm-dynamic.log
+	grep '$*:' '$<' > '$@' || { rm -f "$@"; exit 1; }
 
 # More integration required! check
-test_fsm_and_composition_LDADD			= $(SYSTEMOC_LIBS)
-test_fsm_and_composition_DEPENDENCIES		= $(SYSTEMOC_DEPENDENCIES)
-test_fsm_and_composition_SOURCES		= \
-	src/test-fsm-and-composition/cpp/design-and-comp.cpp
+test_fsm_hierarchy_and_LDADD			= $(SYSTEMOC_LIBS)
+test_fsm_hierarchy_and_DEPENDENCIES		= $(SYSTEMOC_DEPENDENCIES)
+test_fsm_hierarchy_and_SOURCES			= \
+	src/test-fsm-hierarchy-and/cpp/design-fsm-hierarchy-and.cpp
 
-test-fsm-and-composition.log: test-fsm-and-composition
+test-fsm-hierarchy-and.log: test-fsm-hierarchy-and
 	./'$<' 100 > "$@" || { rm -f "$@"; exit 1; }
-test-fsm-and-composition-top.%.log: test-fsm-and-composition.log
+test-fsm-hierarchy-and-top.%.log: test-fsm-hierarchy-and.log
+	grep 'top.$*:' '$<' > '$@' || { rm -f "$@"; exit 1; }
+
+test_fsm_hierarchy_and_diss_falk_LDADD		= $(SYSTEMOC_LIBS) -lboost_random
+test_fsm_hierarchy_and_diss_falk_DEPENDENCIES	= $(SYSTEMOC_DEPENDENCIES)
+test_fsm_hierarchy_and_diss_falk_SOURCES	= \
+	src/test-fsm-hierarchy-and-diss-falk/cpp/design-fsm-hierarchy-and.cpp
+
+test-fsm-hierarchy-and-diss-falk.log: test-fsm-hierarchy-and-diss-falk
+	./'$<' 100 > "$@" || { rm -f "$@"; exit 1; }
+test-fsm-hierarchy-and-diss-falk-top.%.log: test-fsm-hierarchy-and-diss-falk.log
 	grep 'top.$*:' '$<' > '$@' || { rm -f "$@"; exit 1; }
 
 # More integration required! check
-test_fsm_and_composition_diss_falk_LDADD	= $(SYSTEMOC_LIBS) -lboost_random
-test_fsm_and_composition_diss_falk_DEPENDENCIES	= $(SYSTEMOC_DEPENDENCIES)
-test_fsm_and_composition_diss_falk_SOURCES	= \
-	src/test-fsm-and-composition-diss-falk/cpp/design-and-comp.cpp
+test_fsm_hierarchy_xor_LDADD			= $(SYSTEMOC_LIBS)
+test_fsm_hierarchy_xor_DEPENDENCIES		= $(SYSTEMOC_DEPENDENCIES)
+test_fsm_hierarchy_xor_SOURCES			= \
+	src/test-fsm-hierarchy-xor/cpp/design-fsm-hierarchy-xor.cpp
 
-test-fsm-and-composition-diss-falk.log: test-fsm-and-composition-diss-falk
+test-fsm-hierarchy-xor.log: test-fsm-hierarchy-xor
 	./'$<' 100 > "$@" || { rm -f "$@"; exit 1; }
-test-fsm-and-composition-diss-falk-top.%.log: test-fsm-and-composition-diss-falk.log
+test-fsm-hierarchy-xor-top.%.log: test-fsm-hierarchy-xor.log
 	grep 'top.$*:' '$<' > '$@' || { rm -f "$@"; exit 1; }
 
-# More integration required! check
+test_fsm_hierarchy_xor_diss_falk_LDADD		= $(SYSTEMOC_LIBS) -lboost_random
+test_fsm_hierarchy_xor_diss_falk_DEPENDENCIES	= $(SYSTEMOC_DEPENDENCIES)
+test_fsm_hierarchy_xor_diss_falk_SOURCES	= \
+	src/test-fsm-hierarchy-xor-diss-falk/cpp/design-fsm-hierarchy-xor.cpp
+
+test-fsm-hierarchy-xor-diss-falk.log: test-fsm-hierarchy-xor-diss-falk
+	./'$<' 100 > "$@" || { rm -f "$@"; exit 1; }
+test-fsm-hierarchy-xor-diss-falk-top.%.log: test-fsm-hierarchy-xor-diss-falk.log
+	grep 'top.$*:' '$<' > '$@' || { rm -f "$@"; exit 1; }
+
 test_fsm_junction_state_LDADD			= $(SYSTEMOC_LIBS)
 test_fsm_junction_state_DEPENDENCIES		= $(SYSTEMOC_DEPENDENCIES)
 test_fsm_junction_state_SOURCES			= \
@@ -258,28 +263,6 @@ test_fsm_junction_state_SOURCES			= \
 
 test-fsm-junction-state.log: test-fsm-junction-state
 	./'$<' 100 > "$@" || { rm -f "$@"; exit 1; }
-
-# More integration required! check
-test_fsm_xor_composition_LDADD			= $(SYSTEMOC_LIBS) -lboost_random
-test_fsm_xor_composition_DEPENDENCIES		= $(SYSTEMOC_DEPENDENCIES)
-test_fsm_xor_composition_SOURCES		= \
-	src/test-fsm-xor-composition/cpp/design-xor-comp.cpp
-
-test-fsm-xor-composition.log: test-fsm-xor-composition
-	./'$<' 100 > "$@" || { rm -f "$@"; exit 1; }
-test-fsm-xor-composition-top.%.log: test-fsm-xor-composition.log
-	grep 'top.$*:' '$<' > '$@' || { rm -f "$@"; exit 1; }
-
-# More integration required! check
-test_fsm_xor_composition_diss_falk_LDADD	= $(SYSTEMOC_LIBS)
-test_fsm_xor_composition_diss_falk_DEPENDENCIES	= $(SYSTEMOC_DEPENDENCIES)
-test_fsm_xor_composition_diss_falk_SOURCES	= \
-	src/test-fsm-xor-composition-diss-falk/cpp/design-xor-comp.cpp
-
-test-fsm-xor-composition-diss-falk.log: test-fsm-xor-composition-diss-falk
-	./'$<' 100 > "$@" || { rm -f "$@"; exit 1; }
-test-fsm-xor-composition-diss-falk-top.%.log: test-fsm-xor-composition-diss-falk.log
-	grep 'top.$*:' '$<' > '$@' || { rm -f "$@"; exit 1; }
 
 test_getValueAt_LDADD				= $(SYSTEMOC_LIBS)
 test_getValueAt_DEPENDENCIES			= $(SYSTEMOC_DEPENDENCIES)
@@ -320,6 +303,30 @@ test-select-%.log: test-select.log
 	grep '$*:' '$<' > '$@' || { rm -f "$@"; exit 1; }
 
 # More integration required! check and synthesis
+test_sequence_alttoksize_LDADD			= $(SYSTEMOC_LIBS)
+test_sequence_alttoksize_DEPENDENCIES		= $(SYSTEMOC_DEPENDENCIES)
+test_sequence_alttoksize_SOURCES		= \
+	src/test-sequence-alttoksize/cpp/design-test-sequence-alttoksize.cpp
+
+test-sequence-alttoksize.log: test-sequence-alttoksize
+	./'$<' 100 > "$@" || { rm -f "$@"; exit 1; }
+
+test-sequence-alttoksize.cpp: $(test_sequence_alttoksize_SOURCES)
+	{ for i in $^; do echo "#include \"$$i\""; done; } > $@
+
+# .PHONY is outside conditionals to make automake happy
+.PHONY: synth-sw-sequence-alttoksize synth-vivadohls-sequence-alttoksize
+if SYNTH_SW
+SW_SYNTH_TEST_SEQUENCE_ALTTOKSIZE_CPPFLAGS = -I$(srcdir)/src/test-sequence-alttoksize/cpp
+synth-sw-sequence-alttoksize: test-sequence-alttoksize-$(SW_SYNTH_SUBDIR)/top
+endif
+
+if SYNTH_VIVADOHLS
+VIVADOHLS_SYNTH_TEST_SEQUENCE_ALTTOKSIZE_CPPFLAGS = -I$(srcdir)/src/test-sequence-alttoksize/cpp
+synth-vivadohls-sequence-alttoksize: test-sequence-alttoksize-$(VIVADOHLS_SYNTH_SUBDIR)/top
+endif
+
+# More integration required! check and synthesis
 test_sqr_LDADD					= $(SYSTEMOC_LIBS)
 test_sqr_DEPENDENCIES				= $(SYSTEMOC_DEPENDENCIES)
 test_sqr_SOURCES				= \
@@ -355,14 +362,6 @@ if CLUSTERING
 synth-pthread-sqr-clu: test-sqr-after-binding-fsm-sched-$(PTHREAD_SYNTH_SUBDIR)/top
 endif
 endif
-
-test_systemc_sqr_LDADD				= $(SYSTEMC_LIBS)
-test_systemc_sqr_DEPENDENCIES			= $(SYSTEMC_DEPENDENCIES)
-test_systemc_sqr_SOURCES			= \
-	src/test-systemc-sqr/cpp/systemc-sqr.cpp
-
-test-systemc-sqr.log: test-systemc-sqr
-	./'$<' 100 > "$@" || { rm -f "$@"; exit 1; }
 
 # More integration required! check and synthesis
 test_sqr_int_LDADD				= $(SYSTEMOC_LIBS)
@@ -401,6 +400,71 @@ synth-pthread-sqr-int-clu: test-sqr-int-after-binding-fsm-sched-$(PTHREAD_SYNTH_
 endif
 endif
 
+test_src_snk_hierarchy_LDADD			= $(SYSTEMOC_LIBS)
+test_src_snk_hierarchy_DEPENDENCIES		= $(SYSTEMOC_DEPENDENCIES)
+test_src_snk_hierarchy_SOURCES			= \
+	src/test-src-snk-hierarchy/cpp/design-src-snk-hierarchy.cpp
+
+test-src-snk-hierarchy.log: test-src-snk-hierarchy
+	./'$<' 100 > "$@" || { rm -f "$@"; exit 1; }
+
+test_src_snk_multicast_LDADD			= $(SYSTEMOC_LIBS)
+test_src_snk_multicast_DEPENDENCIES		= $(SYSTEMOC_DEPENDENCIES)
+test_src_snk_multicast_SOURCES			= \
+	src/test-src-snk-multicast/cpp/design-src-snk-multicast.cpp
+
+test-src-snk-multicast.log: test-src-snk-multicast
+	./'$<' 100 > "$@" || { rm -f "$@"; exit 1; }
+test-src-snk-multicast-%.log: test-src-snk-multicast.log
+	grep '$*:' '$<' > '$@' || { rm -f "$@"; exit 1; }
+
+# More integration required! check
+test_src_snk_multiplex_LDADD			= $(SYSTEMOC_LIBS) -lboost_random
+test_src_snk_multiplex_DEPENDENCIES		= $(SYSTEMOC_DEPENDENCIES)
+test_src_snk_multiplex_SOURCES			= \
+	src/test-src-snk-multiplex/cpp/design-src-snk-multiplex.cpp
+
+test-src-snk-multiplex.log: test-src-snk-multiplex
+	./'$<' 1000 10 20 5 4711 > "$@" || { rm -f "$@"; exit 1; }
+test-src-snk-multiplex-%.log: test-src-snk-multiplex.log
+	grep '$*:' '$<' > '$@' || { rm -f "$@"; exit 1; }
+
+# More integration required! Maybe check for VPC?
+test_src_snk_multirate_LDADD			= $(SYSTEMOC_LIBS)
+test_src_snk_multirate_DEPENDENCIES		= $(SYSTEMOC_DEPENDENCIES)
+test_src_snk_multirate_SOURCES			= \
+	src/test-src-snk-multirate/cpp/design-src-snk-multirate.cpp
+
+test-src-snk-multirate.log: test-src-snk-multirate
+	./'$<' 100 > "$@" || { rm -f "$@"; exit 1; }
+
+test_src_snk_multireader_LDADD			= $(SYSTEMOC_LIBS)
+test_src_snk_multireader_DEPENDENCIES		= $(SYSTEMOC_DEPENDENCIES)
+test_src_snk_multireader_SOURCES		= \
+	src/test-src-snk-multireader/cpp/design-src-snk-multireader.cpp
+
+test-src-snk-multireader.log: test-src-snk-multireader
+	./'$<' 100 > "$@" || { rm -f "$@"; exit 1; }
+
+test_src_snk_multiwriter_LDADD			= $(SYSTEMOC_LIBS)
+test_src_snk_multiwriter_DEPENDENCIES		= $(SYSTEMOC_DEPENDENCIES)
+test_src_snk_multiwriter_SOURCES		= \
+	src/test-src-snk-multiwriter/cpp/design-src-snk-multiwriter.cpp
+
+test-src-snk-multiwriter.log: test-src-snk-multiwriter
+	./'$<' 100 > "$@" || { rm -f "$@"; exit 1; }
+test-src-snk-multiwriter-%.log: test-src-snk-multiwriter.log
+	grep '$*:' '$<' > '$@' || { rm -f "$@"; exit 1; }
+
+# More integration required! check
+test_src_snk_noconsume_LDADD			= $(SYSTEMOC_LIBS)
+test_src_snk_noconsume_DEPENDENCIES		= $(SYSTEMOC_DEPENDENCIES)
+test_src_snk_noconsume_SOURCES			= \
+	src/test-src-snk-noconsume/cpp/design-src-snk-noconsume.cpp
+
+test-src-snk-noconsume.log: test-src-snk-noconsume
+	./'$<' 100 > "$@" || { rm -f "$@"; exit 1; }
+
 # More integration required! Maybe check for VPC?
 test_src_snk_plain_LDADD			= $(SYSTEMOC_LIBS)
 test_src_snk_plain_DEPENDENCIES			= $(SYSTEMOC_DEPENDENCIES)
@@ -436,79 +500,6 @@ PTHREAD_SYNTH_TEST_SRC_SNK_REFERENCES_CPPFLAGS = -I$(srcdir)/src/test-src-snk-re
 synth-pthread-src-snk-ref: test-src-snk-references-$(PTHREAD_SYNTH_SUBDIR)/top
 endif
 
-# More integration required! Maybe check for VPC?
-test_src_snk_multirate_LDADD			= $(SYSTEMOC_LIBS)
-test_src_snk_multirate_DEPENDENCIES		= $(SYSTEMOC_DEPENDENCIES)
-test_src_snk_multirate_SOURCES			= \
-	src/test-src-snk-multirate/cpp/design-src-snk-multirate.cpp
-
-test-src-snk-multirate.log: test-src-snk-multirate
-	./'$<' 100 > "$@" || { rm -f "$@"; exit 1; }
-
-test_src_snk_hierarchy_LDADD			= $(SYSTEMOC_LIBS)
-test_src_snk_hierarchy_DEPENDENCIES		= $(SYSTEMOC_DEPENDENCIES)
-test_src_snk_hierarchy_SOURCES			= \
-	src/test-src-snk-hierarchy/cpp/design-src-snk-hierarchy.cpp
-
-test-src-snk-hierarchy.log: test-src-snk-hierarchy
-	./'$<' 100 > "$@" || { rm -f "$@"; exit 1; }
-
-test_src_snk_multicast_LDADD			= $(SYSTEMOC_LIBS)
-test_src_snk_multicast_DEPENDENCIES		= $(SYSTEMOC_DEPENDENCIES)
-test_src_snk_multicast_SOURCES			= \
-	src/test-src-snk-multicast/cpp/design-src-snk-multicast.cpp
-
-test-src-snk-multicast.log: test-src-snk-multicast
-	./'$<' 100 > "$@" || { rm -f "$@"; exit 1; }
-test-src-snk-multicast-%.log: test-src-snk-multicast.log
-	grep '$*:' '$<' > '$@' || { rm -f "$@"; exit 1; }
-
-# More integration required! check
-test_src_snk_multiplex_LDADD			= $(SYSTEMOC_LIBS) -lboost_random
-test_src_snk_multiplex_DEPENDENCIES		= $(SYSTEMOC_DEPENDENCIES)
-test_src_snk_multiplex_SOURCES			= \
-	src/test-src-snk-multiplex/cpp/design-src-snk-multiplex.cpp
-
-test-src-snk-multiplex.log: test-src-snk-multiplex
-	./'$<' 1000 10 20 5 4711 > "$@" || { rm -f "$@"; exit 1; }
-test-src-snk-multiplex-%.log: test-src-snk-multiplex.log
-	grep '$*:' '$<' > '$@' || { rm -f "$@"; exit 1; }
-
-test_src_snk_multireader_LDADD			= $(SYSTEMOC_LIBS)
-test_src_snk_multireader_DEPENDENCIES		= $(SYSTEMOC_DEPENDENCIES)
-test_src_snk_multireader_SOURCES		= \
-	src/test-src-snk-multireader/cpp/design-src-snk-multireader.cpp
-
-test-src-snk-multireader.log: test-src-snk-multireader
-	./'$<' 100 > "$@" || { rm -f "$@"; exit 1; }
-
-test_src_snk_multiwriter_LDADD			= $(SYSTEMOC_LIBS)
-test_src_snk_multiwriter_DEPENDENCIES		= $(SYSTEMOC_DEPENDENCIES)
-test_src_snk_multiwriter_SOURCES		= \
-	src/test-src-snk-multiwriter/cpp/design-src-snk-multiwriter.cpp
-
-test-src-snk-multiwriter.log: test-src-snk-multiwriter
-	./'$<' 100 > "$@" || { rm -f "$@"; exit 1; }
-test-src-snk-multiwriter-%.log: test-src-snk-multiwriter.log
-	grep '$*:' '$<' > '$@' || { rm -f "$@"; exit 1; }
-
-# More integration required! check
-test_src_snk_noconsume_LDADD			= $(SYSTEMOC_LIBS)
-test_src_snk_noconsume_DEPENDENCIES		= $(SYSTEMOC_DEPENDENCIES)
-test_src_snk_noconsume_SOURCES			= \
-	src/test-src-snk-noconsume/cpp/design-src-snk-noconsume.cpp
-
-test-src-snk-noconsume.log: test-src-snk-noconsume
-	./'$<' 100 > "$@" || { rm -f "$@"; exit 1; }
-
-test_src_snk_void_LDADD				= $(SYSTEMOC_LIBS)
-test_src_snk_void_DEPENDENCIES			= $(SYSTEMOC_DEPENDENCIES)
-test_src_snk_void_SOURCES			= \
-	src/test-src-snk-void/cpp/design-src-snk-void.cpp
-
-test-src-snk-void.log: test-src-snk-void
-	./'$<' 100 > "$@" || { rm -f "$@"; exit 1; }
-
 test_src_snk_register_LDADD			= $(SYSTEMOC_LIBS)
 test_src_snk_register_DEPENDENCIES		= $(SYSTEMOC_DEPENDENCIES)
 test_src_snk_register_SOURCES			= \
@@ -518,6 +509,14 @@ test-src-snk-register.log: test-src-snk-register
 	./'$<' 100 > "$@" || { rm -f "$@"; exit 1; }
 test-src-snk-register-%.log: test-src-snk-register.log
 	grep '$*:' '$<' > '$@' || { rm -f "$@"; exit 1; }
+
+test_src_snk_void_LDADD				= $(SYSTEMOC_LIBS)
+test_src_snk_void_DEPENDENCIES			= $(SYSTEMOC_DEPENDENCIES)
+test_src_snk_void_SOURCES			= \
+	src/test-src-snk-void/cpp/design-src-snk-void.cpp
+
+test-src-snk-void.log: test-src-snk-void
+	./'$<' 100 > "$@" || { rm -f "$@"; exit 1; }
 
 test_systemc_blocking_cosim_LDADD		= $(SYSTEMOC_LIBS)
 test_systemc_blocking_cosim_DEPENDENCIES	= $(SYSTEMOC_DEPENDENCIES)
@@ -539,6 +538,14 @@ test-systemc-nonblocking-cosim.log: test-systemc-nonblocking-cosim
 test-systemc-nonblocking-cosim-%.log: test-systemc-nonblocking-cosim.log
 	grep '$*:' '$<' > '$@' || { rm -f "$@"; exit 1; }
 
+test_systemc_sqr_LDADD				= $(SYSTEMC_LIBS)
+test_systemc_sqr_DEPENDENCIES			= $(SYSTEMC_DEPENDENCIES)
+test_systemc_sqr_SOURCES			= \
+	src/test-systemc-sqr/cpp/systemc-sqr.cpp
+
+test-systemc-sqr.log: test-systemc-sqr
+	./'$<' 100 > "$@" || { rm -f "$@"; exit 1; }
+
 clean-local:
 	rm -f $(addsuffix -pthread.map,$(noinst_PROGRAMS))
 	rm -f $(addsuffix -after-binding.clu,$(noinst_PROGRAMS))
@@ -553,8 +560,8 @@ check-am: check-logs
 test-logs: $(TEST_LOGS)
 check-logs: $(TEST_LOGS)
 	@error=0; \
-        for test in $(noinst_PROGRAMS); do \
-          case "$$test" in \
+	for test in $(noinst_PROGRAMS); do \
+	  case "$$test" in \
 	    test-*) \
 	      if test -f $(srcdir)/src/$${test}/golden.log; then \
 		if ! diff -u $${test}.log $(srcdir)/src/$${test}/golden.log > /dev/null; then \
@@ -562,9 +569,9 @@ check-logs: $(TEST_LOGS)
 		  diff -u $${test}.log $(srcdir)/src/$${test}/golden.log; \
 		fi; \
 	      else \
-	        status=success; \
-	        shopt -s nullglob; \
-	        for log in $(srcdir)/src/$${test}/golden-*.log; do \
+		status=success; \
+		shopt -s nullglob; \
+		for log in $(srcdir)/src/$${test}/golden-*.log; do \
 		  if ! diff -u $${test}-$${log##*/golden-} $${log} > /dev/null; then \
 		    status=failed; \
 		  fi; \
@@ -593,13 +600,13 @@ check-am: check-vcds
 test-vcds: $(TEST_VPC_VCDS)
 check-vcds: $(TEST_VPC_VCDS)
 	@error=0; \
-        for test in $(noinst_PROGRAMS); do \
-          case "$$test" in \
+	for test in $(noinst_PROGRAMS); do \
+	  case "$$test" in \
 	    test-*) \
 	      for cmx in $(srcdir)/src/$${test}/vpc/*.vpc.xml; do \
-	        cmx=$${cmx##*/}; cmx=$${cmx%%.vpc.xml}; \
-	        status=success; \
-	        for golden_vcd in $(srcdir)/src/$${test}/vpc/$${cmx}-*-golden.vcd; do \
+		cmx=$${cmx##*/}; cmx=$${cmx%%.vpc.xml}; \
+		status=success; \
+		for golden_vcd in $(srcdir)/src/$${test}/vpc/$${cmx}-*-golden.vcd; do \
 		  test_vcd=$${golden_vcd##*/}; test_vcd=$${test}-$${test_vcd%%-golden.vcd}.vcd; \
 		  if test -f $${golden_vcd} && ! diff -u $(diff_vcd_ignore) $${test_vcd} $${golden_vcd} > /dev/null; then \
 		    status=failed; \
