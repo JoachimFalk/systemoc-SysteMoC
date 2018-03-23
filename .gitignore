@@ -10,4 +10,4 @@ Release
 Release-VPC
 Release-VPC-noVCD
 *.user
-!gloden*
+!golden*
