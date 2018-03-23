@@ -45,28 +45,39 @@
 
 #include <iostream>
 
+class Flummy {
+};
+
+inline
+std::ostream &operator << (std::ostream &out, Flummy const &)
+  { return out << "Flummy()"; }
+
 class Src : public smoc_actor {
 public:
   smoc_port_out<void> out;
 
   Src(sc_core::sc_module_name name, size_t iter)
-    : smoc_actor(name, run), iter(iter)
+    : smoc_actor(name, run1), iter(iter)
   {
-    run =
+    run1 =
         (out(1) && (SMOC_VAR(this->iter) != 0U)) >>
-        SMOC_CALL(Src::src) >> run
+        SMOC_CALL(Src::src)(Flummy())(4711) >> run2
+     ;
+    run2 =
+        (out(1) && (SMOC_VAR(this->iter) != 0U)) >>
+        SMOC_CALL(Src::src)(Flummy())(4712) >> run1
      ;
   }
 
-  void src() {
-    std::cout << "Src::src()" << std::endl;
+  void src(Flummy const &, long long x) {
+    std::cout << "Src::src() " << x << std::endl;
     --iter;
   }
 
 private:
   size_t iter;
 
-  smoc_firing_state run;
+  smoc_firing_state run1, run2;
 };
 
 class Snk : public smoc_actor {
@@ -76,11 +87,11 @@ public:
   Snk(sc_core::sc_module_name name) :
     smoc_actor(name, run)
   {
-    run = in(1) >> SMOC_CALL(Snk::snk) >> run;
+    run = in(1) >> SMOC_CALL(Snk::snk)(4713) >> run;
   }
 
-  void snk() {
-    std::cout << "Snk::snk()" << std::endl;
+  void snk(int x) {
+    std::cout << "Snk::snk() " << x << std::endl;
   }
 
 private:
