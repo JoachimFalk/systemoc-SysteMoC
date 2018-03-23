@@ -183,10 +183,10 @@ class TransitionActionNameVisitor {
 public:
   typedef std::string result_type;
 public:
-  result_type operator()(smoc_func_call_list const &f) const {
+  result_type operator()(smoc_action const &f) const {
     std::ostringstream str;
     
-    for (smoc_func_call_list::const_iterator i = f.begin(); i != f.end(); ++i) {
+    for (smoc_action::const_iterator i = f.begin(); i != f.end(); ++i) {
       if (i != f.begin())
         str << ";";
       str << i->getFuncName() << "(";
@@ -207,8 +207,8 @@ class Action_HasWaitVisitor {
 public:
   typedef bool result_type;
 public:
-  result_type operator()(const smoc_func_call_list &f) const {
-    for (smoc_func_call_list::const_iterator i = f.begin(); i != f.end(); ++i) {
+  result_type operator()(const smoc_action &f) const {
+    for (smoc_action::const_iterator i = f.begin(); i != f.end(); ++i) {
       std::string name = i->getFuncName();
       if ( name.find("simulateTime") != std::string::npos) {
         return true;

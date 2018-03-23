@@ -229,9 +229,10 @@ public:
   ImplType *getImpl() const;
   using base_type::operator=;
 };
+
 #ifdef _MSC_VER
 // Visual Studio defines "IN" 
-#undef IN
+# undef IN
 #endif // _MSC_VER
 struct IN {
   smoc_hierarchical_state::ConstRef s;
@@ -328,21 +329,6 @@ public:
     { return f; }
 };
 
-class smoc_accum_action {
-private:
-  /// @brief Action
-  smoc_action f;
-
-public:
-  /// @brief Constructor
-  explicit smoc_accum_action(
-      const smoc_action& f)
-    : f(f) {}
-
-  const smoc_action& getAction() const
-    { return f; }
-};
-
 class smoc_transition {
   typedef smoc_transition this_type;
 private:
@@ -377,8 +363,6 @@ public:
     { return ia; }
 };
 
-
-
 class smoc_transition_list
 : public std::vector<smoc_transition> {
 public:
@@ -393,12 +377,10 @@ public:
     { push_back(t); return *this; }
 };
 
-
-
 inline
 smoc_transition_list operator | (
     const smoc_transition_list &tl,
-    const smoc_transition &t )
+    const smoc_transition      &t )
   { return smoc_transition_list(tl) |= t; }
 
 inline
@@ -410,47 +392,20 @@ smoc_transition_list operator | (
 template <class E>
 smoc_transition_part operator >> (
     const smoc::Expr::D<E> &g,
-    const smoc_func_call &f)
-  { return smoc_transition_part(Guard(g), f); }
-
-template <class E>
-smoc_transition_part operator >> (
-    const smoc::Expr::D<E> &g,
-    const smoc_accum_action &b)
-  { return smoc_transition_part(Guard(g), b.getAction()); }
-
-inline
-smoc_accum_action operator >> (
-    const smoc_func_call &a,
-    const smoc_func_call &b)
-  { return smoc_accum_action(merge(a, b)); }
-
-inline
-smoc_accum_action operator >> (
-    const smoc_accum_action &a,
-    const smoc_func_call &b)
-  { return smoc_accum_action(merge(a.getAction(), b)); }
+    const smoc_action      &a)
+  { return smoc_transition_part(Guard(g), a); }
 
 inline
 smoc_transition_part operator >> (
     const smoc_transition_part &tp,
-    const smoc_func_call &f) {
-  return smoc_transition_part(
-      tp.getExpr(),
-      merge(tp.getAction(), f));
-}
+    const smoc_action          &a)
+  { return smoc_transition_part(tp.getExpr(), merge(tp.getAction(), a)); }
 
 inline
 smoc_transition operator >> (
-    const smoc_func_call &f,
+    const smoc_action                       &a,
     smoc::Detail::FiringStateBase::ConstRef &s)
-  { return smoc_transition(smoc_action(f), s); }
-
-inline
-smoc_transition operator >> (
-    const smoc_accum_action &f,
-    smoc::Detail::FiringStateBase::ConstRef &s)
-  { return smoc_transition(f.getAction(), s); }
+  { return smoc_transition(a, s); }
 
 inline
 smoc_transition operator >> (

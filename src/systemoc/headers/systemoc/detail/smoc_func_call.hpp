@@ -180,8 +180,6 @@ private:
     smoc_member_func_interface<return_type> >   k;
 
   smoc::Detail::ParamInfoList pil;
-
-//friend bool operator <(const smoc_func_call &lhs, const smoc_func_call &rhs);
 public:
   
   template <class F, class PL>
@@ -207,22 +205,31 @@ public:
   }
 };
 
-//bool operator <(const smoc_func_call &lhs, const smoc_func_call &rhs)
-//  { return lhs.k < rhs.k; }
-
-class smoc_func_call_list
+class smoc_action
 : public std::list<smoc_func_call> {
 public:
-  typedef smoc_func_call_list this_type;
+  typedef smoc_action this_type;
 public:
-  smoc_func_call_list() {}
+  smoc_action()
+    {}
 
-  smoc_func_call_list(const smoc_func_call& a)
+  explicit
+  smoc_action(smoc_func_call const &a)
     { push_back(a); }
-};
 
-typedef boost::variant<
-  smoc_func_call_list> smoc_action;
+  template <class V>
+  typename V::result_type apply_visitor(V &v)
+    { return v(*this); }
+  template <class V>
+  typename V::result_type apply_visitor(V const &v)
+    { return v(*this); }
+  template <class V>
+  typename V::result_type apply_visitor(V &v) const
+    { return v(*this); }
+  template <class V>
+  typename V::result_type apply_visitor(V const &v) const
+    { return v(*this); }
+};
 
 smoc_action merge(const smoc_action& a, const smoc_action& b);
 
@@ -237,15 +244,25 @@ public:
 public:
   ActionVisitor(result_type dest);
 
-  result_type operator()(const smoc_func_call_list &f) const;
+  result_type operator()(const smoc_action &f) const;
 
 private:
   result_type dest;
 };
 
-#if defined(SYSTEMOC_ENABLE_VPC) || defined(SYSTEMOC_ENABLE_TRANSITION_TRACE)
 namespace smoc { namespace Detail {
 
+  template<class F, class PL>
+  struct ActionBuilder {
+
+    typedef smoc_action result_type;
+
+    static
+    result_type build(const F &f, const PL &pl)
+      { return result_type(smoc_func_call(smoc_member_func<F,PL>(f,pl))); }
+  };
+
+#if defined(SYSTEMOC_ENABLE_VPC) || defined(SYSTEMOC_ENABLE_TRANSITION_TRACE)
 typedef std::vector<std::string> FunctionNames;
 
 class ActionNameVisitor {
@@ -255,7 +272,7 @@ public:
 public:
   ActionNameVisitor(FunctionNames & names);
 
-  result_type operator()(const smoc_func_call_list& f) const;
+  result_type operator()(const smoc_action& f) const;
 
 private:
   FunctionNames &functionNames;
@@ -323,9 +340,9 @@ private:
   int                   complexity;
   std::vector<std::string>   val;
 };
+#endif // defined(SYSTEMOC_ENABLE_VPC) || defined(SYSTEMOC_ENABLE_TRANSITION_TRACE)
 
 } } // namespace smoc::Detail
-#endif // defined(SYSTEMOC_ENABLE_VPC) || defined(SYSTEMOC_ENABLE_TRANSITION_TRACE)
 
 #ifdef SYSTEMOC_ENABLE_MAESTRO
 //////////////TODO: REVIEW THIS SECTION CODE (Visitor's)
@@ -348,14 +365,14 @@ public:
 public:
   TransitionOnThreadVisitor(result_type dest, MetaMap::Transition* transition);
 
-  result_type operator()(const smoc_func_call_list& f) const;
+  result_type operator()(const smoc_action& f) const;
 
 private:
   result_type dest;
 
   MetaMap::Transition* transition;
 
-  void executeTransition(const smoc_func_call_list& f) const;
+  void executeTransition(const smoc_action& f) const;
 
 };
 
@@ -367,8 +384,8 @@ public:
   MMActionNameVisitor(list<string> & names):
   functionNames(names) {}
 
-  result_type operator()(const smoc_func_call_list& f) const {
-    for (smoc_func_call_list::const_iterator i = f.begin(); i != f.end(); ++i) {
+  result_type operator()(const smoc_action& f) const {
+    for (smoc_action::const_iterator i = f.begin(); i != f.end(); ++i) {
       functionNames.push_back(i->getFuncName());
     }
   }
