@@ -270,37 +270,6 @@ public:
   using base_type::operator=;
 };
 
-
-class smoc_interface_action {
-public:
-  typedef smoc_interface_action this_type;
-
-private:
-  /// @brief Target state
-  smoc::Detail::FiringStateBase::ConstPtr dest;
-
-  /// @brief Action
-  smoc_action f;
-
-public:
-  /// @brief Constructor
-  explicit smoc_interface_action(
-      smoc::Detail::FiringStateBase::ConstRef &t)
-    : dest(t.toPtr()) {}
-
-  /// @brief Constructor
-  explicit smoc_interface_action(
-      smoc::Detail::FiringStateBase::ConstRef &t,
-      const smoc_action &f)
-    : dest(t.toPtr()), f(f) {}
-
-  const smoc::Detail::FiringStateBase::ConstPtr& getDestState() const
-    { return dest; }
-
-  const smoc_action& getAction() const
-    { return f; }
-};
-
 class smoc_transition_part {
 public:
   typedef smoc_transition_part this_type;
@@ -321,7 +290,7 @@ public:
     : guard(g), f(f) {}
 
   /// @brief Returns the guard
-  Guard const &getExpr() const
+  Guard const &getGuard() const
     { return guard; }
 
   /// @brief Returns the action
@@ -332,35 +301,42 @@ public:
 class smoc_transition {
   typedef smoc_transition this_type;
 private:
-  Guard                   guard;
-  smoc_interface_action   ia;
+  /// @brief guard of transition
+  Guard       guard;
+  /// @brief action of transition
+  smoc_action action;
+  /// @brief Target state
+  smoc::Detail::FiringStateBase::ConstRef dest;
 public:
   /// @brief Constructor
   explicit smoc_transition(
-      const smoc_action &f,
-      smoc::Detail::FiringStateBase::ConstRef &t)
-    : guard(smoc::Expr::literal(true)), ia(t,f) {}
+      smoc_action const                       &a,
+      smoc::Detail::FiringStateBase::ConstRef &d)
+    : guard(smoc::Expr::literal(true)), action(a), dest(d) {}
   
   /// @brief Constructor
   explicit smoc_transition(
-      Guard const &g,
-      smoc::Detail::FiringStateBase::ConstRef &t)
-    : guard(g), ia(t) {}
+      Guard const                             &g,
+      smoc::Detail::FiringStateBase::ConstRef &d)
+    : guard(g), dest(d) {}
   
   /// @brief Constructor
   explicit smoc_transition(
-      const smoc_transition_part &tp,
-      smoc::Detail::FiringStateBase::ConstRef &t)
-    : guard(tp.getExpr()),
-      ia(t, tp.getAction()) {}
+      smoc_transition_part const              &tp,
+      smoc::Detail::FiringStateBase::ConstRef &d)
+    : guard(tp.getGuard()), action(tp.getAction()), dest(d) {}
   
   /// @brief Returns the guard
-  Guard const &getExpr() const
+  Guard const &getGuard() const
     { return guard; }
 
-  /// @brief Returns the interface action
-  const smoc_interface_action &getInterfaceAction() const
-    { return ia; }
+  /// @brief Returns the action
+  smoc_action const &getAction() const
+    { return action; }
+
+  /// @brief Returns the destination state
+  smoc::Detail::FiringStateBase::ConstRef const &getDestState() const
+    { return dest; }
 };
 
 class smoc_transition_list
@@ -399,7 +375,7 @@ inline
 smoc_transition_part operator >> (
     const smoc_transition_part &tp,
     const smoc_action          &a)
-  { return smoc_transition_part(tp.getExpr(), merge(tp.getAction(), a)); }
+  { return smoc_transition_part(tp.getGuard(), merge(tp.getAction(), a)); }
 
 inline
 smoc_transition operator >> (
