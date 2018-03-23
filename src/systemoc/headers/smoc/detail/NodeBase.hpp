@@ -168,10 +168,10 @@ protected:
   virtual void reset() {};
 
   template<typename F, typename X>
-  typename CoSupport::Lambda::ParamAccumulator<smoc_member_func, CoSupport::Lambda::Functor<void, F> >::accumulated_type
+  typename CoSupport::Lambda::ParamAccumulator<Detail::ActionBuilder, CoSupport::Lambda::Functor<void, F>, true>::accumulated_type
   static
   call(X* ins, const F &f, const char *name = "") {
-    return typename CoSupport::Lambda::ParamAccumulator<smoc_member_func, CoSupport::Lambda::Functor<void, F> >::accumulated_type
+    return CoSupport::Lambda::ParamAccumulator<Detail::ActionBuilder, CoSupport::Lambda::Functor<void, F>, true>::build
       (CoSupport::Lambda::Functor<void, F>(ins, f, name));
   }
 

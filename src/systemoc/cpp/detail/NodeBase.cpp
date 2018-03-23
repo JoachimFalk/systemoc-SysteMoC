@@ -104,7 +104,7 @@ void NodeBase::before_end_of_elaboration() {
         RuntimeTransition(
           boost::shared_ptr<TransitionImpl>(new TransitionImpl(
             smoc::Expr::till(*diiEvent),
-            smoc_func_call_list()))),
+            smoc_action()))),
         this);
 #endif // SYSTEMOC_ENABLE_VPC
     getFiringFSM()->before_end_of_elaboration(this,

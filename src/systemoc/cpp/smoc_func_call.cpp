@@ -45,32 +45,28 @@
 
 #include "detail/smoc_firing_rules_impl.hpp"
 
-smoc_action merge(const smoc_action& a, const smoc_action& b) {
-  if(const smoc_func_call_list* _a = boost::get<smoc_func_call_list>(&a)) {
-    if(_a->empty()) return b;
-    
-    if(const smoc_func_call_list* _b = boost::get<smoc_func_call_list>(&b)) {
-      smoc_func_call_list ret = *_a;
-      for(smoc_func_call_list::const_iterator i = _b->begin();
-          i != _b->end(); ++i)
-      {
-        ret.push_back(*i);
-      }
-      return ret;
-    }
+smoc_action merge(const smoc_action &a, const smoc_action &b) {
+  if(a.empty())
+    return b;
+  if(b.empty())
+    return a;
+
+  smoc_action ret = a;
+  for(smoc_action::const_iterator i = b.begin();
+      i != b.end();
+      ++i)
+  {
+    ret.push_back(*i);
   }
-  if(const smoc_func_call_list* _b = boost::get<smoc_func_call_list>(&b)) {
-    if(_b->empty()) return a;
-  }  
-  assert(0);
+  return ret;
 }
 
 ActionVisitor::ActionVisitor(result_type dest)
   : dest(dest) {}
 
-ActionVisitor::result_type ActionVisitor::operator()(const smoc_func_call_list& f) const {
+ActionVisitor::result_type ActionVisitor::operator()(const smoc_action &f) const {
   // Function call
-  for(smoc_func_call_list::const_iterator i = f.begin(); i != f.end(); ++i) {
+  for(smoc_action::const_iterator i = f.begin(); i != f.end(); ++i) {
 #ifdef SYSTEMOC_ENABLE_DATAFLOW_TRACE
     this->getSimCTX()->getDataflowTraceLog()->traceStartFunction(&*i);
 #endif // SYSTEMOC_ENABLE_DATAFLOW_TRACE
@@ -101,13 +97,13 @@ smoc::dMM::TransitionOnThreadVisitor::TransitionOnThreadVisitor(result_type dest
   : dest(dest), transition(tr)
 {}
 
-smoc::dMM::TransitionOnThreadVisitor::result_type smoc::dMM::TransitionOnThreadVisitor::operator()(const smoc_func_call_list& f) const
+smoc::dMM::TransitionOnThreadVisitor::result_type smoc::dMM::TransitionOnThreadVisitor::operator()(const smoc_action& f) const
 {
   boost::thread privateThread;
 
   bool hasWaitTime = false;
 
-  for (smoc_func_call_list::const_iterator i = f.begin(); i != f.end(); ++i) {
+  for (smoc_action::const_iterator i = f.begin(); i != f.end(); ++i) {
     string name = i->getFuncName();
     
     if (i->isWaitCall()) {
@@ -121,7 +117,7 @@ smoc::dMM::TransitionOnThreadVisitor::result_type smoc::dMM::TransitionOnThreadV
     //privateThread.join();
   } else {
     // Function call
-    for (smoc_func_call_list::const_iterator i = f.begin(); i != f.end(); ++i) {
+    for (smoc_action::const_iterator i = f.begin(); i != f.end(); ++i) {
 # ifdef SYSTEMOC_ENABLE_DATAFLOW_TRACE
       this->getSimCTX()->getDataflowTraceLog()->traceStartFunction(&*i);
 # endif // SYSTEMOC_ENABLE_DATAFLOW_TRACE
@@ -146,10 +142,10 @@ smoc::dMM::TransitionOnThreadVisitor::result_type smoc::dMM::TransitionOnThreadV
   return dest;
 }
 
-void smoc::dMM::TransitionOnThreadVisitor::executeTransition(const smoc_func_call_list& f) const
+void smoc::dMM::TransitionOnThreadVisitor::executeTransition(const smoc_action& f) const
 {
   // Function call
-  for (smoc_func_call_list::const_iterator i = f.begin(); i != f.end(); ++i) {
+  for (smoc_action::const_iterator i = f.begin(); i != f.end(); ++i) {
 # ifdef SYSTEMOC_ENABLE_DATAFLOW_TRACE
     this->getSimCTX()->getDataflowTraceLog()->traceStartFunction(&*i);
 # endif // SYSTEMOC_ENABLE_DATAFLOW_TRACE
@@ -183,8 +179,8 @@ namespace smoc { namespace Detail {
 ActionNameVisitor::ActionNameVisitor(FunctionNames & names)
   : functionNames(names) {}
 
-void ActionNameVisitor::operator()(const smoc_func_call_list &f) const {
-  for (smoc_func_call_list::const_iterator i = f.begin(); i != f.end(); ++i) {
+void ActionNameVisitor::operator()(const smoc_action &f) const {
+  for (smoc_action::const_iterator i = f.begin(); i != f.end(); ++i) {
     functionNames.push_back(i->getFuncName());
   }
 }

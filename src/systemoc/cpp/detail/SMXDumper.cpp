@@ -87,17 +87,17 @@ class ActionNGXVisitor {
 public:
   typedef SGX::Action::Ptr result_type;
 public:
-  result_type operator()(smoc_func_call_list &f) const;
+  result_type operator()(smoc_action &f) const;
 };
 
-SGX::Action::Ptr ActionNGXVisitor::operator()(smoc_func_call_list &f) const {
+SGX::Action::Ptr ActionNGXVisitor::operator()(smoc_action &f) const {
   if (f.empty())
     return nullptr;
   
   bool single = (++f.begin() == f.end());
   SGX::CompoundAction top;
   
-  for (smoc_func_call_list::iterator i = f.begin(); i != f.end(); ++i) {
+  for (smoc_action::iterator i = f.begin(); i != f.end(); ++i) {
     SGX::Function func;
     func.name() = i->getFuncName();
     func.cxxType() = i->getCxxType();
