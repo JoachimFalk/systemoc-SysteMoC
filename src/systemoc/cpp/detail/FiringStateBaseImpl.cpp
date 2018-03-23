@@ -83,9 +83,9 @@ namespace smoc { namespace Detail {
     {
       addTransition(
           PartialTransition(
-            st->getExpr(),
-            st->getInterfaceAction().getAction(),
-            st->getInterfaceAction().getDestState()->getImpl()));
+            st->getGuard(),
+            st->getAction(),
+            st->getDestState().getImpl()));
     }
   }
 
