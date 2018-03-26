@@ -97,7 +97,7 @@ namespace smoc {
 namespace smoc { namespace Detail {
 
 class GraphBase;
-class FiringFSMImpl;
+class FiringFSM;
 class RuntimeState;
 class RuntimeTransition;
 
@@ -218,7 +218,7 @@ public:
   bool isActor() const
     { return nodeType == NODE_TYPE_ACTOR; }
 
-  FiringFSMImpl *getFiringFSM() const;
+  FiringFSM *getFiringFSM() const;
 
   RuntimeState *getCurrentState() const
     { return currentState; }

@@ -36,7 +36,8 @@
 #include "FiringStateBaseImpl.hpp"
 
 #include <systemoc/smoc_firing_rules.hpp>
-#include "smoc_firing_rules_impl.hpp"
+
+#include "FiringFSM.hpp"
 
 namespace smoc { namespace Detail {
 
@@ -57,7 +58,7 @@ namespace smoc { namespace Detail {
     { return dest; }
 
   FiringStateBaseImpl::FiringStateBaseImpl()
-    : fsm(new FiringFSMImpl()) {
+    : fsm(new FiringFSM()) {
 //  std::cerr << "FiringStateBaseImpl::FiringStateBaseImpl() this == "
 //            << this << std::endl;
     fsm->addState(this);
@@ -68,10 +69,10 @@ namespace smoc { namespace Detail {
 //            << this << std::endl;
   }
 
-  FiringFSMImpl *FiringStateBaseImpl::getFiringFSM() const
+  FiringFSM *FiringStateBaseImpl::getFiringFSM() const
     { return fsm; }
 
-  void FiringStateBaseImpl::setFiringFSM(FiringFSMImpl *f)
+  void FiringStateBaseImpl::setFiringFSM(FiringFSM *f)
     { fsm = f; }
 
 //const PartialTransitionList& FiringStateBaseImpl::getPTL() const

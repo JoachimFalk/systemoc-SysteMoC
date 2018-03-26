@@ -38,6 +38,9 @@
 
 #include <systemoc/smoc_firing_rules.hpp>
 
+// Prints duration of FiringFSM::finalise() in secs.
+//#define FSM_FINALIZE_BENCHMARK
+
 namespace smoc { namespace Detail {
 
   /**
@@ -129,13 +132,13 @@ namespace smoc { namespace Detail {
   class ExpandedTransition;
   typedef std::list<ExpandedTransition> ExpandedTransitionList;
 
-  class FiringFSMImpl;
+  class FiringFSM;
 
   class FiringStateBaseImpl {
     typedef FiringStateBaseImpl this_type;
   protected:
     /// @brief Parent firing FSM
-    FiringFSMImpl *fsm;
+    FiringFSM *fsm;
 
     /// @brief Partial transitions (as added by user)
     PartialTransitionList ptl;
@@ -144,8 +147,8 @@ namespace smoc { namespace Detail {
     FiringStateBaseImpl();
 
     /// @brief Set the FSM (only set the pointer, do not transfer the state!)
-    virtual void setFiringFSM(FiringFSMImpl *fsm);
-    friend class FiringFSMImpl;
+    virtual void setFiringFSM(FiringFSM *fsm);
+    friend class FiringFSM;
 
   #ifdef FSM_FINALIZE_BENCHMARK
     virtual void countStates(size_t& nLeaf, size_t& nAnd, size_t& nXOR, size_t& nTrans) const;
@@ -155,7 +158,7 @@ namespace smoc { namespace Detail {
     virtual ~FiringStateBaseImpl();
   public:
     /// @brief Returns the FSM
-    FiringFSMImpl *getFiringFSM() const;
+    FiringFSM *getFiringFSM() const;
 
     /// @brief Hierarchical end-of-elaboration callback
     virtual void finalise(ExpandedTransitionList& etl) {};

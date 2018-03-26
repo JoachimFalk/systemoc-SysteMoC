@@ -53,6 +53,7 @@
 
 #include "SimulationContext.hpp"
 #include "smoc_firing_rules_impl.hpp"
+#include "FiringFSM.hpp"
 
 namespace smoc { namespace Detail {
 
@@ -284,7 +285,7 @@ void NodeBase::setInitialState(smoc_hierarchical_state &s) {
   initialState    = reinterpret_cast<smoc_hierarchical_state *>(&initialStatePtr);
 }
 
-FiringFSMImpl *NodeBase::getFiringFSM() const {
+FiringFSM *NodeBase::getFiringFSM() const {
   if (initialState)
     return CoSupport::DataTypes::FacadeCoreAccess::getImpl(*initialState)->getFiringFSM();
   else
