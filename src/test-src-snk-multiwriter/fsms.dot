@@ -1,0 +1,20 @@
+digraph G {
+graph [label="FSM of top.src1"]
+0[color="red" label="smoc_firing_state_0" style="filled"];
+0->0 [label="(((top.src1.smoc_port_in_0(1,1)&&(SMOC_VAR(iter)>0))&&top.src1.smoc_port_out_0(1,1))&&top.src1.smoc_port_out_1(1,1))"];
+}
+digraph G {
+graph [label="FSM of top.src2"]
+0[color="red" label="smoc_firing_state_1" style="filled"];
+0->0 [label="(((top.src2.smoc_port_in_0(1,1)&&(SMOC_VAR(iter)>0))&&top.src2.smoc_port_out_0(1,1))&&top.src2.smoc_port_out_1(1,1))"];
+}
+digraph G {
+graph [label="FSM of top.src3"]
+0[color="red" label="smoc_firing_state_2" style="filled"];
+0->0 [label="(((top.src3.smoc_port_in_0(1,1)&&(SMOC_VAR(iter)>0))&&top.src3.smoc_port_out_0(1,1))&&top.src3.smoc_port_out_1(1,1))"];
+}
+digraph G {
+graph [label="FSM of top.snk"]
+0[color="red" label="smoc_firing_state_3" style="filled"];
+0->0 [label="top.snk.smoc_port_in_0(1,1)"];
+}

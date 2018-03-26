@@ -60,37 +60,38 @@ private:
 
 public:
   Testbench(sc_core::sc_module_name name, size_t _iter)
-    : smoc_actor(name, bf),
-      bf("bf"), be("be"), bg("bg"), cf("cf"), ce("ce"), cg("cg"),
-      rng(4711), coin(1,2), iter(_iter), random(coin(rng))
+    : smoc_actor(name, bf)
+    , o1("o1"), o2("o2"), i1("i1"), i2("i2")
+    , bf("bf"), be("be"), bg("bg"), cf("cf"), ce("ce"), cg("cg")
+    , rng(4711), coin(1,2), iter(_iter), random(coin(rng))
   {
     SC_METHOD(notifyEvent);
     sensitive << scEvent;
 
-    bf = (till(smocEvent) && SMOC_GUARD(Testbench::caseA)    && o2(1)) >>
+    bf = (SMOC_TILL(smocEvent) && SMOC_GUARD(Testbench::caseA)    && o2(1)) >>
          SMOC_CALL(Testbench::print)("bf->be") >> be
-       | (till(smocEvent) && SMOC_GUARD(Testbench::caseB)    && o1(1) && i1(2)) >>
+       | (SMOC_TILL(smocEvent) && SMOC_GUARD(Testbench::caseB)    && o1(1) && i1(2)) >>
          SMOC_CALL(Testbench::print)("bf->cf") >> cf
        ;
-    be = (till(smocEvent) && SMOC_GUARD(Testbench::caseA)    && i2(1)) >>
+    be = (SMOC_TILL(smocEvent) && SMOC_GUARD(Testbench::caseA)    && i2(1)) >>
          SMOC_CALL(Testbench::print)("be->bg") >> bg
-       | (till(smocEvent) && SMOC_GUARD(Testbench::caseB)    && o1(1) && i1(2)) >>
+       | (SMOC_TILL(smocEvent) && SMOC_GUARD(Testbench::caseB)    && o1(1) && i1(2)) >>
          SMOC_CALL(Testbench::print)("be->ce") >> ce
        ;
-    bg = (till(smocEvent) && SMOC_GUARD(Testbench::caseA)    && o2(3)) >>
+    bg = (SMOC_TILL(smocEvent) && SMOC_GUARD(Testbench::caseA)    && o2(3)) >>
          SMOC_CALL(Testbench::print)("bg->bf") >> bf
-       | (till(smocEvent) && SMOC_GUARD(Testbench::caseB)    && o1(1) && i1(2)) >>
+       | (SMOC_TILL(smocEvent) && SMOC_GUARD(Testbench::caseB)    && o1(1) && i1(2)) >>
          SMOC_CALL(Testbench::print)("bg->cg") >> cg
        ;
-    cf = (till(smocEvent) && SMOC_GUARD(Testbench::caseBoth) && o2(1)) >>
+    cf = (SMOC_TILL(smocEvent) && SMOC_GUARD(Testbench::caseBoth) && o2(1)) >>
          SMOC_CALL(Testbench::print)("cf->ce") >> ce
        ;
-    ce = (till(smocEvent) && SMOC_GUARD(Testbench::caseBoth) && i2(1)) >>
+    ce = (SMOC_TILL(smocEvent) && SMOC_GUARD(Testbench::caseBoth) && i2(1)) >>
          SMOC_CALL(Testbench::print)("ce->cg") >> cg
        ;
-    cg = (till(smocEvent) && SMOC_GUARD(Testbench::caseA)    && o2(3)) >>
+    cg = (SMOC_TILL(smocEvent) && SMOC_GUARD(Testbench::caseA)    && o2(3)) >>
          SMOC_CALL(Testbench::print)("cg->cf") >> cf
-       | (till(smocEvent) && SMOC_GUARD(Testbench::caseB)    && i2(2)) >>
+       | (SMOC_TILL(smocEvent) && SMOC_GUARD(Testbench::caseB)    && i2(2)) >>
          SMOC_CALL(Testbench::print)("cg->bg") >> bg
        ;
   }

@@ -1,0 +1,40 @@
+digraph G {
+graph [label="FSM of top.tb"]
+0[color="red" label="bf" style="filled"];
+1[label="be"];
+2[label="cf"];
+3[label="bg"];
+4[label="ce"];
+5[label="cg"];
+0->1 [label="((SMOC_TILL(smocEvent)&&SMOC_GUARD(this_type::caseA))&&top.tb.o2(1,1))"];
+0->2 [label="(((SMOC_TILL(smocEvent)&&SMOC_GUARD(this_type::caseB))&&top.tb.o1(1,1))&&top.tb.i1(2,2))"];
+1->3 [label="((SMOC_TILL(smocEvent)&&SMOC_GUARD(this_type::caseA))&&top.tb.i2(1,1))"];
+1->4 [label="(((SMOC_TILL(smocEvent)&&SMOC_GUARD(this_type::caseB))&&top.tb.o1(1,1))&&top.tb.i1(2,2))"];
+2->4 [label="((SMOC_TILL(smocEvent)&&SMOC_GUARD(this_type::caseBoth))&&top.tb.o2(1,1))"];
+3->0 [label="((SMOC_TILL(smocEvent)&&SMOC_GUARD(this_type::caseA))&&top.tb.o2(3,3))"];
+3->5 [label="(((SMOC_TILL(smocEvent)&&SMOC_GUARD(this_type::caseB))&&top.tb.o1(1,1))&&top.tb.i1(2,2))"];
+4->5 [label="((SMOC_TILL(smocEvent)&&SMOC_GUARD(this_type::caseBoth))&&top.tb.i2(1,1))"];
+5->2 [label="((SMOC_TILL(smocEvent)&&SMOC_GUARD(this_type::caseA))&&top.tb.o2(3,3))"];
+5->3 [label="((SMOC_TILL(smocEvent)&&SMOC_GUARD(this_type::caseB))&&top.tb.i2(2,2))"];
+}
+digraph G {
+graph [label="FSM of top.transform"]
+0[color="red" label="y.a.b,y.d.f" style="filled"];
+1[label="y.a.c,y.d.f"];
+2[label="y.a.b,y.d.e"];
+3[label="y.a.b,y.d.g"];
+4[label="y.a.c,y.d.g"];
+5[label="y.a.c,y.d.e"];
+0->1 [label="(top.transform.i1(1,1)&&top.transform.o1(2,2))"];
+0->2 [label="top.transform.i2(1,1)"];
+0->3 [label="top.transform.o2(1,1)"];
+1->5 [label="top.transform.i2(1,1)"];
+1->4 [label="top.transform.o2(1,1)"];
+2->5 [label="(top.transform.i1(1,1)&&top.transform.o1(2,2))"];
+2->3 [label="top.transform.o2(1,1)"];
+3->4 [label="(top.transform.i1(1,1)&&top.transform.o1(2,2))"];
+3->0 [label="top.transform.i2(3,3)"];
+4->3 [label="top.transform.o2(2,2)"];
+4->1 [label="top.transform.i2(3,3)"];
+5->4 [label="top.transform.o2(1,1)"];
+}

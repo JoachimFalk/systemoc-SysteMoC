@@ -97,11 +97,14 @@ private:
 template<class T>
 class Transform : public smoc_actor {
 public:
-  smoc_port_in<T> in;
-  smoc_port_out<T> out;
+  smoc_port_in<T>  i1;
+  smoc_port_out<T> o1;
 
   Transform(sc_core::sc_module_name name)
-    : smoc_actor(name, init), init("init")
+    : smoc_actor(name, init)
+    , i1("i1")
+    , o1("o1")
+    , init("init")
   {
     // All states except the initial state can be
     // temporary states (-> won't clutter the class)
@@ -140,19 +143,19 @@ public:
 
     init =
       // Specifying AND state as target state
-         in(1)
+         i1(1)
       >> SMOC_CALL(Transform::print)("init -> k")
       >> SMOC_CALL(Transform::store)
       >> k
       // Specifying different initial states per partition
-    |    in(1)
+    |    i1(1)
       >> SMOC_CALL(Transform::print)("init -> (l,j)")
       >> SMOC_CALL(Transform::store)
       >> (l,j);
 
     (k, IN(i)) =
       // leaving AND states leaves each partition
-         out(1)
+         o1(1)
       >> SMOC_CALL(Transform::print)("(k,IN(i)) -> init")
       >> SMOC_CALL(Transform::write)
       >> init;
@@ -183,14 +186,14 @@ private:
 
   void store() {
     std::cout << name() << ": store token with value "
-              << in[0] << std::endl;
-    t = in[0];
+              << i1[0] << std::endl;
+    t = i1[0];
   }
   
   void write() {
     std::cout << name() << ": write token with value "
               << t << std::endl;
-    out[0] = t;
+    o1[0] = t;
   }
 };
 
@@ -202,8 +205,8 @@ public:
       snk("snk"),
       trans("transform")
   {
-    connectNodePorts(src.out, trans.in);
-    connectNodePorts(trans.out, snk.in);
+    connectNodePorts(src.out, trans.i1);
+    connectNodePorts(trans.o1, snk.in);
   }
 
 private:

@@ -1,0 +1,28 @@
+digraph G {
+graph [label="FSM of top.srcbool"]
+0[color="red" label="smoc_firing_state_0" style="filled"];
+0->0 [label="top.srcbool.smoc_port_out_0(1,1)"];
+}
+digraph G {
+graph [label="FSM of top.src1"]
+0[color="red" label="smoc_firing_state_1" style="filled"];
+0->0 [label="top.src1.smoc_port_out_0(1,1)"];
+}
+digraph G {
+graph [label="FSM of top.src2"]
+0[color="red" label="smoc_firing_state_2" style="filled"];
+0->0 [label="top.src2.smoc_port_out_0(1,1)"];
+}
+digraph G {
+graph [label="FSM of top.select"]
+0[color="red" label="smoc_firing_state_3" style="filled"];
+0->0 [label="(((top.select.smoc_port_in_0(1,1)&&top.select.smoc_port_in_1(1,1))&&(token(top.select.smoc_port_in_0, 0)==0))&&top.select.smoc_port_out_0(1,1))"];
+0->0 [label="(((top.select.smoc_port_in_0(1,1)&&top.select.smoc_port_in_2(1,1))&&(token(top.select.smoc_port_in_0, 0)==1))&&top.select.smoc_port_out_0(1,1))"];
+}
+digraph G {
+graph [label="FSM of top.sink"]
+0[color="red" label="smoc_firing_state_4" style="filled"];
+1[label="smoc_firing_state_5"];
+0->0 [label="(top.sink.smoc_port_in_0(1,1)&&(SMOC_VAR(this->iter)>0))"];
+0->1 [label="(SMOC_VAR(this->iter)==0)"];
+}

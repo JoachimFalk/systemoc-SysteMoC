@@ -1,0 +1,14 @@
+digraph G {
+graph [label="FSM of top.src"]
+0[color="red" label="start" style="filled"];
+1[label="state1"];
+2[label="state2"];
+0->1 [label="(top.src.out(1,1)&&(SMOC_VAR(this->iter)>0))"];
+1->2 [label="(top.src.out(2,2)&&(SMOC_VAR(this->iter)>0))"];
+2->0 [label="(top.src.out(3,3)&&(SMOC_VAR(this->iter)>0))"];
+}
+digraph G {
+graph [label="FSM of top.snk"]
+0[color="red" label="smoc_firing_state_0" style="filled"];
+0->0 [label="top.snk.smoc_port_in_0(1,1)"];
+}

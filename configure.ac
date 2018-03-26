@@ -79,6 +79,9 @@ AM_CONDITIONAL(SYNTH_TLM, test x"$synth_tlm" = x"true")
 ACJF_CHECK_PKG([Clustering], [Clustering], [clustering=true], [clustering=false])
 AM_CONDITIONAL(CLUSTERING, test x"$clustering" = x"true")
 
+ACJF_PROG_SGXUTILS([sgxutils=true], [sgxutils=false])
+AM_CONDITIONAL(SGXUTILS, test x"$sgxutils" = x"true")
+
 AC_CONFIG_HEADER([config.h])
 AC_CONFIG_FILES([Makefile])
 
