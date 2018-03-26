@@ -118,8 +118,8 @@ int sc_main (int argc, char **argv) {
   if (argc >= 2)
     iter = atol(argv[1]);
 
-  Graph g("g", iter);
-  smoc_scheduler_top top(g);
+  Graph top("top", iter);
+  smoc_scheduler_top s(top);
   sc_core::sc_start();
   return 0;
 }

@@ -62,6 +62,9 @@ endif
 if CLUSTERING
   -include $(pkg_clustering_builddir)/mk/Rules-Synth-II.mk
 endif
+if SGXUTILS
+  NGX_TO_DOT=$(pkg_sgxutils_builddir)/ngx-to-dot
+endif
 
 AM_CPPFLAGS= @AM_CPPFLAGS@ $(SYSTEMOC_INCLUDE) $(BOOST_INCLUDE)
 AM_LDFLAGS = @AM_LDFLAGS@  $(SYSTEMOC_LDFLAGS) $(BOOST_LDFLAGS)
@@ -102,7 +105,16 @@ noinst_PROGRAMS= \
 	test-systemc-sqr
 
 %.smx: %
-	./'$<' --systemoc-export-smx='$@'
+	./'$<' --systemoc-export-smx='$@' || \
+	  { rm -f "$@"; exit 1; }
+if SGXUTILS
+%-fsms.dot: %.smx
+	$(NGX_TO_DOT) \
+	    --fsm-of-proc-name '(top|sqrroot|g|graph)\..*' \
+	    --fsm-dump-state-names yes \
+	    --ngx '$<' --dot '$@' || \
+	  { rm -f "$@"; exit 1; }
+endif
 	
 if SYNTH_SW
 if CLUSTERING
@@ -120,6 +132,7 @@ endif
 endif
 
 TEST_LOGS	= $(foreach TEST,$(noinst_PROGRAMS),$(patsubst $(srcdir)/src/$(TEST)/golden%.log,$(TEST)%.log,$(wildcard $(srcdir)/src/$(TEST)/golden*.log)))
+TEST_FSMS	= $(foreach TEST,$(noinst_PROGRAMS),$(patsubst $(srcdir)/src/$(TEST)/fsms.dot,$(TEST)-fsms.dot,$(wildcard $(srcdir)/src/$(TEST)/fsms.dot)))
 TEST_VPC_LOGS	= $(foreach TEST,$(noinst_PROGRAMS),$(patsubst $(srcdir)/src/$(TEST)/vpc/%.vpc.xml,$(TEST)-%.log,$(wildcard $(srcdir)/src/$(TEST)/vpc/*.vpc.xml)))
 TEST_VPC_VCDS	= $(foreach TEST,$(noinst_PROGRAMS),$(patsubst $(srcdir)/src/$(TEST)/vpc/%-golden.vcd,$(TEST)-%.vcd,$(wildcard $(srcdir)/src/$(TEST)/vpc/*-golden.vcd)))
 
@@ -564,7 +577,7 @@ clean-local:
 	rm -f $(addsuffix .log,$(noinst_PROGRAMS))
 	rm -f $(addsuffix .cpp,$(noinst_PROGRAMS))
 	rm -f $(addsuffix .smx,$(noinst_PROGRAMS))
-	rm -f $(TEST_LOGS) $(TEST_VPC_VCDS) $(TEST_VPC_LOGS)
+	rm -f $(TEST_LOGS) $(TEST_FSMS) $(TEST_VPC_VCDS) $(TEST_VPC_LOGS)
 
 .PHONY: test-logs check-logs
 check-am: check-logs
@@ -598,6 +611,36 @@ check-logs: $(TEST_LOGS)
  	  esac; \
 	done; \
 	exit $$error
+
+
+# .PHONY is outside conditionals to make automake happy
+.PHONY: test-fsms check-fsms
+if SGXUTILS
+
+check-am: check-fsms
+test-fsms: $(TEST_FSMS)
+check-fsms: $(TEST_FSMS)
+	@error=0; \
+	for test in $(noinst_PROGRAMS); do \
+	  case "$$test" in \
+	    test-*) \
+	      test_fsms=$${test}-fsms.dot; \
+	      golden_fsms=$(srcdir)/src/$${test}/fsms.dot; \
+	      if test -f $${golden_fsms}; then \
+		status=success; \
+		if ! diff -u $${test_fsms} $${golden_fsms} > /dev/null; then \
+		  status=failed; \
+		fi; \
+		if test x"$$status" = x"failed"; then \
+		  echo "Check for $${test}-fsms failed!!!"; error=1; \
+		  diff -u $${test_fsms} $${golden_fsms}; \
+		fi; \
+	      fi; \
+	      ;; \
+ 	  esac; \
+	done; \
+	exit $$error
+endif
 
 # .PHONY is outside conditionals to make automake happy
 .PHONY: test-vcds check-vcds

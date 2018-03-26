@@ -1,0 +1,10 @@
+digraph G {
+graph [label="FSM of g.src"]
+0[color="red" label="smoc_firing_state_0" style="filled"];
+0->0 [label="(g.src.smoc_port_out_0(1,1)&&(SMOC_VAR(this->iter)!=0))"];
+}
+digraph G {
+graph [label="FSM of g.snk"]
+0[color="red" label="smoc_firing_state_1" style="filled"];
+0->0 [label="g.snk.smoc_port_in_0(1,1)"];
+}
