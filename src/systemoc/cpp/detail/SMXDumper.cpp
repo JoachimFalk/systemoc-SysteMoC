@@ -806,10 +806,9 @@ protected:
     SGX::ASTNode::Ptr astPtr;
   };
 
-  typedef std::map<const RuntimeState *, SGX::FiringState::Ptr> StateMap;
+  typedef std::map<std::string, RuntimeState const *>           StateNameMap;
+  typedef std::map<RuntimeState const *, SGX::FiringState::Ptr> StateMap;
   typedef std::map<void *, TransitionInfo>                      TransitionInfoMap;
-
-  typedef FiringFSM::RuntimeStateSet                            RuntimeStateSet;
 public:
   DumpFiringFSM(ProcessSubVisitor &sv)
     : sv(sv) {}
@@ -827,28 +826,40 @@ public:
     ActionNGXVisitor            actionVisitor;
     ExprNGXVisitor              exprVisitor(sv.ports);
 
-    const RuntimeStateSet      &smocStates    = smocFSM->getStates();
-    // Create states
-    for (RuntimeStateSet::const_iterator sIter = smocStates.begin();
-         sIter != smocStates.end();
-         ++sIter) {
-      std::string stateName = getName(*sIter);
-      // Eleminate actor name from state name, e.g.,
-      // sqrroot.a1:smoc_firing_state_0 => smoc_firing_state_0.
-      std::string::size_type colonPos = stateName.find(':');
-      if (colonPos != std::string::npos)
-        stateName = stateName.substr(colonPos+1);
-      SGX::FiringState sgxState(stateName, getId(*sIter));
-      sassert(stateMap.insert(std::make_pair(*sIter, &sgxState)).second);
-      sgxStateList.push_back(sgxState);
-    }
-    // Setup initial state
+    // Inser states into FiringFSM
     {
-      StateMap::const_iterator iIter = stateMap.find(smocFSM->getInitialState());
-      assert(iIter != stateMap.end());
-      sgxFSM.startState() = iIter->second;
+      FiringFSM::RuntimeStateSet const &smocStates = smocFSM->getStates();
+      StateNameMap                      stateNameMap;
+
+      // First sort states by names to guarantee a deterministic order of the
+      // list of states for the SGX file. This is important for unit testing!
+      for (FiringFSM::RuntimeStateSet::const_iterator sIter = smocStates.begin();
+           sIter != smocStates.end();
+           ++sIter) {
+        std::string stateName = getName(*sIter);
+        // Eleminate actor name from state name, e.g.,
+        // sqrroot.a1:smoc_firing_state_0 => smoc_firing_state_0.
+        std::string::size_type colonPos = stateName.find(':');
+        if (colonPos != std::string::npos)
+          stateName = stateName.substr(colonPos+1);
+        sassert(stateNameMap.insert(std::make_pair(stateName, *sIter)).second);
+      }
+      // Create states
+      for (StateNameMap::const_iterator sIter = stateNameMap.begin();
+           sIter != stateNameMap.end();
+           ++sIter) {
+        SGX::FiringState sgxState(sIter->first, getId(sIter->second));
+        sassert(stateMap.insert(std::make_pair(sIter->second, &sgxState)).second);
+        sgxStateList.push_back(sgxState);
+      }
+      // Setup initial state
+      {
+        StateMap::const_iterator iIter = stateMap.find(smocFSM->getInitialState());
+        assert(iIter != stateMap.end());
+        sgxFSM.startState() = iIter->second;
+      }
     }
-    // Insert transitions
+    // Insert transitions into FiringFSM
     for (StateMap::iterator sIter = stateMap.begin();
          sIter != stateMap.end();
          ++sIter) {
