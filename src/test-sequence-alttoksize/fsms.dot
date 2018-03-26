@@ -1,11 +1,11 @@
 digraph G {
 graph [label="FSM of top.src"]
 0[color="red" label="smoc_firing_state_0" style="filled"];
-1[label="smoc_firing_state_2"];
-2[label="smoc_firing_state_1"];
-0->2 [label="top.src.smoc_port_out_0(1,1)"];
-1->0 [label="top.src.smoc_port_out_0(5,5)"];
-2->1 [label="top.src.smoc_port_out_0(3,3)"];
+1[label="smoc_firing_state_1"];
+2[label="smoc_firing_state_2"];
+0->1 [label="top.src.smoc_port_out_0(1,1)"];
+1->2 [label="top.src.smoc_port_out_0(3,3)"];
+2->0 [label="top.src.smoc_port_out_0(5,5)"];
 }
 digraph G {
 graph [label="FSM of top.process"]
