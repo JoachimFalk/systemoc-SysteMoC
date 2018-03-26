@@ -1,22 +1,22 @@
 digraph G {
 graph [label="FSM of top.src"]
-0[color="red" label="start" style="filled"];
-1[label="smoc_firing_state_0"];
-2[label="smoc_firing_state_1"];
-0->1 [label="top.src.smoc_port_out_1(1,1)"];
-1->1 [label="((top.src.smoc_port_out_1(1,1)&&top.src.smoc_port_out_2(1,1))&&(SMOC_VAR(cv)==1))"];
-1->1 [label="(((top.src.smoc_port_out_0(1,1)&&top.src.smoc_port_out_1(1,1))&&top.src.smoc_port_out_2(1,1))&&(SMOC_VAR(cv)==2))"];
-1->1 [label="((top.src.smoc_port_out_1(1,1)&&top.src.smoc_port_out_3(1,1))&&(SMOC_VAR(cv)==3))"];
-1->2 [label="(SMOC_VAR(cv)==0)"];
+0[label="smoc_firing_state_0"];
+1[label="smoc_firing_state_1"];
+2[color="red" label="start" style="filled"];
+0->0 [label="((top.src.smoc_port_out_1(1,1)&&top.src.smoc_port_out_2(1,1))&&(SMOC_VAR(cv)==1))"];
+0->0 [label="(((top.src.smoc_port_out_0(1,1)&&top.src.smoc_port_out_1(1,1))&&top.src.smoc_port_out_2(1,1))&&(SMOC_VAR(cv)==2))"];
+0->0 [label="((top.src.smoc_port_out_1(1,1)&&top.src.smoc_port_out_3(1,1))&&(SMOC_VAR(cv)==3))"];
+0->1 [label="(SMOC_VAR(cv)==0)"];
+2->0 [label="top.src.smoc_port_out_1(1,1)"];
 }
 digraph G {
 graph [label="FSM of top.transform"]
-0[color="red" label="d.a" style="filled"];
-1[label="b"];
+0[label="b"];
+1[color="red" label="d.a" style="filled"];
 2[label="d.c"];
-0->2 [label="top.transform.i1(1,1)"];
-0->1 [label="top.transform.i2(1,1)"];
-1->0 [label="top.transform.i3(1,1)"];
-1->2 [label="top.transform.i4(1,1)"];
-2->1 [label="top.transform.i2(1,1)"];
+0->1 [label="top.transform.i3(1,1)"];
+0->2 [label="top.transform.i4(1,1)"];
+1->2 [label="top.transform.i1(1,1)"];
+1->0 [label="top.transform.i2(1,1)"];
+2->0 [label="top.transform.i2(1,1)"];
 }
