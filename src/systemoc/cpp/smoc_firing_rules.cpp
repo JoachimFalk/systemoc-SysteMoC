@@ -60,6 +60,7 @@
 #include <smoc/detail/DebugOStream.hpp>
 
 #include "detail/smoc_firing_rules_impl.hpp"
+#include "detail/FiringFSM.hpp"
 #include "detail/SimulationContext.hpp"
 
 #ifdef SYSTEMOC_ENABLE_HOOKING
@@ -74,36 +75,14 @@
 using CoSupport::String::Concat;
 using CoSupport::String::asStr;
 
-// Prints duration of FiringFSMImpl::finalise() in secs.
-//#define FSM_FINALIZE_BENCHMARK
-
 namespace smoc { namespace Detail {
 
 using namespace CoSupport::DataTypes;
-
-static const char HIERARCHY_SEPARATOR = '.';
-static const char PRODSTATE_SEPARATOR = ',';
-
 
 template<class C> inline bool single(const C& c) {
   if(c.empty()) return false;
   return ++c.begin() == c.end();
 }
-
-template<class T>
-void markStates(const T& t, Marking& m)  {
-  for(typename T::const_iterator tIter = t.begin();
-      tIter != t.end(); ++tIter)
-  {
-    (*tIter)->mark(m);
-  }
-}
-
-struct ModelingError : public std::runtime_error {
-  ModelingError(const char* desc)
-    : std::runtime_error(desc)
-  {}
-};
 
 ExpandedTransition::ExpandedTransition(
     const HierarchicalStateImpl* src,
@@ -241,9 +220,9 @@ bool RuntimeTransition::check(bool debug) const {
   if (result) {
     smoc::Detail::ActivationStatus retval =
         smoc::Expr::evalTo<smoc::Expr::Value>(getExpr());
-  #if defined(SYSTEMOC_ENABLE_DEBUG)
+#if defined(SYSTEMOC_ENABLE_DEBUG)
     smoc::Expr::evalTo<smoc::Expr::CommReset>(getExpr());
-  #endif
+#endif
     switch (retval.toSymbol()) {
       case smoc::Detail::_ENABLED:
         break;
@@ -496,358 +475,6 @@ void RuntimeState::end_of_elaboration(smoc::Detail::NodeBase *node) {
   }
 }
 
-FiringFSMImpl::FiringFSMImpl()
-  : use_count_(0),
-    //actor(0),
-    top(0)
-{
-//  std::cerr << "FiringFSMImpl::FiringFSMImpl() this == " << this << std::endl;
-}
-
-FiringFSMImpl::~FiringFSMImpl() {
-//  std::cerr << "FiringFSMImpl::~FiringFSMImpl() this == " << this << std::endl;
-  assert(use_count_ == 0);  
-
-  delete top;
-
-  for(FiringStateBaseImplSet::const_iterator s = states.begin();
-      s != states.end(); ++s)
-  {
-    assert((*s)->getFiringFSM() == this);
-    delete *s;
-  }
-
-  for(RuntimeStateSet::const_iterator s = rts.begin();
-      s != rts.end(); ++s)
-  {
-    delete *s;
-  }
-}
-
-const RuntimeStateSet& FiringFSMImpl::getStates() const
-  { return rts; }
-
-RuntimeState* FiringFSMImpl::getInitialState() const
-  { return init; }
-
-std::ostream& operator<<(std::ostream& os, const ProdState& p) {
-  //os << "(";
-  for(ProdState::const_iterator s = p.begin();
-      s != p.end(); ++s)
-  {
-    if (s != p.begin())
-      os << PRODSTATE_SEPARATOR;
-    assert(!(*s)->getName().empty());
-    os << (*s)->getHierarchicalName();
-  }
-  //os << ")";
-  return os;
-}
-
-/*
- * isImplied(s,p) == true <=> exists p_i in p: isAncestor(s, p_i) == true
- */
-bool isImplied(const HierarchicalStateImpl* s, const ProdState& p) {
-  for(ProdState::const_iterator pIter = p.begin();
-      pIter != p.end(); ++pIter)
-  {
-    if(s->isAncestor(*pIter))
-      return true;
-  }
-  return false;
-}
-
-bool isImplied(const CondMultiState& c, const ProdState& p) {
-  for(CondMultiState::const_iterator cIter = c.begin();
-      cIter != c.end(); ++cIter)
-  {
-    if(isImplied(cIter->first, p)) {
-      if(cIter->second) return false;
-    }
-    else {
-      if(!cIter->second) return false;
-    }
-  }
-  return true;
-}
-
-void FiringFSMImpl::before_end_of_elaboration(
-    NodeBase        *actorOrGraphNode,
-    HierarchicalStateImpl *hsinit)
-{
-//  smoc::Detail::outDbg << "FiringFSMImpl::finalise(...) this == " << this << std::endl;
-//  ScopedIndent s0(smoc::Detail::outDbg);
-
-  assert(actorOrGraphNode);
-  //actorOrGraphNode = _actor;
-
-//  smoc::Detail::outDbg << "Actor or Graph: " << actorOrGraphNode->name() << std::endl;
-
-#ifdef FSM_FINALIZE_BENCHMARK  
-  uint64_t finStart;
-  size_t nRunStates = 0;
-  size_t nRunTrans = 0;
-#endif // FSM_FINALIZE_BENCHMARK
-
-  try {
-
-    // create top state (do not try this in the constructor...)
-    top = new XORStateImpl();
-    unify(top->getFiringFSM());
-    delState(top);
-
-#ifdef FSM_FINALIZE_BENCHMARK
-    size_t nLeaf = 0;
-    size_t nXor = 0;
-    size_t nAnd = 0;
-    size_t nTrans = 0;
-    for(FiringStateBaseImplSet::iterator sIter = states.begin();
-        sIter != states.end(); ++sIter) {
-      (*sIter)->countStates(nLeaf, nAnd, nXor, nTrans);
-    }
-    std::cerr << "#leaf: " << nLeaf << "; #and: " << nAnd << "; #xor: "
-             << nXor << "; #transitions: " << nTrans << std::endl;
-#endif // FSM_FINALIZE_BENCHMARK
-
-
-#ifdef FSM_FINALIZE_BENCHMARK  
-   struct timespec ts;
-   clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &ts);
-   finStart = ts.tv_sec*1000000000ull + ts.tv_nsec;
-#endif // FSM_FINALIZE_BENCHMARK
-
-    // move remaining hierarchical states into top state
-//    {smoc::Detail::outDbg << "moving HS to top state" << std::endl;
-//    ScopedIndent s1(smoc::Detail::outDbg);
-    
-    FiringStateBaseImplSet::iterator sIter, sNext;
-
-    bool initStateFound = false;
-
-    for(sIter = states.begin();
-        sIter != states.end(); sIter = sNext) {
-      ++(sNext = sIter);
-      if (HierarchicalStateImpl* hs =
-          dynamic_cast<HierarchicalStateImpl*>(*sIter))
-      {
-        top->add(hs, hsinit == hs); // hs->isAncestor(hsinit));
-        if (hsinit == hs)
-          initStateFound = true;
-      }
-    }
-
-    if (!initStateFound)
-      throw ModelingError("smoc_firing_fsm: Initial state must be on top hierarchy level");
-
- //   }
-    
-    ExpandedTransitionList etl;
-
-//  // finalise states -> expanded transitions
-//  {smoc::Detail::outDbg << "finalising states" << std::endl;
-//  ScopedIndent s1(smoc::Detail::outDbg);
-    
-    // finalize all non-hierarchical states, i.e., dynamic_cast<HierarchicalStateImpl*>(...) == nullptr
-    for(FiringStateBaseImplSet::iterator sIter = states.begin();
-        sIter != states.end(); ++sIter)
-    {
-      (*sIter)->finalise(etl);
-    }
-
-    //top->setCodeAndBits(0,1);
-    top->finalise(etl);
-
-//    }
-
-//  // calculate runtime states and transitions
-//  {smoc::Detail::outDbg << "calculating runtime states / transitions" << std::endl;
-//  ScopedIndent s1(smoc::Detail::outDbg);
-
-    assert(rts.empty());
-
-    typedef std::map<ProdState,RuntimeState*> StateTable;
-    typedef StateTable::value_type STEntry;
-    StateTable st;
-
-    typedef std::list<StateTable::const_iterator> NewStates;
-    NewStates ns;
-
-    // determine initial state
-    ProdState psinit;
-    top->getInitialState(psinit, Marking());
-
-#if defined(SYSTEMOC_ENABLE_MAESTRO) && defined(MAESTRO_ENABLE_BRUCKNER)
-    init = *rts.insert(new RuntimeState (Concat("")(psinit), dynamic_cast<Bruckner::Model::Hierarchical*>(actorOrGraphNode) )).first;
-#else //!defined(SYSTEMOC_ENABLE_MAESTRO) || !defined(MAESTRO_ENABLE_BRUCKNER)
-    init = *rts.insert(new RuntimeState(Concat(actorOrGraphNode->name())(":")(psinit))).first;
-#endif //!defined(SYSTEMOC_ENABLE_MAESTRO) || !defined(MAESTRO_ENABLE_BRUCKNER)
-
-    ns.push_back(
-        st.insert(STEntry(psinit, init)).first);
-#ifdef FSM_FINALIZE_BENCHMARK
-    nRunStates++;
-#endif // FSM_FINALIZE_BENCHMARK
-
-    while(!ns.empty()) {
-      const ProdState& s = ns.front()->first;
-      RuntimeState* rs = ns.front()->second;
-
-      ns.pop_front();
-
-      //Marking mk;
-      //markStates(s, mk);
-
-      for(ExpandedTransitionList::const_iterator t = etl.begin();
-          t != etl.end(); ++t)
-      {
-        if(isImplied(t->getSrcState(), s) &&
-           isImplied(t->getCondStates(), s))
-        //if(t->getSrcState()->isMarked(mk) &&
-        //(areMarked(t->getCondStates(), mk))
-        {
-          const HierarchicalStateImpl* x =
-            t->getSrcState()->getTopState(t->getDestStates(), true);
-
-          Marking mknew;
-
-
-          // mark user-defined states
-          markStates(t->getDestStates(), mknew);
-
-          // get the target prod. state
-          ProdState d;
-          x->getInitialState(d, mknew);
-          
-          // mark remaining states in prod. state
-          for(ProdState::const_iterator i = s.begin();
-              i != s.end(); ++i)
-          {
-            if(!x->isAncestor(*i)) {
-              sassert(d.insert(*i).second);
-            }// (*i)->mark(mknew);
-          }
-
-          std::pair<StateTable::iterator,bool> ins =
-            st.insert(STEntry(d, nullptr));
-                
-          if (ins.second) {
-            // FIXME: construct state name and pass to RuntimeState
-            ProdState f = ins.first->first;
-#if defined(SYSTEMOC_ENABLE_MAESTRO) && defined(MAESTRO_ENABLE_BRUCKNER)
-            ins.first->second = *rts.insert(new RuntimeState(Concat("")(f), dynamic_cast<Bruckner::Model::Hierarchical*>(actorOrGraphNode))).first;
-#else //!defined(SYSTEMOC_ENABLE_MAESTRO) || !defined(MAESTRO_ENABLE_BRUCKNER)
-            ins.first->second = *rts.insert(new RuntimeState(Concat(actorOrGraphNode->name())(":")(f))).first;
-#endif //!defined(SYSTEMOC_ENABLE_MAESTRO) || !defined(MAESTRO_ENABLE_BRUCKNER)
-            ns.push_back(ins.first);
-#ifdef FSM_FINALIZE_BENCHMARK
-            nRunStates++;
-#endif // FSM_FINALIZE_BENCHMARK
-          }
-
-          RuntimeState* rd = ins.first->second;
-          assert(rd);
-
-#ifdef SYSTEMOC_ENABLE_MAESTRO
-          MetaMap::SMoCActor* a = nullptr;
-          if (actorOrGraphNode->isActor()) {
-            a = dynamic_cast<MetaMap::SMoCActor*>(actorOrGraphNode);
-          }
-#endif //SYSTEMOC_ENABLE_MAESTRO
-          rs->addTransition(
-            RuntimeTransition(
-              t->getCachedTransitionImpl(),
-#ifdef SYSTEMOC_ENABLE_MAESTRO
-              *a,
-#endif //SYSTEMOC_ENABLE_MAESTRO
-              rd),
-            actorOrGraphNode);
-#ifdef FSM_FINALIZE_BENCHMARK
-          nRunTrans++;
-#endif // FSM_FINALIZE_BENCHMARK
-        }
-      }
-    }
-  }
-  catch(const ModelingError& e) {
-    std::cerr << "A modeling error occurred:" << std::endl
-              << "  \"" << e.what() << "\"" << std::endl
-              << "Please check the model and try again!" << std::endl;
-    // give up
-    exit(1);
-  }
-
-#ifdef FSM_FINALIZE_BENCHMARK  
-  struct timespec ts;
-  clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &ts);
-  uint64_t finEnd = ts.tv_sec*1000000000ull + ts.tv_nsec;
-
-  std::cerr << "Finalised FSM of actor/graph '" << actorOrGraphNode->name() << "' in "
-            << ((finEnd - finStart) / 1e9) << "s"
-            << "; #states: " << nRunStates << "; #trans: " << nRunTrans
-            << std::endl;
-#endif // FSM_FINALIZE_BENCHMARK
-}
-
-void FiringFSMImpl::end_of_elaboration(NodeBase *node)
-{
-  RuntimeStateSet::iterator iterEnd = getStates().end();
-  for (RuntimeStateSet::iterator iter = getStates().begin(); iter != iterEnd; ++iter) {
-    (*iter)->end_of_elaboration(node);
-  }
-}
-
-void FiringFSMImpl::addState(FiringStateBaseImpl *state) {
-  assert(state->getFiringFSM() == this);
-  sassert(states.insert(state).second);
-}
-
-void FiringFSMImpl::delState(FiringStateBaseImpl *state) {
-  assert(state->getFiringFSM() == this);
-  sassert(states.erase(state) == 1);
-}
-
-void FiringFSMImpl::addRef() {
-//  std::cerr << "FiringFSMImpl::add_ref() this == " << this
-//            << "; use_count: " << use_count_ << std::endl;
-  ++use_count_;
-}
-
-bool FiringFSMImpl::delRef() {
-//  std::cerr << "FiringFSMImpl::delRef() this == " << this
-//            << "; use_count: " << use_count_ << std::endl;
-  assert(use_count_); --use_count_;
-  return use_count_ == 0;
-}
-
-void FiringFSMImpl::unify(this_type *fr) {
-  if(this != fr) {
-//    std::cerr << "FiringFSMImpl::unify() this == " << this
-//              << "; other: " << fr << std::endl;
-    
-    // patch fsm of all states owned by fr
-    for(FiringStateBaseImplSet::iterator sIter = fr->states.begin();
-        sIter != fr->states.end(); ++sIter)
-    {
-      assert((*sIter)->getFiringFSM() == fr);
-      (*sIter)->setFiringFSM(this);
-      sassert(states.insert(*sIter).second);
-    }
-    
-    //std::cerr << " own use_count: " << use_count_
-    //          << "; other use_count: " << fr->use_count_
-    //          << "; # merged states: " << states.size()
-    //          << std::endl;
-
-    use_count_ += fr->use_count_;
-    fr->use_count_ = 0;
-    fr->states.clear();    
-    
-    delete fr;
-  }
-}
-
-
-
 HierarchicalStateImpl::HierarchicalStateImpl(const std::string& name)
   : FiringStateBaseImpl(),
     name(name.empty() ? Concat("smoc_firing_state_")(UnnamedStateCount++) : name),
@@ -855,9 +482,9 @@ HierarchicalStateImpl::HierarchicalStateImpl(const std::string& name)
     code(0),
     bits(1)
 {
-  if(name.find(HIERARCHY_SEPARATOR) != std::string::npos)
+  if(name.find(FiringFSM::HIERARCHY_SEPARATOR) != std::string::npos)
     assert(!"smoc_hierarchical_state: Invalid state name");
-  if(name.find(PRODSTATE_SEPARATOR) != std::string::npos)
+  if(name.find(FiringFSM::PRODSTATE_SEPARATOR) != std::string::npos)
     assert(!"smoc_hierarchical_state: Invalid state name");
 }
 
@@ -875,7 +502,7 @@ void HierarchicalStateImpl::add(HierarchicalStateImpl* state) {
   state->setParent(this);
 }
 
-void HierarchicalStateImpl::setFiringFSM(FiringFSMImpl *fsm) {
+void HierarchicalStateImpl::setFiringFSM(FiringFSM *fsm) {
   FiringStateBaseImpl::setFiringFSM(fsm);
   for(C::const_iterator s = c.begin(); s != c.end(); ++s) {
     (*s)->setFiringFSM(fsm);
@@ -892,7 +519,7 @@ std::string HierarchicalStateImpl::getHierarchicalName() const {
   assert(!name.empty());
   return
     parent->getHierarchicalName() +
-    HIERARCHY_SEPARATOR +
+    FiringFSM::HIERARCHY_SEPARATOR +
     name;
 }
   
@@ -908,7 +535,7 @@ void HierarchicalStateImpl::countStates(size_t& nLeaf, size_t& nAnd, size_t& nXo
 HierarchicalStateImpl* HierarchicalStateImpl::select(
     const std::string& name)
 {
-  size_t pos = name.find(HIERARCHY_SEPARATOR);
+  size_t pos = name.find(FiringFSM::HIERARCHY_SEPARATOR);
   std::string top = name.substr(0, pos);
 
   if(top.empty()) {
@@ -1110,7 +737,7 @@ void XORStateImpl::add(HierarchicalStateImpl* state, bool i) {
 
 void XORStateImpl::finalise(ExpandedTransitionList& etl) {
   if(!init)
-    throw ModelingError("smoc_xor_state: Must specify initial state");
+    throw FiringFSM::ModelingError("smoc_xor_state: Must specify initial state");
   HierarchicalStateImpl::finalise(etl);
 }
 
@@ -1132,7 +759,7 @@ void XORStateImpl::getInitialState(
   for(C::const_iterator s = c.begin(); s != c.end(); ++s) {
     if((*s)->isMarked(m)) {
       if(t)
-        throw ModelingError("smoc_xor_state: Must specify single initial state");
+        throw FiringFSM::ModelingError("smoc_xor_state: Must specify single initial state");
       t = *s;
     }
   }
@@ -1211,7 +838,7 @@ const HierarchicalStateImpl* ANDStateImpl::getTopState(
   // if we come here, user tried to cross a partition
   // boundary without leaving the AND state
 
-  throw ModelingError("smoc_and_state: Can't create inter-partition transitions");
+  throw FiringFSM::ModelingError("smoc_and_state: Can't create inter-partition transitions");
 }
 
 void intrusive_ptr_add_ref(ANDStateImpl *p)
@@ -1236,7 +863,7 @@ void JunctionStateImpl::expandTransition(
   assert(t.getDestStates().empty());
 
   if(ptl.empty()) {
-    throw ModelingError("smoc_junction_state: Must specify at least one transition");
+    throw FiringFSM::ModelingError("smoc_junction_state: Must specify at least one transition");
   }
 
   for(PartialTransitionList::const_iterator pt = ptl.begin();
@@ -1274,7 +901,7 @@ void MultiStateImpl::finalise(ExpandedTransitionList& etl) {
 
   // at least one outgoing transition --> single src state
   if(!single(states)) {
-    throw ModelingError("smoc_multi_state: Must specify single source state");
+    throw FiringFSM::ModelingError("smoc_multi_state: Must specify single source state");
   }
 
   for(PartialTransitionList::const_iterator pt = ptl.begin();
@@ -1300,7 +927,7 @@ void MultiStateImpl::expandTransition(
   assert(t.getDestStates().empty());
 
   if(states.empty()) {
-    throw ModelingError("smoc_multi_state: Must specify at least one target state");
+    throw FiringFSM::ModelingError("smoc_multi_state: Must specify at least one target state");
   }
 
   etl.push_back(

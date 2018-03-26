@@ -77,27 +77,9 @@
 
 namespace smoc { namespace Detail { 
 
-  class NodeBase;
+class NodeBase;
 
-//class FiringStateBaseImpl;
-//DECL_INTRUSIVE_REFCOUNT_PTR(FiringStateBaseImpl, PFiringStateBaseImpl);
-typedef std::set<FiringStateBaseImpl*> FiringStateBaseImplSet;
-
-//class FiringStateImpl;
-//DECL_INTRUSIVE_REFCOUNT_PTR(FiringStateImpl, PFiringStateImpl);
 typedef std::set<const FiringStateImpl*> ProdState;
-//typedef std::list<FiringStateImpl*> FiringStateImplList;
-
-//class XORStateImpl;
-//DECL_INTRUSIVE_REFCOUNT_PTR(XORStateImpl, PXORStateImpl);
-//typedef std::set<XORStateImpl*> XORStateImplSet;
-
-//class ANDStateImpl;
-//DECL_INTRUSIVE_REFCOUNT_PTR(ANDStateImpl, PANDStateImpl);
-//typedef std::set<ANDStateImpl*> ANDStateImplSet;
-
-//class JunctionStateImpl;
-//DECL_INTRUSIVE_REFCOUNT_PTR(JunctionStateImpl, PJunctionStateImpl);
 
 typedef std::set<const HierarchicalStateImpl*> MultiState;
 typedef std::map<const HierarchicalStateImpl*,bool> CondMultiState;
@@ -292,68 +274,8 @@ private:
 #endif // SYSTEMOC_NEED_IDS
 };
 
-typedef std::set<RuntimeState*> RuntimeStateSet;
-typedef std::list<RuntimeState*> RuntimeStateList;
-
-class FiringFSMImpl
-: public smoc::Detail::SimCTXBase {
-public:
-  typedef FiringFSMImpl this_type;
-
-private:
-  /// @brief Top states
-  FiringStateBaseImplSet states;
-
-  /// @brief Refcount
-  size_t use_count_;
-
-  // ugh
-  friend class HierarchicalStateImpl;
-  XORStateImpl* top;
-
-  RuntimeState* init;
-  RuntimeStateSet rts;
-public:
-  /// @brief Constructor
-  FiringFSMImpl();
-
-  /// @brief Destructor
-  ~FiringFSMImpl();
-
-  /// @brief Hierarchical before end-of-elaboration callback
-  void before_end_of_elaboration(
-      smoc::Detail::NodeBase    *actor,
-      HierarchicalStateImpl *init);
-
-  /// @brief Hierarchical end-of-elaboration callback
-  void end_of_elaboration(
-      smoc::Detail::NodeBase    *actor);
-
-  /// @brief Merge firing FSMs
-  void unify(this_type *fr);
-
-  /// @brief Add state
-  void addState(FiringStateBaseImpl *state);
-
-  /// @brief Delete state
-  void delState(FiringStateBaseImpl *state);
-
-  /// @brief Increment ref count
-  void addRef();
-
-  /// @brief Decrement ref count
-  bool delRef();
-
-  //void dumpDot(FiringStateImpl* init);
-  
-  const RuntimeStateSet& getStates() const;
-
-  RuntimeState* getInitialState() const;
-};
-
 //class HierarchicalStateImpl;
 typedef std::map<const HierarchicalStateImpl*,bool> Marking;
-
 
 class HierarchicalStateImpl : public FiringStateBaseImpl {
 public:
@@ -382,7 +304,7 @@ protected:
 
   void add(HierarchicalStateImpl* state);
   
-  void setFiringFSM(FiringFSMImpl *fsm);
+  void setFiringFSM(FiringFSM *fsm);
   
 #ifdef FSM_FINALIZE_BENCHMARK
   void countStates(size_t& nLeaf, size_t& nAnd, size_t& nXOR, size_t& nTrans) const;

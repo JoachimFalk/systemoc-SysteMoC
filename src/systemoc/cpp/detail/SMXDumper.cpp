@@ -65,6 +65,7 @@
 #include "apply_visitor.hpp"
 #include "SimulationContext.hpp"
 #include "smoc_firing_rules_impl.hpp"
+#include "FiringFSM.hpp"
 
 //#define SYSTEMOC_DEBUG
 
@@ -807,16 +808,18 @@ protected:
 
   typedef std::map<const RuntimeState *, SGX::FiringState::Ptr> StateMap;
   typedef std::map<void *, TransitionInfo>                      TransitionInfoMap;
+
+  typedef FiringFSM::RuntimeStateSet                            RuntimeStateSet;
 public:
   DumpFiringFSM(ProcessSubVisitor &sv)
     : sv(sv) {}
 
-  result_type operator ()(FiringFSMImpl *smocFSM) {
+  result_type operator ()(FiringFSM *smocFSM) {
     if (!smocFSM)
       return nullptr;
 
     SGX::FiringFSM              sgxFSM;
-//  FiringFSMImpl              *smocFSM       = a.getFiringFSM();
+//  FiringFSM                  *smocFSM       = a.getFiringFSM();
     SGX::FiringStateList::Ref   sgxStateList  = sgxFSM.states();
     StateMap                    stateMap;
     TransitionInfoMap           transitionInfoMap;
