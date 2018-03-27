@@ -55,16 +55,11 @@
 
 #include <systemoc/smoc_config.h>
 
-#include "detail/smoc_func_call.hpp"
-#include "../smoc/detail/FiringStateBase.hpp"
+#include "../smoc/smoc_transition.hpp"
 
 #include <boost/static_assert.hpp>
 
-#ifdef SYSTEMOC_ENABLE_MAESTRO
-# include <Maestro/MetaMap/SMoCActor.hpp>
-#endif //SYSTEMOC_ENABLE_MAESTRO
-
-typedef smoc::Expr::Ex<bool>::type Guard;
+//typedef smoc::Expr::Ex<bool>::type Guard;
 
 namespace smoc { namespace Detail {
 
@@ -90,9 +85,6 @@ namespace smoc { namespace Detail {
   DECL_INTRUSIVE_REFCOUNT_PTR(MultiStateImpl, PMultiStateImpl);
 
 } } // namespace smoc::Detail
-
-class smoc_transition_list;
-
 
 class smoc_hierarchical_state
 : public CoSupport::DataTypes::FacadeFoundation<
@@ -269,131 +261,6 @@ public:
   ImplType *getImpl() const;
   using base_type::operator=;
 };
-
-class smoc_transition_part {
-public:
-  typedef smoc_transition_part this_type;
-
-private:
-  /// @brief guard (AST assembled from smoc_expr.hpp nodes)
-  Guard guard;
-
-  /// @brief Action
-  smoc_action f;
-public:
-  /// @brief Constructor
-  explicit smoc_transition_part(Guard const &g)
-    : guard(g) {}
-
-  /// @brief Constructor
-  explicit smoc_transition_part(Guard const &g, const smoc_action &f)
-    : guard(g), f(f) {}
-
-  /// @brief Returns the guard
-  Guard const &getGuard() const
-    { return guard; }
-
-  /// @brief Returns the action
-  const smoc_action &getAction() const
-    { return f; }
-};
-
-class smoc_transition {
-  typedef smoc_transition this_type;
-private:
-  /// @brief guard of transition
-  Guard       guard;
-  /// @brief action of transition
-  smoc_action action;
-  /// @brief Target state
-  smoc::Detail::FiringStateBase::ConstRef dest;
-public:
-  /// @brief Constructor
-  explicit smoc_transition(
-      smoc_action const                       &a,
-      smoc::Detail::FiringStateBase::ConstRef &d)
-    : guard(smoc::Expr::literal(true)), action(a), dest(d) {}
-  
-  /// @brief Constructor
-  explicit smoc_transition(
-      Guard const                             &g,
-      smoc::Detail::FiringStateBase::ConstRef &d)
-    : guard(g), dest(d) {}
-  
-  /// @brief Constructor
-  explicit smoc_transition(
-      smoc_transition_part const              &tp,
-      smoc::Detail::FiringStateBase::ConstRef &d)
-    : guard(tp.getGuard()), action(tp.getAction()), dest(d) {}
-  
-  /// @brief Returns the guard
-  Guard const &getGuard() const
-    { return guard; }
-
-  /// @brief Returns the action
-  smoc_action const &getAction() const
-    { return action; }
-
-  /// @brief Returns the destination state
-  smoc::Detail::FiringStateBase::ConstRef const &getDestState() const
-    { return dest; }
-};
-
-class smoc_transition_list
-: public std::vector<smoc_transition> {
-public:
-  typedef smoc_transition_list this_type;
-public:
-  smoc_transition_list() {}
-
-  smoc_transition_list(const smoc_transition &t)
-    { push_back(t); }
-  
-  this_type &operator |= (const smoc_transition &t)
-    { push_back(t); return *this; }
-};
-
-inline
-smoc_transition_list operator | (
-    const smoc_transition_list &tl,
-    const smoc_transition      &t )
-  { return smoc_transition_list(tl) |= t; }
-
-inline
-smoc_transition_list operator | (
-    const smoc_transition &tx,
-    const smoc_transition &t )
-  { return smoc_transition_list(tx) |= t; }
-
-template <class E>
-smoc_transition_part operator >> (
-    const smoc::Expr::D<E> &g,
-    const smoc_action      &a)
-  { return smoc_transition_part(Guard(g), a); }
-
-inline
-smoc_transition_part operator >> (
-    const smoc_transition_part &tp,
-    const smoc_action          &a)
-  { return smoc_transition_part(tp.getGuard(), merge(tp.getAction(), a)); }
-
-inline
-smoc_transition operator >> (
-    const smoc_action                       &a,
-    smoc::Detail::FiringStateBase::ConstRef &s)
-  { return smoc_transition(a, s); }
-
-inline
-smoc_transition operator >> (
-    const smoc_transition_part &tp,
-    smoc::Detail::FiringStateBase::ConstRef &s)
-  { return smoc_transition(tp,s); }
-
-template <class E>
-smoc_transition operator >> (
-    const smoc::Expr::D<E> &g,
-    smoc::Detail::FiringStateBase::ConstRef &s)
-  { return smoc_transition(Guard(g),s); }
 
 inline
 smoc_multi_state::Ref operator,(
