@@ -188,7 +188,7 @@ namespace smoc { namespace Detail {
     typedef enum {
       Add, Sub, Multiply, Divide,
       Eq, Ne, Lt, Le, Gt, Ge,
-      BAnd, BOr, BXor, LAnd, LOr, LXor,
+      BAnd, BOr, BXor, LAnd, LOr,
       Field
     } Op;
   protected:
@@ -1194,7 +1194,6 @@ DOP(BOr,|)
 DOP(BXor,^)
 DOP(LAnd,&&)
 DOP(LOr,||)
-// DOP(LXor,^^)
 
 #undef DOP
 #undef DOPBIN
