@@ -247,7 +247,6 @@ ExprNGXVisitor::result_type ExprNGXVisitor::visitBinOp(
     case OpBinT::BXor:     sgxOp = SGX::OpBinT::BXor; break;
     case OpBinT::LAnd:     sgxOp = SGX::OpBinT::LAnd; break;
     case OpBinT::LOr:      sgxOp = SGX::OpBinT::LOr; break;
-    case OpBinT::LXor:     sgxOp = SGX::OpBinT::LXor; break;
     case OpBinT::Field:    sgxOp = SGX::OpBinT::Field; break;
   }
   astNode->opType() = sgxOp;
