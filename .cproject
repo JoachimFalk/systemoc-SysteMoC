@@ -50,8 +50,8 @@
 							<tool id="org.eclipse.linuxtools.cdt.autotools.core.toolchain.tool.autogen.371165766" name="autogen.sh" superClass="org.eclipse.linuxtools.cdt.autotools.core.toolchain.tool.autogen"/>
 							<tool id="org.eclipse.linuxtools.cdt.autotools.core.toolchain.tool.gcc.1247508200" name="GCC C Compiler" superClass="org.eclipse.linuxtools.cdt.autotools.core.toolchain.tool.gcc">
 								<option id="gnu.c.compiler.option.include.paths.1305063895" name="Include paths (-I)" superClass="gnu.c.compiler.option.include.paths" useByScannerDiscovery="false" valueType="includePath">
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/LibSGXUtils/obj/pkginclude}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/LibSGXUtils/pkginclude}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/LibSGXUtils/src/libsgxutils/headers}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/LibSGXUtils/obj/src/libsgxutils/headers}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/SystemC-VPC/src/systemcvpc/headers}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/SystemC-VPC/obj/src/systemcvpc/headers}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/Support/src/cosupport-systemc/headers}&quot;"/>
@@ -76,8 +76,8 @@
 							</tool>
 							<tool id="org.eclipse.linuxtools.cdt.autotools.core.toolchain.tool.gpp.674389529" name="GCC C++ Compiler" superClass="org.eclipse.linuxtools.cdt.autotools.core.toolchain.tool.gpp">
 								<option id="gnu.cpp.compiler.option.include.paths.576002964" name="Include paths (-I)" superClass="gnu.cpp.compiler.option.include.paths" useByScannerDiscovery="false" valueType="includePath">
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/LibSGXUtils/obj/pkginclude}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/LibSGXUtils/pkginclude}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/LibSGXUtils/src/libsgxutils/headers}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/LibSGXUtils/obj/src/libsgxutils/headers}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/SystemC-VPC/src/systemcvpc/headers}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/SystemC-VPC/obj/src/systemcvpc/headers}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/Support/src/cosupport-systemc/headers}&quot;"/>
@@ -140,8 +140,8 @@
 				</externalSettings>
 				<externalSettings containerId="LibSGXUtils;" factoryId="org.eclipse.cdt.core.cfg.export.settings.sipplier">
 					<externalSetting>
-						<entry flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="includePath" name="/LibSGXUtils/obj/pkginclude"/>
-						<entry flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="includePath" name="/LibSGXUtils/pkginclude"/>
+						<entry flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="includePath" name="/LibSGXUtils/src/libsgxutils/headers"/>
+						<entry flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="includePath" name="/LibSGXUtils/obj/src/libsgxutils/headers"/>
 					</externalSetting>
 				</externalSettings>
 			</storageModule>
