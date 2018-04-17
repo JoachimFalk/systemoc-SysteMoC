@@ -73,8 +73,9 @@ SimulationContextSMXImporting::SimulationContextSMXImporting()
 class ASTEvaluator
 : public SGX::ASTTools::ASTEvaluator<
     ASTEvaluator,
-    boost::mpl::vector<Expr::Ex<bool>::type, PortBase *, int> > {
-
+    boost::mpl::vector<boost::blank, Expr::Ex<bool>::type, PortBase *, int> >
+{
+  template<class,class> friend class SGX::ASTTools::ASTEvaluator;
 private:
   IdPool &idPool;
 
@@ -82,6 +83,7 @@ public:
   ASTEvaluator(IdPool &idPool)
     : idPool(idPool) {}
 
+protected:
   inline
   result_type translateASTNode(const SGX::ASTLeafNode &)
     { return boost::blank(); }
