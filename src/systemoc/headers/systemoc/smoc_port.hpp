@@ -177,7 +177,7 @@ public:
 //typedef typename base_type::return_type return_type;
 public:
   smoc_port_in()
-    : base_type(sc_core::sc_gen_unique_name("smoc_port_in"), sc_core::SC_ONE_OR_MORE_BOUND)
+    : base_type(sc_core::sc_gen_unique_name("i"), sc_core::SC_ONE_OR_MORE_BOUND)
   {}
   smoc_port_in(sc_core::sc_module_name name)
     : base_type(name, sc_core::SC_ONE_OR_MORE_BOUND)
@@ -208,7 +208,7 @@ public:
 //typedef typename base_type::return_type return_type;
 public:
   smoc_port_out()
-    : base_type(sc_core::sc_gen_unique_name("smoc_port_out"), sc_core::SC_ONE_OR_MORE_BOUND)
+    : base_type(sc_core::sc_gen_unique_name("o"), sc_core::SC_ONE_OR_MORE_BOUND)
   {}
   smoc_port_out(sc_core::sc_module_name name)
     : base_type(name, sc_core::SC_ONE_OR_MORE_BOUND)
@@ -260,7 +260,7 @@ public:
 //typedef typename base_type::return_type return_type;
 public:
   smoc_port_out()
-    : base_type(sc_core::sc_gen_unique_name("smoc_port_out"), sc_core::SC_ONE_OR_MORE_BOUND)
+    : base_type(sc_core::sc_gen_unique_name("o"), sc_core::SC_ONE_OR_MORE_BOUND)
   {}
   smoc_port_out(sc_core::sc_module_name name)
     : base_type(name, sc_core::SC_ONE_OR_MORE_BOUND)

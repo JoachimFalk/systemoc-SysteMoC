@@ -477,7 +477,7 @@ void RuntimeState::end_of_elaboration(smoc::Detail::NodeBase *node) {
 
 HierarchicalStateImpl::HierarchicalStateImpl(const std::string& name)
   : FiringStateBaseImpl(),
-    name(name.empty() ? Concat("smoc_firing_state_")(UnnamedStateCount++) : name),
+    name(name.empty() ? Concat("q")(UnnamedStateCount++) : name),
     parent(0),
     code(0),
     bits(1)
