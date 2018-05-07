@@ -477,7 +477,7 @@ void RuntimeState::end_of_elaboration(smoc::Detail::NodeBase *node) {
 
 HierarchicalStateImpl::HierarchicalStateImpl(const std::string& name)
   : FiringStateBaseImpl(),
-    name(name.empty() ? Concat("q")(UnnamedStateCount++) : name),
+    name(name.empty() ? Concat("x")(UnnamedStateCount++) : name),
     parent(0),
     code(0),
     bits(1)
@@ -679,10 +679,10 @@ void intrusive_ptr_add_ref(HierarchicalStateImpl *p)
 void intrusive_ptr_release(HierarchicalStateImpl *p)
   { intrusive_ptr_release(static_cast<FiringStateBaseImpl*>(p)); }
 
-
-
 FiringStateImpl::FiringStateImpl(const std::string& name)
-  : HierarchicalStateImpl(name)
+  : HierarchicalStateImpl(name.empty()
+      ? sc_core::sc_gen_unique_name("q", false)
+      : name)
 {}
 
 void FiringStateImpl::getInitialState(
