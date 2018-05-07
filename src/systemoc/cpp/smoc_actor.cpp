@@ -55,18 +55,18 @@ smoc_actor::smoc_actor(sc_core::sc_module_name name, smoc_hierarchical_state &s,
   initMMactor();
 #endif //defined(SYSTEMOC_ENABLE_MAESTRO)
 }
-smoc_actor::smoc_actor(smoc_hierarchical_state &s, unsigned int thread_stack_size
-#ifdef SYSTEMOC_ENABLE_MAESTRO
-    , bool useLogFile
-#endif //defined(SYSTEMOC_ENABLE_MAESTRO)
-  ) : NodeBase(sc_core::sc_gen_unique_name("smoc_actor"), NODE_TYPE_ACTOR, &s, thread_stack_size)
-{
-#ifdef SYSTEMOC_ENABLE_MAESTRO
-  this->setName(this->name());
-  this->instanceLogger(this->name(), useLogFile);
-  initMMactor();
-#endif //defined(SYSTEMOC_ENABLE_MAESTRO)
-}
+//smoc_actor::smoc_actor(smoc_hierarchical_state &s, unsigned int thread_stack_size
+//#ifdef SYSTEMOC_ENABLE_MAESTRO
+//    , bool useLogFile
+//#endif //defined(SYSTEMOC_ENABLE_MAESTRO)
+//  ) : NodeBase(sc_core::sc_gen_unique_name("a", false), NODE_TYPE_ACTOR, &s, thread_stack_size)
+//{
+//#ifdef SYSTEMOC_ENABLE_MAESTRO
+//  this->setName(this->name());
+//  this->instanceLogger(this->name(), useLogFile);
+//  initMMactor();
+//#endif //defined(SYSTEMOC_ENABLE_MAESTRO)
+//}
 
 #ifdef SYSTEMOC_ENABLE_MAESTRO
 void smoc_actor::initMMactor()

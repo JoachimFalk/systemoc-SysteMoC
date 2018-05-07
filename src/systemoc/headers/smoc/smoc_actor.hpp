@@ -54,11 +54,11 @@ protected:
       , bool useLogFile = false
 #endif //defined(SYSTEMOC_ENABLE_MAESTRO)
     );
-  smoc_actor(smoc_hierarchical_state &s, unsigned int thread_stack_size = 0
-#ifdef SYSTEMOC_ENABLE_MAESTRO
-      , bool useLogFile = false
-#endif //defined(SYSTEMOC_ENABLE_MAESTRO)
-    );
+//smoc_actor(smoc_hierarchical_state &s, unsigned int thread_stack_size = 0
+//#ifdef SYSTEMOC_ENABLE_MAESTRO
+//    , bool useLogFile = false
+//#endif //defined(SYSTEMOC_ENABLE_MAESTRO)
+//  );
 
   void before_end_of_elaboration();
 
