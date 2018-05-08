@@ -535,10 +535,10 @@ protected:
   /// @brief See PortOutBaseIf
 #ifdef SYSTEMOC_ENABLE_VPC
   void commitWrite(size_t n, smoc::Detail::VpcInterface vpcIf)
-    { return chan.commitWrite(n, vpcIf); }
+    { chan.commitWrite(n, vpcIf); }
 #else
   void commitWrite(size_t n)
-    { return chan.commitWrite(n); }
+    { chan.commitWrite(n); }
 #endif
 
   /// @brief See PortOutBaseIf
@@ -578,10 +578,10 @@ protected:
   /// @brief See PortInBaseIf
 #ifdef SYSTEMOC_ENABLE_VPC
   void commitRead(size_t n, smoc::smoc_vpc_event_p const &readConsumeEvent)
-    { return chan.commitRead(n, readConsumeEvent); }
+    { chan.commitRead(n, readConsumeEvent); }
 #else
   void commitRead(size_t n)
-    { return chan.commitRead(n); }
+    { chan.commitRead(n); }
 #endif
 
   /// @brief See PortInBaseIf
@@ -617,10 +617,10 @@ public:
   typedef typename MultiplexChannel::FifoId   FifoId;
 
   class AccessImpl: public this_type::access_type {
-    typedef AccessImpl this_type;
+    typedef typename this_type::access_type base_type;
   public:
     typedef smoc_multiplex_vfifo_outlet<T,A>  ChanIfImpl;
-    typedef typename this_type::return_type   return_type;
+    typedef typename base_type::return_type   return_type;
   private:
     ChanIfImpl& chanIfImpl;
 #if defined(SYSTEMOC_ENABLE_DEBUG)
@@ -668,7 +668,7 @@ public:
       return chan.storage[rindex];
     }
     const return_type operator[](size_t n) const
-      { return const_cast<this_type *>(this)->operator[](n); }
+      { return const_cast<AccessImpl *>(this)->operator[](n); }
   };
 private:
   /// @brief The channel implementation
@@ -753,10 +753,10 @@ private:
   typedef typename MultiplexChannel::FifoId   FifoId;
 
   class AccessImpl: public this_type::access_type {
-    typedef AccessImpl  this_type;
+    typedef typename this_type::access_type base_type;
   public:
     typedef smoc_multiplex_vfifo_entry<T,A> ChanIfImpl;
-    typedef typename this_type::return_type return_type;
+    typedef typename base_type::return_type return_type;
   private:
     ChanIfImpl& chanIfImpl;
 #if defined(SYSTEMOC_ENABLE_DEBUG)
@@ -797,7 +797,7 @@ private:
     }
 
     const return_type operator[](size_t n) const
-      { return const_cast<this_type *>(this)->operator[](n); }
+      { return const_cast<AccessImpl *>(this)->operator[](n); }
   };
 private:
   /// @brief The channel implementation
