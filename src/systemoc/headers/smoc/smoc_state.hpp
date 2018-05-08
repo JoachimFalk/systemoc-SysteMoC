@@ -1,7 +1,7 @@
 // -*- tab-width:8; intent-tabs-mode:nil; c-basic-offset:2; -*-
 // vim: set sw=2 ts=8 et:
 /*
- * Copyright (c) 2004-2017 Hardware-Software-CoDesign, University of Erlangen-Nuremberg.
+ * Copyright (c) 2017-2018 Hardware-Software-CoDesign, University of Erlangen-Nuremberg.
  * 
  *   This library is free software; you can redistribute it and/or modify it under
  *   the terms of the GNU Lesser General Public License as published by the Free
@@ -33,14 +33,59 @@
  * ENHANCEMENTS, OR MODIFICATIONS.
  */
 
-#ifndef _INCLUDED_SYSTEMOC_SMOC_ACTOR_HPP
-#define _INCLUDED_SYSTEMOC_SMOC_ACTOR_HPP
+#ifndef _INCLUDED_SMOC_SMOC_STATE_HPP
+#define _INCLUDED_SMOC_SMOC_STATE_HPP
 
-#include "../smoc/smoc_actor.hpp"
+#include "smoc_base_state.hpp"
 
-// Not needed for actor, but users will likely require this.
-#include "smoc_firing_rules.hpp"
+#include <CoSupport/SmartPtr/intrusive_refcount_ptr.hpp>
+#include <CoSupport/DataTypes/Facade.hpp>
 
-using smoc::smoc_actor;
+namespace smoc { namespace Detail {
 
-#endif /* _INCLUDED_SYSTEMOC_SMOC_ACTOR_HPP */
+  class HierarchicalStateImpl;
+  DECL_INTRUSIVE_REFCOUNT_PTR(HierarchicalStateImpl, PHierarchicalStateImpl);
+
+} } // namespace smoc::Detail
+
+namespace smoc {
+
+class smoc_state
+: public CoSupport::DataTypes::FacadeFoundation<
+    smoc_state,
+    smoc::Detail::HierarchicalStateImpl,
+    smoc_base_state
+  >
+{
+  typedef smoc_state      this_type;
+  typedef smoc_base_state base_type;
+
+protected:
+  explicit smoc_state(_StorageType const &x): FFType(x) {}
+  smoc_state(SmartPtr const &p);
+  
+  smoc_state(const this_type &);
+
+  this_type& operator=(const this_type &);
+
+public:
+
+#ifdef SYSTEMOC_ENABLE_MAESTRO
+  this_type& clone(const this_type &);
+#endif
+
+  ImplType *getImpl() const;
+  using base_type::operator=;
+
+  smoc_state::Ref select(
+      const std::string& name);
+  smoc_state::ConstRef select(
+      const std::string& name) const;
+
+  const std::string& getName() const;
+  std::string getHierarchicalName() const;
+};
+
+} // namespace smoc
+
+#endif /* _INCLUDED_SMOC_SMOC_STATE_HPP */

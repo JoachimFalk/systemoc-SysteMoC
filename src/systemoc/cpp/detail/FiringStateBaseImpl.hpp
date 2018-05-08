@@ -36,12 +36,22 @@
 #ifndef _INCLUDED_SMOC_DETAIL_FIRINGSTATEBASEIMPL_HPP
 #define _INCLUDED_SMOC_DETAIL_FIRINGSTATEBASEIMPL_HPP
 
-#include <systemoc/smoc_firing_rules.hpp>
+#include <smoc/smoc_firing_rule.hpp>
+#include <smoc/smoc_transition.hpp>
+#include <smoc/detail/IOPattern.hpp>
+#include <smoc/detail/VpcInterface.hpp>
+#include <systemoc/detail/smoc_func_call.hpp>
+
+#include <systemoc/smoc_config.h>
+
+#include <list>
 
 // Prints duration of FiringFSM::finalise() in secs.
 //#define FSM_FINALIZE_BENCHMARK
 
 namespace smoc { namespace Detail {
+
+  class FiringFSM;
 
   /**
    * Lifetime of PartialTransition, ExpandedTransition and TransitionBase:
@@ -64,7 +74,7 @@ namespace smoc { namespace Detail {
     smoc_action f;
 
     ///
-    smoc::Detail::IOPattern* ioPattern;
+    IOPattern *ioPattern;
   public:
     TransitionBase(
         Guard const &g,
@@ -83,18 +93,18 @@ namespace smoc { namespace Detail {
       { return f; }
 
     /// @brief Returns input/output pattern (enough token/free space)
-    const smoc::Detail::IOPattern* getIOPattern() const
+    const IOPattern *getIOPattern() const
       { assert(ioPattern); return ioPattern; }
 
     /// @brief Returns input/output pattern (enough token/free space)
-    void setIOPattern(smoc::Detail::IOPattern *iop)
+    void setIOPattern(IOPattern *iop)
       { assert(iop); ioPattern = iop; }
   };
 
   class TransitionImpl
     : public TransitionBase
   #ifdef SYSTEMOC_ENABLE_VPC
-    , public smoc::Detail::VpcTaskInterface
+    , public VpcTaskInterface
   #endif // SYSTEMOC_ENABLE_VPC
   {
   public:

@@ -37,7 +37,7 @@
 #define _INCLUDED_SMOC_SMOC_TRANSITION_HPP
 
 #include "smoc_firing_rule.hpp"
-#include "detail/FiringStateBase.hpp"
+#include "smoc_base_state.hpp"
 
 namespace smoc {
 
@@ -49,24 +49,24 @@ private:
   /// @brief action of transition
   smoc_action action;
   /// @brief Target state
-  Detail::FiringStateBase::ConstRef dest;
+  smoc_base_state::ConstRef dest;
 public:
   /// @brief Constructor
   explicit smoc_transition(
-      smoc_action const                 &a,
-      Detail::FiringStateBase::ConstRef &d)
+      smoc_action const         &a,
+      smoc_base_state::ConstRef &d)
     : guard(Expr::literal(true)), action(a), dest(d) {}
   
   /// @brief Constructor
   explicit smoc_transition(
-      Guard const                       &g,
-      Detail::FiringStateBase::ConstRef &d)
+      Guard const               &g,
+      smoc_base_state::ConstRef &d)
     : guard(g), dest(d) {}
   
   /// @brief Constructor
   explicit smoc_transition(
-      smoc_firing_rule const            &tp,
-      Detail::FiringStateBase::ConstRef &d)
+      smoc_firing_rule const    &tp,
+      smoc_base_state::ConstRef &d)
     : guard(tp.getGuard()), action(tp.getAction()), dest(d) {}
   
   /// @brief Returns the guard
@@ -78,7 +78,7 @@ public:
     { return action; }
 
   /// @brief Returns the destination state
-  Detail::FiringStateBase::ConstRef const &getDestState() const
+  smoc_base_state::ConstRef const &getDestState() const
     { return dest; }
 };
 
@@ -108,27 +108,23 @@ smoc_transition_list operator | (
     smoc_transition const &t )
   { return smoc_transition_list(tx) |= t; }
 
-namespace Detail {
+inline
+smoc_transition operator >> (
+    smoc_action      const &a,
+    smoc_base_state  const &s)
+  { return smoc_transition(a, s); }
 
-  inline
-  smoc_transition operator >> (
-      smoc_action             const &a,
-      Detail::FiringStateBase const &s)
-    { return smoc_transition(a, s); }
+inline
+smoc_transition operator >> (
+    smoc_firing_rule const &tp,
+    smoc_base_state  const &s)
+  { return smoc_transition(tp,s); }
 
-  inline
-  smoc_transition operator >> (
-      smoc_firing_rule        const &tp,
-      Detail::FiringStateBase const &s)
-    { return smoc_transition(tp,s); }
-
-  template <class E>
-  smoc_transition operator >> (
-      Expr::D<E>              const &g,
-      Detail::FiringStateBase const &s)
-    { return smoc_transition(Guard(g),s); }
-
-} // namespace Detail
+template <class E>
+smoc_transition operator >> (
+    Expr::D<E>       const &g,
+    smoc_base_state  const &s)
+  { return smoc_transition(Guard(g),s); }
 
 } // namespace smoc
 

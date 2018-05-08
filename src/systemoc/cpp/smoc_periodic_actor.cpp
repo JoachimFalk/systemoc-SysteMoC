@@ -41,7 +41,7 @@ namespace smoc {
 
 //constructor sets the period, offset and EventQueue
 smoc_periodic_actor::smoc_periodic_actor(
-    sc_core::sc_module_name name, smoc_firing_state &start_state,
+    sc_core::sc_module_name name, smoc_state &start_state,
     sc_core::sc_time per, sc_core::sc_time off, float jitter)
   : smoc_actor(name, start_state)
   , period_counter(0)

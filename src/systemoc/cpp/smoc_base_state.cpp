@@ -1,30 +1,30 @@
 // -*- tab-width:8; intent-tabs-mode:nil; c-basic-offset:2; -*-
 // vim: set sw=2 ts=8 et:
 /*
- * Copyright (c) 2004-2017 Hardware-Software-CoDesign, University of Erlangen-Nuremberg.
- * 
+ * Copyright (c) 2018 Hardware-Software-CoDesign, University of Erlangen-Nuremberg.
+ *
  *   This library is free software; you can redistribute it and/or modify it under
  *   the terms of the GNU Lesser General Public License as published by the Free
  *   Software Foundation; either version 2 of the License, or (at your option) any
  *   later version.
- * 
+ *
  *   This library is distributed in the hope that it will be useful, but WITHOUT
  *   ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  *   FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more
  *   details.
- * 
+ *
  *   You should have received a copy of the GNU Lesser General Public License
  *   along with this library; if not, write to the Free Software Foundation, Inc.,
  *   59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
- * 
- * --- This software and any associated documentation is provided "as is" 
- * 
+ *
+ * --- This software and any associated documentation is provided "as is"
+ *
  * IN NO EVENT SHALL HARDWARE-SOFTWARE-CODESIGN, UNIVERSITY OF ERLANGEN NUREMBERG
  * BE LIABLE TO ANY PARTY FOR DIRECT, INDIRECT, SPECIAL, INCIDENTAL, OR
  * CONSEQUENTIAL DAMAGES ARISING OUT OF THE USE OF THIS SOFTWARE AND ITS
  * DOCUMENTATION, EVEN IF HARDWARE-SOFTWARE-CODESIGN, UNIVERSITY OF ERLANGEN
  * NUREMBERG HAS BEEN ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- * 
+ *
  * HARDWARE-SOFTWARE-CODESIGN, UNIVERSITY OF ERLANGEN NUREMBERG, SPECIFICALLY
  * DISCLAIMS ANY WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
  * OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE. THE SOFTWARE PROVIDED
@@ -33,14 +33,33 @@
  * ENHANCEMENTS, OR MODIFICATIONS.
  */
 
-#ifndef _INCLUDED_SYSTEMOC_SMOC_ACTOR_HPP
-#define _INCLUDED_SYSTEMOC_SMOC_ACTOR_HPP
+#include "detail/FiringStateBaseImpl.hpp"
 
-#include "../smoc/smoc_actor.hpp"
+#include <smoc/smoc_base_state.hpp>
 
-// Not needed for actor, but users will likely require this.
-#include "smoc_firing_rules.hpp"
+namespace smoc {
 
-using smoc::smoc_actor;
+smoc_base_state::smoc_base_state(const SmartPtr &p)
+: FFType(p) {}
 
-#endif /* _INCLUDED_SYSTEMOC_SMOC_ACTOR_HPP */
+void smoc_base_state::addTransition(const smoc_transition_list &tl)
+  { getImpl()->addTransition(tl); }
+
+void smoc_base_state::clearTransition()
+  { getImpl()->clearTransition(); }
+
+smoc_base_state::ImplType *smoc_base_state::getImpl() const
+  { return CoSupport::DataTypes::FacadeCoreAccess::getImpl(*this); }
+
+smoc_base_state &smoc_base_state::operator = (const smoc_transition_list &tl) {
+  getImpl()->clearTransition();
+  getImpl()->addTransition(tl);
+  return *this;
+}
+
+smoc_base_state &smoc_base_state::operator |= (const smoc_transition_list &tl) {
+  getImpl()->addTransition(tl);
+  return *this;
+}
+
+} // namespace smoc

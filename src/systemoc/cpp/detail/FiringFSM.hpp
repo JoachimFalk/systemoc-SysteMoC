@@ -46,6 +46,8 @@
 
 namespace smoc { namespace Detail {
 
+class XORStateImpl;
+
 class FiringFSM: public SimCTXBase {
   typedef FiringFSM this_type;
   // ugh

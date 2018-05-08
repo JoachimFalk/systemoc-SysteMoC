@@ -39,8 +39,7 @@
 
 #include <systemoc/smoc_config.h>
 
-#include <systemoc/smoc_firing_rules.hpp>
-
+#include <smoc/smoc_state.hpp>
 #include <smoc/smoc_graph.hpp>
 #include <smoc/smoc_actor.hpp>
 #include <smoc/detail/DebugOStream.hpp>
@@ -57,7 +56,7 @@ smoc_graph::smoc_graph(const sc_core::sc_module_name &name)
   : smoc::Detail::GraphBase(name, nullptr)
   { constructor(); }
 
-smoc_graph::smoc_graph(const sc_core::sc_module_name &name, smoc_hierarchical_state &state)
+smoc_graph::smoc_graph(const sc_core::sc_module_name &name, smoc_state &state)
   : smoc::Detail::GraphBase(name, &state)
   { constructor(); }
 

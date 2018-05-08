@@ -43,7 +43,7 @@
 
 namespace smoc {
 
-smoc_actor::smoc_actor(sc_core::sc_module_name name, smoc_hierarchical_state &s, unsigned int thread_stack_size
+smoc_actor::smoc_actor(sc_core::sc_module_name name, smoc_state &s, unsigned int thread_stack_size
 #ifdef SYSTEMOC_ENABLE_MAESTRO
     , bool useLogFile
 #endif //defined(SYSTEMOC_ENABLE_MAESTRO)

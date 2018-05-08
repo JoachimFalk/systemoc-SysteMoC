@@ -43,13 +43,18 @@
 # include <Maestro/MetaMap/includes.hpp>
 #endif //SYSTEMOC_ENABLE_MAESTRO
 
+// Not needed for actor, but users will likely require this.
+#include "smoc_firing_state.hpp"
+// Not needed for actor, but users will likely require this.
+#include "smoc_transition.hpp"
+
 #include "detail/NodeBase.hpp"
 
 namespace smoc {
 
 class smoc_actor: public Detail::NodeBase {
 protected:
-  smoc_actor(sc_core::sc_module_name name, smoc_hierarchical_state &s, unsigned int thread_stack_size = 0
+  smoc_actor(sc_core::sc_module_name name, smoc_state &s, unsigned int thread_stack_size = 0
 #ifdef SYSTEMOC_ENABLE_MAESTRO
       , bool useLogFile = false
 #endif //defined(SYSTEMOC_ENABLE_MAESTRO)

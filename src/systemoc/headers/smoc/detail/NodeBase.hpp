@@ -53,8 +53,9 @@
 
 #include "NamedIdedObj.hpp"
 #include "../smoc_expr.hpp"
-#include "../../systemoc/smoc_firing_rules.hpp"
-//#include "../../systemoc/detail/smoc_firing_rules_impl.hpp"
+#include "../smoc_state.hpp"
+#include "../../systemoc/detail/smoc_func_call.hpp"
+//#include "../../systemoc/smoc_firing_rules.hpp"
 #include "PortBase.hpp"
 
 #ifdef SYSTEMOC_ENABLE_HOOKING
@@ -153,7 +154,7 @@ protected:
     NODE_TYPE_GRAPH   = 2
   };
 protected:
-  NodeBase(sc_core::sc_module_name, NodeType nodeType, smoc_hierarchical_state *s, unsigned int thread_stack_size);
+  NodeBase(sc_core::sc_module_name, NodeType nodeType, smoc_state *s, unsigned int thread_stack_size);
 
   // This method will be implemented by SysteMoC and can be used
   // to enable (true) or disable (false) the scheduling of the
@@ -205,7 +206,7 @@ protected:
     constrArgs(name, t);
   }
 
-  void setInitialState(smoc_hierarchical_state &s);
+  void setInitialState(smoc_state &s);
 
   virtual void before_end_of_elaboration();
   virtual void end_of_elaboration();
@@ -243,11 +244,11 @@ public:
 private:
 
   /// @brief Initial firing state
-  smoc_hierarchical_state      *initialState;
+  smoc_state      *initialState;
   /// @brief Initial firing state as a smart pointer. This
   /// enables the state provided to setInitialState to go
   /// out of scope.
-  smoc_hierarchical_state::Ptr  initialStatePtr;
+  smoc_state::Ptr  initialStatePtr;
   /// @brief current firing state
   RuntimeState                 *currentState;
   /// @brief current enabled firing transition

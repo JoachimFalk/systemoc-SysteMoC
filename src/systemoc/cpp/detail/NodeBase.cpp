@@ -57,7 +57,7 @@
 
 namespace smoc { namespace Detail {
 
-NodeBase::NodeBase(sc_core::sc_module_name name, NodeType nodeType, smoc_hierarchical_state *s, unsigned int thread_stack_size)
+NodeBase::NodeBase(sc_core::sc_module_name name, NodeType nodeType, smoc_state *s, unsigned int thread_stack_size)
   : sc_core::sc_module(name)
 #if defined(SYSTEMOC_ENABLE_MAESTRO)
   , MetaMap::SMoCActor(thread_stack_size)
@@ -276,13 +276,13 @@ void NodeBase::eventDestroyed(smoc::smoc_event_waiter *e) {
   // should happen when simulation has finished -> ignore
 }
 
-void NodeBase::setInitialState(smoc_hierarchical_state &s) {
+void NodeBase::setInitialState(smoc_state &s) {
   // We store a pointer here to increase the refcount to the state.
   initialStatePtr = s.toPtr();
   // This reinterpret_cast is a hack that only works because the Facade
   // and the FacadePtr have the same internal layout only consisting of
   // a single smart ptr to the real implementation.
-  initialState    = reinterpret_cast<smoc_hierarchical_state *>(&initialStatePtr);
+  initialState    = reinterpret_cast<smoc_state *>(&initialStatePtr);
 }
 
 FiringFSM *NodeBase::getFiringFSM() const {

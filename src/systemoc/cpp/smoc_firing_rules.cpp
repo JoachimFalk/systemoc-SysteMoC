@@ -972,24 +972,24 @@ void intrusive_ptr_release(MultiStateImpl *p)
 
 using namespace smoc::Detail;
 
-smoc_hierarchical_state::smoc_hierarchical_state(const SmartPtr &p)
+smoc_state::smoc_state(const SmartPtr &p)
   : FFType(_StorageType(p)) {}
 
-smoc_hierarchical_state::ImplType *smoc_hierarchical_state::getImpl() const
+smoc_state::ImplType *smoc_state::getImpl() const
   { return CoSupport::DataTypes::FacadeCoreAccess::getImpl(*this); }
   
-smoc_hierarchical_state::Ref smoc_hierarchical_state::select(
+smoc_state::Ref smoc_state::select(
     const std::string& name)
-  { return smoc_hierarchical_state(PHierarchicalStateImpl(getImpl()->select(name))); }
+  { return smoc_state(PHierarchicalStateImpl(getImpl()->select(name))); }
 
-smoc_hierarchical_state::ConstRef smoc_hierarchical_state::select(
+smoc_state::ConstRef smoc_state::select(
     const std::string& name) const
-  { return smoc_hierarchical_state(PHierarchicalStateImpl(getImpl()->select(name))); }
+  { return smoc_state(PHierarchicalStateImpl(getImpl()->select(name))); }
   
-const std::string& smoc_hierarchical_state::getName() const
+const std::string& smoc_state::getName() const
   { return getImpl()->getName(); }
 
-std::string smoc_hierarchical_state::getHierarchicalName() const
+std::string smoc_state::getHierarchicalName() const
   { return getImpl()->getHierarchicalName(); }
 
 #ifdef SYSTEMOC_ENABLE_MAESTRO
@@ -997,7 +997,7 @@ std::string smoc_hierarchical_state::getHierarchicalName() const
 * @rosales: Clone method to enable the reassigment of the initial state
 * Rationale: States have a overloaded assignment operator
 */
-smoc_hierarchical_state& smoc_hierarchical_state::clone(const smoc_hierarchical_state &st) {
+smoc_state& smoc_state::clone(const smoc_state &st) {
   HierarchicalStateImpl* copyImp = st.getImpl();
   HierarchicalStateImpl* thisImp = this->getImpl();
 
@@ -1026,16 +1026,16 @@ smoc_xor_state::smoc_xor_state(const SmartPtr &p)
 smoc_xor_state::smoc_xor_state(const std::string& name)
   : FFType(new XORStateImpl(name)) {}
 
-smoc_xor_state::smoc_xor_state(const smoc_hierarchical_state& i)
+smoc_xor_state::smoc_xor_state(const smoc_state& i)
   : FFType(new XORStateImpl()) { init(i); }
 
 smoc_xor_state::ImplType *smoc_xor_state::getImpl() const
   { return CoSupport::DataTypes::FacadeCoreAccess::getImpl(*this); }
 
-smoc_xor_state& smoc_xor_state::init(const smoc_hierarchical_state& state)
+smoc_xor_state& smoc_xor_state::init(const smoc_state& state)
   { getImpl()->add(state.getImpl(), true); return *this; }
 
-smoc_xor_state& smoc_xor_state::add(const smoc_hierarchical_state& state)
+smoc_xor_state& smoc_xor_state::add(const smoc_state& state)
   { getImpl()->add(state.getImpl(), false); return *this; }
 
 
@@ -1051,7 +1051,7 @@ smoc_and_state::smoc_and_state(const std::string& name)
 smoc_and_state::ImplType *smoc_and_state::getImpl() const
   { return CoSupport::DataTypes::FacadeCoreAccess::getImpl(*this); }
 
-smoc_and_state& smoc_and_state::add(const smoc_hierarchical_state& state)
+smoc_and_state& smoc_and_state::add(const smoc_state& state)
   { getImpl()->add(state.getImpl()); return *this; }
 
 
@@ -1073,7 +1073,7 @@ smoc_junction_state::ImplType *smoc_junction_state::getImpl() const
 smoc_multi_state::smoc_multi_state(const SmartPtr &p)
   : FFType(_StorageType(p)) {}
 
-smoc_multi_state::smoc_multi_state(const smoc_hierarchical_state& s)
+smoc_multi_state::smoc_multi_state(const smoc_state& s)
   : FFType(new MultiStateImpl()) { getImpl()->addState(s.getImpl()); }
 
 smoc_multi_state::smoc_multi_state(const IN& s)
@@ -1082,7 +1082,7 @@ smoc_multi_state::smoc_multi_state(const IN& s)
 smoc_multi_state::ImplType *smoc_multi_state::getImpl() const
   { return CoSupport::DataTypes::FacadeCoreAccess::getImpl(*this); }
 
-smoc_multi_state& smoc_multi_state::operator,(const smoc_hierarchical_state& s)
+smoc_multi_state& smoc_multi_state::operator,(const smoc_state& s)
   { getImpl()->addState(s.getImpl()); return *this; }
 
 smoc_multi_state& smoc_multi_state::operator,(const IN& s)
