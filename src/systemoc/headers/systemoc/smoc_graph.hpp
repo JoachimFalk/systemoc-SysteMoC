@@ -40,4 +40,4 @@
 
 using smoc::smoc_graph;
 
-#endif // _INCLUDED_SYSTEMOC_SMOC_GRAPH_HPP
+#endif /* _INCLUDED_SYSTEMOC_SMOC_GRAPH_HPP */

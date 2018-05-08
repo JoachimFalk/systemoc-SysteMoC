@@ -69,4 +69,4 @@ private:
 
 } // namespace smoc
 
-#endif // _INCLUDED_SMOC_SMOC_SCHEDULER_TOP_HPP
+#endif /* _INCLUDED_SMOC_SMOC_SCHEDULER_TOP_HPP */

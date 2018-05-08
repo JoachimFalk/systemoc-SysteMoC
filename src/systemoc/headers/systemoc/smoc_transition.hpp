@@ -41,4 +41,4 @@
 using smoc::smoc_transition;
 using smoc::smoc_transition_list;
 
-#endif // _INCLUDED_SYSTEMOC_SMOC_TRANSITION_HPP
+#endif /* _INCLUDED_SYSTEMOC_SMOC_TRANSITION_HPP */

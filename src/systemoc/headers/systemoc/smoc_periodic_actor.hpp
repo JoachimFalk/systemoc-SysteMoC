@@ -40,4 +40,4 @@
 
 using smoc::smoc_periodic_actor;
 
-#endif // _INCLUDED_SYSTEMOC_SMOC_PERIODIC_ACTOR_HPP
+#endif /* _INCLUDED_SYSTEMOC_SMOC_PERIODIC_ACTOR_HPP */

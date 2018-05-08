@@ -33,8 +33,8 @@
  * ENHANCEMENTS, OR MODIFICATIONS.
  */
 
-#ifndef _INCLUDED_SMOC_DETAIL_SMOC_ROOT_CHAN_HPP
-#define _INCLUDED_SMOC_DETAIL_SMOC_ROOT_CHAN_HPP
+#ifndef _INCLUDED_SMOC_DETAIL_CHANBASE_HPP
+#define _INCLUDED_SMOC_DETAIL_CHANBASE_HPP
 
 #include <list>
 
@@ -105,4 +105,4 @@ typedef std::list<ChanBase *> smoc_chan_list;
 
 } } // namespace smoc::Detail
 
-#endif // _INCLUDED_SMOC_DETAIL_SMOC_ROOT_CHAN_HPP
+#endif /* _INCLUDED_SMOC_DETAIL_CHANBASE_HPP */

@@ -33,8 +33,8 @@
  * ENHANCEMENTS, OR MODIFICATIONS.
  */
 
-#ifndef _INCLUDED_ACTIVATION_PATTERN_HPP
-#define _INCLUDED_ACTIVATION_PATTERN_HPP
+#ifndef _INCLUDED_SMOC_DETAIL_IOPATTERN_HPP
+#define _INCLUDED_SMOC_DETAIL_IOPATTERN_HPP
 
 #include <CoSupport/compatibility-glue/nullptr.h>
 
@@ -100,4 +100,4 @@ namespace smoc { namespace Detail {
 
 } } // namespace smoc::Detail
 
-#endif //_INCLUDED_ACTIVATION_PATTERN_HPP
+#endif /* _INCLUDED_SMOC_DETAIL_IOPATTERN_HPP */

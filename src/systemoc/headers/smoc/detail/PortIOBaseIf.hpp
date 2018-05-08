@@ -299,4 +299,4 @@ public:
 
 } } // namespace smoc::Detail
 
-#endif //_INCLUDED_SMOC_DETAIL_PORTIOBASEIF_HPP
+#endif /* _INCLUDED_SMOC_DETAIL_PORTIOBASEIF_HPP */

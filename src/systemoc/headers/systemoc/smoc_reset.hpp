@@ -33,8 +33,8 @@
  * ENHANCEMENTS, OR MODIFICATIONS.
  */
 
-#ifndef _INCLUDED_SMOC_RESET_HPP
-#define _INCLUDED_SMOC_RESET_HPP
+#ifndef _INCLUDED_SYSTEMOC_SMOC_RESET_HPP
+#define _INCLUDED_SYSTEMOC_SMOC_RESET_HPP
 
 #include <vector>
 #include <queue>
@@ -343,4 +343,4 @@ private:
   this_type &operator =(const this_type &);
 };
 
-#endif // _INCLUDED_SMOC_RESET_HPP
+#endif /* _INCLUDED_SYSTEMOC_SMOC_RESET_HPP */

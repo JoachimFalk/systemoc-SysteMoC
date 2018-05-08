@@ -40,4 +40,4 @@
 
 using smoc::smoc_firing_rule;
 
-#endif // _INCLUDED_SYSTEMOC_SMOC_FIRING_RULE_HPP
+#endif /* _INCLUDED_SYSTEMOC_SMOC_FIRING_RULE_HPP */

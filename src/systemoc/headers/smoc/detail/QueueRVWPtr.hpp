@@ -117,4 +117,4 @@ namespace smoc { namespace Detail {
 
 } } // namespace smoc::Detail
 
-#endif // _INCLUDED_SMOC_DETAIL_QUEUERVWPTR_HPP
+#endif /* _INCLUDED_SMOC_DETAIL_QUEUERVWPTR_HPP */

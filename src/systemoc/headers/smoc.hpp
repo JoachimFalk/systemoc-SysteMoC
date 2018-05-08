@@ -47,4 +47,4 @@
 #include "smoc/smoc_register.hpp"
 #include "smoc/smoc_scheduler_top.hpp"
 
-#endif // _INCLUDED_SMOC_HPP
+#endif /* _INCLUDED_SMOC_HPP */

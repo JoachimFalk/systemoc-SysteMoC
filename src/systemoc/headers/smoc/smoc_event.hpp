@@ -79,4 +79,4 @@ typedef SystemC_VPC::Coupling::VPCEvent::Ptr smoc_vpc_event_p;
 
 } // namespace smoc
 
-#endif // _INCLUDED_SMOC_SMOC_EVENT_HPP
+#endif /* _INCLUDED_SMOC_SMOC_EVENT_HPP */

@@ -253,4 +253,4 @@ struct StorageTraitsInOut<void>
 
 } } // namespace smoc::Detail
 
-#endif // _INCLUDED_SMOC_DETAIL_STORAGE_HPP
+#endif /* _INCLUDED_SMOC_DETAIL_STORAGE_HPP */

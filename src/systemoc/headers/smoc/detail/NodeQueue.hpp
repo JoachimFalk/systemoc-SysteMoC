@@ -90,4 +90,4 @@ private:
 
 } } // namespace smoc::Detail
 
-#endif // _INCLUDED_SMOC_DETAIL_NODEQUEUE_HPP
+#endif /* _INCLUDED_SMOC_DETAIL_NODEQUEUE_HPP */

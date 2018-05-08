@@ -33,8 +33,8 @@
  * ENHANCEMENTS, OR MODIFICATIONS.
  */
 
-#ifndef _INCLUDED_SMOC_DETAIL_NODE_HPP
-#define _INCLUDED_SMOC_DETAIL_NODE_HPP
+#ifndef _INCLUDED_SMOC_DETAIL_NODEBASE_HPP
+#define _INCLUDED_SMOC_DETAIL_NODEBASE_HPP
 
 #include <list>
 #include <typeinfo>
@@ -324,4 +324,4 @@ typedef std::list<NodeBase *> NodeList;
 
 } } // namespace smoc::Detail
 
-#endif // _INCLUDED_SMOC_DETAIL_NODE_HPP
+#endif /* _INCLUDED_SMOC_DETAIL_NODEBASE_HPP */

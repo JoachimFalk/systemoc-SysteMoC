@@ -88,4 +88,4 @@ namespace Expr {
 
 } // namespace smoc
 
-#endif // _INCLUDED_SMOC_SMOC_FIRING_RULE_HPP
+#endif /* _INCLUDED_SMOC_SMOC_FIRING_RULE_HPP */

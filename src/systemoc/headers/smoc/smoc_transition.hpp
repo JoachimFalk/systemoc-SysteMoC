@@ -132,4 +132,4 @@ namespace Detail {
 
 } // namespace smoc
 
-#endif // _INCLUDED_SMOC_SMOC_TRANSITION_HPP
+#endif /* _INCLUDED_SMOC_SMOC_TRANSITION_HPP */

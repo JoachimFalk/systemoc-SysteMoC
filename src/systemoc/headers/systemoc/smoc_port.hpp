@@ -33,8 +33,8 @@
  * ENHANCEMENTS, OR MODIFICATIONS.
  */
 
-#ifndef _INCLUDED_SMOC_PORT_HPP
-#define _INCLUDED_SMOC_PORT_HPP
+#ifndef _INCLUDED_SYSTEMOC_SMOC_PORT_HPP
+#define _INCLUDED_SYSTEMOC_SMOC_PORT_HPP
 
 #include <vector>
 
@@ -280,4 +280,4 @@ public:
 
 typedef smoc_port_out<void> smoc_reset_port;
 
-#endif // _INCLUDED_SMOC_PORT_HPP
+#endif /* _INCLUDED_SYSTEMOC_SMOC_PORT_HPP */

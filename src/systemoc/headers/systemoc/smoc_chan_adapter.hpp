@@ -33,8 +33,8 @@
  * ENHANCEMENTS, OR MODIFICATIONS.
  */
 
-#ifndef _INCLUDED_SMOC_CHAN_ADAPTER_HPP
-#define _INCLUDED_SMOC_CHAN_ADAPTER_HPP
+#ifndef _INCLUDED_SYSTEMOC_SMOC_CHAN_ADAPTER_HPP
+#define _INCLUDED_SYSTEMOC_SMOC_CHAN_ADAPTER_HPP
 
 #include <CoSupport/compatibility-glue/nullptr.h>
 #include <CoSupport/SmartPtr/intrusive_refcount_ptr.hpp>
@@ -872,4 +872,4 @@ public:
        smoc_chan_adapter<smoc_port_in_if<T>, tlm::tlm_nonblocking_peek_if<T> >(in_if) {}
 };
 
-#endif // _INCLUDED_SMOC_CHAN_ADAPTER_HPP
+#endif /* _INCLUDED_SYSTEMOC_SMOC_CHAN_ADAPTER_HPP */

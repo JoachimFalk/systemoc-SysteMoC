@@ -33,8 +33,8 @@
  * ENHANCEMENTS, OR MODIFICATIONS.
  */
 
-#ifndef _INCLUDED_SMOC_APPLY_VISITOR_HPP
-#define _INCLUDED_SMOC_APPLY_VISITOR_HPP
+#ifndef _INCLUDED_SMOC_DETAIL_APPLY_VISITOR_HPP
+#define _INCLUDED_SMOC_DETAIL_APPLY_VISITOR_HPP
 
 #include <boost/type_traits/add_const.hpp>
 #include <boost/type_traits/remove_const.hpp>
@@ -238,4 +238,4 @@ _SMOC_GENERATE_APPLY_VISITOR(sc_object)
 //FIXME: This is a hack as some smoc_xxx classes are still in the global namespace!
 using smoc::apply_visitor;
 
-#endif // _INCLUDED_SMOC_APPLY_VISITOR_HPP
+#endif /* _INCLUDED_SMOC_DETAIL_APPLY_VISITOR_HPP */

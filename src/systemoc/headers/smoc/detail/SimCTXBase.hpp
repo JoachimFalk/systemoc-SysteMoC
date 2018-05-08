@@ -57,4 +57,4 @@ namespace smoc { namespace Detail {
 
 } } // namespace smoc::Detail
 
-#endif //_INCLUDED_SMOC_DETAIL_SIMCTXBASE_HPP
+#endif /* _INCLUDED_SMOC_DETAIL_SIMCTXBASE_HPP */

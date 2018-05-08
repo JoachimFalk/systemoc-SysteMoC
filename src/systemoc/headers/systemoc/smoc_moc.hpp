@@ -101,4 +101,4 @@ private:
   smoc_scheduler_top s;
 };
 
-#endif // _INCLUDED_SYSTEMOC_SMOC_MOC_HPP
+#endif /* _INCLUDED_SYSTEMOC_SMOC_MOC_HPP */

@@ -46,4 +46,4 @@ typedef CoSupport::Allocators::IdAllocRequest<NgId> IdTAllocRequest;
 
 } } // namespace smoc::Detail
 
-#endif // _INCLUDED_SMOC_DETAIL_IDTALLOCREQUEST_HPP
+#endif /* _INCLUDED_SMOC_DETAIL_IDTALLOCREQUEST_HPP */

@@ -40,4 +40,4 @@
 
 namespace Expr = smoc::Expr;
 
-#endif // _INCLUDED_SYSTEMOC_SMOC_EXPR_HPP
+#endif /* _INCLUDED_SYSTEMOC_SMOC_EXPR_HPP */

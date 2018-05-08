@@ -65,4 +65,4 @@ void smoc_add_transition_hook(smoc_actor *,
 
 #endif // SYSTEMOC_ENABLE_HOOKING
 
-#endif // _INCLUDED_SMOC_SMOC_HOOKING_HPP
+#endif /* _INCLUDED_SMOC_SMOC_HOOKING_HPP */
