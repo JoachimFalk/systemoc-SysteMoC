@@ -39,7 +39,7 @@
 
 #ifdef SYSTEMOC_ENABLE_HOOKING
 
-#include <systemoc/smoc_actor.hpp>
+#include <smoc/smoc_actor.hpp>
 
 namespace smoc {
 

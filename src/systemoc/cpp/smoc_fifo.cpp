@@ -36,7 +36,7 @@
 #include <systemoc/smoc_config.h>
 
 #include <systemoc/smoc_fifo.hpp>
-#include <systemoc/smoc_graph.hpp>
+#include <smoc/smoc_graph.hpp>
 
 smoc_fifo_chan_base::smoc_fifo_chan_base(const chan_init& i)
 : ChanBase(
