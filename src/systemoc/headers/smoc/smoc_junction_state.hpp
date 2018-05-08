@@ -33,14 +33,46 @@
  * ENHANCEMENTS, OR MODIFICATIONS.
  */
 
-#ifndef _INCLUDED_SYSTEMOC_SMOC_ACTOR_HPP
-#define _INCLUDED_SYSTEMOC_SMOC_ACTOR_HPP
+#ifndef _INCLUDED_SMOC_SMOC_JUNCTION_STATE_HPP
+#define _INCLUDED_SMOC_SMOC_JUNCTION_STATE_HPP
 
-#include "../smoc/smoc_actor.hpp"
+#include "smoc_base_state.hpp"
 
-// Not needed for actor, but users will likely require this.
-#include "smoc_firing_rules.hpp"
+#include <CoSupport/SmartPtr/intrusive_refcount_ptr.hpp>
+#include <CoSupport/DataTypes/Facade.hpp>
 
-using smoc::smoc_actor;
+namespace smoc { namespace Detail {
 
-#endif /* _INCLUDED_SYSTEMOC_SMOC_ACTOR_HPP */
+  class JunctionStateImpl;
+  DECL_INTRUSIVE_REFCOUNT_PTR(JunctionStateImpl, PJunctionStateImpl);
+
+} } // namespace smoc::Detail
+
+namespace smoc {
+
+class smoc_junction_state
+: public CoSupport::DataTypes::FacadeFoundation<
+    smoc_junction_state,
+    smoc::Detail::JunctionStateImpl,
+    smoc_base_state
+  >
+{
+  typedef smoc_junction_state this_type;
+  typedef smoc_base_state     base_type;
+protected:
+  explicit smoc_junction_state(_StorageType const &x): FFType(x) {}
+  smoc_junction_state(SmartPtr const &p);
+
+  smoc_junction_state(const this_type &);
+  this_type& operator=(const this_type &);
+  
+public:
+  smoc_junction_state();
+
+  ImplType *getImpl() const;
+  using base_type::operator=;
+};
+
+} // namespace smoc
+
+#endif /* _INCLUDED_SMOC_SMOC_JUNCTION_STATE_HPP */

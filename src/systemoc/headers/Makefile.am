@@ -27,15 +27,22 @@ SUBDIRS=
 nobase_include_HEADERS = \
 	smoc.hpp \
 	smoc/smoc_actor.hpp \
+	smoc/smoc_and_state.hpp \
+	smoc/smoc_base_state.hpp \
 	smoc/smoc_event.hpp \
 	smoc/smoc_expr.hpp \
 	smoc/smoc_firing_rule.hpp \
+	smoc/smoc_firing_state.hpp \
 	smoc/smoc_graph.hpp \
 	smoc/smoc_hooking.hpp \
+	smoc/smoc_junction_state.hpp \
+	smoc/smoc_multi_state.hpp \
 	smoc/smoc_periodic_actor.hpp \
 	smoc/smoc_register.hpp \
 	smoc/smoc_scheduler_top.hpp \
+	smoc/smoc_state.hpp \
 	smoc/smoc_transition.hpp \
+	smoc/smoc_xor_state.hpp \
 	smoc/SimulatorAPI/SchedulerInterface.hpp \
 	smoc/SimulatorAPI/SimulatorInterface.hpp \
 	smoc/SimulatorAPI/TaskInterface.hpp \
@@ -88,7 +95,6 @@ nobase_include_HEADERS = \
 	systemoc/smoc_register.hpp \
 	systemoc/smoc_reset.hpp \
 	systemoc/smoc_scheduler_top.hpp \
-	systemoc/smoc_transition.hpp \
 	systemoc/smoc_tt.hpp \
 	systemoc/detail/smoc_chan_if.hpp \
 	systemoc/detail/smoc_fifo_storage.hpp \

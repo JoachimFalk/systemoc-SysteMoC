@@ -36,254 +36,34 @@
 #ifndef _INCLUDED_SYSTEMOC_SMOC_FIRING_RULES_HPP
 #define _INCLUDED_SYSTEMOC_SMOC_FIRING_RULES_HPP
 
-#include <vector>
-#include <iostream>
-#include <list>
-#include <set>
+#include "../smoc/smoc_base_state.hpp"
+using ::smoc::smoc_base_state;
 
-#include <boost/variant.hpp>
-#include <boost/shared_ptr.hpp>
+#include "../smoc/smoc_junction_state.hpp"
+using ::smoc::smoc_junction_state;
 
-#include <smoc/smoc_expr.hpp>
+#include "../smoc/smoc_multi_state.hpp"
+using ::smoc::IN;
+using ::smoc::smoc_multi_state;
 
-#include <CoSupport/SmartPtr/intrusive_refcount_ptr.hpp>
-#include <CoSupport/Streams/stl_output_for_list.hpp>
-#include <CoSupport/DataTypes/Facade.hpp>
-#include <CoSupport/commondefs.h>
+#include "../smoc/smoc_state.hpp"
+using ::smoc::smoc_state;
+typedef ::smoc::smoc_state smoc_hierarchical_state;
 
-#include <systemc>
+#include "../smoc/smoc_and_state.hpp"
+using ::smoc::smoc_and_state;
 
-#include <systemoc/smoc_config.h>
+#include "../smoc/smoc_xor_state.hpp"
+using ::smoc::smoc_xor_state;
+
+#include "../smoc/smoc_firing_state.hpp"
+using ::smoc::smoc_firing_state;
+
+#include "../smoc/smoc_firing_rule.hpp"
+using ::smoc::smoc_firing_rule;
 
 #include "../smoc/smoc_transition.hpp"
-
-#include <boost/static_assert.hpp>
-
-//typedef smoc::Expr::Ex<bool>::type Guard;
-
-namespace smoc { namespace Detail {
-
-  template <class T>
-  struct FT: public CoSupport::DataTypes::FacadeTraits<T> {};
-
-  class HierarchicalStateImpl;
-  DECL_INTRUSIVE_REFCOUNT_PTR(HierarchicalStateImpl, PHierarchicalStateImpl);
-
-  class FiringStateImpl;
-  DECL_INTRUSIVE_REFCOUNT_PTR(FiringStateImpl, PFiringStateImpl);
-
-  class XORStateImpl;
-  DECL_INTRUSIVE_REFCOUNT_PTR(XORStateImpl, PXORStateImpl);
-
-  class ANDStateImpl;
-  DECL_INTRUSIVE_REFCOUNT_PTR(ANDStateImpl, PANDStateImpl);
-
-  class JunctionStateImpl;
-  DECL_INTRUSIVE_REFCOUNT_PTR(JunctionStateImpl, PJunctionStateImpl);
-
-  class MultiStateImpl;
-  DECL_INTRUSIVE_REFCOUNT_PTR(MultiStateImpl, PMultiStateImpl);
-
-} } // namespace smoc::Detail
-
-class smoc_hierarchical_state
-: public CoSupport::DataTypes::FacadeFoundation<
-    smoc_hierarchical_state,
-    smoc::Detail::HierarchicalStateImpl,
-    smoc::Detail::FiringStateBase
-  >
-{
-  typedef smoc_hierarchical_state       this_type;
-  typedef smoc::Detail::FiringStateBase base_type;
-
-protected:
-  explicit smoc_hierarchical_state(_StorageType const &x): FFType(x) {}
-  smoc_hierarchical_state(SmartPtr const &p);
-  
-  smoc_hierarchical_state(const this_type &);
-
-  this_type& operator=(const this_type &);
-
-public:
-
-#ifdef SYSTEMOC_ENABLE_MAESTRO
-  this_type& clone(const this_type &);
-#endif
-
-  ImplType *getImpl() const;
-  using base_type::operator=;
-
-  smoc_hierarchical_state::Ref select(
-      const std::string& name);
-  smoc_hierarchical_state::ConstRef select(
-      const std::string& name) const;
-
-  const std::string& getName() const;
-  std::string getHierarchicalName() const;
-};
-
-class smoc_firing_state
-: public CoSupport::DataTypes::FacadeFoundation<
-    smoc_firing_state,
-    smoc::Detail::FiringStateImpl,
-    smoc_hierarchical_state
-  >
-{
-  typedef smoc_firing_state       this_type;
-  typedef smoc_hierarchical_state base_type;
-protected:
-  explicit smoc_firing_state(_StorageType const &x): FFType(x) {}
-  smoc_firing_state(SmartPtr const &p);
-  
-  smoc_firing_state(const this_type &);
-  this_type& operator=(const this_type &);
-
-public:
-  smoc_firing_state(const std::string& name = "");
-
-  ImplType *getImpl() const;
-  using base_type::operator=;
-};
-
-class smoc_xor_state
-: public CoSupport::DataTypes::FacadeFoundation<
-    smoc_xor_state,
-    smoc::Detail::XORStateImpl,
-    smoc_hierarchical_state
-  >
-{
-  typedef smoc_xor_state          this_type;
-  typedef smoc_hierarchical_state base_type;
-protected:
-  friend class smoc_and_state;
-  
-  explicit smoc_xor_state(_StorageType const &x): FFType(x) {}
-  smoc_xor_state(const SmartPtr &p);
-
-  smoc_xor_state(const this_type &);
-  this_type& operator=(const this_type &);
-
-public:
-  smoc_xor_state(const std::string& name = "");
-  smoc_xor_state(const smoc_hierarchical_state &init);
-
-  this_type& add(const smoc_hierarchical_state &state);
-  this_type& init(const smoc_hierarchical_state &state);
-
-  ImplType *getImpl() const;
-  using base_type::operator=;
-};
-
-class smoc_and_state
-: public CoSupport::DataTypes::FacadeFoundation<
-    smoc_and_state,
-    smoc::Detail::ANDStateImpl,
-    smoc_hierarchical_state
-  >
-{
-  typedef smoc_and_state          this_type;
-  typedef smoc_hierarchical_state base_type;
-protected:
-  explicit smoc_and_state(_StorageType const &x): FFType(x) {}
-  smoc_and_state(const SmartPtr &p);
-  
-  smoc_and_state(const this_type &);
-  this_type& operator=(const this_type &);
-
-public:
-  smoc_and_state(const std::string& name = "");
-
-  this_type& add(const smoc_hierarchical_state &state);
-
-  ImplType *getImpl() const;
-  using base_type::operator=;
-};
-
-class smoc_junction_state
-: public CoSupport::DataTypes::FacadeFoundation<
-    smoc_junction_state,
-    smoc::Detail::JunctionStateImpl,
-    smoc::Detail::FiringStateBase
-  >
-{
-  typedef smoc_junction_state           this_type;
-  typedef smoc::Detail::FiringStateBase base_type;
-protected:
-  explicit smoc_junction_state(_StorageType const &x): FFType(x) {}
-  smoc_junction_state(SmartPtr const &p);
-
-  smoc_junction_state(const this_type &);
-  this_type& operator=(const this_type &);
-  
-public:
-  smoc_junction_state();
-
-  ImplType *getImpl() const;
-  using base_type::operator=;
-};
-
-#ifdef _MSC_VER
-// Visual Studio defines "IN" 
-# undef IN
-#endif // _MSC_VER
-struct IN {
-  smoc_hierarchical_state::ConstRef s;
-  bool neg;
-  IN(const smoc_hierarchical_state& s)
-    : s(s), neg(false) {}
-  IN& operator!()
-    { neg = !neg; return *this; }
-};
-
-class smoc_multi_state
-: public CoSupport::DataTypes::FacadeFoundation<
-    smoc_multi_state,
-    smoc::Detail::MultiStateImpl,
-    smoc::Detail::FiringStateBase
-  >
-{
-  typedef smoc_multi_state              this_type;
-  typedef smoc::Detail::FiringStateBase base_type;
-protected:
-  explicit smoc_multi_state(_StorageType const &x): FFType(x) {}
-  smoc_multi_state(SmartPtr const &p);
-  
-  smoc_multi_state(const this_type &);
-  this_type& operator=(const this_type &);
-
-public:
-  smoc_multi_state(const smoc_hierarchical_state& s);
-  smoc_multi_state(const IN& s);
-
-  this_type& operator,(const smoc_hierarchical_state& s);
-  this_type& operator,(const IN& s);
-
-  ImplType *getImpl() const;
-  using base_type::operator=;
-};
-
-inline
-smoc_multi_state::Ref operator,(
-    const smoc_hierarchical_state& a,
-    const smoc_hierarchical_state& b)
-  { return smoc_multi_state(a),b; }
-
-inline
-smoc_multi_state::Ref operator,(
-    const IN& a,
-    const smoc_hierarchical_state& b)
-  { return smoc_multi_state(a),b; }
-
-inline
-smoc_multi_state::Ref operator,(
-    const smoc_hierarchical_state& a,
-    const IN& b)
-  { return smoc_multi_state(a),b; }
-
-inline
-smoc_multi_state::Ref operator,(
-    const IN& a,
-    const IN& b)
-  { return smoc_multi_state(a),b; }
+using ::smoc::smoc_transition;
+using ::smoc::smoc_transition_list;
 
 #endif /* _INCLUDED_SYSTEMOC_SMOC_FIRING_RULES_HPP */

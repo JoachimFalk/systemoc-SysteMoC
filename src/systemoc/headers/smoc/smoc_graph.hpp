@@ -59,7 +59,7 @@ public:
   // construct graph with name
   smoc_graph(const sc_core::sc_module_name &name);
   // construct graph with name and FSM
-  smoc_graph(const sc_core::sc_module_name &name, smoc_hierarchical_state &state);
+  smoc_graph(const sc_core::sc_module_name &name, smoc_state &state);
   
   /**
    * disables the executability of an actor

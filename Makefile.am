@@ -54,7 +54,6 @@ libsystemoc_la_SOURCES = \
 	src/systemoc/cpp/detail/ChanBase.cpp \
 	src/systemoc/cpp/detail/DebugOStream.cpp \
 	src/systemoc/cpp/detail/FiringFSM.cpp \
-	src/systemoc/cpp/detail/FiringStateBase.cpp \
 	src/systemoc/cpp/detail/FiringStateBaseImpl.cpp \
 	src/systemoc/cpp/detail/GraphBase.cpp \
 	src/systemoc/cpp/detail/IdPool.cpp \
@@ -75,6 +74,7 @@ libsystemoc_la_SOURCES = \
 	src/systemoc/cpp/SimulatorAPI/TaskInterface.cpp \
 	src/systemoc/cpp/SimulatorAPI/TransitionInterface.cpp \
 	src/systemoc/cpp/smoc_actor.cpp \
+	src/systemoc/cpp/smoc_base_state.cpp \
 	src/systemoc/cpp/smoc_chan_if.cpp \
 	src/systemoc/cpp/smoc_elab_and_sim.cpp \
 	src/systemoc/cpp/smoc_expr.cpp \

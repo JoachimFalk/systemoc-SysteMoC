@@ -1,7 +1,7 @@
 // -*- tab-width:8; intent-tabs-mode:nil; c-basic-offset:2; -*-
 // vim: set sw=2 ts=8 et:
 /*
- * Copyright (c) 2018 Hardware-Software-CoDesign, University of Erlangen-Nuremberg.
+ * Copyright (c) 2004-2017 Hardware-Software-CoDesign, University of Erlangen-Nuremberg.
  * 
  *   This library is free software; you can redistribute it and/or modify it under
  *   the terms of the GNU Lesser General Public License as published by the Free
@@ -33,12 +33,48 @@
  * ENHANCEMENTS, OR MODIFICATIONS.
  */
 
-#ifndef _INCLUDED_SYSTEMOC_SMOC_TRANSITION_HPP
-#define _INCLUDED_SYSTEMOC_SMOC_TRANSITION_HPP
+#ifndef _INCLUDED_SMOC_SMOC_AND_STATE_HPP
+#define _INCLUDED_SMOC_SMOC_AND_STATE_HPP
 
-#include "../smoc/smoc_transition.hpp"
+#include "smoc_state.hpp"
 
-using smoc::smoc_transition;
-using smoc::smoc_transition_list;
+#include <CoSupport/SmartPtr/intrusive_refcount_ptr.hpp>
+#include <CoSupport/DataTypes/Facade.hpp>
 
-#endif /* _INCLUDED_SYSTEMOC_SMOC_TRANSITION_HPP */
+namespace smoc { namespace Detail {
+
+  class ANDStateImpl;
+  DECL_INTRUSIVE_REFCOUNT_PTR(ANDStateImpl, PANDStateImpl);
+
+} } // namespace smoc::Detail
+
+namespace smoc {
+
+class smoc_and_state
+: public CoSupport::DataTypes::FacadeFoundation<
+    smoc_and_state,
+    smoc::Detail::ANDStateImpl,
+    smoc_state
+  >
+{
+  typedef smoc_and_state  this_type;
+  typedef smoc_state      base_type;
+protected:
+  explicit smoc_and_state(_StorageType const &x): FFType(x) {}
+  smoc_and_state(const SmartPtr &p);
+  
+  smoc_and_state(const this_type &);
+  this_type& operator=(const this_type &);
+
+public:
+  smoc_and_state(const std::string& name = "");
+
+  this_type& add(const smoc_state &state);
+
+  ImplType *getImpl() const;
+  using base_type::operator=;
+};
+
+} //namspace smoc
+
+#endif /* _INCLUDED_SMOC_SMOC_AND_STATE_HPP */

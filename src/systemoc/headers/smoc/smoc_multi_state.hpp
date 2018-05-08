@@ -33,61 +33,90 @@
  * ENHANCEMENTS, OR MODIFICATIONS.
  */
 
-#ifndef _INCLUDED_SMOC_SMOC_PERIODIC_ACTOR_HPP
-#define _INCLUDED_SMOC_SMOC_PERIODIC_ACTOR_HPP
+#ifndef _INCLUDED_SMOC_SMOC_MULTI_STATE_HPP
+#define _INCLUDED_SMOC_SMOC_MULTI_STATE_HPP
 
-#include "smoc_actor.hpp"
+#include "smoc_state.hpp"
+#include "smoc_base_state.hpp"
+
+#include <CoSupport/SmartPtr/intrusive_refcount_ptr.hpp>
+#include <CoSupport/DataTypes/Facade.hpp>
+
+namespace smoc { namespace Detail {
+
+  class MultiStateImpl;
+  DECL_INTRUSIVE_REFCOUNT_PTR(MultiStateImpl, PMultiStateImpl);
+
+} } // namespace smoc::Detail
 
 namespace smoc {
 
-/*class smoc_periodic_actor 
- * used to generate an event periodically.
- * the period, its offset 
- * and a pointer to the managing EventQueue is passed to the Constructor*/
-class smoc_periodic_actor: public smoc_actor {
-public:
-  //constructor sets the period, offset and EventQueue
-  smoc_periodic_actor(sc_core::sc_module_name name,
-                smoc_state &start_state,
-                sc_core::sc_time per,
-                sc_core::sc_time off,
-                float jitter=0.0);
+  class smoc_state;
 
-  sc_core::sc_time getPeriod()
-    { return period; }
-
-  sc_core::sc_time getOffset()
-    { return offset; }
-
-protected:
-
-  void forceReexecution()
-    { reexecute = true; }
-
-  void stopPeriodicActorExecution()
-    { periodicActorActive = false; }
-
-  void restartPeriodicActorExecution()
-    { periodicActorActive = true; }
-
-private:
-
-  bool canFire();
-  void schedule();
-  void updateReleaseTime();
-
-  sc_core::sc_time       calculateMobility() const;
-  sc_core::sc_time const &getNextReleaseTime() const;
-
-  int period_counter;
-  sc_core::sc_time period;
-  sc_core::sc_time offset;
-  sc_core::sc_time nextReleaseTime;
-  float jitter;
-  bool reexecute;
-  bool periodicActorActive;
+#ifdef _MSC_VER
+// Visual Studio defines "IN" 
+# undef IN
+#endif // _MSC_VER
+struct IN {
+  smoc_state::ConstRef s;
+  bool neg;
+  IN(const smoc_state& s)
+    : s(s), neg(false) {}
+  IN& operator!()
+    { neg = !neg; return *this; }
 };
+
+class smoc_multi_state
+: public CoSupport::DataTypes::FacadeFoundation<
+    smoc_multi_state,
+    smoc::Detail::MultiStateImpl,
+    smoc_base_state
+  >
+{
+  typedef smoc_multi_state  this_type;
+  typedef smoc_base_state   base_type;
+protected:
+  explicit smoc_multi_state(_StorageType const &x): FFType(x) {}
+  smoc_multi_state(SmartPtr const &p);
+  
+  smoc_multi_state(const this_type &);
+  this_type& operator=(const this_type &);
+
+public:
+  smoc_multi_state(const smoc_state& s);
+  smoc_multi_state(const IN& s);
+
+  this_type& operator,(const smoc_state& s);
+  this_type& operator,(const IN& s);
+
+  ImplType *getImpl() const;
+  using base_type::operator=;
+};
+
+inline
+smoc_multi_state::Ref operator,(
+    const smoc_state& a,
+    const smoc_state& b)
+  { return smoc_multi_state(a),b; }
+
+inline
+smoc_multi_state::Ref operator,(
+    const IN& a,
+    const smoc_state& b)
+  { return smoc_multi_state(a),b; }
+
+inline
+smoc_multi_state::Ref operator,(
+    const smoc_state& a,
+    const IN& b)
+  { return smoc_multi_state(a),b; }
+
+inline
+smoc_multi_state::Ref operator,(
+    const IN& a,
+    const IN& b)
+  { return smoc_multi_state(a),b; }
 
 } // namespace smoc
 
-#endif /* _INCLUDED_SMOC_SMOC_PERIODIC_ACTOR_HPP */
+#endif /* _INCLUDED_SMOC_SMOC_MULTI_STATE_HPP */

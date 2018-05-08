@@ -50,7 +50,7 @@ namespace smoc { namespace Detail {
 using CoSupport::String::Concat;
 
 GraphBase::GraphBase(
-    const sc_core::sc_module_name &name, smoc_hierarchical_state *init)
+    const sc_core::sc_module_name &name, smoc_state *init)
   : NodeBase(name, NodeBase::NODE_TYPE_GRAPH, init, 0),
     scheduler(nullptr)
 {}

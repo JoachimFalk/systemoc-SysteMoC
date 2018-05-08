@@ -33,14 +33,49 @@
  * ENHANCEMENTS, OR MODIFICATIONS.
  */
 
-#ifndef _INCLUDED_SYSTEMOC_SMOC_ACTOR_HPP
-#define _INCLUDED_SYSTEMOC_SMOC_ACTOR_HPP
+#ifndef _INCLUDED_SMOC_SMOC_BASE_STATE_HPP
+#define _INCLUDED_SMOC_SMOC_BASE_STATE_HPP
 
-#include "../smoc/smoc_actor.hpp"
+#include <CoSupport/SmartPtr/RefCountObject.hpp>
+#include <CoSupport/SmartPtr/intrusive_refcount_ptr.hpp>
+#include <CoSupport/DataTypes/Facade.hpp>
 
-// Not needed for actor, but users will likely require this.
-#include "smoc_firing_rules.hpp"
+namespace smoc { namespace Detail {
 
-using smoc::smoc_actor;
+  class FiringStateBaseImpl;
+  DECL_INTRUSIVE_REFCOUNT_PTR(FiringStateBaseImpl, PFiringStateBaseImpl);
 
-#endif /* _INCLUDED_SYSTEMOC_SMOC_ACTOR_HPP */
+} } // namespace smoc::Detail
+
+namespace smoc {
+
+  class smoc_transition_list;
+
+  class smoc_base_state
+  : public CoSupport::DataTypes::FacadeFoundation<
+      smoc_base_state,
+      Detail::FiringStateBaseImpl
+    >
+  {
+    typedef smoc_base_state this_type;
+
+    friend class Detail::FiringStateBaseImpl;
+  protected:
+    explicit smoc_base_state(_StorageType const &x): FFType(x) {}
+    smoc_base_state(SmartPtr const &p);
+  public:
+    ImplType *getImpl() const;
+
+    /// @brief Add transitions to state
+    void addTransition(smoc_transition_list const &tl);
+
+    /// @brief Clear all transitions
+    void clearTransition();
+
+    this_type& operator=(smoc_transition_list const &tl);
+    this_type& operator|=(smoc_transition_list const &tl);
+  };
+
+} // namespace smoc
+
+#endif /* _INCLUDED_SMOC_SMOC_BASE_STATE_HPP */
