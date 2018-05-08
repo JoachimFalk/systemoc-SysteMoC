@@ -56,4 +56,4 @@ using smoc::smoc_vpc_event;
 using smoc::smoc_vpc_event_p;
 #endif // SYSTEMOC_ENABLE_VPC
 
-#endif // _INCLUDED_SYSTEMOC_SMOC_EVENT_HPP
+#endif /* _INCLUDED_SYSTEMOC_SMOC_EVENT_HPP */

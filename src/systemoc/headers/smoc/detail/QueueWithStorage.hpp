@@ -279,4 +279,4 @@ private:
 
 } } // namespace smoc::Detail
 
-#endif // _INCLUDED_SMOC_DETAIL_QUEUEWITHSTORAGE_HPP
+#endif /* _INCLUDED_SMOC_DETAIL_QUEUEWITHSTORAGE_HPP */

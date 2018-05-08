@@ -33,8 +33,8 @@
  * ENHANCEMENTS, OR MODIFICATIONS.
  */
 
-#ifndef _INCLUDED_SMOC_FIRING_STATE_HPP
-#define _INCLUDED_SMOC_FIRING_STATE_HPP
+#ifndef _INCLUDED_SYSTEMOC_SMOC_FIRING_RULES_HPP
+#define _INCLUDED_SYSTEMOC_SMOC_FIRING_RULES_HPP
 
 #include <vector>
 #include <iostream>
@@ -286,4 +286,4 @@ smoc_multi_state::Ref operator,(
     const IN& b)
   { return smoc_multi_state(a),b; }
 
-#endif // _INCLUDED_SMOC_FIRING_STATE_HPP
+#endif /* _INCLUDED_SYSTEMOC_SMOC_FIRING_RULES_HPP */

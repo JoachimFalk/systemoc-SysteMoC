@@ -160,4 +160,4 @@ namespace smoc { namespace SimulatorAPI {
 
 } } // namespace smoc::SimulatorAPI
 
-#endif // _INCLUDED_SMOC_SIMULATORAPI_TASKINTERFACE_HPP
+#endif /* _INCLUDED_SMOC_SIMULATORAPI_TASKINTERFACE_HPP */

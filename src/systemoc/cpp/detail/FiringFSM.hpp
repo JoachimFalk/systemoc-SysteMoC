@@ -115,4 +115,4 @@ private:
 
 } } // namespace smoc::Detail
 
-#endif // _INCLUDED_SMOC_DETAIL_FIRINGFSM_HPP
+#endif /* _INCLUDED_SMOC_DETAIL_FIRINGFSM_HPP */

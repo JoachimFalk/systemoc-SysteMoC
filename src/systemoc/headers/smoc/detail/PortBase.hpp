@@ -33,8 +33,8 @@
  * ENHANCEMENTS, OR MODIFICATIONS.
  */
 
-#ifndef _INCLUDED_DETAIL_SMOC_SYSC_PORT_HPP
-#define _INCLUDED_DETAIL_SMOC_SYSC_PORT_HPP
+#ifndef _INCLUDED_SMOC_DETAIL_PORTBASE_HPP
+#define _INCLUDED_SMOC_DETAIL_PORTBASE_HPP
 
 #include <systemoc/smoc_config.h>
 
@@ -194,4 +194,4 @@ typedef std::list<sc_core::sc_port_base*> sc_port_list;
 
 } } // namespace smoc::Detail
 
-#endif // _INCLUDED_DETAIL_SMOC_SYSC_PORT_HPP
+#endif /* _INCLUDED_SMOC_DETAIL_PORTBASE_HPP */

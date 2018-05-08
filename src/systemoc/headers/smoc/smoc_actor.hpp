@@ -126,4 +126,4 @@ public:
 
 } // namespace smoc
 
-#endif // _INCLUDED_SMOC_SMOC_ACTOR_HPP
+#endif /* _INCLUDED_SMOC_SMOC_ACTOR_HPP */

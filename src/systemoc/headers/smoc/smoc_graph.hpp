@@ -80,4 +80,4 @@ private:
 
 } // namespace smoc
 
-#endif // _INCLUDED_SMOC_SMOC_GRAPH_HPP
+#endif /* _INCLUDED_SMOC_SMOC_GRAPH_HPP */

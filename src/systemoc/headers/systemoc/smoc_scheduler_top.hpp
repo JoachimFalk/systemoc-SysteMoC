@@ -40,4 +40,4 @@
 
 using smoc::smoc_scheduler_top;
 
-#endif // _INCLUDED_SYSTEMOC_SMOC_SCHEDULER_TOP_HPP
+#endif /* _INCLUDED_SYSTEMOC_SMOC_SCHEDULER_TOP_HPP */

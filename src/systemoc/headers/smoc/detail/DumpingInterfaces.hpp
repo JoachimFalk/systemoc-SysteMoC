@@ -33,10 +33,10 @@
  * ENHANCEMENTS, OR MODIFICATIONS.
  */
 
-#include <systemoc/smoc_config.h>
-
 #ifndef _INCLUDED_SMOC_DETAIL_DUMPINGINTERFACES_HPP
 #define _INCLUDED_SMOC_DETAIL_DUMPINGINTERFACES_HPP
+#include <systemoc/smoc_config.h>
+
 
 #include <string>
 
@@ -51,4 +51,4 @@ struct IfDumpingInitialTokens {
 
 } } // namespace smoc::Detail
 
-#endif // _INCLUDED_SMOC_DETAIL_DUMPINGINTERFACES_HPP
+#endif /* _INCLUDED_SMOC_DETAIL_DUMPINGINTERFACES_HPP */

@@ -33,8 +33,8 @@
  * ENHANCEMENTS, OR MODIFICATIONS.
  */
 
-#ifndef _INCLUDED_SMOC_FIFO_HPP
-#define _INCLUDED_SMOC_FIFO_HPP
+#ifndef _INCLUDED_SYSTEMOC_SMOC_FIFO_HPP
+#define _INCLUDED_SYSTEMOC_SMOC_FIFO_HPP
 
 #include <systemc>
 #include <vector>
@@ -410,4 +410,4 @@ private:
   this_type &operator =(const this_type &);
 };
 
-#endif // _INCLUDED_SMOC_FIFO_HPP
+#endif /* _INCLUDED_SYSTEMOC_SMOC_FIFO_HPP */

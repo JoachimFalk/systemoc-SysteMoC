@@ -123,4 +123,4 @@ public:
 
 } } // namespace smoc::Detail
 
-#endif // _INCLUDED_SMOC_DETAIL_SIMULATIONCONTEXT_HPP
+#endif /* _INCLUDED_SMOC_DETAIL_SIMULATIONCONTEXT_HPP */

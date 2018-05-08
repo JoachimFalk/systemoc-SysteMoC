@@ -56,4 +56,4 @@
 # include <Maestro/maestro_config.h>
 #endif //SYSTEMOC_ENABLE_MAESTRO
 
-#endif //_INCLUDED_SYSTEMOC_SMOC_CONFIG_H
+#endif /* _INCLUDED_SYSTEMOC_SMOC_CONFIG_H */

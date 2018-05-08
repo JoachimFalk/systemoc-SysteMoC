@@ -40,4 +40,4 @@
 
 using smoc::smoc_register;
 
-#endif // _INCLUDED_SYSTEMOC_SMOC_REGISTER_HPP
+#endif /* _INCLUDED_SYSTEMOC_SMOC_REGISTER_HPP */

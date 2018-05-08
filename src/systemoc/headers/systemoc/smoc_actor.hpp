@@ -40,4 +40,4 @@
 
 using smoc::smoc_actor;
 
-#endif // _INCLUDED_SYSTEMOC_SMOC_ACTOR_HPP
+#endif /* _INCLUDED_SYSTEMOC_SMOC_ACTOR_HPP */

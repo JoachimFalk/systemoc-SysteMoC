@@ -1855,4 +1855,4 @@ typename Token<P>::type token(P &p, size_t pos)
 
 } } // namespace smoc::Expr
 
-#endif // _INCLUDED_SMOC_SMOC_EXPR_HPP
+#endif /* _INCLUDED_SMOC_SMOC_EXPR_HPP */

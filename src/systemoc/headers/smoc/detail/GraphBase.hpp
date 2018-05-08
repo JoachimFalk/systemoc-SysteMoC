@@ -312,4 +312,4 @@ private:
   
 } } // namespace smoc::Detail
 
-#endif // _INCLUDED_SMOC_DETAIL_GRAPHBASE_HPP
+#endif /* _INCLUDED_SMOC_DETAIL_GRAPHBASE_HPP */
