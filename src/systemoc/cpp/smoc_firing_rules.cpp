@@ -53,10 +53,16 @@
 #include <systemoc/detail/smoc_func_call.hpp>
 #include <smoc/smoc_expr.hpp>
 
-#include <systemoc/smoc_actor.hpp>
-#include <systemoc/smoc_graph.hpp>
+#include <smoc/smoc_actor.hpp>
+#include <smoc/smoc_graph.hpp>
+#include <smoc/smoc_base_state.hpp>
+#include <smoc/smoc_state.hpp>
+#include <smoc/smoc_junction_state.hpp>
+#include <smoc/smoc_multi_state.hpp>
+#include <smoc/smoc_firing_state.hpp>
+#include <smoc/smoc_and_state.hpp>
+#include <smoc/smoc_xor_state.hpp>
 #include <smoc/detail/TraceLog.hpp>
-#include <systemoc/smoc_firing_rules.hpp>
 #include <smoc/detail/DebugOStream.hpp>
 
 #include "detail/smoc_firing_rules_impl.hpp"
@@ -972,6 +978,8 @@ void intrusive_ptr_release(MultiStateImpl *p)
 
 using namespace smoc::Detail;
 
+namespace smoc {
+
 smoc_state::smoc_state(const SmartPtr &p)
   : FFType(_StorageType(p)) {}
 
@@ -1008,6 +1016,10 @@ smoc_state& smoc_state::clone(const smoc_state &st) {
 }
 #endif
 
+} // namespace smoc
+
+namespace smoc {
+
 smoc_firing_state::smoc_firing_state(const SmartPtr &p)
   : FFType(_StorageType(p)) {}
 
@@ -1017,8 +1029,10 @@ smoc_firing_state::smoc_firing_state(const std::string& name)
 smoc_firing_state::ImplType *smoc_firing_state::getImpl() const
   { return CoSupport::DataTypes::FacadeCoreAccess::getImpl(*this); }
 
+} // namespace smoc
 
 
+namespace smoc {
 
 smoc_xor_state::smoc_xor_state(const SmartPtr &p)
   : FFType(_StorageType(p)) {}
@@ -1038,9 +1052,10 @@ smoc_xor_state& smoc_xor_state::init(const smoc_state& state)
 smoc_xor_state& smoc_xor_state::add(const smoc_state& state)
   { getImpl()->add(state.getImpl(), false); return *this; }
 
+} // namespace smoc
 
 
-
+namespace smoc {
 
 smoc_and_state::smoc_and_state(const SmartPtr &p)
   : FFType(_StorageType(p)) {}
@@ -1054,8 +1069,11 @@ smoc_and_state::ImplType *smoc_and_state::getImpl() const
 smoc_and_state& smoc_and_state::add(const smoc_state& state)
   { getImpl()->add(state.getImpl()); return *this; }
 
+} // namespace smoc
 
 
+
+namespace smoc {
 
 smoc_junction_state::smoc_junction_state(const SmartPtr &p)
   : FFType(_StorageType(p)) {}
@@ -1066,9 +1084,11 @@ smoc_junction_state::smoc_junction_state()
 smoc_junction_state::ImplType *smoc_junction_state::getImpl() const
   { return CoSupport::DataTypes::FacadeCoreAccess::getImpl(*this); }
 
+} // namespace smoc
 
 
 
+namespace smoc {
 
 smoc_multi_state::smoc_multi_state(const SmartPtr &p)
   : FFType(_StorageType(p)) {}
@@ -1088,3 +1108,4 @@ smoc_multi_state& smoc_multi_state::operator,(const smoc_state& s)
 smoc_multi_state& smoc_multi_state::operator,(const IN& s)
   { getImpl()->addCondState(s.s.getImpl(), s.neg); return *this; }
 
+} // namespace smoc

@@ -34,7 +34,7 @@
  */
 
 #include <systemoc/smoc_config.h>
-#include <systemoc/smoc_graph.hpp>
+#include <smoc/smoc_graph.hpp>
 #include <systemoc/smoc_reset.hpp>
 #include <smoc/detail/TraceLog.hpp>
 #include <smoc/detail/DebugOStream.hpp>

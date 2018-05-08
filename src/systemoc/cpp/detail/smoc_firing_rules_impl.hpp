@@ -55,7 +55,6 @@
 #include <systemoc/smoc_config.h>
 
 #include <systemoc/detail/smoc_func_call.hpp>
-#include <systemoc/smoc_firing_rules.hpp>
 
 #include <smoc/detail/NamedIdedObj.hpp>
 #include <smoc/detail/IOPattern.hpp>
@@ -78,6 +77,8 @@
 namespace smoc { namespace Detail { 
 
 class NodeBase;
+class FiringStateImpl;
+class HierarchicalStateImpl;
 
 typedef std::set<const FiringStateImpl*> ProdState;
 

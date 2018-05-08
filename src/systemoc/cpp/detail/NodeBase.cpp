@@ -45,8 +45,7 @@
 #include <smoc/detail/PortBase.hpp>
 #include <smoc/smoc_event.hpp>
 
-#include <systemoc/smoc_firing_rules.hpp>
-#include <systemoc/smoc_graph.hpp>
+#include <smoc/smoc_graph.hpp>
 #ifdef SYSTEMOC_ENABLE_MAESTRO
 # include <Maestro/MetaMap/MAESTRORuntimeException.hpp>
 #endif //SYSTEMOC_ENABLE_MAESTRO

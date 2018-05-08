@@ -41,8 +41,8 @@
 #include <smoc/detail/NodeBase.hpp>
 #include <smoc/detail/ChanBase.hpp>
 #include <smoc/detail/PortBase.hpp>
-#include <systemoc/smoc_graph.hpp>
-#include <systemoc/smoc_actor.hpp>
+#include <smoc/smoc_graph.hpp>
+#include <smoc/smoc_actor.hpp>
 #include <systemoc/smoc_fifo.hpp>
 #include <systemoc/smoc_multiplex_fifo.hpp>
 #include <systemoc/smoc_multireader_fifo.hpp>

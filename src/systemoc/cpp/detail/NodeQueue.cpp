@@ -34,7 +34,7 @@
  */
 
 #include <smoc/detail/NodeQueue.hpp>
-#include <systemoc/smoc_periodic_actor.hpp>
+#include <smoc/smoc_periodic_actor.hpp>
 
 namespace smoc { namespace Detail {
 

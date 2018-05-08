@@ -35,8 +35,6 @@
 
 #include "FiringStateBaseImpl.hpp"
 
-#include <systemoc/smoc_firing_rules.hpp>
-
 #include "FiringFSM.hpp"
 
 namespace smoc { namespace Detail {
