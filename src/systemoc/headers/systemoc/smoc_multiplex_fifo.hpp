@@ -52,6 +52,8 @@
 #include <boost/shared_ptr.hpp>
 #include <boost/function.hpp>
 
+#include <functional>
+
 #include <systemoc/smoc_config.h>
 
 #ifdef SYSTEMOC_ENABLE_VPC
@@ -213,8 +215,8 @@ protected:
   smoc_multiplex_fifo_chan(const chan_init &i)
     : smoc_fifo_storage<T, smoc_multiplex_fifo_chan_base>(i)
 #ifdef SYSTEMOC_ENABLE_VPC
-    , latencyQueue(std::bind1st(std::mem_fun(&this_type::latencyExpired), this), this)
-    , readConsumeQueue(std::bind1st(std::mem_fun(&this_type::readConsumeEventExpired), this))
+    , latencyQueue(std::bind(&this_type::latencyExpired, this, std::placeholders::_1), this)
+    , readConsumeQueue(std::bind(&this_type::readConsumeEventExpired, this, std::placeholders::_1))
 #endif
   {}
 
