@@ -55,6 +55,7 @@ libsystemoc_la_SOURCES = \
 	src/systemoc/cpp/detail/DebugOStream.cpp \
 	src/systemoc/cpp/detail/FiringFSM.cpp \
 	src/systemoc/cpp/detail/FiringStateBaseImpl.cpp \
+	src/systemoc/cpp/detail/FSM/stuff.cpp \
 	src/systemoc/cpp/detail/GraphBase.cpp \
 	src/systemoc/cpp/detail/IdPool.cpp \
 	src/systemoc/cpp/detail/IOPattern.cpp \
@@ -74,21 +75,26 @@ libsystemoc_la_SOURCES = \
 	src/systemoc/cpp/SimulatorAPI/TaskInterface.cpp \
 	src/systemoc/cpp/SimulatorAPI/TransitionInterface.cpp \
 	src/systemoc/cpp/smoc_actor.cpp \
+	src/systemoc/cpp/smoc_and_state.cpp \
 	src/systemoc/cpp/smoc_base_state.cpp \
 	src/systemoc/cpp/smoc_chan_if.cpp \
 	src/systemoc/cpp/smoc_elab_and_sim.cpp \
 	src/systemoc/cpp/smoc_expr.cpp \
 	src/systemoc/cpp/smoc_fifo.cpp \
-	src/systemoc/cpp/smoc_firing_rules.cpp \
+	src/systemoc/cpp/smoc_firing_state.cpp \
 	src/systemoc/cpp/smoc_func_call.cpp \
 	src/systemoc/cpp/smoc_graph.cpp \
+	src/systemoc/cpp/smoc_junction_state.cpp \
 	src/systemoc/cpp/smoc_main.cpp \
 	src/systemoc/cpp/smoc_multiplex_fifo.cpp \
 	src/systemoc/cpp/smoc_multireader_fifo.cpp \
+	src/systemoc/cpp/smoc_multi_state.cpp \
 	src/systemoc/cpp/smoc_periodic_actor.cpp \
 	src/systemoc/cpp/smoc_register.cpp \
 	src/systemoc/cpp/smoc_reset.cpp \
-	src/systemoc/cpp/smoc_scheduler_top.cpp
+	src/systemoc/cpp/smoc_scheduler_top.cpp \
+	src/systemoc/cpp/smoc_state.cpp \
+	src/systemoc/cpp/smoc_xor_state.cpp
 
 libsystemoc_la_CPPFLAGS = $(AM_CPPFLAGS) \
 	$(BOOST_CPPFLAGS) \
