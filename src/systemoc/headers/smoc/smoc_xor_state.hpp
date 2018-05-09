@@ -41,19 +41,19 @@
 #include <CoSupport/SmartPtr/intrusive_refcount_ptr.hpp>
 #include <CoSupport/DataTypes/Facade.hpp>
 
-namespace smoc { namespace Detail {
+namespace smoc { namespace Detail { namespace FSM {
 
   class XORStateImpl;
   DECL_INTRUSIVE_REFCOUNT_PTR(XORStateImpl, PXORStateImpl);
 
-} } // namespace smoc::Detail
+} } } // namespace smoc::Detail::FSM
 
 namespace smoc {
 
 class smoc_xor_state
 : public CoSupport::DataTypes::FacadeFoundation<
     smoc_xor_state,
-    smoc::Detail::XORStateImpl,
+    Detail::FSM::XORStateImpl,
     smoc_state
   >
 {

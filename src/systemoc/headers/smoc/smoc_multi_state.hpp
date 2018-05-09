@@ -42,12 +42,12 @@
 #include <CoSupport/SmartPtr/intrusive_refcount_ptr.hpp>
 #include <CoSupport/DataTypes/Facade.hpp>
 
-namespace smoc { namespace Detail {
+namespace smoc { namespace Detail { namespace FSM {
 
   class MultiStateImpl;
   DECL_INTRUSIVE_REFCOUNT_PTR(MultiStateImpl, PMultiStateImpl);
 
-} } // namespace smoc::Detail
+} } } // namespace smoc::Detail::FSM
 
 namespace smoc {
 
@@ -69,7 +69,7 @@ struct IN {
 class smoc_multi_state
 : public CoSupport::DataTypes::FacadeFoundation<
     smoc_multi_state,
-    smoc::Detail::MultiStateImpl,
+    Detail::FSM::MultiStateImpl,
     smoc_base_state
   >
 {

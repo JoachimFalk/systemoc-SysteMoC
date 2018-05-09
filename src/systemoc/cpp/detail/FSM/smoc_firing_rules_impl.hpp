@@ -33,8 +33,8 @@
  * ENHANCEMENTS, OR MODIFICATIONS.
  */
 
-#ifndef _INCLUDED_SMOC_DETAIL_SMOC_FIRING_RULES_IMPL_HPP
-#define _INCLUDED_SMOC_DETAIL_SMOC_FIRING_RULES_IMPL_HPP
+#ifndef _INCLUDED_SMOC_DETAIL_FSM_SMOC_FIRING_RULES_IMPL_HPP
+#define _INCLUDED_SMOC_DETAIL_FSM_SMOC_FIRING_RULES_IMPL_HPP
 
 #ifdef _MSC_VER
 #include <CoSupport/compatibility-glue/nullptr.h>
@@ -72,11 +72,16 @@
 # include <Maestro/MetaMap/Transition.hpp>
 #endif //SYSTEMOC_ENABLE_MAESTRO
 
-#include "FiringStateBaseImpl.hpp"
+#include "BaseStateImpl.hpp"
 
-namespace smoc { namespace Detail { 
+namespace smoc { namespace Detail {
 
-class NodeBase;
+  class NodeBase;
+
+} } // namespace smoc::Detail
+
+namespace smoc { namespace Detail { namespace FSM {
+
 class FiringStateImpl;
 class HierarchicalStateImpl;
 
@@ -278,7 +283,7 @@ private:
 //class HierarchicalStateImpl;
 typedef std::map<const HierarchicalStateImpl*,bool> Marking;
 
-class HierarchicalStateImpl : public FiringStateBaseImpl {
+class HierarchicalStateImpl : public BaseStateImpl {
 public:
   typedef HierarchicalStateImpl this_type;
 
@@ -433,7 +438,7 @@ public:
       bool isSrcState) const;
 };
 
-class JunctionStateImpl: public FiringStateBaseImpl {
+class JunctionStateImpl: public BaseStateImpl {
 public:
   typedef JunctionStateImpl this_type;
 
@@ -447,7 +452,7 @@ public:
       const ExpandedTransition& t) const;
 };
 
-class MultiStateImpl: public FiringStateBaseImpl {
+class MultiStateImpl: public BaseStateImpl {
 public:
   typedef MultiStateImpl this_type;
 
@@ -472,6 +477,6 @@ public:
   void addCondState(HierarchicalStateImpl* s, bool neg);
 };
 
-} } // namepsace smoc::Detail
+} } } // namepsace smoc::Detail::FSM
 
-#endif /* _INCLUDED_SMOC_DETAIL_SMOC_FIRING_RULES_IMPL_HPP */
+#endif /* _INCLUDED_SMOC_DETAIL_FSM_SMOC_FIRING_RULES_IMPL_HPP */

@@ -55,7 +55,6 @@
 #include "../smoc_guard.hpp"
 #include "../smoc_state.hpp"
 #include "../../systemoc/detail/smoc_func_call.hpp"
-//#include "../../systemoc/smoc_firing_rules.hpp"
 #include "PortBase.hpp"
 
 #ifdef SYSTEMOC_ENABLE_HOOKING
@@ -95,12 +94,17 @@ namespace smoc {
 
 } // namespace smoc
 
-namespace smoc { namespace Detail {
+namespace smoc { namespace Detail { namespace FSM {
 
-class GraphBase;
 class FiringFSM;
 class RuntimeState;
 class RuntimeTransition;
+
+} } } // namespace smoc::Detail::FSM
+
+namespace smoc { namespace Detail {
+
+class GraphBase;
 
 /**
  * smoc_root_node is the base class of all systemoc nodes be it
@@ -136,7 +140,7 @@ class NodeBase
   friend class ::smoc_reset_chan;
   friend class smoc::smoc_periodic_actor;
   friend class smoc::smoc_graph;
-  friend class RuntimeTransition;
+  friend class FSM::RuntimeTransition;
   friend class GraphBase;
   friend class DumpActor; // To access constrArgs by SMXDumper
   friend class ProcessVisitor; // To disable actors by SMXImporter.
@@ -219,13 +223,13 @@ public:
   bool isActor() const
     { return nodeType == NODE_TYPE_ACTOR; }
 
-  FiringFSM *getFiringFSM() const;
+  FSM::FiringFSM *getFiringFSM() const;
 
-  RuntimeState *getCurrentState() const
+  FSM::RuntimeState *getCurrentState() const
     { return currentState; }
 
 #ifdef SYSTEMOC_ENABLE_VPC
-  RuntimeState *getCommState() const
+  FSM::RuntimeState *getCommState() const
     { return commState; }
 
   //true if actual state is a communication state
@@ -250,12 +254,12 @@ private:
   /// out of scope.
   smoc_state::Ptr  initialStatePtr;
   /// @brief current firing state
-  RuntimeState                 *currentState;
+  FSM::RuntimeState            *currentState;
   /// @brief current enabled firing transition
-  RuntimeTransition            *ct;
+  FSM::RuntimeTransition       *ct;
 
 #ifdef SYSTEMOC_ENABLE_VPC
-  RuntimeState                 *commState;
+  FSM::RuntimeState            *commState;
   // vpc_event_xxx must be constructed before commState
   /// @brief VPC data introduction interval event
   smoc::smoc_vpc_event_p        diiEvent;
@@ -300,7 +304,7 @@ private:
   void eventDestroyed(smoc::smoc_event_waiter *e);
   void renotified(smoc::smoc_event_waiter *e);
 
-  void setCurrentState(RuntimeState *s);
+  void setCurrentState(FSM::RuntimeState *s);
   bool searchActiveTransition(bool debug = false);
 
   // Implement use activation callback interface from
@@ -308,8 +312,8 @@ private:
   void setUseActivationCallback(bool flags);
   bool getUseActivationCallback() const;
 
-  void addMySelfAsListener(RuntimeState *state);
-  void delMySelfAsListener(RuntimeState *state);
+  void addMySelfAsListener(FSM::RuntimeState *state);
+  void delMySelfAsListener(FSM::RuntimeState *state);
 
 protected:
   void schedule();

@@ -64,8 +64,8 @@
 
 #include "apply_visitor.hpp"
 #include "SimulationContext.hpp"
-#include "smoc_firing_rules_impl.hpp"
-#include "FiringFSM.hpp"
+#include "FSM/smoc_firing_rules_impl.hpp"
+#include "FSM/FiringFSM.hpp"
 
 //#define SYSTEMOC_DEBUG
 
@@ -805,19 +805,19 @@ protected:
     SGX::ASTNode::Ptr astPtr;
   };
 
-  typedef std::map<std::string, RuntimeState const *>           StateNameMap;
-  typedef std::map<RuntimeState const *, SGX::FiringState::Ptr> StateMap;
-  typedef std::map<void *, TransitionInfo>                      TransitionInfoMap;
+  typedef std::map<std::string, FSM::RuntimeState const *>           StateNameMap;
+  typedef std::map<FSM::RuntimeState const *, SGX::FiringState::Ptr> StateMap;
+  typedef std::map<void *, TransitionInfo>                           TransitionInfoMap;
 public:
   DumpFiringFSM(ProcessSubVisitor &sv)
     : sv(sv) {}
 
-  result_type operator ()(FiringFSM *smocFSM) {
+  result_type operator ()(FSM::FiringFSM *smocFSM) {
     if (!smocFSM)
       return nullptr;
 
     SGX::FiringFSM              sgxFSM;
-//  FiringFSM                  *smocFSM       = a.getFiringFSM();
+//  FSM::FiringFSM             *smocFSM       = a.getFiringFSM();
     SGX::FiringStateList::Ref   sgxStateList  = sgxFSM.states();
     StateMap                    stateMap;
     TransitionInfoMap           transitionInfoMap;
@@ -827,12 +827,12 @@ public:
 
     // Inser states into FiringFSM
     {
-      FiringFSM::RuntimeStateSet const &smocStates = smocFSM->getStates();
-      StateNameMap                      stateNameMap;
+      FSM::FiringFSM::RuntimeStateSet const &smocStates = smocFSM->getStates();
+      StateNameMap                           stateNameMap;
 
       // First sort states by names to guarantee a deterministic order of the
       // list of states for the SGX file. This is important for unit testing!
-      for (FiringFSM::RuntimeStateSet::const_iterator sIter = smocStates.begin();
+      for (FSM::FiringFSM::RuntimeStateSet::const_iterator sIter = smocStates.begin();
            sIter != smocStates.end();
            ++sIter) {
         std::string stateName = getName(*sIter);
@@ -862,12 +862,12 @@ public:
     for (StateMap::iterator sIter = stateMap.begin();
          sIter != stateMap.end();
          ++sIter) {
-      const RuntimeState             &smocState = *sIter->first;
-      SGX::FiringState::Ref           sgxState  = *sIter->second;
-      const RuntimeTransitionList    &smocTrans = smocState.getTransitions();
-      SGX::FiringTransitionList::Ref  sgxTrans  = sgxState.outTransitions();
+      const FSM::RuntimeState          &smocState = *sIter->first;
+      SGX::FiringState::Ref             sgxState  = *sIter->second;
+      const FSM::RuntimeTransitionList &smocTrans = smocState.getTransitions();
+      SGX::FiringTransitionList::Ref    sgxTrans  = sgxState.outTransitions();
 
-      for (RuntimeTransitionList::const_iterator tIter = smocTrans.begin();
+      for (FSM::RuntimeTransitionList::const_iterator tIter = smocTrans.begin();
            tIter != smocTrans.end();
            ++tIter) {
         SGX::FiringTransition sgxTran(getId(&*tIter));

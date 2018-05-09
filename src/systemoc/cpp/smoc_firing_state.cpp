@@ -35,7 +35,7 @@
 
 #include <smoc/smoc_firing_state.hpp>
 
-#include "detail/smoc_firing_rules_impl.hpp"
+#include "detail/FSM/smoc_firing_rules_impl.hpp"
 
 #include <systemoc/smoc_config.h>
 
@@ -45,7 +45,7 @@ smoc_firing_state::smoc_firing_state(const SmartPtr &p)
   : FFType(_StorageType(p)) {}
 
 smoc_firing_state::smoc_firing_state(const std::string& name)
-  : FFType(new Detail::FiringStateImpl(name)) {}
+  : FFType(new Detail::FSM::FiringStateImpl(name)) {}
 
 smoc_firing_state::ImplType *smoc_firing_state::getImpl() const
   { return CoSupport::DataTypes::FacadeCoreAccess::getImpl(*this); }

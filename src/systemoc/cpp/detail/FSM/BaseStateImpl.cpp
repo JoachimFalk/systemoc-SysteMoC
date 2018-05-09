@@ -33,11 +33,11 @@
  * ENHANCEMENTS, OR MODIFICATIONS.
  */
 
-#include "FiringStateBaseImpl.hpp"
+#include "BaseStateImpl.hpp"
 
 #include "FiringFSM.hpp"
 
-namespace smoc { namespace Detail {
+namespace smoc { namespace Detail { namespace FSM {
 
   TransitionBase::TransitionBase(
       smoc_guard const &g,
@@ -47,36 +47,36 @@ namespace smoc { namespace Detail {
   PartialTransition::PartialTransition(
       smoc_guard const &g,
       const smoc_action& f,
-      FiringStateBaseImpl* dest)
+      BaseStateImpl* dest)
     : TransitionBase(g, f),
       dest(dest)
   {}
 
-  FiringStateBaseImpl* PartialTransition::getDestState() const
+  BaseStateImpl* PartialTransition::getDestState() const
     { return dest; }
 
-  FiringStateBaseImpl::FiringStateBaseImpl()
+  BaseStateImpl::BaseStateImpl()
     : fsm(new FiringFSM()) {
 //  std::cerr << "FiringStateBaseImpl::FiringStateBaseImpl() this == "
 //            << this << std::endl;
     fsm->addState(this);
   }
 
-  FiringStateBaseImpl::~FiringStateBaseImpl() {
+  BaseStateImpl::~BaseStateImpl() {
 //  std::cerr << "FiringStateBaseImpl::~FiringStateBaseImpl() this == "
 //            << this << std::endl;
   }
 
-  FiringFSM *FiringStateBaseImpl::getFiringFSM() const
+  FiringFSM *BaseStateImpl::getFiringFSM() const
     { return fsm; }
 
-  void FiringStateBaseImpl::setFiringFSM(FiringFSM *f)
+  void BaseStateImpl::setFiringFSM(FiringFSM *f)
     { fsm = f; }
 
 //const PartialTransitionList& FiringStateBaseImpl::getPTL() const
 //  { return ptl; }
 
-  void FiringStateBaseImpl::addTransition(const smoc_transition_list& stl) {
+  void BaseStateImpl::addTransition(const smoc_transition_list& stl) {
     for(smoc_transition_list::const_iterator st = stl.begin();
         st != stl.end(); ++st)
     {
@@ -88,7 +88,7 @@ namespace smoc { namespace Detail {
     }
   }
 
-  void FiringStateBaseImpl::addTransition(const PartialTransitionList& ptl) {
+  void BaseStateImpl::addTransition(const PartialTransitionList& ptl) {
     for(PartialTransitionList::const_iterator pt = ptl.begin();
         pt != ptl.end(); ++pt)
     {
@@ -96,26 +96,26 @@ namespace smoc { namespace Detail {
     }
   }
 
-  void FiringStateBaseImpl::addTransition(const PartialTransition& pt) {
+  void BaseStateImpl::addTransition(const PartialTransition& pt) {
     ptl.push_back(pt);
 
-    FiringStateBaseImpl* s = pt.getDestState();
+    BaseStateImpl* s = pt.getDestState();
     if(s) fsm->unify(s->getFiringFSM());
   }
 
-  void FiringStateBaseImpl::clearTransition()
+  void BaseStateImpl::clearTransition()
     { ptl.clear(); }
 
 #ifdef FSM_FINALIZE_BENCHMARK
-  void FiringStateBaseImpl::countStates(size_t& nLeaf, size_t& nAnd, size_t& nXOR, size_t& nTrans) const {
+  void BaseStateImpl::countStates(size_t& nLeaf, size_t& nAnd, size_t& nXOR, size_t& nTrans) const {
     nTrans += ptl.size();
   }
 #endif // FSM_FINALIZE_BENCHMARK
 
-  void intrusive_ptr_add_ref(FiringStateBaseImpl *p)
+  void intrusive_ptr_add_ref(BaseStateImpl *p)
     { p->getFiringFSM()->addRef(); }
 
-  void intrusive_ptr_release(FiringStateBaseImpl *p)
+  void intrusive_ptr_release(BaseStateImpl *p)
     { if(p->getFiringFSM()->delRef()) delete p->getFiringFSM(); }
 
-} } // namespace smoc::Detail
+} } } // namespace smoc::Detail::FSM

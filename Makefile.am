@@ -53,8 +53,8 @@ lib_LTLIBRARIES = libsystemoc.la
 libsystemoc_la_SOURCES = \
 	src/systemoc/cpp/detail/ChanBase.cpp \
 	src/systemoc/cpp/detail/DebugOStream.cpp \
-	src/systemoc/cpp/detail/FiringFSM.cpp \
-	src/systemoc/cpp/detail/FiringStateBaseImpl.cpp \
+	src/systemoc/cpp/detail/FSM/BaseStateImpl.cpp \
+	src/systemoc/cpp/detail/FSM/FiringFSM.cpp \
 	src/systemoc/cpp/detail/FSM/stuff.cpp \
 	src/systemoc/cpp/detail/GraphBase.cpp \
 	src/systemoc/cpp/detail/IdPool.cpp \

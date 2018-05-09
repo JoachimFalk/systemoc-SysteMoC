@@ -33,9 +33,9 @@
  * ENHANCEMENTS, OR MODIFICATIONS.
  */
 
-#include "detail/FiringStateBaseImpl.hpp"
-
 #include <smoc/smoc_base_state.hpp>
+
+#include "detail/FSM/BaseStateImpl.hpp"
 
 namespace smoc {
 

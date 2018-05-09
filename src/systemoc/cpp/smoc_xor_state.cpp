@@ -35,7 +35,7 @@
 
 #include <smoc/smoc_xor_state.hpp>
 
-#include "detail/smoc_firing_rules_impl.hpp"
+#include "detail/FSM/smoc_firing_rules_impl.hpp"
 
 #include <systemoc/smoc_config.h>
 
@@ -45,10 +45,10 @@ smoc_xor_state::smoc_xor_state(const SmartPtr &p)
   : FFType(_StorageType(p)) {}
 
 smoc_xor_state::smoc_xor_state(const std::string& name)
-  : FFType(new Detail::XORStateImpl(name)) {}
+  : FFType(new Detail::FSM::XORStateImpl(name)) {}
 
 smoc_xor_state::smoc_xor_state(const smoc_state& i)
-  : FFType(new Detail::XORStateImpl()) { init(i); }
+  : FFType(new Detail::FSM::XORStateImpl()) { init(i); }
 
 smoc_xor_state::ImplType *smoc_xor_state::getImpl() const
   { return CoSupport::DataTypes::FacadeCoreAccess::getImpl(*this); }

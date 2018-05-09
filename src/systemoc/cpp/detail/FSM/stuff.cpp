@@ -55,18 +55,11 @@
 
 #include <smoc/smoc_actor.hpp>
 #include <smoc/smoc_graph.hpp>
-//#include <smoc/smoc_base_state.hpp>
-//#include <smoc/smoc_state.hpp>
-//#include <smoc/smoc_junction_state.hpp>
-//#include <smoc/smoc_multi_state.hpp>
-//#include <smoc/smoc_firing_state.hpp>
-//#include <smoc/smoc_and_state.hpp>
-//#include <smoc/smoc_xor_state.hpp>
 #include <smoc/detail/TraceLog.hpp>
 #include <smoc/detail/DebugOStream.hpp>
 
-#include "../smoc_firing_rules_impl.hpp"
-#include "../FiringFSM.hpp"
+#include "smoc_firing_rules_impl.hpp"
+#include "FiringFSM.hpp"
 #include "../SimulationContext.hpp"
 
 #ifdef SYSTEMOC_ENABLE_HOOKING
@@ -81,7 +74,7 @@
 using CoSupport::String::Concat;
 using CoSupport::String::asStr;
 
-namespace smoc { namespace Detail {
+namespace smoc { namespace Detail { namespace FSM {
 
 using namespace CoSupport::DataTypes;
 
@@ -482,7 +475,7 @@ void RuntimeState::end_of_elaboration(smoc::Detail::NodeBase *node) {
 }
 
 HierarchicalStateImpl::HierarchicalStateImpl(const std::string& name)
-  : FiringStateBaseImpl(),
+  : BaseStateImpl(),
     name(name.empty() ? Concat("x")(UnnamedStateCount++) : name),
     parent(0),
     code(0),
@@ -509,7 +502,7 @@ void HierarchicalStateImpl::add(HierarchicalStateImpl* state) {
 }
 
 void HierarchicalStateImpl::setFiringFSM(FiringFSM *fsm) {
-  FiringStateBaseImpl::setFiringFSM(fsm);
+  BaseStateImpl::setFiringFSM(fsm);
   for(C::const_iterator s = c.begin(); s != c.end(); ++s) {
     (*s)->setFiringFSM(fsm);
   }
@@ -534,7 +527,7 @@ void HierarchicalStateImpl::countStates(size_t& nLeaf, size_t& nAnd, size_t& nXo
   for(C::const_iterator s = c.begin(); s != c.end(); ++s) {
     (*s)->countStates(nLeaf, nAnd, nXor, nTrans);
   }
-  FiringStateBaseImpl::countStates(nLeaf, nAnd, nXor, nTrans);
+  BaseStateImpl::countStates(nLeaf, nAnd, nXor, nTrans);
 }
 #endif // FSM_FINALIZE_BENCHMARK
 
@@ -681,10 +674,10 @@ void HierarchicalStateImpl::expandTransition(
 }
 
 void intrusive_ptr_add_ref(HierarchicalStateImpl *p)
-  { intrusive_ptr_add_ref(static_cast<FiringStateBaseImpl*>(p)); }
+  { intrusive_ptr_add_ref(static_cast<BaseStateImpl*>(p)); }
 
 void intrusive_ptr_release(HierarchicalStateImpl *p)
-  { intrusive_ptr_release(static_cast<FiringStateBaseImpl*>(p)); }
+  { intrusive_ptr_release(static_cast<BaseStateImpl*>(p)); }
 
 FiringStateImpl::FiringStateImpl(const std::string& name)
   : HierarchicalStateImpl(name.empty()
@@ -725,10 +718,10 @@ const HierarchicalStateImpl* FiringStateImpl::getTopState(
 }
 
 void intrusive_ptr_add_ref(FiringStateImpl *p)
-  { intrusive_ptr_add_ref(static_cast<FiringStateBaseImpl*>(p)); }
+  { intrusive_ptr_add_ref(static_cast<BaseStateImpl*>(p)); }
 
 void intrusive_ptr_release(FiringStateImpl *p)
-  { intrusive_ptr_release(static_cast<FiringStateBaseImpl*>(p)); }
+  { intrusive_ptr_release(static_cast<BaseStateImpl*>(p)); }
 
 
 
@@ -793,10 +786,10 @@ const HierarchicalStateImpl* XORStateImpl::getTopState(
 }
 
 void intrusive_ptr_add_ref(XORStateImpl *p)
-  { intrusive_ptr_add_ref(static_cast<FiringStateBaseImpl*>(p)); }
+  { intrusive_ptr_add_ref(static_cast<BaseStateImpl*>(p)); }
 
 void intrusive_ptr_release(XORStateImpl *p)
-  { intrusive_ptr_release(static_cast<FiringStateBaseImpl*>(p)); }
+  { intrusive_ptr_release(static_cast<BaseStateImpl*>(p)); }
 
 
 
@@ -849,16 +842,16 @@ const HierarchicalStateImpl* ANDStateImpl::getTopState(
 }
 
 void intrusive_ptr_add_ref(ANDStateImpl *p)
-  { intrusive_ptr_add_ref(static_cast<FiringStateBaseImpl*>(p)); }
+  { intrusive_ptr_add_ref(static_cast<BaseStateImpl*>(p)); }
 
 void intrusive_ptr_release(ANDStateImpl *p)
-  { intrusive_ptr_release(static_cast<FiringStateBaseImpl*>(p)); }
+  { intrusive_ptr_release(static_cast<BaseStateImpl*>(p)); }
 
 
 
 
 JunctionStateImpl::JunctionStateImpl()
-  : FiringStateBaseImpl() {}
+  : BaseStateImpl() {}
 
 void JunctionStateImpl::expandTransition(
     ExpandedTransitionList& etl,
@@ -888,15 +881,15 @@ void JunctionStateImpl::expandTransition(
 }
 
 void intrusive_ptr_add_ref(JunctionStateImpl *p)
-  { intrusive_ptr_add_ref(static_cast<FiringStateBaseImpl*>(p)); }
+  { intrusive_ptr_add_ref(static_cast<BaseStateImpl*>(p)); }
 
 void intrusive_ptr_release(JunctionStateImpl *p)
-  { intrusive_ptr_release(static_cast<FiringStateBaseImpl*>(p)); }
+  { intrusive_ptr_release(static_cast<BaseStateImpl*>(p)); }
 
 
 
 MultiStateImpl::MultiStateImpl()
-  : FiringStateBaseImpl() {}
+  : BaseStateImpl() {}
 
 void MultiStateImpl::finalise(ExpandedTransitionList& etl) {
 //  smoc::Detail::outDbg << "MultiStateImpl::finalise(etl) this == " << this << std::endl;
@@ -970,9 +963,9 @@ void MultiStateImpl::addCondState(HierarchicalStateImpl* s, bool neg) {
 }
 
 void intrusive_ptr_add_ref(MultiStateImpl *p)
-  { intrusive_ptr_add_ref(static_cast<FiringStateBaseImpl*>(p)); }
+  { intrusive_ptr_add_ref(static_cast<BaseStateImpl*>(p)); }
 
 void intrusive_ptr_release(MultiStateImpl *p)
-  { intrusive_ptr_release(static_cast<FiringStateBaseImpl*>(p)); }
+  { intrusive_ptr_release(static_cast<BaseStateImpl*>(p)); }
 
-} } // namespace smoc::Detail
+} } } // namespace smoc::Detail::FSM

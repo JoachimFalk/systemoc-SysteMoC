@@ -33,8 +33,8 @@
  * ENHANCEMENTS, OR MODIFICATIONS.
  */
 
-#ifndef _INCLUDED_SMOC_DETAIL_FIRINGSTATEBASEIMPL_HPP
-#define _INCLUDED_SMOC_DETAIL_FIRINGSTATEBASEIMPL_HPP
+#ifndef _INCLUDED_SMOC_DETAIL_FSM_BASESTATEIMPL_HPP
+#define _INCLUDED_SMOC_DETAIL_FSM_BASESTATEIMPL_HPP
 
 #include <smoc/smoc_firing_rule.hpp>
 #include <smoc/smoc_transition.hpp>
@@ -49,7 +49,7 @@
 // Prints duration of FiringFSM::finalise() in secs.
 //#define FSM_FINALIZE_BENCHMARK
 
-namespace smoc { namespace Detail {
+namespace smoc { namespace Detail { namespace FSM {
 
   class FiringFSM;
 
@@ -124,17 +124,17 @@ namespace smoc { namespace Detail {
   private:
 
     /// @brief Target state
-    FiringStateBaseImpl* dest;
+    BaseStateImpl* dest;
 
   public:
     /// @brief Constructor
     PartialTransition(
       smoc_guard const &g,
       const smoc_action& f,
-      FiringStateBaseImpl* dest = 0);
+      BaseStateImpl* dest = 0);
 
     /// @brief Returns the target state
-    FiringStateBaseImpl* getDestState() const;
+    BaseStateImpl* getDestState() const;
   };
 
   typedef std::list<PartialTransition> PartialTransitionList;
@@ -144,8 +144,8 @@ namespace smoc { namespace Detail {
 
   class FiringFSM;
 
-  class FiringStateBaseImpl {
-    typedef FiringStateBaseImpl this_type;
+  class BaseStateImpl {
+    typedef BaseStateImpl this_type;
   protected:
     /// @brief Parent firing FSM
     FiringFSM *fsm;
@@ -154,7 +154,7 @@ namespace smoc { namespace Detail {
     PartialTransitionList ptl;
 
     /// @brief Constructor
-    FiringStateBaseImpl();
+    BaseStateImpl();
 
     /// @brief Set the FSM (only set the pointer, do not transfer the state!)
     virtual void setFiringFSM(FiringFSM *fsm);
@@ -165,7 +165,7 @@ namespace smoc { namespace Detail {
   #endif // FSM_FINALIZE_BENCHMARK
 
     /// @brief Destructor
-    virtual ~FiringStateBaseImpl();
+    virtual ~BaseStateImpl();
   public:
     /// @brief Returns the FSM
     FiringFSM *getFiringFSM() const;
@@ -192,6 +192,6 @@ namespace smoc { namespace Detail {
         const ExpandedTransition& t) const = 0;
   };
 
-} } // namespace smoc::Detail
+} } } // namespace smoc::Detail::FSM
 
-#endif /* _INCLUDED_SMOC_DETAIL_FIRINGSTATEBASEIMPL_HPP */
+#endif /* _INCLUDED_SMOC_DETAIL_FSM_BASESTATEIMPL_HPP */

@@ -43,7 +43,7 @@
 # include <Maestro/PolyphoniC/polyphonic_smoc_func_call.h>
 #endif //MAESTRO_ENABLE_POLYPHONIC
 
-#include "detail/smoc_firing_rules_impl.hpp"
+#include "detail/FSM/smoc_firing_rules_impl.hpp"
 
 smoc_action merge(const smoc_action &a, const smoc_action &b) {
   if(a.empty())
