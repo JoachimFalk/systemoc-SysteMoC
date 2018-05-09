@@ -36,7 +36,7 @@
 #ifndef _INCLUDED_SYSTEMOC_SMOC_EXPR_HPP
 #define _INCLUDED_SYSTEMOC_SMOC_EXPR_HPP
 
-#include "../smoc/smoc_expr.hpp"
+#include "../smoc/smoc_guard.hpp"
 
 namespace Expr = smoc::Expr;
 

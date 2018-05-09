@@ -35,7 +35,7 @@
 
 #include <systemoc/smoc_config.h>
 
-#include <smoc/smoc_expr.hpp>
+#include <smoc/smoc_guard.hpp>
 
 namespace smoc { namespace Detail {
 

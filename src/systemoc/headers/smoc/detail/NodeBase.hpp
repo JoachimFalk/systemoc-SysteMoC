@@ -52,7 +52,7 @@
 #include <systemoc/smoc_config.h>
 
 #include "NamedIdedObj.hpp"
-#include "../smoc_expr.hpp"
+#include "../smoc_guard.hpp"
 #include "../smoc_state.hpp"
 #include "../../systemoc/detail/smoc_func_call.hpp"
 //#include "../../systemoc/smoc_firing_rules.hpp"

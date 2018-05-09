@@ -51,7 +51,7 @@
 #include <systemoc/smoc_config.h>
 
 #include <systemoc/detail/smoc_func_call.hpp>
-#include <smoc/smoc_expr.hpp>
+#include <smoc/smoc_guard.hpp>
 
 #include <smoc/smoc_actor.hpp>
 #include <smoc/smoc_graph.hpp>
@@ -93,7 +93,7 @@ template<class C> inline bool single(const C& c) {
 ExpandedTransition::ExpandedTransition(
     const HierarchicalStateImpl* src,
     const CondMultiState& in,
-    Guard const &g,
+    smoc_guard const &g,
     const smoc_action& f,
     const MultiState& dest)
   : TransitionBase(g, f),
@@ -105,7 +105,7 @@ ExpandedTransition::ExpandedTransition(
 ExpandedTransition::ExpandedTransition(
     const HierarchicalStateImpl* src,
     const CondMultiState& in,
-    Guard const &g,
+    smoc_guard const &g,
     const smoc_action& f)
   : TransitionBase(g, f),
     src(src),
@@ -114,7 +114,7 @@ ExpandedTransition::ExpandedTransition(
 
 ExpandedTransition::ExpandedTransition(
     const HierarchicalStateImpl* src,
-    Guard const &g,
+    smoc_guard const &g,
     const smoc_action& f)
   : TransitionBase(g, f),
     src(src)

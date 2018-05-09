@@ -38,7 +38,7 @@
 
 #include "PortBaseIf.hpp"
 
-#include "../smoc_expr.hpp"
+#include "../smoc_guard.hpp"
 
 class smoc_multireader_fifo_chan_base;
 

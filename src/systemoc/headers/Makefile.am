@@ -30,7 +30,7 @@ nobase_include_HEADERS = \
 	smoc/smoc_and_state.hpp \
 	smoc/smoc_base_state.hpp \
 	smoc/smoc_event.hpp \
-	smoc/smoc_expr.hpp \
+	smoc/smoc_guard.hpp \
 	smoc/smoc_firing_rule.hpp \
 	smoc/smoc_firing_state.hpp \
 	smoc/smoc_graph.hpp \

@@ -67,8 +67,8 @@ namespace smoc { namespace Detail {
    */
   class TransitionBase {
   private:
-    /// @brief guard (AST assembled from smoc_expr.hpp nodes)
-    Guard guard;
+    /// @brief guard (AST assembled from smoc_guard.hpp nodes)
+    smoc_guard guard;
 
     /// @brief Action
     smoc_action f;
@@ -77,11 +77,11 @@ namespace smoc { namespace Detail {
     IOPattern *ioPattern;
   public:
     TransitionBase(
-        Guard const &g,
+        smoc_guard const &g,
         const smoc_action &f);
   public:
     /// @brief Returns the guard
-    Guard const &getExpr() const
+    smoc_guard const &getExpr() const
       { return guard; }
 
     /// @brief Returns the action
@@ -111,7 +111,7 @@ namespace smoc { namespace Detail {
   #ifdef SYSTEMOC_ENABLE_VPC
     // commstate transition
     TransitionImpl(
-        Guard const &g,
+        smoc_guard const &g,
         const smoc_action &f) :
       TransitionBase(g,f) {}
   #endif // SYSTEMOC_ENABLE_VPC
@@ -129,7 +129,7 @@ namespace smoc { namespace Detail {
   public:
     /// @brief Constructor
     PartialTransition(
-      Guard const &g,
+      smoc_guard const &g,
       const smoc_action& f,
       FiringStateBaseImpl* dest = 0);
 
