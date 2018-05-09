@@ -61,11 +61,11 @@
 #include <list>
 #include <vector>
 
-namespace smoc { namespace Detail {
+namespace smoc { namespace Detail { namespace FSM {
 
   class RuntimeState;
 
-} } // namespace smoc::Detail
+} } } // namespace smoc::Detail::FSM
 
 
 /**
@@ -238,7 +238,7 @@ smoc_action merge(const smoc_action& a, const smoc_action& b);
 
 class ActionVisitor : public smoc::Detail::SimCTXBase {
 public:
-  typedef smoc::Detail::RuntimeState *result_type;
+  typedef smoc::Detail::FSM::RuntimeState *result_type;
 
 public:
   ActionVisitor(result_type dest);
@@ -359,7 +359,7 @@ namespace smoc { namespace dMM {
 
 class TransitionOnThreadVisitor : public smoc::Detail::SimCTXBase {
 public:
-  typedef smoc::Detail::RuntimeState *result_type;
+  typedef smoc::Detail::FSM::RuntimeState *result_type;
 
 public:
   TransitionOnThreadVisitor(result_type dest, MetaMap::Transition* transition);

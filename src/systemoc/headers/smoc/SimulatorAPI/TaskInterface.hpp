@@ -47,10 +47,15 @@ namespace smoc {
 
 namespace smoc { namespace Detail {
 
-  class RuntimeTransition;
   class NodeBase;
 
 } } // namespace smoc::Detail
+
+namespace smoc { namespace Detail { namespace FSM {
+
+  class RuntimeTransition;
+
+} } } // namespace smoc::Detail::FSM
 
 namespace smoc { namespace SimulatorAPI {
 
@@ -143,7 +148,7 @@ namespace smoc { namespace SimulatorAPI {
   {
     friend class smoc::smoc_periodic_actor;
     friend class smoc::Detail::NodeBase;
-    friend class smoc::Detail::RuntimeTransition;
+    friend class smoc::Detail::FSM::RuntimeTransition;
   public:
     virtual ~TaskHandle();
   };

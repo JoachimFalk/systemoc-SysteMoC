@@ -35,7 +35,7 @@
 
 #include <smoc/smoc_and_state.hpp>
 
-#include "detail/smoc_firing_rules_impl.hpp"
+#include "detail/FSM/smoc_firing_rules_impl.hpp"
 
 #include <systemoc/smoc_config.h>
 
@@ -45,7 +45,7 @@ smoc_and_state::smoc_and_state(const SmartPtr &p)
   : FFType(_StorageType(p)) {}
 
 smoc_and_state::smoc_and_state(const std::string& name)
-  : FFType(new Detail::ANDStateImpl(name)) {}
+  : FFType(new Detail::FSM::ANDStateImpl(name)) {}
 
 smoc_and_state::ImplType *smoc_and_state::getImpl() const
   { return CoSupport::DataTypes::FacadeCoreAccess::getImpl(*this); }

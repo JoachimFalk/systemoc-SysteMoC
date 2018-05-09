@@ -35,7 +35,7 @@
 
 #include <smoc/smoc_multi_state.hpp>
 
-#include "detail/smoc_firing_rules_impl.hpp"
+#include "detail/FSM/smoc_firing_rules_impl.hpp"
 
 #include <systemoc/smoc_config.h>
 
@@ -45,11 +45,11 @@ smoc_multi_state::smoc_multi_state(SmartPtr const &p)
   : FFType(_StorageType(p)) {}
 
 smoc_multi_state::smoc_multi_state(smoc_state const &s)
-  : FFType(new Detail::MultiStateImpl())
+  : FFType(new Detail::FSM::MultiStateImpl())
   { getImpl()->addState(s.getImpl()); }
 
 smoc_multi_state::smoc_multi_state(IN const &s)
-  : FFType(new Detail::MultiStateImpl())
+  : FFType(new Detail::FSM::MultiStateImpl())
   { getImpl()->addCondState(s.s.getImpl(), s.neg); }
 
 smoc_multi_state::ImplType *smoc_multi_state::getImpl() const

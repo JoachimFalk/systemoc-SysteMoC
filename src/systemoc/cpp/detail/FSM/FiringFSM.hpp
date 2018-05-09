@@ -33,18 +33,17 @@
  * ENHANCEMENTS, OR MODIFICATIONS.
  */
 
-#ifndef _INCLUDED_SMOC_DETAIL_FIRINGFSM_HPP
-#define _INCLUDED_SMOC_DETAIL_FIRINGFSM_HPP
+#ifndef _INCLUDED_SMOC_DETAIL_FSM_FIRINGFSM_HPP
+#define _INCLUDED_SMOC_DETAIL_FSM_FIRINGFSM_HPP
 
 #include <smoc/detail/NodeBase.hpp>
 #include <smoc/detail/SimCTXBase.hpp>
 
-#include "FiringStateBaseImpl.hpp"
-
 #include <stdexcept>
 #include <set>
+#include "BaseStateImpl.hpp"
 
-namespace smoc { namespace Detail {
+namespace smoc { namespace Detail { namespace FSM {
 
 class XORStateImpl;
 
@@ -84,10 +83,10 @@ public:
   void unify(this_type *fr);
 
   /// @brief Add state
-  void addState(FiringStateBaseImpl *state);
+  void addState(BaseStateImpl *state);
 
   /// @brief Delete state
-  void delState(FiringStateBaseImpl *state);
+  void delState(BaseStateImpl *state);
 
   /// @brief Increment ref count
   void addRef();
@@ -101,7 +100,7 @@ public:
 
   RuntimeState          *getInitialState() const;
 private:
-  typedef std::set<FiringStateBaseImpl *> FiringStateBaseImplSet;
+  typedef std::set<BaseStateImpl *> FiringStateBaseImplSet;
 
   /// @brief Top states
   FiringStateBaseImplSet states;
@@ -115,6 +114,6 @@ private:
   RuntimeStateSet  rts;
 };
 
-} } // namespace smoc::Detail
+} } } // namespace smoc::Detail::FSM
 
-#endif /* _INCLUDED_SMOC_DETAIL_FIRINGFSM_HPP */
+#endif /* _INCLUDED_SMOC_DETAIL_FSM_FIRINGFSM_HPP */

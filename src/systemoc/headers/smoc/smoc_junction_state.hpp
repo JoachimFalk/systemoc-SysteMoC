@@ -41,19 +41,19 @@
 #include <CoSupport/SmartPtr/intrusive_refcount_ptr.hpp>
 #include <CoSupport/DataTypes/Facade.hpp>
 
-namespace smoc { namespace Detail {
+namespace smoc { namespace Detail { namespace FSM {
 
   class JunctionStateImpl;
   DECL_INTRUSIVE_REFCOUNT_PTR(JunctionStateImpl, PJunctionStateImpl);
 
-} } // namespace smoc::Detail
+} } } // namespace smoc::Detail::FSM
 
 namespace smoc {
 
 class smoc_junction_state
 : public CoSupport::DataTypes::FacadeFoundation<
     smoc_junction_state,
-    smoc::Detail::JunctionStateImpl,
+    Detail::FSM::JunctionStateImpl,
     smoc_base_state
   >
 {

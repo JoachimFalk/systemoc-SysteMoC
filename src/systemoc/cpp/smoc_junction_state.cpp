@@ -35,7 +35,7 @@
 
 #include <smoc/smoc_junction_state.hpp>
 
-#include "detail/smoc_firing_rules_impl.hpp"
+#include "detail/FSM/smoc_firing_rules_impl.hpp"
 
 #include <systemoc/smoc_config.h>
 
@@ -45,7 +45,7 @@ smoc_junction_state::smoc_junction_state(const SmartPtr &p)
   : FFType(_StorageType(p)) {}
 
 smoc_junction_state::smoc_junction_state()
-  : FFType(new Detail::JunctionStateImpl()) {}
+  : FFType(new Detail::FSM::JunctionStateImpl()) {}
 
 smoc_junction_state::ImplType *smoc_junction_state::getImpl() const
   { return CoSupport::DataTypes::FacadeCoreAccess::getImpl(*this); }

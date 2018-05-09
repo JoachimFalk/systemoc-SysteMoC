@@ -41,7 +41,7 @@
 #include <cassert>
 #include <iostream>
 
-namespace smoc { namespace Detail {
+namespace smoc { namespace Detail { namespace FSM {
 
 using CoSupport::String::Concat;
 
@@ -357,12 +357,12 @@ void FiringFSM::end_of_elaboration(NodeBase *node)
   }
 }
 
-void FiringFSM::addState(FiringStateBaseImpl *state) {
+void FiringFSM::addState(BaseStateImpl *state) {
   assert(state->getFiringFSM() == this);
   sassert(states.insert(state).second);
 }
 
-void FiringFSM::delState(FiringStateBaseImpl *state) {
+void FiringFSM::delState(BaseStateImpl *state) {
   assert(state->getFiringFSM() == this);
   sassert(states.erase(state) == 1);
 }
@@ -407,4 +407,4 @@ void FiringFSM::unify(this_type *fr) {
   }
 }
 
-} } // namespace smoc::Detail
+} } } // namespace smoc::Detail::FSM

@@ -40,12 +40,12 @@
 #include <CoSupport/SmartPtr/intrusive_refcount_ptr.hpp>
 #include <CoSupport/DataTypes/Facade.hpp>
 
-namespace smoc { namespace Detail {
+namespace smoc { namespace Detail { namespace FSM {
 
-  class FiringStateBaseImpl;
-  DECL_INTRUSIVE_REFCOUNT_PTR(FiringStateBaseImpl, PFiringStateBaseImpl);
+  class BaseStateImpl;
+  DECL_INTRUSIVE_REFCOUNT_PTR(BaseStateImpl, PBaseStateImpl);
 
-} } // namespace smoc::Detail
+} } } // namespace smoc::Detail::FSM
 
 namespace smoc {
 
@@ -54,12 +54,12 @@ namespace smoc {
   class smoc_base_state
   : public CoSupport::DataTypes::FacadeFoundation<
       smoc_base_state,
-      Detail::FiringStateBaseImpl
+      Detail::FSM::BaseStateImpl
     >
   {
     typedef smoc_base_state this_type;
 
-    friend class Detail::FiringStateBaseImpl;
+    friend class Detail::FSM::BaseStateImpl;
   protected:
     explicit smoc_base_state(_StorageType const &x): FFType(x) {}
     smoc_base_state(SmartPtr const &p);

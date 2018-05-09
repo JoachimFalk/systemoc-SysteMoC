@@ -41,19 +41,19 @@
 #include <CoSupport/SmartPtr/intrusive_refcount_ptr.hpp>
 #include <CoSupport/DataTypes/Facade.hpp>
 
-namespace smoc { namespace Detail {
+namespace smoc { namespace Detail { namespace FSM {
 
   class HierarchicalStateImpl;
   DECL_INTRUSIVE_REFCOUNT_PTR(HierarchicalStateImpl, PHierarchicalStateImpl);
 
-} } // namespace smoc::Detail
+} } } // namespace smoc::Detail::FSM
 
 namespace smoc {
 
 class smoc_state
 : public CoSupport::DataTypes::FacadeFoundation<
     smoc_state,
-    smoc::Detail::HierarchicalStateImpl,
+    Detail::FSM::HierarchicalStateImpl,
     smoc_base_state
   >
 {

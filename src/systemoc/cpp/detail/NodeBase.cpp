@@ -51,8 +51,8 @@
 #endif //SYSTEMOC_ENABLE_MAESTRO
 
 #include "SimulationContext.hpp"
-#include "smoc_firing_rules_impl.hpp"
-#include "FiringFSM.hpp"
+#include "FSM/smoc_firing_rules_impl.hpp"
+#include "FSM/FiringFSM.hpp"
 
 namespace smoc { namespace Detail {
 
@@ -98,11 +98,11 @@ void NodeBase::before_end_of_elaboration() {
   getSimCTX()->getSimulatorInterface()->registerTask(this);
   if (getFiringFSM()) {
 #ifdef SYSTEMOC_ENABLE_VPC
-    this->commState = new RuntimeState();
+    this->commState = new FSM::RuntimeState();
     this->diiEvent.reset(new smoc::smoc_vpc_event());
     commState->addTransition(
-        RuntimeTransition(
-          boost::shared_ptr<TransitionImpl>(new TransitionImpl(
+        FSM::RuntimeTransition(
+          boost::shared_ptr<FSM::TransitionImpl>(new FSM::TransitionImpl(
             smoc::Expr::till(*diiEvent),
             smoc_action()))),
         this);
@@ -244,7 +244,7 @@ void NodeBase::signaled(smoc::smoc_event_waiter *e) {
     // patterns while for activated events the actual availablility is better.
     if (e->isActive()) {
 #ifdef SYSTEMOC_ENABLE_DEBUG
-      RuntimeTransition      *oldct = ct;
+      FSM::RuntimeTransition *oldct = ct;
 #endif // SYSTEMOC_ENABLE_DEBUG
       searchActiveTransition();
 #ifdef SYSTEMOC_ENABLE_DEBUG
@@ -284,14 +284,14 @@ void NodeBase::setInitialState(smoc_state &s) {
   initialState    = reinterpret_cast<smoc_state *>(&initialStatePtr);
 }
 
-FiringFSM *NodeBase::getFiringFSM() const {
+FSM::FiringFSM *NodeBase::getFiringFSM() const {
   if (initialState)
     return CoSupport::DataTypes::FacadeCoreAccess::getImpl(*initialState)->getFiringFSM();
   else
     return nullptr;
 }
 
-void NodeBase::setCurrentState(RuntimeState *newState) {
+void NodeBase::setCurrentState(FSM::RuntimeState *newState) {
 #ifdef SYSTEMOC_DEBUG
   if (smoc::Detail::outDbg.isVisible(smoc::Detail::Debug::High)) {
     smoc::Detail::outDbg << "<NodeBase::setCurrentState name=\"" << name() << "\">"
@@ -323,19 +323,19 @@ void NodeBase::setCurrentState(RuntimeState *newState) {
 #endif // SYSTEMOC_DEBUG
 }
 
-void NodeBase::addMySelfAsListener(RuntimeState *state) {
-  EventWaiterSet &am = state->am;
+void NodeBase::addMySelfAsListener(FSM::RuntimeState *state) {
+  FSM::EventWaiterSet &am = state->am;
 
-  for (EventWaiterSet::iterator iter = am.begin();
+  for (FSM::EventWaiterSet::iterator iter = am.begin();
        iter != am.end();
        ++iter)
     (*iter)->addListener(this);
 }
 
-void NodeBase::delMySelfAsListener(RuntimeState *state) {
-  EventWaiterSet &am = state->am;
+void NodeBase::delMySelfAsListener(FSM::RuntimeState *state) {
+  FSM::EventWaiterSet &am = state->am;
 
-  for (EventWaiterSet::iterator iter = am.begin();
+  for (FSM::EventWaiterSet::iterator iter = am.begin();
        iter != am.end();
        ++iter)
     (*iter)->delListener(this);
@@ -382,9 +382,9 @@ bool NodeBase::searchActiveTransition(bool debug) {
   assert(currentState);
   ct = nullptr;
 
-  RuntimeTransitionList &tl = currentState->getTransitions();
+  FSM::RuntimeTransitionList &tl = currentState->getTransitions();
 
-  for (RuntimeTransitionList::iterator t = tl.begin();
+  for (FSM::RuntimeTransitionList::iterator t = tl.begin();
        t != tl.end();
        ++t) {
     if (t->check(debug
@@ -454,7 +454,7 @@ void NodeBase::scheduleLegacyWithCommState() {
   assert(ct->check(true));
   if (execMode == MODE_DIISTART) {
     executing = true;
-    RuntimeState *nextState = ct->execute(this);
+    FSM::RuntimeState *nextState = ct->execute(this);
     // Insert the magic commState by saving nextState in the sole outgoing
     // transition of the commState
     getCommState()->getTransitions().front().dest = nextState;

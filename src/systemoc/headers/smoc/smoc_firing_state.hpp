@@ -43,19 +43,19 @@
 #include <CoSupport/SmartPtr/intrusive_refcount_ptr.hpp>
 #include <CoSupport/DataTypes/Facade.hpp>
 
-namespace smoc { namespace Detail {
+namespace smoc { namespace Detail { namespace FSM {
 
   class FiringStateImpl;
   DECL_INTRUSIVE_REFCOUNT_PTR(FiringStateImpl, PFiringStateImpl);
 
-} } // namespace smoc::Detail
+} } } // namespace smoc::Detail::FSM
 
 namespace smoc {
 
 class smoc_firing_state
 : public CoSupport::DataTypes::FacadeFoundation<
     smoc_firing_state,
-    smoc::Detail::FiringStateImpl,
+    Detail::FSM::FiringStateImpl,
     smoc_state
   >
 {
