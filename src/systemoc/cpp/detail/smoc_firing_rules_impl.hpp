@@ -103,7 +103,7 @@ public:
   ExpandedTransition(
       const HierarchicalStateImpl* src,
       const CondMultiState& in,
-      Guard const &g,
+      smoc_guard const &g,
       const smoc_action& f,
       const MultiState& dest);
 
@@ -111,13 +111,13 @@ public:
   ExpandedTransition(
       const HierarchicalStateImpl* src,
       const CondMultiState& in,
-      Guard const &g,
+      smoc_guard const &g,
       const smoc_action& f);
 
   /// @brief Constructor
   ExpandedTransition(
       const HierarchicalStateImpl* src,
-      Guard const &g,
+      smoc_guard const &g,
       const smoc_action& f);
 
   /// @brief Returns the source state

@@ -43,7 +43,7 @@
 
 #include <boost/scoped_ptr.hpp>
 
-#include <smoc/smoc_expr.hpp>
+#include <smoc/smoc_guard.hpp>
 
 #include <sgx.hpp>
 

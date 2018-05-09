@@ -45,7 +45,7 @@ class smoc_transition {
   typedef smoc_transition this_type;
 private:
   /// @brief guard of transition
-  Guard       guard;
+  smoc_guard  guard;
   /// @brief action of transition
   smoc_action action;
   /// @brief Target state
@@ -59,7 +59,7 @@ public:
   
   /// @brief Constructor
   explicit smoc_transition(
-      Guard const               &g,
+      smoc_guard const          &g,
       smoc_base_state::ConstRef &d)
     : guard(g), dest(d) {}
   
@@ -70,7 +70,7 @@ public:
     : guard(tp.getGuard()), action(tp.getAction()), dest(d) {}
   
   /// @brief Returns the guard
-  Guard const &getGuard() const
+  smoc_guard const &getGuard() const
     { return guard; }
 
   /// @brief Returns the action
@@ -124,7 +124,7 @@ template <class E>
 smoc_transition operator >> (
     Expr::D<E>       const &g,
     smoc_base_state  const &s)
-  { return smoc_transition(Guard(g),s); }
+  { return smoc_transition(smoc_guard(g),s); }
 
 } // namespace smoc
 

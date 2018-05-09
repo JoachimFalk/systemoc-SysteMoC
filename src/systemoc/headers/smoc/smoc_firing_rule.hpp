@@ -37,32 +37,30 @@
 #define _INCLUDED_SMOC_SMOC_FIRING_RULE_HPP
 
 #include "../systemoc/detail/smoc_func_call.hpp"
-#include "smoc_expr.hpp"
+#include "smoc_guard.hpp"
 
 namespace smoc {
-
-typedef Expr::Ex<bool>::type Guard;
 
 class smoc_firing_rule {
 public:
   typedef smoc_firing_rule this_type;
 
 private:
-  /// @brief guard (AST assembled from smoc_expr.hpp nodes)
-  Guard       guard;
+  /// @brief guard (AST assembled from smoc_guard.hpp nodes)
+  smoc_guard  guard;
   /// @brief Action
   smoc_action action;
 public:
   /// @brief Constructor
-  explicit smoc_firing_rule(Guard const &g)
+  explicit smoc_firing_rule(smoc_guard const &g)
     : guard(g) {}
 
   /// @brief Constructor
-  explicit smoc_firing_rule(Guard const &g, smoc_action const &a)
+  explicit smoc_firing_rule(smoc_guard const &g, smoc_action const &a)
     : guard(g), action(a) {}
 
   /// @brief Returns the guard
-  Guard const &getGuard() const
+  smoc_guard const &getGuard() const
     { return guard; }
 
   /// @brief Returns the action
@@ -82,7 +80,7 @@ namespace Expr {
   smoc_firing_rule operator >> (
       Expr::D<E>  const &g,
       smoc_action const &a)
-    { return smoc_firing_rule(Guard(g), a); }
+    { return smoc_firing_rule(smoc_guard(g), a); }
 
 } // namespace Expr
 

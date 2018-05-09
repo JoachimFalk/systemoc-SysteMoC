@@ -40,7 +40,7 @@
 // If there are additional headers required, please add them here.
 #include "smoc/smoc_actor.hpp"
 #include "smoc/smoc_event.hpp"
-#include "smoc/smoc_expr.hpp"
+#include "smoc/smoc_guard.hpp"
 #include "smoc/smoc_graph.hpp"
 #include "smoc/smoc_hooking.hpp"
 #include "smoc/smoc_periodic_actor.hpp"

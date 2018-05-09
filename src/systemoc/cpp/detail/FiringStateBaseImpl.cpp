@@ -40,12 +40,12 @@
 namespace smoc { namespace Detail {
 
   TransitionBase::TransitionBase(
-      Guard const &g,
+      smoc_guard const &g,
       const smoc_action& f)
     : guard(g), f(f), ioPattern(NULL) {}
 
   PartialTransition::PartialTransition(
-      Guard const &g,
+      smoc_guard const &g,
       const smoc_action& f,
       FiringStateBaseImpl* dest)
     : TransitionBase(g, f),

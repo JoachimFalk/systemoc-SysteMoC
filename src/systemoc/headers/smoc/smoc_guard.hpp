@@ -33,8 +33,8 @@
  * ENHANCEMENTS, OR MODIFICATIONS.
  */
 
-#ifndef _INCLUDED_SMOC_SMOC_EXPR_HPP
-#define _INCLUDED_SMOC_SMOC_EXPR_HPP
+#ifndef _INCLUDED_SMOC_SMOC_GUARD_HPP
+#define _INCLUDED_SMOC_SMOC_GUARD_HPP
 
 #include <iostream>
 #include <sstream>
@@ -259,7 +259,7 @@ namespace smoc { namespace Detail {
 } } // namespace smoc::Detail
 
 /****************************************************************************
- * smoc_expr.hpp
+ * smoc_guard.hpp
  *
  * Header file declaring the expression classes.
  */
@@ -1855,4 +1855,10 @@ typename Token<P>::type token(P &p, size_t pos)
 
 } } // namespace smoc::Expr
 
-#endif /* _INCLUDED_SMOC_SMOC_EXPR_HPP */
+namespace smoc {
+
+typedef Expr::Ex<bool>::type smoc_guard;
+
+} // namespace smoc
+
+#endif /* _INCLUDED_SMOC_SMOC_GUARD_HPP */
