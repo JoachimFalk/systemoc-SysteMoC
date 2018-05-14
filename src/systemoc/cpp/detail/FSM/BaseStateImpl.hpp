@@ -42,85 +42,14 @@
 #include <smoc/detail/VpcInterface.hpp>
 #include <systemoc/detail/smoc_func_call.hpp>
 
-#include <systemoc/smoc_config.h>
+#include "TransitionImpl.hpp"
 
-#include <list>
+#include <systemoc/smoc_config.h>
 
 // Prints duration of FiringFSM::finalise() in secs.
 //#define FSM_FINALIZE_BENCHMARK
 
 namespace smoc { namespace Detail { namespace FSM {
-
-  class FiringFSM;
-
-  /**
-   * Lifetime of PartialTransition, ExpandedTransition and TransitionBase:
-   *
-   * PartialTransition represents the transitions modeled by the user.
-   * PartialTransitions, especially in the presence of connector states, are
-   * expanded to ExpandedTransitions. ExpandedTransitions are used to build the
-   * product FSM, which leads to the creation of RuntimeTransitions. After
-   * expanding, TransitionImpls are derived from the ExpandedTransitions.
-   *
-   * Several RuntimeTransitions in the "runtime" FSM share smoc_actions and
-   * guards in terms of shared_ptrs to a TransitionImpl.
-   */
-  class TransitionBase {
-  private:
-    /// @brief Guard for the transition (AST assembled from smoc_guard.hpp nodes)
-    smoc_guard guard;
-
-    /// @brief Action of the transition, might be a list of actions.
-    smoc_action action;
-
-//IOPattern *ioPattern;
-  public:
-    TransitionBase(
-        smoc_guard const &g,
-        const smoc_action &f);
-  public:
-    /// @brief Returns the guard
-    smoc_guard const &getGuard() const
-      { return guard; }
-
-    /// @brief Returns the action
-    const smoc_action &getAction() const
-      { return action; }
-
-    /// @brief Returns the action
-    smoc_action &getAction()
-      { return action; }
-
-//  /// @brief Returns input/output pattern (enough token/free space)
-//  const IOPattern *getIOPattern() const
-//    { assert(ioPattern); return ioPattern; }
-//
-//  /// @brief Returns input/output pattern (enough token/free space)
-//  void setIOPattern(IOPattern *iop)
-//    { assert(iop); ioPattern = iop; }
-  };
-
-  class PartialTransition : public TransitionBase {
-  private:
-
-    /// @brief Target state
-    BaseStateImpl* dest;
-
-  public:
-    /// @brief Constructor
-    PartialTransition(
-      smoc_guard const &g,
-      const smoc_action& f,
-      BaseStateImpl* dest = 0);
-
-    /// @brief Returns the target state
-    BaseStateImpl* getDestState() const;
-  };
-
-  typedef std::list<PartialTransition> PartialTransitionList;
-
-  class ExpandedTransition;
-  typedef std::list<ExpandedTransition> ExpandedTransitionList;
 
   class FiringFSM;
 
