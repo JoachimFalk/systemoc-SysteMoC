@@ -53,6 +53,7 @@
 #include "SimulationContext.hpp"
 #include "FSM/smoc_firing_rules_impl.hpp"
 #include "FSM/FiringFSM.hpp"
+#include "FSM/FiringRuleImpl.hpp"
 
 namespace smoc { namespace Detail {
 
@@ -102,7 +103,7 @@ void NodeBase::before_end_of_elaboration() {
     this->diiEvent.reset(new smoc::smoc_vpc_event());
     commState->addTransition(
         FSM::RuntimeTransition(
-          boost::shared_ptr<FSM::TransitionImpl>(new FSM::TransitionImpl(
+          boost::shared_ptr<FSM::FiringRuleImpl>(new FSM::FiringRuleImpl(
             smoc::Expr::till(*diiEvent),
             smoc_action()))),
         this);
