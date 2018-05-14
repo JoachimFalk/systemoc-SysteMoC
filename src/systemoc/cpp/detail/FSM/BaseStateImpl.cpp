@@ -42,7 +42,7 @@ namespace smoc { namespace Detail { namespace FSM {
   TransitionBase::TransitionBase(
       smoc_guard const &g,
       const smoc_action& f)
-    : guard(g), f(f), ioPattern(NULL) {}
+    : guard(g), action(f) /*, ioPattern(NULL)*/ {}
 
   PartialTransition::PartialTransition(
       smoc_guard const &g,

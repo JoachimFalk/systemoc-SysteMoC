@@ -67,57 +67,37 @@ namespace smoc { namespace Detail { namespace FSM {
    */
   class TransitionBase {
   private:
-    /// @brief guard (AST assembled from smoc_guard.hpp nodes)
+    /// @brief Guard for the transition (AST assembled from smoc_guard.hpp nodes)
     smoc_guard guard;
 
-    /// @brief Action
-    smoc_action f;
+    /// @brief Action of the transition, might be a list of actions.
+    smoc_action action;
 
-    ///
-    IOPattern *ioPattern;
+//IOPattern *ioPattern;
   public:
     TransitionBase(
         smoc_guard const &g,
         const smoc_action &f);
   public:
     /// @brief Returns the guard
-    smoc_guard const &getExpr() const
+    smoc_guard const &getGuard() const
       { return guard; }
 
     /// @brief Returns the action
     const smoc_action &getAction() const
-      { return f; }
+      { return action; }
 
     /// @brief Returns the action
     smoc_action &getAction()
-      { return f; }
+      { return action; }
 
-    /// @brief Returns input/output pattern (enough token/free space)
-    const IOPattern *getIOPattern() const
-      { assert(ioPattern); return ioPattern; }
-
-    /// @brief Returns input/output pattern (enough token/free space)
-    void setIOPattern(IOPattern *iop)
-      { assert(iop); ioPattern = iop; }
-  };
-
-  class TransitionImpl
-    : public TransitionBase
-  #ifdef SYSTEMOC_ENABLE_VPC
-    , public VpcTaskInterface
-  #endif // SYSTEMOC_ENABLE_VPC
-  {
-  public:
-  #ifdef SYSTEMOC_ENABLE_VPC
-    // commstate transition
-    TransitionImpl(
-        smoc_guard const &g,
-        const smoc_action &f) :
-      TransitionBase(g,f) {}
-  #endif // SYSTEMOC_ENABLE_VPC
-
-    TransitionImpl(const TransitionBase &tb) :
-      TransitionBase(tb) {}
+//  /// @brief Returns input/output pattern (enough token/free space)
+//  const IOPattern *getIOPattern() const
+//    { assert(ioPattern); return ioPattern; }
+//
+//  /// @brief Returns input/output pattern (enough token/free space)
+//  void setIOPattern(IOPattern *iop)
+//    { assert(iop); ioPattern = iop; }
   };
 
   class PartialTransition : public TransitionBase {

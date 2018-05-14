@@ -73,6 +73,7 @@
 #endif //SYSTEMOC_ENABLE_MAESTRO
 
 #include "BaseStateImpl.hpp"
+#include "FiringRuleImpl.hpp"
 
 namespace smoc { namespace Detail {
 
@@ -101,7 +102,7 @@ private:
   /// @brief Target state(s)
   MultiState dest;
 
-  mutable boost::shared_ptr<TransitionImpl> cachedTransition;
+  mutable boost::shared_ptr<FiringRuleImpl> cachedTransition;
 
 public:
   /// @brief Constructor
@@ -134,9 +135,9 @@ public:
   /// @brief Returns the target state(s)
   const MultiState& getDestStates() const;
 
-  boost::shared_ptr<TransitionImpl> getCachedTransitionImpl() const {
+  boost::shared_ptr<FiringRuleImpl> getCachedTransitionImpl() const {
     if (cachedTransition == nullptr)
-      cachedTransition.reset(new TransitionImpl(*this));
+      cachedTransition.reset(new FiringRuleImpl(getGuard(), getAction()));
     return cachedTransition;
   }
 };
@@ -160,7 +161,7 @@ class RuntimeTransition
   friend class RuntimeState; // for ap
   friend class smoc::Detail::NodeBase; // for dest
 private:
-  boost::shared_ptr<TransitionImpl> transitionImpl;
+  boost::shared_ptr<FiringRuleImpl> transitionImpl;
 
   /// @brief Target state
   RuntimeState        *dest;
@@ -184,7 +185,7 @@ private:
 public:
   /// @brief Constructor
   RuntimeTransition(
-      const boost::shared_ptr<TransitionImpl> &tip,
+      const boost::shared_ptr<FiringRuleImpl> &tip,
 #ifdef SYSTEMOC_ENABLE_MAESTRO
       MetaMap::SMoCActor &parentActor,
 #endif //SYSTEMOC_ENABLE_MAESTRO

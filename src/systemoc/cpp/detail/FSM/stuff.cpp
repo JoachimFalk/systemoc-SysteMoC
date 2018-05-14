@@ -60,6 +60,7 @@
 
 #include "smoc_firing_rules_impl.hpp"
 #include "FiringFSM.hpp"
+#include "FiringRuleImpl.hpp"
 #include "../SimulationContext.hpp"
 
 #ifdef SYSTEMOC_ENABLE_HOOKING
@@ -124,7 +125,7 @@ const MultiState& ExpandedTransition::getDestStates() const
 
 /// @brief Constructor
 RuntimeTransition::RuntimeTransition(
-    const boost::shared_ptr<TransitionImpl> &tip
+    const boost::shared_ptr<FiringRuleImpl> &tip
 #ifdef SYSTEMOC_ENABLE_MAESTRO
   , MetaMap::SMoCActor &pActor
 #endif //SYSTEMOC_ENABLE_MAESTRO
@@ -143,7 +144,7 @@ RuntimeTransition::RuntimeTransition(
 }
 
 const smoc::Expr::Ex<bool>::type &RuntimeTransition::getExpr() const
-  { return transitionImpl->getExpr(); }
+  { return transitionImpl->getGuard(); }
 
 RuntimeState* RuntimeTransition::getDestState() const
   { return dest; }
@@ -641,7 +642,7 @@ void StateImpl::finalise(ExpandedTransitionList& etl) {
         etl,
         ExpandedTransition(
           this,
-          pt->getExpr(),
+          pt->getGuard(),
           pt->getAction()));
   }
 
@@ -668,7 +669,7 @@ void StateImpl::expandTransition(
       ExpandedTransition(
         t.getSrcState(),
         t.getCondStates(),
-        t.getExpr(),
+        t.getGuard(),
         t.getAction(),
         dest));
 }
@@ -875,7 +876,7 @@ void JunctionStateImpl::expandTransition(
         ExpandedTransition(
           t.getSrcState(),
           t.getCondStates(),
-          t.getExpr() && pt->getExpr(),
+          t.getGuard() && pt->getGuard(),
           merge(t.getAction(), pt->getAction())));
   }
 }
@@ -913,7 +914,7 @@ void MultiStateImpl::finalise(ExpandedTransitionList& etl) {
         ExpandedTransition(
           *states.begin(),
           condStates,
-          pt->getExpr(), pt->getAction()));
+          pt->getGuard(), pt->getAction()));
   }
 }
 
@@ -934,7 +935,7 @@ void MultiStateImpl::expandTransition(
       ExpandedTransition(
         t.getSrcState(),
         t.getCondStates(),
-        t.getExpr(),
+        t.getGuard(),
         t.getAction(),
         states));
 }

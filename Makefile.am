@@ -55,6 +55,7 @@ libsystemoc_la_SOURCES = \
 	src/systemoc/cpp/detail/DebugOStream.cpp \
 	src/systemoc/cpp/detail/FSM/BaseStateImpl.cpp \
 	src/systemoc/cpp/detail/FSM/FiringFSM.cpp \
+	src/systemoc/cpp/detail/FSM/FiringRuleImpl.cpp \
 	src/systemoc/cpp/detail/FSM/stuff.cpp \
 	src/systemoc/cpp/detail/GraphBase.cpp \
 	src/systemoc/cpp/detail/IdPool.cpp \
