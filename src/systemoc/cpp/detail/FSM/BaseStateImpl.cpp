@@ -57,34 +57,20 @@ namespace smoc { namespace Detail { namespace FSM {
   void BaseStateImpl::setFiringFSM(FiringFSM *f)
     { fsm = f; }
 
-//const PartialTransitionList& BaseStateImpl::getPTL() const
-//  { return ptl; }
-
-  void BaseStateImpl::addTransition(const smoc_transition_list& stl) {
+  void BaseStateImpl::addTransition(const smoc_transition_list &stl) {
     for(smoc_transition_list::const_iterator st = stl.begin();
-        st != stl.end(); ++st)
-    {
-      addTransition(
-          PartialTransition(
-            st->getGuard(),
-            st->getAction(),
-            st->getDestState().getImpl()));
+        st != stl.end();
+        ++st) {
+      PartialTransition pt(
+          st->getGuard(),
+          st->getAction(),
+          st->getDestState().getImpl());
+      ptl.push_back(pt);
+
+      BaseStateImpl *s = pt.getDestState();
+      if (s)
+        fsm->unify(s->getFiringFSM());
     }
-  }
-
-  void BaseStateImpl::addTransition(const PartialTransitionList& ptl) {
-    for(PartialTransitionList::const_iterator pt = ptl.begin();
-        pt != ptl.end(); ++pt)
-    {
-      addTransition(*pt);
-    }
-  }
-
-  void BaseStateImpl::addTransition(const PartialTransition& pt) {
-    ptl.push_back(pt);
-
-    BaseStateImpl* s = pt.getDestState();
-    if(s) fsm->unify(s->getFiringFSM());
   }
 
   void BaseStateImpl::clearTransition()
