@@ -490,14 +490,14 @@ StateImpl::StateImpl(const std::string& name)
 
 StateImpl::~StateImpl() {
   for(C::const_iterator s = c.begin(); s != c.end(); ++s) {
-    assert((*s)->getFiringFSM() == fsm);
+    assert((*s)->getFiringFSM() == this->getFiringFSM());
     delete *s;
   }
 }
 
 void StateImpl::add(StateImpl* state) {
-  fsm->unify(state->getFiringFSM());
-  fsm->delState(state);
+  getFiringFSM()->unify(state->getFiringFSM());
+  getFiringFSM()->delState(state);
   c.push_back(state);
   state->setParent(this);
 }
@@ -513,7 +513,7 @@ const std::string& StateImpl::getName() const
   { return name; }
 
 std::string StateImpl::getHierarchicalName() const {
-  if(!parent || parent == fsm->top) {
+  if(!parent || parent == getFiringFSM()->top) {
     return name;
   }
   assert(!name.empty());
@@ -659,7 +659,7 @@ void StateImpl::expandTransition(
 {
 //  smoc::Detail::outDbg << "StateImpl::expandTransition(etl,t) this == " << this << std::endl;
 //  ScopedIndent s0(smoc::Detail::outDbg);
-  
+
   assert(t.getDestStates().empty());
 
   MultiState dest;
@@ -947,7 +947,7 @@ void MultiStateImpl::addState(StateImpl* s) {
 
 //  smoc::Detail::outDbg << "state: " << s << std::endl;
   
-  fsm->unify(s->getFiringFSM());
+  getFiringFSM()->unify(s->getFiringFSM());
 
   sassert(states.insert(s).second);
 }
@@ -958,7 +958,7 @@ void MultiStateImpl::addCondState(StateImpl* s, bool neg) {
 
 //  smoc::Detail::outDbg << "state: " << s << std::endl;
   
-  fsm->unify(s->getFiringFSM());
+  getFiringFSM()->unify(s->getFiringFSM());
 
   sassert(condStates.insert(std::make_pair(s, neg)).second);
 }
