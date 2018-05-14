@@ -85,16 +85,8 @@ namespace smoc { namespace Detail { namespace FSM {
     /// @brief Add transition list to transitions
     void addTransition(const smoc_transition_list& stl);
 
-    /// @brief Add transitions
-    void addTransition(const PartialTransitionList& ptl);
-
-    /// @brief Add transition
-    void addTransition(const PartialTransition& pt);
-
     /// @brief Clear transition list
     void clearTransition();
-
-    //const PartialTransitionList& getPTL() const;
 
     virtual void expandTransition(
         ExpandedTransitionList& etl,
