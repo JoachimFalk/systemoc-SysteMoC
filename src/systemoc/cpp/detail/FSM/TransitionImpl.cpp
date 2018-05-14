@@ -33,73 +33,22 @@
  * ENHANCEMENTS, OR MODIFICATIONS.
  */
 
-#include "BaseStateImpl.hpp"
-
-#include "FiringFSM.hpp"
+#include "TransitionImpl.hpp"
 
 namespace smoc { namespace Detail { namespace FSM {
 
-  BaseStateImpl::BaseStateImpl()
-    : fsm(new FiringFSM()) {
-//  std::cerr << "BaseStateImpl::BaseStateImpl() this == "
-//            << this << std::endl;
-    fsm->addState(this);
-  }
+  TransitionBase::TransitionBase(
+      smoc_guard  const &g,
+      smoc_action const &f)
+    : guard(g), action(f) {}
 
-  BaseStateImpl::~BaseStateImpl() {
-//  std::cerr << "BaseStateImpl::~BaseStateImpl() this == "
-//            << this << std::endl;
-  }
+  PartialTransition::PartialTransition(
+      const smoc_guard  &g,
+      const smoc_action &f,
+      BaseStateImpl *dest)
+    : TransitionBase(g, f), dest(dest) {}
 
-  FiringFSM *BaseStateImpl::getFiringFSM() const
-    { return fsm; }
-
-  void BaseStateImpl::setFiringFSM(FiringFSM *f)
-    { fsm = f; }
-
-//const PartialTransitionList& BaseStateImpl::getPTL() const
-//  { return ptl; }
-
-  void BaseStateImpl::addTransition(const smoc_transition_list& stl) {
-    for(smoc_transition_list::const_iterator st = stl.begin();
-        st != stl.end(); ++st)
-    {
-      addTransition(
-          PartialTransition(
-            st->getGuard(),
-            st->getAction(),
-            st->getDestState().getImpl()));
-    }
-  }
-
-  void BaseStateImpl::addTransition(const PartialTransitionList& ptl) {
-    for(PartialTransitionList::const_iterator pt = ptl.begin();
-        pt != ptl.end(); ++pt)
-    {
-      addTransition(*pt);
-    }
-  }
-
-  void BaseStateImpl::addTransition(const PartialTransition& pt) {
-    ptl.push_back(pt);
-
-    BaseStateImpl* s = pt.getDestState();
-    if(s) fsm->unify(s->getFiringFSM());
-  }
-
-  void BaseStateImpl::clearTransition()
-    { ptl.clear(); }
-
-#ifdef FSM_FINALIZE_BENCHMARK
-  void BaseStateImpl::countStates(size_t& nLeaf, size_t& nAnd, size_t& nXOR, size_t& nTrans) const {
-    nTrans += ptl.size();
-  }
-#endif // FSM_FINALIZE_BENCHMARK
-
-  void intrusive_ptr_add_ref(BaseStateImpl *p)
-    { p->getFiringFSM()->addRef(); }
-
-  void intrusive_ptr_release(BaseStateImpl *p)
-    { if(p->getFiringFSM()->delRef()) delete p->getFiringFSM(); }
+  BaseStateImpl* PartialTransition::getDestState() const
+    { return dest; }
 
 } } } // namespace smoc::Detail::FSM
