@@ -64,7 +64,7 @@ std::ostream &operator<<(std::ostream &os, const ProdState &p) {
  * isImplied(s,p) == true <=> exists p_i in p: isAncestor(s, p_i) == true
  */
 static
-bool isImplied(const HierarchicalStateImpl* s, const ProdState& p) {
+bool isImplied(const StateImpl* s, const ProdState& p) {
   for(ProdState::const_iterator pIter = p.begin();
       pIter != p.end(); ++pIter)
   {
@@ -113,7 +113,7 @@ FiringFSM::~FiringFSM() {
 
   delete top;
 
-  for(FiringStateBaseImplSet::const_iterator s = states.begin();
+  for(BaseStateImplSet::const_iterator s = states.begin();
       s != states.end(); ++s)
   {
     assert((*s)->getFiringFSM() == this);
@@ -135,7 +135,7 @@ RuntimeState *FiringFSM::getInitialState() const
 
 void FiringFSM::before_end_of_elaboration(
     NodeBase              *actorOrGraphNode,
-    HierarchicalStateImpl *hsinit)
+    StateImpl *hsinit)
 {
 //smoc::Detail::outDbg << "FiringFSM::before_end_of_elaboration(...) this == " << this << std::endl;
 //ScopedIndent s0(smoc::Detail::outDbg);
@@ -162,7 +162,7 @@ void FiringFSM::before_end_of_elaboration(
     size_t nXor = 0;
     size_t nAnd = 0;
     size_t nTrans = 0;
-    for(FiringStateBaseImplSet::iterator sIter = states.begin();
+    for(BaseStateImplSet::iterator sIter = states.begin();
         sIter != states.end(); ++sIter) {
       (*sIter)->countStates(nLeaf, nAnd, nXor, nTrans);
     }
@@ -181,15 +181,15 @@ void FiringFSM::before_end_of_elaboration(
 //    {smoc::Detail::outDbg << "moving HS to top state" << std::endl;
 //    ScopedIndent s1(smoc::Detail::outDbg);
 
-    FiringStateBaseImplSet::iterator sIter, sNext;
+    BaseStateImplSet::iterator sIter, sNext;
 
     bool initStateFound = false;
 
     for(sIter = states.begin();
         sIter != states.end(); sIter = sNext) {
       ++(sNext = sIter);
-      if (HierarchicalStateImpl* hs =
-          dynamic_cast<HierarchicalStateImpl*>(*sIter))
+      if (StateImpl* hs =
+          dynamic_cast<StateImpl*>(*sIter))
       {
         top->add(hs, hsinit == hs); // hs->isAncestor(hsinit));
         if (hsinit == hs)
@@ -209,7 +209,7 @@ void FiringFSM::before_end_of_elaboration(
 //  ScopedIndent s1(smoc::Detail::outDbg);
 
     // finalize all non-hierarchical states, i.e., dynamic_cast<HierarchicalStateImpl*>(...) == nullptr
-    for(FiringStateBaseImplSet::iterator sIter = states.begin();
+    for(BaseStateImplSet::iterator sIter = states.begin();
         sIter != states.end(); ++sIter)
     {
       (*sIter)->finalise(etl);
@@ -266,7 +266,7 @@ void FiringFSM::before_end_of_elaboration(
         //if(t->getSrcState()->isMarked(mk) &&
         //(areMarked(t->getCondStates(), mk))
         {
-          const HierarchicalStateImpl* x =
+          const StateImpl* x =
             t->getSrcState()->getTopState(t->getDestStates(), true);
 
           Marking mknew;
@@ -386,7 +386,7 @@ void FiringFSM::unify(this_type *fr) {
 //            << "; other: " << fr << std::endl;
 
     // patch fsm of all states owned by fr
-    for(FiringStateBaseImplSet::iterator sIter = fr->states.begin();
+    for(BaseStateImplSet::iterator sIter = fr->states.begin();
         sIter != fr->states.end(); ++sIter)
     {
       assert((*sIter)->getFiringFSM() == fr);

@@ -83,17 +83,17 @@ namespace smoc { namespace Detail {
 namespace smoc { namespace Detail { namespace FSM {
 
 class FiringStateImpl;
-class HierarchicalStateImpl;
+class StateImpl;
 
 typedef std::set<const FiringStateImpl*> ProdState;
 
-typedef std::set<const HierarchicalStateImpl*> MultiState;
-typedef std::map<const HierarchicalStateImpl*,bool> CondMultiState;
+typedef std::set<const StateImpl*> MultiState;
+typedef std::map<const StateImpl*,bool> CondMultiState;
 
 class ExpandedTransition : public TransitionBase {
 private:
   /// @brief Source state
-  const HierarchicalStateImpl* src;
+  const StateImpl* src;
 
   /// @brief IN conditions
   CondMultiState in;
@@ -106,7 +106,7 @@ private:
 public:
   /// @brief Constructor
   ExpandedTransition(
-      const HierarchicalStateImpl* src,
+      const StateImpl* src,
       const CondMultiState& in,
       smoc_guard const &g,
       const smoc_action& f,
@@ -114,19 +114,19 @@ public:
 
   /// @brief Constructor
   ExpandedTransition(
-      const HierarchicalStateImpl* src,
+      const StateImpl* src,
       const CondMultiState& in,
       smoc_guard const &g,
       const smoc_action& f);
 
   /// @brief Constructor
   ExpandedTransition(
-      const HierarchicalStateImpl* src,
+      const StateImpl* src,
       smoc_guard const &g,
       const smoc_action& f);
 
   /// @brief Returns the source state
-  const HierarchicalStateImpl* getSrcState() const;
+  const StateImpl* getSrcState() const;
 
   /// @brief Returns the IN conditions
   const CondMultiState& getCondStates() const;
@@ -280,12 +280,11 @@ private:
 #endif // SYSTEMOC_NEED_IDS
 };
 
-//class HierarchicalStateImpl;
-typedef std::map<const HierarchicalStateImpl*,bool> Marking;
+typedef std::map<const StateImpl*,bool> Marking;
 
-class HierarchicalStateImpl : public BaseStateImpl {
+class StateImpl : public BaseStateImpl {
 public:
-  typedef HierarchicalStateImpl this_type;
+  typedef StateImpl this_type;
 
   ///rrr: todo temporal making public, for debug purposes
   /// @brief User-defined name
@@ -293,22 +292,22 @@ public:
 private:
   
 
-  HierarchicalStateImpl* parent;
+  StateImpl* parent;
 
   uint64_t code;
   size_t bits;
 
-  void setParent(HierarchicalStateImpl* v);
+  void setParent(StateImpl* v);
 
 protected:
   /// @brief Constructor
-  HierarchicalStateImpl(const std::string& name);
+  StateImpl(const std::string& name);
 
   /// @brief Child states
-  typedef std::vector<HierarchicalStateImpl*> C;
+  typedef std::vector<StateImpl*> C;
   C c;
 
-  void add(HierarchicalStateImpl* state);
+  void add(StateImpl* state);
   
   void setFiringFSM(FiringFSM *fsm);
   
@@ -318,9 +317,9 @@ protected:
 
 public:
   /// @brief Destructor
-  virtual ~HierarchicalStateImpl();
+  virtual ~StateImpl();
 
-  HierarchicalStateImpl* getParent() const;
+  StateImpl* getParent() const;
 
   /// @brief Returns the user-defined name
   const std::string& getName() const;
@@ -328,16 +327,16 @@ public:
   /// @brief Returns the hierarchical name
   std::string getHierarchicalName() const;
 
-  /// @brief See FiringStateBaseImpl
+  /// @brief See BaseStateImpl
   void finalise(ExpandedTransitionList& etl);
 
-  /// @brief See FiringStateBaseImpl
+  /// @brief See BaseStateImpl
   void expandTransition(
       ExpandedTransitionList& etl,
       const ExpandedTransition& t) const;
 
   /// @brief return true if I am an ancestor of s
-  bool isAncestor(const HierarchicalStateImpl* s) const;
+  bool isAncestor(const StateImpl* s) const;
 
   void mark(Marking& m) const;
 
@@ -346,14 +345,14 @@ public:
   virtual void getInitialState(
       ProdState& p, const Marking& m) const = 0;
 
-  virtual const HierarchicalStateImpl* getTopState(
+  virtual const StateImpl* getTopState(
       const MultiState& d,
       bool isSrcState) const = 0;
 
-  HierarchicalStateImpl* select(const std::string& name);
+  StateImpl* select(const std::string& name);
 };
 
-class FiringStateImpl: public HierarchicalStateImpl {
+class FiringStateImpl: public StateImpl {
 public:
   typedef FiringStateImpl this_type;
 
@@ -367,23 +366,23 @@ public:
   /// @brief Constructor
   FiringStateImpl(const std::string& name = "");
   
-  /// @brief See HierarchicalStateImpl
+  /// @brief See StateImpl
   void getInitialState(
       ProdState& p, const Marking& m) const;
   
-  /// @brief See HierarchicalStateImpl
-  const HierarchicalStateImpl* getTopState(
+  /// @brief See StateImpl
+  const StateImpl* getTopState(
       const MultiState& d,
       bool isSrcState) const;
 };
 
-class XORStateImpl: public HierarchicalStateImpl {
+class XORStateImpl: public StateImpl {
 public:
   typedef XORStateImpl this_type;
 
 private:
   /// @brief Initial state
-  HierarchicalStateImpl* init;
+  StateImpl* init;
 
 protected:
 
@@ -395,23 +394,23 @@ public:
   /// @brief Constructor
   XORStateImpl(const std::string& name = "");
 
-  /// @brief See FiringStateBaseImpl
+  /// @brief See BaseStateImpl
   void finalise(ExpandedTransitionList& etl);
   
   /// @brief Add state to this xor state
-  void add(HierarchicalStateImpl* state, bool init);
+  void add(StateImpl* state, bool init);
 
-  /// @brief See HierarchicalStateImpl
+  /// @brief See StateImpl
   void getInitialState(
       ProdState& p, const Marking& m) const;
   
-  /// @brief See HierarchicalStateImpl
-  const HierarchicalStateImpl* getTopState(
+  /// @brief See StateImpl
+  const StateImpl* getTopState(
       const MultiState& d,
       bool isSrcState) const;
 };
 
-class ANDStateImpl: public HierarchicalStateImpl {
+class ANDStateImpl: public StateImpl {
 public:
   typedef ANDStateImpl this_type;
 
@@ -426,14 +425,14 @@ public:
   ANDStateImpl(const std::string& name = "");
 
   /// @brief Add partition to this AND state
-  void add(HierarchicalStateImpl* part);
+  void add(StateImpl* part);
 
-  /// @brief See HierarchicalStateImpl
+  /// @brief See StateImpl
   void getInitialState(
       ProdState& p, const Marking& m) const;
   
-  /// @brief See HierarchicalStateImpl
-  const HierarchicalStateImpl* getTopState(
+  /// @brief See StateImpl
+  const StateImpl* getTopState(
       const MultiState& d,
       bool isSrcState) const;
 };
@@ -446,7 +445,7 @@ public:
   /// @brief Constructor
   JunctionStateImpl();
   
-  /// @brief See FiringStateBaseImpl
+  /// @brief See BaseStateImpl
   void expandTransition(
       ExpandedTransitionList& etl,
       const ExpandedTransition& t) const;
@@ -464,17 +463,17 @@ public:
   /// @brief Constructor
   MultiStateImpl();
   
-  /// @brief See FiringStateBaseImpl
+  /// @brief See BaseStateImpl
   void finalise(ExpandedTransitionList& etl);
   
-  /// @brief See FiringStateBaseImpl
+  /// @brief See BaseStateImpl
   void expandTransition(
       ExpandedTransitionList& etl,
       const ExpandedTransition& t) const;
 
-  void addState(HierarchicalStateImpl* s);
+  void addState(StateImpl* s);
 
-  void addCondState(HierarchicalStateImpl* s, bool neg);
+  void addCondState(StateImpl* s, bool neg);
 };
 
 } } } // namepsace smoc::Detail::FSM

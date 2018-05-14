@@ -49,11 +49,11 @@ smoc_state::ImplType *smoc_state::getImpl() const
   
 smoc_state::Ref smoc_state::select(
     const std::string& name)
-  { return smoc_state(Detail::FSM::PHierarchicalStateImpl(getImpl()->select(name))); }
+  { return smoc_state(Detail::FSM::PStateImpl(getImpl()->select(name))); }
 
 smoc_state::ConstRef smoc_state::select(
     const std::string& name) const
-  { return smoc_state(Detail::FSM::PHierarchicalStateImpl(getImpl()->select(name))); }
+  { return smoc_state(Detail::FSM::PStateImpl(getImpl()->select(name))); }
   
 const std::string& smoc_state::getName() const
   { return getImpl()->getName(); }
@@ -67,8 +67,8 @@ std::string smoc_state::getHierarchicalName() const
 * Rationale: States have a overloaded assignment operator
 */
 smoc_state& smoc_state::clone(const smoc_state &st) {
-  Detail::FSM::HierarchicalStateImpl* copyImp = st.getImpl();
-  Detail::FSM::HierarchicalStateImpl* thisImp = this->getImpl();
+  Detail::FSM::StateImpl *copyImp = st.getImpl();
+  Detail::FSM::StateImpl *thisImp = this->getImpl();
 
   *thisImp = *copyImp;
   this->pImpl = st.pImpl;
