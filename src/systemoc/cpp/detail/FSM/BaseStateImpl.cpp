@@ -66,10 +66,8 @@ namespace smoc { namespace Detail { namespace FSM {
           st->getAction(),
           st->getDestState().getImpl());
       ptl.push_back(pt);
-
-      BaseStateImpl *s = pt.getDestState();
-      if (s)
-        fsm->unify(s->getFiringFSM());
+      assert(pt.getDestState());
+      fsm->unify(pt.getDestState()->getFiringFSM());
     }
   }
 

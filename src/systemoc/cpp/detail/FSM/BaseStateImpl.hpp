@@ -56,9 +56,6 @@ namespace smoc { namespace Detail { namespace FSM {
   class BaseStateImpl {
     typedef BaseStateImpl this_type;
   protected:
-    /// @brief Parent firing FSM
-    FiringFSM *fsm;
-
     /// @brief Partial transitions (as added by user)
     PartialTransitionList ptl;
 
@@ -91,6 +88,9 @@ namespace smoc { namespace Detail { namespace FSM {
     virtual void expandTransition(
         ExpandedTransitionList& etl,
         const ExpandedTransition& t) const = 0;
+  private:
+    /// @brief Parent firing FSM
+    FiringFSM *fsm;
   };
 
 } } } // namespace smoc::Detail::FSM
