@@ -84,7 +84,7 @@ template<class C> inline bool single(const C& c) {
 }
 
 ExpandedTransition::ExpandedTransition(
-    const HierarchicalStateImpl* src,
+    const StateImpl* src,
     const CondMultiState& in,
     smoc_guard const &g,
     const smoc_action& f,
@@ -96,7 +96,7 @@ ExpandedTransition::ExpandedTransition(
 {}
 
 ExpandedTransition::ExpandedTransition(
-    const HierarchicalStateImpl* src,
+    const StateImpl* src,
     const CondMultiState& in,
     smoc_guard const &g,
     const smoc_action& f)
@@ -106,14 +106,14 @@ ExpandedTransition::ExpandedTransition(
 {}
 
 ExpandedTransition::ExpandedTransition(
-    const HierarchicalStateImpl* src,
+    const StateImpl* src,
     smoc_guard const &g,
     const smoc_action& f)
   : TransitionBase(g, f),
     src(src)
 {}
 
-const HierarchicalStateImpl* ExpandedTransition::getSrcState() const
+const StateImpl* ExpandedTransition::getSrcState() const
   { return src; }
 
 const CondMultiState& ExpandedTransition::getCondStates() const
@@ -474,7 +474,7 @@ void RuntimeState::end_of_elaboration(smoc::Detail::NodeBase *node) {
   }
 }
 
-HierarchicalStateImpl::HierarchicalStateImpl(const std::string& name)
+StateImpl::StateImpl(const std::string& name)
   : BaseStateImpl(),
     name(name.empty() ? Concat("x")(UnnamedStateCount++) : name),
     parent(0),
@@ -487,31 +487,31 @@ HierarchicalStateImpl::HierarchicalStateImpl(const std::string& name)
     assert(!"smoc_hierarchical_state: Invalid state name");
 }
 
-HierarchicalStateImpl::~HierarchicalStateImpl() {
+StateImpl::~StateImpl() {
   for(C::const_iterator s = c.begin(); s != c.end(); ++s) {
     assert((*s)->getFiringFSM() == fsm);
     delete *s;
   }
 }
 
-void HierarchicalStateImpl::add(HierarchicalStateImpl* state) {
+void StateImpl::add(StateImpl* state) {
   fsm->unify(state->getFiringFSM());
   fsm->delState(state);
   c.push_back(state);
   state->setParent(this);
 }
 
-void HierarchicalStateImpl::setFiringFSM(FiringFSM *fsm) {
+void StateImpl::setFiringFSM(FiringFSM *fsm) {
   BaseStateImpl::setFiringFSM(fsm);
   for(C::const_iterator s = c.begin(); s != c.end(); ++s) {
     (*s)->setFiringFSM(fsm);
   }
 }
 
-const std::string& HierarchicalStateImpl::getName() const
+const std::string& StateImpl::getName() const
   { return name; }
 
-std::string HierarchicalStateImpl::getHierarchicalName() const {
+std::string StateImpl::getHierarchicalName() const {
   if(!parent || parent == fsm->top) {
     return name;
   }
@@ -523,7 +523,7 @@ std::string HierarchicalStateImpl::getHierarchicalName() const {
 }
   
 #ifdef FSM_FINALIZE_BENCHMARK
-void HierarchicalStateImpl::countStates(size_t& nLeaf, size_t& nAnd, size_t& nXor, size_t& nTrans) const {
+void StateImpl::countStates(size_t& nLeaf, size_t& nAnd, size_t& nXor, size_t& nTrans) const {
   for(C::const_iterator s = c.begin(); s != c.end(); ++s) {
     (*s)->countStates(nLeaf, nAnd, nXor, nTrans);
   }
@@ -531,7 +531,7 @@ void HierarchicalStateImpl::countStates(size_t& nLeaf, size_t& nAnd, size_t& nXo
 }
 #endif // FSM_FINALIZE_BENCHMARK
 
-HierarchicalStateImpl* HierarchicalStateImpl::select(
+StateImpl* StateImpl::select(
     const std::string& name)
 {
   size_t pos = name.find(FiringFSM::HIERARCHY_SEPARATOR);
@@ -558,7 +558,7 @@ HierarchicalStateImpl* HierarchicalStateImpl::select(
 }
 
 
-void HierarchicalStateImpl::setParent(HierarchicalStateImpl* v) {
+void StateImpl::setParent(StateImpl* v) {
   assert(v);
   if(parent && v != parent) {
     assert(!"smoc_hierarchical_state: Parent already set");
@@ -566,11 +566,11 @@ void HierarchicalStateImpl::setParent(HierarchicalStateImpl* v) {
   parent = v;
 }
 
-HierarchicalStateImpl* HierarchicalStateImpl::getParent() const {
+StateImpl* StateImpl::getParent() const {
   return parent;
 }
 
-bool HierarchicalStateImpl::isAncestor(const HierarchicalStateImpl* s) const {
+bool StateImpl::isAncestor(const StateImpl* s) const {
   assert(s);
 
   if(s == this)
@@ -583,7 +583,7 @@ bool HierarchicalStateImpl::isAncestor(const HierarchicalStateImpl* s) const {
   return false;
 }
   
-void HierarchicalStateImpl::mark(Marking& m) const {
+void StateImpl::mark(Marking& m) const {
   bool& mm = m[this];
   if(!mm) {
     mm = true;
@@ -591,15 +591,15 @@ void HierarchicalStateImpl::mark(Marking& m) const {
   }
 }
 
-bool HierarchicalStateImpl::isMarked(const Marking& m) const {
+bool StateImpl::isMarked(const Marking& m) const {
   Marking::const_iterator iter = m.find(this);
   return (iter == m.end()) ? false : iter->second;
 }
 
-void HierarchicalStateImpl::finalise(ExpandedTransitionList& etl) {
+void StateImpl::finalise(ExpandedTransitionList& etl) {
 #ifdef SYSTEMOC_DEBUG
   if (smoc::Detail::outDbg.isVisible(smoc::Detail::Debug::High)) {
-    smoc::Detail::outDbg << "<HierarchicalStateImpl::finalise name=\"" << getName() << "\">"
+    smoc::Detail::outDbg << "<StateImpl::finalise name=\"" << getName() << "\">"
          << std::endl << smoc::Detail::Indent::Up;
   }
 #endif // SYSTEMOC_DEBUG
@@ -647,16 +647,16 @@ void HierarchicalStateImpl::finalise(ExpandedTransitionList& etl) {
 
 #ifdef SYSTEMOC_DEBUG
   if (smoc::Detail::outDbg.isVisible(smoc::Detail::Debug::High)) {
-    smoc::Detail::outDbg << smoc::Detail::Indent::Down << "</HierarchicalStateImpl::finalise>" << std::endl;
+    smoc::Detail::outDbg << smoc::Detail::Indent::Down << "</StateImpl::finalise>" << std::endl;
   }
 #endif // SYSTEMOC_DEBUG
 }
 
-void HierarchicalStateImpl::expandTransition(
+void StateImpl::expandTransition(
     ExpandedTransitionList& etl,
     const ExpandedTransition& t) const
 {
-//  smoc::Detail::outDbg << "HierarchicalStateImpl::expandTransition(etl,t) this == " << this << std::endl;
+//  smoc::Detail::outDbg << "StateImpl::expandTransition(etl,t) this == " << this << std::endl;
 //  ScopedIndent s0(smoc::Detail::outDbg);
   
   assert(t.getDestStates().empty());
@@ -673,14 +673,14 @@ void HierarchicalStateImpl::expandTransition(
         dest));
 }
 
-void intrusive_ptr_add_ref(HierarchicalStateImpl *p)
+void intrusive_ptr_add_ref(StateImpl *p)
   { intrusive_ptr_add_ref(static_cast<BaseStateImpl*>(p)); }
 
-void intrusive_ptr_release(HierarchicalStateImpl *p)
+void intrusive_ptr_release(StateImpl *p)
   { intrusive_ptr_release(static_cast<BaseStateImpl*>(p)); }
 
 FiringStateImpl::FiringStateImpl(const std::string& name)
-  : HierarchicalStateImpl(name.empty()
+  : StateImpl(name.empty()
       ? sc_core::sc_gen_unique_name("q", false)
       : name)
 {}
@@ -697,11 +697,11 @@ void FiringStateImpl::getInitialState(
 #ifdef FSM_FINALIZE_BENCHMARK
 void FiringStateImpl::countStates(size_t& nLeaf, size_t& nAnd, size_t& nXor, size_t& nTrans) const {
   nLeaf++;
-  HierarchicalStateImpl::countStates(nLeaf, nAnd, nXor, nTrans);
+  StateImpl::countStates(nLeaf, nAnd, nXor, nTrans);
 }
 #endif // FSM_FINALIZE_BENCHMARK
 
-const HierarchicalStateImpl* FiringStateImpl::getTopState(
+const StateImpl* FiringStateImpl::getTopState(
     const MultiState& d,
     bool isSrcState) const
 {
@@ -726,25 +726,25 @@ void intrusive_ptr_release(FiringStateImpl *p)
 
 
 XORStateImpl::XORStateImpl(const std::string& name)
-  : HierarchicalStateImpl(name),
+  : StateImpl(name),
     init(0)
 {}
 
-void XORStateImpl::add(HierarchicalStateImpl* state, bool i) {
-  HierarchicalStateImpl::add(state); 
+void XORStateImpl::add(StateImpl* state, bool i) {
+  StateImpl::add(state); 
   if(i) init = state;
 }
 
 void XORStateImpl::finalise(ExpandedTransitionList& etl) {
   if(!init)
     throw FiringFSM::ModelingError("smoc_xor_state: Must specify initial state");
-  HierarchicalStateImpl::finalise(etl);
+  StateImpl::finalise(etl);
 }
 
 #ifdef FSM_FINALIZE_BENCHMARK
 void XORStateImpl::countStates(size_t& nLeaf, size_t& nAnd, size_t& nXor, size_t& nTrans) const {
   nXor++;
-  HierarchicalStateImpl::countStates(nLeaf, nAnd, nXor, nTrans);
+  StateImpl::countStates(nLeaf, nAnd, nXor, nTrans);
 }
 #endif // FSM_FINALIZE_BENCHMARK
 
@@ -754,7 +754,7 @@ void XORStateImpl::getInitialState(
 //  smoc::Detail::outDbg << "XORStateImpl::getInitialState(p,m) this == " << this << std::endl;
 //  ScopedIndent s0(smoc::Detail::outDbg);
 
-  HierarchicalStateImpl* t = 0;
+  StateImpl* t = 0;
 
   for(C::const_iterator s = c.begin(); s != c.end(); ++s) {
     if((*s)->isMarked(m)) {
@@ -769,7 +769,7 @@ void XORStateImpl::getInitialState(
   t->getInitialState(p, m);
 }
 
-const HierarchicalStateImpl* XORStateImpl::getTopState(
+const StateImpl* XORStateImpl::getTopState(
     const MultiState& d,
     bool isSrcState) const
 {
@@ -794,11 +794,11 @@ void intrusive_ptr_release(XORStateImpl *p)
 
 
 ANDStateImpl::ANDStateImpl(const std::string& name)
-  : HierarchicalStateImpl(name)
+  : StateImpl(name)
 {}
 
-void ANDStateImpl::add(HierarchicalStateImpl* part) {
-  HierarchicalStateImpl::add(part);
+void ANDStateImpl::add(StateImpl* part) {
+  StateImpl::add(part);
 }
 
 void ANDStateImpl::getInitialState(
@@ -812,11 +812,11 @@ void ANDStateImpl::getInitialState(
 #ifdef FSM_FINALIZE_BENCHMARK
 void ANDStateImpl::countStates(size_t& nLeaf, size_t& nAnd, size_t& nXor, size_t& nTrans) const {
   nAnd++;
-  HierarchicalStateImpl::countStates(nLeaf, nAnd, nXor, nTrans);
+  StateImpl::countStates(nLeaf, nAnd, nXor, nTrans);
 }
 #endif // FSM_FINALIZE_BENCHMARK
 
-const HierarchicalStateImpl* ANDStateImpl::getTopState(
+const StateImpl* ANDStateImpl::getTopState(
     const MultiState& d,
     bool isSrcState) const
 {
@@ -940,7 +940,7 @@ void MultiStateImpl::expandTransition(
 }
 
 
-void MultiStateImpl::addState(HierarchicalStateImpl* s) {
+void MultiStateImpl::addState(StateImpl* s) {
 //  smoc::Detail::outDbg << "MultiStateImpl::addState(s) this == " << this << std::endl; 
 //  ScopedIndent s0(smoc::Detail::outDbg);
 
@@ -951,7 +951,7 @@ void MultiStateImpl::addState(HierarchicalStateImpl* s) {
   sassert(states.insert(s).second);
 }
 
-void MultiStateImpl::addCondState(HierarchicalStateImpl* s, bool neg) {
+void MultiStateImpl::addCondState(StateImpl* s, bool neg) {
 //  smoc::Detail::outDbg << "MultiStateImpl::addCondState(s) this == " << this << std::endl;
 //  ScopedIndent s0(smoc::Detail::outDbg);
 

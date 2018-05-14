@@ -59,7 +59,7 @@ namespace smoc { namespace Detail { namespace FSM {
    * PartialTransition represents the transitions modeled by the user.
    * PartialTransitions, especially in the presence of connector states, are
    * expanded to ExpandedTransitions. ExpandedTransitions are used to build the
-   * product FSM, which leeds to the creation of RuntimeTransitions. After
+   * product FSM, which leads to the creation of RuntimeTransitions. After
    * expanding, TransitionImpls are derived from the ExpandedTransitions.
    *
    * Several RuntimeTransitions in the "runtime" FSM share smoc_actions and

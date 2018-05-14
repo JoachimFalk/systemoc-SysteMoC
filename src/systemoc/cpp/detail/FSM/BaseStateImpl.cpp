@@ -57,13 +57,13 @@ namespace smoc { namespace Detail { namespace FSM {
 
   BaseStateImpl::BaseStateImpl()
     : fsm(new FiringFSM()) {
-//  std::cerr << "FiringStateBaseImpl::FiringStateBaseImpl() this == "
+//  std::cerr << "BaseStateImpl::BaseStateImpl() this == "
 //            << this << std::endl;
     fsm->addState(this);
   }
 
   BaseStateImpl::~BaseStateImpl() {
-//  std::cerr << "FiringStateBaseImpl::~FiringStateBaseImpl() this == "
+//  std::cerr << "BaseStateImpl::~BaseStateImpl() this == "
 //            << this << std::endl;
   }
 
@@ -73,7 +73,7 @@ namespace smoc { namespace Detail { namespace FSM {
   void BaseStateImpl::setFiringFSM(FiringFSM *f)
     { fsm = f; }
 
-//const PartialTransitionList& FiringStateBaseImpl::getPTL() const
+//const PartialTransitionList& BaseStateImpl::getPTL() const
 //  { return ptl; }
 
   void BaseStateImpl::addTransition(const smoc_transition_list& stl) {

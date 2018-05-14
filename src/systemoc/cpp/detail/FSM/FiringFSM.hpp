@@ -50,7 +50,7 @@ class XORStateImpl;
 class FiringFSM: public SimCTXBase {
   typedef FiringFSM this_type;
   // ugh
-  friend class HierarchicalStateImpl; // for top access?!
+  friend class StateImpl; // for top access?!
 public:
   typedef std::set<RuntimeState *> RuntimeStateSet;
 
@@ -73,7 +73,7 @@ public:
   /// @brief Hierarchical before end-of-elaboration callback
   void before_end_of_elaboration(
       NodeBase              *actor,
-      HierarchicalStateImpl *init);
+      StateImpl *init);
 
   /// @brief Hierarchical end-of-elaboration callback
   void end_of_elaboration(
@@ -100,10 +100,10 @@ public:
 
   RuntimeState          *getInitialState() const;
 private:
-  typedef std::set<BaseStateImpl *> FiringStateBaseImplSet;
+  typedef std::set<BaseStateImpl *> BaseStateImplSet;
 
   /// @brief Top states
-  FiringStateBaseImplSet states;
+  BaseStateImplSet states;
 
   /// @brief Refcount
   size_t use_count_;

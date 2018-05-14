@@ -43,8 +43,8 @@
 
 namespace smoc { namespace Detail { namespace FSM {
 
-  class HierarchicalStateImpl;
-  DECL_INTRUSIVE_REFCOUNT_PTR(HierarchicalStateImpl, PHierarchicalStateImpl);
+  class StateImpl;
+  DECL_INTRUSIVE_REFCOUNT_PTR(StateImpl, PStateImpl);
 
 } } } // namespace smoc::Detail::FSM
 
@@ -53,7 +53,7 @@ namespace smoc {
 class smoc_state
 : public CoSupport::DataTypes::FacadeFoundation<
     smoc_state,
-    Detail::FSM::HierarchicalStateImpl,
+    Detail::FSM::StateImpl,
     smoc_base_state
   >
 {
