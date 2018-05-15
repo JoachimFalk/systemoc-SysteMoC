@@ -88,62 +88,6 @@ class StateImpl;
 
 typedef std::set<const FiringStateImpl*> ProdState;
 
-typedef std::set<const StateImpl*> MultiState;
-typedef std::map<const StateImpl*,bool> CondMultiState;
-
-class ExpandedTransition : public smoc_firing_rule {
-private:
-  /// @brief Source state
-  const StateImpl* src;
-
-  /// @brief IN conditions
-  CondMultiState in;
-
-  /// @brief Target state(s)
-  MultiState dest;
-
-  mutable boost::shared_ptr<FiringRuleImpl> cachedTransition;
-
-public:
-  /// @brief Constructor
-  ExpandedTransition(
-      const StateImpl* src,
-      const CondMultiState& in,
-      smoc_guard const &g,
-      const smoc_action& f,
-      const MultiState& dest);
-
-  /// @brief Constructor
-  ExpandedTransition(
-      const StateImpl* src,
-      const CondMultiState& in,
-      smoc_guard const &g,
-      const smoc_action& f);
-
-  /// @brief Constructor
-  ExpandedTransition(
-      const StateImpl* src,
-      smoc_guard const &g,
-      const smoc_action& f);
-
-  /// @brief Returns the source state
-  const StateImpl* getSrcState() const;
-
-  /// @brief Returns the IN conditions
-  const CondMultiState& getCondStates() const;
-
-  /// @brief Returns the target state(s)
-  const MultiState& getDestStates() const;
-
-  boost::shared_ptr<FiringRuleImpl> getCachedTransitionImpl() const {
-    if (cachedTransition == nullptr)
-      cachedTransition.reset(new FiringRuleImpl(getGuard(), getAction()));
-    return cachedTransition;
-  }
-};
-
-typedef std::list<ExpandedTransition> ExpandedTransitionList;
-
 class RuntimeState;
 
 class RuntimeTransition

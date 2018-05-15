@@ -33,67 +33,50 @@
  * ENHANCEMENTS, OR MODIFICATIONS.
  */
 
-#ifndef _INCLUDED_SMOC_DETAIL_FSM_BASESTATEIMPL_HPP
-#define _INCLUDED_SMOC_DETAIL_FSM_BASESTATEIMPL_HPP
+#ifndef _INCLUDED_SMOC_DETAIL_FSM_PARTIALTRANSITION_HPP
+#define _INCLUDED_SMOC_DETAIL_FSM_PARTIALTRANSITION_HPP
 
 #include <smoc/smoc_firing_rule.hpp>
-#include <smoc/smoc_transition.hpp>
-#include <smoc/detail/IOPattern.hpp>
-#include <smoc/detail/VpcInterface.hpp>
-#include <systemoc/detail/smoc_func_call.hpp>
 
-#include "PartialTransition.hpp"
-#include "ExpandedTransition.hpp"
+#include "FiringRuleImpl.hpp"
 
-#include <systemoc/smoc_config.h>
-
-// Prints duration of FiringFSM::finalise() in secs.
-//#define FSM_FINALIZE_BENCHMARK
+#include <list>
 
 namespace smoc { namespace Detail { namespace FSM {
 
-  class FiringFSM;
+  class BaseStateImpl;
 
-  class BaseStateImpl {
-    typedef BaseStateImpl this_type;
-  protected:
-    /// @brief Partial transitions (as added by user)
-    PartialTransitionList ptl;
-
-    /// @brief Constructor
-    BaseStateImpl();
-
-    /// @brief Set the FSM (only set the pointer, do not transfer the state!)
-    virtual void setFiringFSM(FiringFSM *fsm);
-    friend class FiringFSM;
-
-  #ifdef FSM_FINALIZE_BENCHMARK
-    virtual void countStates(size_t& nLeaf, size_t& nAnd, size_t& nXOR, size_t& nTrans) const;
-  #endif // FSM_FINALIZE_BENCHMARK
-
-    /// @brief Destructor
-    virtual ~BaseStateImpl();
-  public:
-    /// @brief Returns the FSM
-    FiringFSM *getFiringFSM() const;
-
-    /// @brief Hierarchical end-of-elaboration callback
-    virtual void finalise(ExpandedTransitionList& etl) {};
-
-    /// @brief Add transition list to transitions
-    void addTransition(const smoc_transition_list& stl);
-
-    /// @brief Clear transition list
-    void clearTransition();
-
-    virtual void expandTransition(
-        ExpandedTransitionList& etl,
-        const ExpandedTransition& t) const = 0;
+  /**
+   * Lifetime of PartialTransition and ExpandedTransition:
+   *
+   * PartialTransition represents the transitions modeled by the user.
+   * PartialTransitions, especially in the presence of connector states, are
+   * expanded to ExpandedTransitions. ExpandedTransitions are used to build the
+   * product FSM, which leads to the creation of RuntimeTransitions. After
+   * expanding, FiringRuleImpls are derived from the ExpandedTransitions.
+   *
+   * Several RuntimeTransitions in the "runtime" FSM share smoc_actions and
+   * guards in terms of shared_ptrs to a FiringRuleImpl.
+   */
+  class PartialTransition : public smoc_firing_rule {
   private:
-    /// @brief Parent firing FSM
-    FiringFSM *fsm;
+
+    /// @brief Target state
+    BaseStateImpl* dest;
+
+  public:
+    /// @brief Constructor
+    PartialTransition(
+      smoc_guard const &g,
+      const smoc_action& f,
+      BaseStateImpl* dest = 0);
+
+    /// @brief Returns the target state
+    BaseStateImpl* getDestState() const;
   };
+
+  typedef std::list<PartialTransition> PartialTransitionList;
 
 } } } // namespace smoc::Detail::FSM
 
-#endif /* _INCLUDED_SMOC_DETAIL_FSM_BASESTATEIMPL_HPP */
+#endif /* _INCLUDED_SMOC_DETAIL_FSM_PARTIALTRANSITION_HPP */

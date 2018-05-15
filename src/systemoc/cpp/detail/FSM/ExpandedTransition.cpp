@@ -33,17 +33,47 @@
  * ENHANCEMENTS, OR MODIFICATIONS.
  */
 
-#include "TransitionImpl.hpp"
+#include "ExpandedTransition.hpp"
 
 namespace smoc { namespace Detail { namespace FSM {
 
-  PartialTransition::PartialTransition(
-      const smoc_guard  &g,
-      const smoc_action &f,
-      BaseStateImpl *dest)
-    : smoc_firing_rule(g, f), dest(dest) {}
+  ExpandedTransition::ExpandedTransition(
+      const StateImpl* src,
+      const CondMultiState& in,
+      smoc_guard const &g,
+      const smoc_action& f,
+      const MultiState& dest)
+    : smoc_firing_rule(g, f),
+      src(src),
+      in(in),
+      dest(dest)
+  {}
 
-  BaseStateImpl* PartialTransition::getDestState() const
+  ExpandedTransition::ExpandedTransition(
+      const StateImpl* src,
+      const CondMultiState& in,
+      smoc_guard const &g,
+      const smoc_action& f)
+    : smoc_firing_rule(g, f),
+      src(src),
+      in(in)
+  {}
+
+  ExpandedTransition::ExpandedTransition(
+      const StateImpl* src,
+      smoc_guard const &g,
+      const smoc_action& f)
+    : smoc_firing_rule(g, f),
+      src(src)
+  {}
+
+  const StateImpl* ExpandedTransition::getSrcState() const
+    { return src; }
+
+  const CondMultiState& ExpandedTransition::getCondStates() const
+    { return in; }
+
+  const MultiState& ExpandedTransition::getDestStates() const
     { return dest; }
 
 } } } // namespace smoc::Detail::FSM

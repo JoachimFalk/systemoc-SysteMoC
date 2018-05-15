@@ -33,16 +33,22 @@
  * ENHANCEMENTS, OR MODIFICATIONS.
  */
 
-#ifndef _INCLUDED_SMOC_DETAIL_FSM_TRANSITIONIMPL_HPP
-#define _INCLUDED_SMOC_DETAIL_FSM_TRANSITIONIMPL_HPP
+#ifndef _INCLUDED_SMOC_DETAIL_FSM_EXPANDEDTRANSITION_HPP
+#define _INCLUDED_SMOC_DETAIL_FSM_EXPANDEDTRANSITION_HPP
 
 #include <smoc/smoc_firing_rule.hpp>
 
+#include "FiringRuleImpl.hpp"
+
 #include <list>
+#include <set>
+#include <map>
 
 namespace smoc { namespace Detail { namespace FSM {
 
-  class BaseStateImpl;
+  class StateImpl;
+  typedef std::set<const StateImpl *>      MultiState;
+  typedef std::map<const StateImpl *,bool> CondMultiState;
 
   /**
    * Lifetime of PartialTransition and ExpandedTransition:
@@ -56,28 +62,59 @@ namespace smoc { namespace Detail { namespace FSM {
    * Several RuntimeTransitions in the "runtime" FSM share smoc_actions and
    * guards in terms of shared_ptrs to a FiringRuleImpl.
    */
-  class PartialTransition : public smoc_firing_rule {
+  class ExpandedTransition : public smoc_firing_rule {
   private:
+    /// @brief Source state
+    const StateImpl* src;
 
-    /// @brief Target state
-    BaseStateImpl* dest;
+    /// @brief IN conditions
+    CondMultiState in;
+
+    /// @brief Target state(s)
+    MultiState dest;
+
+    mutable boost::shared_ptr<FiringRuleImpl> cachedTransition;
 
   public:
     /// @brief Constructor
-    PartialTransition(
-      smoc_guard const &g,
-      const smoc_action& f,
-      BaseStateImpl* dest = 0);
+    ExpandedTransition(
+        const StateImpl* src,
+        const CondMultiState& in,
+        smoc_guard const &g,
+        const smoc_action& f,
+        const MultiState& dest);
 
-    /// @brief Returns the target state
-    BaseStateImpl* getDestState() const;
+    /// @brief Constructor
+    ExpandedTransition(
+        const StateImpl* src,
+        const CondMultiState& in,
+        smoc_guard const &g,
+        const smoc_action& f);
+
+    /// @brief Constructor
+    ExpandedTransition(
+        const StateImpl* src,
+        smoc_guard const &g,
+        const smoc_action& f);
+
+    /// @brief Returns the source state
+    const StateImpl* getSrcState() const;
+
+    /// @brief Returns the IN conditions
+    const CondMultiState& getCondStates() const;
+
+    /// @brief Returns the target state(s)
+    const MultiState& getDestStates() const;
+
+    boost::shared_ptr<FiringRuleImpl> getCachedTransitionImpl() const {
+      if (cachedTransition == nullptr)
+        cachedTransition.reset(new FiringRuleImpl(getGuard(), getAction()));
+      return cachedTransition;
+    }
   };
 
-  typedef std::list<PartialTransition> PartialTransitionList;
-
-  class ExpandedTransition;
   typedef std::list<ExpandedTransition> ExpandedTransitionList;
 
 } } } // namespace smoc::Detail::FSM
 
-#endif /* _INCLUDED_SMOC_DETAIL_FSM_TRANSITIONIMPL_HPP */
+#endif /* _INCLUDED_SMOC_DETAIL_FSM_EXPANDEDTRANSITION_HPP */
