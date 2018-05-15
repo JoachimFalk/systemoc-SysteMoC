@@ -41,7 +41,9 @@
 
 #include <stdexcept>
 #include <set>
+
 #include "BaseStateImpl.hpp"
+#include "FiringRuleImpl.hpp"
 
 namespace smoc { namespace Detail { namespace FSM {
 
@@ -99,11 +101,18 @@ public:
   const RuntimeStateSet &getStates() const;
 
   RuntimeState          *getInitialState() const;
+
+  FiringRuleImpl        *acquireFiringRule(smoc_firing_rule const &smocFiringRule);
+
 private:
-  typedef std::set<BaseStateImpl *> BaseStateImplSet;
+  typedef std::set<BaseStateImpl *>   BaseStateImplSet;
+  typedef std::list<FiringRuleImpl>   FiringRuleImplList;
 
   /// @brief Top states
-  BaseStateImplSet states;
+  BaseStateImplSet      states;
+
+  /// @brief list of all guards/action pairs used by the runtime transitions
+  FiringRuleImplList    firingRules;
 
   /// @brief Refcount
   size_t use_count_;

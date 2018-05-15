@@ -69,8 +69,9 @@ NodeBase::NodeBase(sc_core::sc_module_name name, NodeType nodeType, smoc_state *
   , currentState(nullptr)
   , ct(nullptr)
 #ifdef SYSTEMOC_ENABLE_VPC
-  , commState(nullptr)
   , diiEvent(nullptr)
+  , commState(nullptr)
+  , commAction(nullptr)
 #endif // SYSTEMOC_ENABLE_VPC
   , nodeType(nodeType)
   , executing(false)
@@ -99,14 +100,12 @@ void NodeBase::before_end_of_elaboration() {
   getSimCTX()->getSimulatorInterface()->registerTask(this);
   if (getFiringFSM()) {
 #ifdef SYSTEMOC_ENABLE_VPC
-    this->commState = new FSM::RuntimeState("commState");
     this->diiEvent.reset(new smoc::smoc_vpc_event());
-    commState->addTransition(
-        FSM::RuntimeTransition(
-          boost::shared_ptr<FSM::FiringRuleImpl>(new FSM::FiringRuleImpl(
-            smoc::Expr::till(*diiEvent),
-            smoc_action()))),
-        this);
+    this->commState  = new FSM::RuntimeState("commState");
+    this->commAction = new FSM::FiringRuleImpl(
+        smoc::Expr::till(*diiEvent),
+        smoc_action());
+    commState->addTransition(this->commAction, this);
 #endif // SYSTEMOC_ENABLE_VPC
     getFiringFSM()->before_end_of_elaboration(this,
       CoSupport::DataTypes::FacadeCoreAccess::getImpl(*initialState));
@@ -183,6 +182,7 @@ smoc_sysc_port_list NodeBase::getPorts() const {
 NodeBase::~NodeBase() {
 #ifdef SYSTEMOC_ENABLE_VPC
   delete commState;
+  delete commAction;
 #endif // SYSTEMOC_ENABLE_VPC
 }
 

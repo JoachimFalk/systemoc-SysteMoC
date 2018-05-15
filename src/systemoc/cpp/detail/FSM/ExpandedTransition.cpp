@@ -38,21 +38,14 @@
 namespace smoc { namespace Detail { namespace FSM {
 
   ExpandedTransition::ExpandedTransition(
-      const StateImpl* src,
-      const CondMultiState& in,
-      smoc_guard const &g,
-      const smoc_action& f,
-      const MultiState& dest)
-    : smoc_firing_rule(g, f),
-      src(src),
-      in(in),
-      dest(dest)
+      StateImpl      const *src,
+      CondMultiState const &in,
+      FiringRuleImpl       *firingRuleImpl,
+      MultiState     const & dest)
+    : src(src)
+    , in(in)
+    , firingRuleImpl(firingRuleImpl)
+    , dest(dest)
   {}
-
-  boost::shared_ptr<FiringRuleImpl> ExpandedTransition::getCachedTransitionImpl() const {
-    if (cachedTransition == nullptr)
-      cachedTransition.reset(new FiringRuleImpl(getGuard(), getAction()));
-    return cachedTransition;
-  }
 
 } } } // namespace smoc::Detail::FSM

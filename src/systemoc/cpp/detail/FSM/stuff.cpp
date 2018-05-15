@@ -86,7 +86,7 @@ template<class C> inline bool single(const C& c) {
 
 /// @brief Constructor
 RuntimeTransition::RuntimeTransition(
-    const boost::shared_ptr<FiringRuleImpl> &tip
+    FiringRuleImpl     *firingRuleImpl
 #ifdef SYSTEMOC_ENABLE_MAESTRO
   , MetaMap::SMoCActor &pActor
 #endif //SYSTEMOC_ENABLE_MAESTRO
@@ -95,7 +95,7 @@ RuntimeTransition::RuntimeTransition(
 #ifdef SYSTEMOC_ENABLE_MAESTRO
     Transition(pActor),
 #endif //SYSTEMOC_ENABLE_MAESTRO
-    transitionImpl(tip)
+    firingRuleImpl(firingRuleImpl)
   , dest(dest)
 {
 #if defined(SYSTEMOC_ENABLE_MAESTRO) && defined(MAESTRO_ENABLE_BRUCKNER)
@@ -105,7 +105,7 @@ RuntimeTransition::RuntimeTransition(
 }
 
 const smoc::Expr::Ex<bool>::type &RuntimeTransition::getExpr() const
-  { return transitionImpl->getGuard(); }
+  { return firingRuleImpl->getGuard(); }
 
 RuntimeState* RuntimeTransition::getDestState() const
   { return dest; }
@@ -114,10 +114,10 @@ std::string RuntimeTransition::getDestStateName() const
   { return dest->stateName; }
 
 const smoc_action& RuntimeTransition::getAction() const
-  { return transitionImpl->getAction(); }
+  { return firingRuleImpl->getAction(); }
 
 void *RuntimeTransition::getID() const
-  { return transitionImpl.get(); }
+  { return firingRuleImpl; }
 
 class TransitionActionNameVisitor {
 public:
@@ -197,7 +197,7 @@ bool RuntimeTransition::check(bool debug) const {
   }
 #if defined(SYSTEMOC_ENABLE_VPC)
   if (!debug) {
-    transitionImpl->vpcTask.check();
+    firingRuleImpl->vpcTask.check();
   }
 #endif //SYSTEMOC_ENABLE_VPC
   return result;
@@ -266,10 +266,10 @@ RuntimeState *RuntimeTransition::execute(NodeBase *node) {
 #endif // SYSTEMOC_ENABLE_TRANSITION_TRACE
   
 #if defined(SYSTEMOC_ENABLE_VPC)
-  VpcTaskInterface *vti = this->transitionImpl.get();
+  VpcTaskInterface *vti = this->firingRuleImpl;
   vti->getDiiEvent()->reset();
   smoc::Expr::evalTo<smoc::Expr::CommExec>(getExpr(), VpcInterface(vti));
-  SystemC_VPC::EventPair events = this->transitionImpl->startCompute();
+  SystemC_VPC::EventPair events = this->firingRuleImpl->startCompute();
 # ifdef SYSTEMOC_ENABLE_DATAFLOW_TRACE
   if(!*events.latency) {
     // latency event not signaled
@@ -317,12 +317,12 @@ void RuntimeTransition::before_end_of_elaboration(NodeBase *node) {
 #ifdef SYSTEMOC_ENABLE_VPC
   //calculate delay for guard
   //initialize VpcTaskInterface
-  this->transitionImpl->diiEvent = node->diiEvent;
-  this->transitionImpl->vpcTask =
+  this->firingRuleImpl->diiEvent = node->diiEvent;
+  this->firingRuleImpl->vpcTask =
     SystemC_VPC::Director::getInstance().registerActor(node,
                 node->name(), actionNames, guardNames, visitor.getComplexity());
 # ifdef SYSTEMOC_DEBUG_VPC_IF
-  this->transitionImpl->actor = node->name();
+  this->firingRuleImpl->actor = node->name();
 # endif // SYSTEMOC_DEBUG_VPC_IF
 #endif //SYSTEMOC_ENABLE_TRANSITION_TRACE
 #ifdef SYSTEMOC_ENABLE_TRANSITION_TRACE
@@ -368,7 +368,7 @@ void RuntimeTransition::end_of_elaboration(smoc::Detail::NodeBase *node) {
   }
 #endif //defined(SYSTEMOC_DEBUG)
   IOPattern *iop = getCachedIOPattern(tmp);
-  transitionImpl->setIOPattern(iop);
+  firingRuleImpl->setIOPattern(iop);
 #ifdef SYSTEMOC_ENABLE_HOOKING
   actionStr = boost::apply_visitor(TransitionActionNameVisitor(), getAction());
 
@@ -625,7 +625,7 @@ void StateImpl::expandTransition(
   etl.push_back(
       ExpandedTransition(
         srcState, conditions,
-        accFiringRule.getGuard(), accFiringRule.getAction(),
+        getFiringFSM()->acquireFiringRule(accFiringRule),
         dest));
 }
 
@@ -881,8 +881,7 @@ void MultiStateImpl::expandTransition(
   etl.push_back(
       ExpandedTransition(
         srcState, conditions,
-        accFiringRule.getGuard(),
-        accFiringRule.getAction(),
+        getFiringFSM()->acquireFiringRule(accFiringRule),
         states));
 }
 
