@@ -58,8 +58,8 @@ namespace smoc { namespace Detail { namespace FSM {
     /// @brief Action of the firing rule, might be a list of actions.
     smoc_action action;
 
-    /// @brief IO Guard for the firing rule, this is derived from guard.
-    IOPattern *ioPattern;
+    /// @brief Event waiter for input/output guards (enough token/free space)
+    mutable smoc_event_waiter *ioPatternWaiter;
   public:
     RuntimeFiringRule(
         smoc_guard  const &g,
@@ -73,13 +73,8 @@ namespace smoc { namespace Detail { namespace FSM {
     smoc_action const &getAction() const
       { return action; }
 
-    /// @brief Returns input/output pattern (enough token/free space)
-    const IOPattern *getIOPattern() const
-      { assert(ioPattern); return ioPattern; }
-
-    /// @brief Returns input/output pattern (enough token/free space)
-    void setIOPattern(IOPattern *iop)
-      { assert(iop); ioPattern = iop; }
+    /// @brief Returns event waiter for input/output guards (enough token/free space)
+    smoc_event_waiter *getIOPatternWaiter() const;
   };
 
 } } } // namespace smoc::Detail::FSM

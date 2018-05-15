@@ -109,7 +109,7 @@ namespace smoc { namespace Detail { namespace FSM {
 
     /// @brief Returns waiter for input/output pattern (enough token/free space)
     smoc::smoc_event_waiter* getIOPatternWaiter() const
-      { return firingRule->getIOPattern()->getWaiter(); }
+      { return firingRule->getIOPatternWaiter(); }
 
     /// @brief Test if transition is enabled.
     /// If debug is true, the check of the guard is for debugging purposes

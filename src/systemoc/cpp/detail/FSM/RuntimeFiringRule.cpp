@@ -40,6 +40,21 @@ namespace smoc { namespace Detail { namespace FSM {
   RuntimeFiringRule::RuntimeFiringRule(
       smoc_guard  const &g,
       smoc_action const &f)
-    : guard(g), action(f), ioPattern(nullptr) {}
+    : guard(g), action(f), ioPatternWaiter(nullptr) {}
+
+  smoc_event_waiter *RuntimeFiringRule::getIOPatternWaiter() const {
+    if (!ioPatternWaiter) {
+      IOPattern tmp;
+      smoc::Expr::evalTo<smoc::Expr::Sensitivity>(getGuard(), tmp);
+      tmp.finalise();
+    #ifdef SYSTEMOC_DEBUG
+      if (smoc::Detail::outDbg.isVisible(smoc::Detail::Debug::Low)) {
+        smoc::Detail::outDbg << "=> " << tmp << std::endl;
+      }
+    #endif //defined(SYSTEMOC_DEBUG)
+      ioPatternWaiter = tmp.getWaiter();
+    }
+    return ioPatternWaiter;
+  }
 
 } } } // namespace smoc::Detail::FSM
