@@ -33,67 +33,17 @@
  * ENHANCEMENTS, OR MODIFICATIONS.
  */
 
-#ifndef _INCLUDED_SMOC_DETAIL_FSM_BASESTATEIMPL_HPP
-#define _INCLUDED_SMOC_DETAIL_FSM_BASESTATEIMPL_HPP
-
-#include <smoc/smoc_firing_rule.hpp>
-#include <smoc/smoc_transition.hpp>
-#include <smoc/detail/IOPattern.hpp>
-#include <smoc/detail/VpcInterface.hpp>
-#include <systemoc/detail/smoc_func_call.hpp>
-
 #include "PartialTransition.hpp"
-#include "ExpandedTransition.hpp"
-
-#include <systemoc/smoc_config.h>
-
-// Prints duration of FiringFSM::finalise() in secs.
-//#define FSM_FINALIZE_BENCHMARK
 
 namespace smoc { namespace Detail { namespace FSM {
 
-  class FiringFSM;
+  PartialTransition::PartialTransition(
+      const smoc_guard  &g,
+      const smoc_action &f,
+      BaseStateImpl *dest)
+    : smoc_firing_rule(g, f), dest(dest) {}
 
-  class BaseStateImpl {
-    typedef BaseStateImpl this_type;
-  protected:
-    /// @brief Partial transitions (as added by user)
-    PartialTransitionList ptl;
-
-    /// @brief Constructor
-    BaseStateImpl();
-
-    /// @brief Set the FSM (only set the pointer, do not transfer the state!)
-    virtual void setFiringFSM(FiringFSM *fsm);
-    friend class FiringFSM;
-
-  #ifdef FSM_FINALIZE_BENCHMARK
-    virtual void countStates(size_t& nLeaf, size_t& nAnd, size_t& nXOR, size_t& nTrans) const;
-  #endif // FSM_FINALIZE_BENCHMARK
-
-    /// @brief Destructor
-    virtual ~BaseStateImpl();
-  public:
-    /// @brief Returns the FSM
-    FiringFSM *getFiringFSM() const;
-
-    /// @brief Hierarchical end-of-elaboration callback
-    virtual void finalise(ExpandedTransitionList& etl) {};
-
-    /// @brief Add transition list to transitions
-    void addTransition(const smoc_transition_list& stl);
-
-    /// @brief Clear transition list
-    void clearTransition();
-
-    virtual void expandTransition(
-        ExpandedTransitionList& etl,
-        const ExpandedTransition& t) const = 0;
-  private:
-    /// @brief Parent firing FSM
-    FiringFSM *fsm;
-  };
+  BaseStateImpl* PartialTransition::getDestState() const
+    { return dest; }
 
 } } } // namespace smoc::Detail::FSM
-
-#endif /* _INCLUDED_SMOC_DETAIL_FSM_BASESTATEIMPL_HPP */
