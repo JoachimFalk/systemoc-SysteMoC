@@ -36,8 +36,7 @@
 #ifndef _INCLUDED_SMOC_DETAIL_FSM_TRANSITIONIMPL_HPP
 #define _INCLUDED_SMOC_DETAIL_FSM_TRANSITIONIMPL_HPP
 
-#include <smoc/smoc_guard.hpp>
-#include <systemoc/detail/smoc_func_call.hpp> // for smoc_action
+#include <smoc/smoc_firing_rule.hpp>
 
 #include <list>
 
@@ -46,43 +45,18 @@ namespace smoc { namespace Detail { namespace FSM {
   class BaseStateImpl;
 
   /**
-   * Lifetime of PartialTransition, ExpandedTransition and TransitionBase:
+   * Lifetime of PartialTransition and ExpandedTransition:
    *
    * PartialTransition represents the transitions modeled by the user.
    * PartialTransitions, especially in the presence of connector states, are
    * expanded to ExpandedTransitions. ExpandedTransitions are used to build the
    * product FSM, which leads to the creation of RuntimeTransitions. After
-   * expanding, TransitionImpls are derived from the ExpandedTransitions.
+   * expanding, FiringRuleImpls are derived from the ExpandedTransitions.
    *
    * Several RuntimeTransitions in the "runtime" FSM share smoc_actions and
-   * guards in terms of shared_ptrs to a TransitionImpl.
+   * guards in terms of shared_ptrs to a FiringRuleImpl.
    */
-  class TransitionBase {
-  private:
-    /// @brief Guard for the transition (AST assembled from smoc_guard.hpp nodes)
-    smoc_guard guard;
-
-    /// @brief Action of the transition, might be a list of actions.
-    smoc_action action;
-  public:
-    TransitionBase(
-        smoc_guard const &g,
-        const smoc_action &f);
-  public:
-    /// @brief Returns the guard
-    smoc_guard const &getGuard() const
-      { return guard; }
-
-    /// @brief Returns the action
-    const smoc_action &getAction() const
-      { return action; }
-
-    /// @brief Returns the action
-    smoc_action &getAction()
-      { return action; }
-  };
-
-  class PartialTransition : public TransitionBase {
+  class PartialTransition : public smoc_firing_rule {
   private:
 
     /// @brief Target state
