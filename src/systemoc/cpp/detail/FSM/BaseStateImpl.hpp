@@ -87,8 +87,10 @@ namespace smoc { namespace Detail { namespace FSM {
     void clearTransition();
 
     virtual void expandTransition(
-        ExpandedTransitionList& etl,
-        const ExpandedTransition& t) const = 0;
+        ExpandedTransitionList &etl,
+        StateImpl const        *srcState,
+        CondMultiState const   &conditions,
+        smoc_firing_rule const &accFiringRule) const = 0;
   private:
     /// @brief Parent firing FSM
     FiringFSM *fsm;
