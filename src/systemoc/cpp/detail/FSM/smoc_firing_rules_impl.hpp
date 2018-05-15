@@ -276,8 +276,10 @@ public:
 
   /// @brief See BaseStateImpl
   void expandTransition(
-      ExpandedTransitionList& etl,
-      const ExpandedTransition& t) const;
+      ExpandedTransitionList &etl,
+      StateImpl const        *srcState,
+      CondMultiState const   &conditions,
+      smoc_firing_rule const &accFiringRule) const;
 
   /// @brief return true if I am an ancestor of s
   bool isAncestor(const StateImpl* s) const;
@@ -391,8 +393,10 @@ public:
   
   /// @brief See BaseStateImpl
   void expandTransition(
-      ExpandedTransitionList& etl,
-      const ExpandedTransition& t) const;
+      ExpandedTransitionList &etl,
+      StateImpl const        *srcState,
+      CondMultiState const   &conditions,
+      smoc_firing_rule const &accFiringRule) const;
 };
 
 class MultiStateImpl: public BaseStateImpl {
@@ -412,8 +416,10 @@ public:
   
   /// @brief See BaseStateImpl
   void expandTransition(
-      ExpandedTransitionList& etl,
-      const ExpandedTransition& t) const;
+      ExpandedTransitionList &etl,
+      StateImpl const        *srcState,
+      CondMultiState const   &conditions,
+      smoc_firing_rule const &accFiringRule) const;
 
   void addState(StateImpl* s);
 

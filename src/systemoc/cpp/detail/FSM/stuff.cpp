@@ -593,16 +593,14 @@ void StateImpl::finalise(ExpandedTransitionList& etl) {
     }
   }
 
+  CondMultiState noConditions;
+
   for(PartialTransitionList::const_iterator pt = ptl.begin();
       pt != ptl.end(); ++pt)
   {
     assert(pt->getDestState());
     pt->getDestState()->expandTransition(
-        etl,
-        ExpandedTransition(
-          this,
-          pt->getGuard(),
-          pt->getAction()));
+        etl, this, noConditions, *pt);
   }
 
 #ifdef SYSTEMOC_DEBUG
@@ -613,23 +611,21 @@ void StateImpl::finalise(ExpandedTransitionList& etl) {
 }
 
 void StateImpl::expandTransition(
-    ExpandedTransitionList& etl,
-    const ExpandedTransition& t) const
+    ExpandedTransitionList &etl,
+    StateImpl const        *srcState,
+    CondMultiState const   &conditions,
+    smoc_firing_rule const &accFiringRule) const
 {
 //  smoc::Detail::outDbg << "StateImpl::expandTransition(etl,t) this == " << this << std::endl;
 //  ScopedIndent s0(smoc::Detail::outDbg);
-
-  assert(t.getDestStates().empty());
 
   MultiState dest;
   dest.insert(this);
 
   etl.push_back(
       ExpandedTransition(
-        t.getSrcState(),
-        t.getCondStates(),
-        t.getGuard(),
-        t.getAction(),
+        srcState, conditions,
+        accFiringRule.getGuard(), accFiringRule.getAction(),
         dest));
 }
 
@@ -814,29 +810,26 @@ JunctionStateImpl::JunctionStateImpl()
   : BaseStateImpl() {}
 
 void JunctionStateImpl::expandTransition(
-    ExpandedTransitionList& etl,
-    const ExpandedTransition& t) const
+    ExpandedTransitionList &etl,
+    StateImpl const        *srcState,
+    CondMultiState const   &conditions,
+    smoc_firing_rule const &accFiringRule) const
 {
 //  smoc::Detail::outDbg << "JunctionStateImpl::expandTransition(etl,t) this == " << this << std::endl;
 //  ScopedIndent s0(smoc::Detail::outDbg);
-
-  assert(t.getDestStates().empty());
-
-  if(ptl.empty()) {
+  if (ptl.empty())
     throw FiringFSM::ModelingError("smoc_junction_state: Must specify at least one transition");
-  }
 
-  for(PartialTransitionList::const_iterator pt = ptl.begin();
-      pt != ptl.end(); ++pt)
+  for (PartialTransitionList::const_iterator pt = ptl.begin();
+       pt != ptl.end();
+       ++pt)
   {
     assert(pt->getDestState());
     pt->getDestState()->expandTransition(
-        etl,
-        ExpandedTransition(
-          t.getSrcState(),
-          t.getCondStates(),
-          t.getGuard() && pt->getGuard(),
-          merge(t.getAction(), pt->getAction())));
+        etl, srcState, conditions,
+        smoc_firing_rule(
+            accFiringRule.getGuard() && pt->getGuard(),
+            merge(accFiringRule.getAction(), pt->getAction())));
   }
 }
 
@@ -856,49 +849,42 @@ void MultiStateImpl::finalise(ExpandedTransitionList& etl) {
 //  ScopedIndent s0(smoc::Detail::outDbg);
  
   // target state if no transitions
-  if(ptl.empty())
+  if (ptl.empty())
     return;
 
   // at least one outgoing transition --> single src state
-  if(!single(states)) {
-    throw FiringFSM::ModelingError("smoc_multi_state: Must specify single source state");
-  }
+  if (!single(states))
+    throw FiringFSM::ModelingError("smoc_multi_state: Source multi-state must specify exactly one source state!");
 
-  for(PartialTransitionList::const_iterator pt = ptl.begin();
-      pt != ptl.end(); ++pt)
-  {
+  for (PartialTransitionList::const_iterator pt = ptl.begin();
+       pt != ptl.end();
+       ++pt) {
     assert(pt->getDestState());
     pt->getDestState()->expandTransition(
-        etl,
-        ExpandedTransition(
-          *states.begin(),
-          condStates,
-          pt->getGuard(), pt->getAction()));
+        etl, *states.begin(), condStates, *pt);
   }
 }
 
 void MultiStateImpl::expandTransition(
-    ExpandedTransitionList& etl,
-    const ExpandedTransition& t) const
+    ExpandedTransitionList &etl,
+    StateImpl const        *srcState,
+    CondMultiState const   &conditions,
+    smoc_firing_rule const &accFiringRule) const
 {
 //  smoc::Detail::outDbg << "MultiStateImpl::expandTransition(etl,t) this == " << this << std::endl;
 //  ScopedIndent s0(smoc::Detail::outDbg);
-  
-  assert(t.getDestStates().empty());
-
-  if(states.empty()) {
-    throw FiringFSM::ModelingError("smoc_multi_state: Must specify at least one target state");
-  }
+  if (states.empty())
+    throw FiringFSM::ModelingError("smoc_multi_state: Destination multi-state must specify at least one target state!");
+  if (!condStates.empty())
+    throw FiringFSM::ModelingError("smoc_multi_state: Destination multi-state must not specify any condition states!");
 
   etl.push_back(
       ExpandedTransition(
-        t.getSrcState(),
-        t.getCondStates(),
-        t.getGuard(),
-        t.getAction(),
+        srcState, conditions,
+        accFiringRule.getGuard(),
+        accFiringRule.getAction(),
         states));
 }
-
 
 void MultiStateImpl::addState(StateImpl* s) {
 //  smoc::Detail::outDbg << "MultiStateImpl::addState(s) this == " << this << std::endl; 
