@@ -143,6 +143,11 @@ FiringFSM::RuntimeStateSet const &FiringFSM::getStates() const
 RuntimeState *FiringFSM::getInitialState() const
   { return init; }
 
+FiringRuleImpl *FiringFSM::acquireFiringRule(smoc_firing_rule const &smocFiringRule) {
+  firingRules.push_front(FiringRuleImpl(smocFiringRule.getGuard(), smocFiringRule.getAction()));
+  return &firingRules.front();
+}
+
 void FiringFSM::before_end_of_elaboration(
     NodeBase              *actorOrGraphNode,
     StateImpl *hsinit)
@@ -326,7 +331,7 @@ void FiringFSM::before_end_of_elaboration(
 #endif //SYSTEMOC_ENABLE_MAESTRO
           rs->addTransition(
             RuntimeTransition(
-              t->getCachedTransitionImpl(),
+              t->getFiringRule(),
 #ifdef SYSTEMOC_ENABLE_MAESTRO
               *a,
 #endif //SYSTEMOC_ENABLE_MAESTRO

@@ -62,7 +62,7 @@ namespace smoc { namespace Detail { namespace FSM {
    * Several RuntimeTransitions in the "runtime" FSM share smoc_actions and
    * guards in terms of shared_ptrs to a FiringRuleImpl.
    */
-  class ExpandedTransition : public smoc_firing_rule {
+  class ExpandedTransition {
   private:
     /// @brief Source state
     const StateImpl* src;
@@ -70,19 +70,18 @@ namespace smoc { namespace Detail { namespace FSM {
     /// @brief IN conditions
     CondMultiState in;
 
+    /// @brief action and guard of the transition
+    FiringRuleImpl *firingRuleImpl;
+
     /// @brief Target state(s)
     MultiState dest;
-
-    mutable boost::shared_ptr<FiringRuleImpl> cachedTransition;
-
   public:
     /// @brief Constructor
     ExpandedTransition(
-        const StateImpl* src,
-        const CondMultiState& in,
-        smoc_guard const &g,
-        const smoc_action& f,
-        const MultiState& dest);
+        StateImpl      const *src,
+        CondMultiState const &in,
+        FiringRuleImpl       *firingRuleImpl,
+        MultiState     const & dest);
 
     /// @brief Returns the source state
     StateImpl const *getSrcState() const
@@ -96,7 +95,8 @@ namespace smoc { namespace Detail { namespace FSM {
     MultiState const &getDestStates() const
       { return dest; }
 
-    boost::shared_ptr<FiringRuleImpl> getCachedTransitionImpl() const;
+    FiringRuleImpl *getFiringRule() const
+      { return firingRuleImpl; }
   };
 
   typedef std::list<ExpandedTransition> ExpandedTransitionList;

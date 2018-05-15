@@ -105,7 +105,7 @@ class RuntimeTransition
   friend class RuntimeState; // for ap
   friend class smoc::Detail::NodeBase; // for dest
 private:
-  boost::shared_ptr<FiringRuleImpl> transitionImpl;
+  FiringRuleImpl      *firingRuleImpl;
 
   /// @brief Target state
   RuntimeState        *dest;
@@ -129,7 +129,7 @@ private:
 public:
   /// @brief Constructor
   RuntimeTransition(
-      const boost::shared_ptr<FiringRuleImpl> &tip,
+      FiringRuleImpl     *firingRuleImpl,
 #ifdef SYSTEMOC_ENABLE_MAESTRO
       MetaMap::SMoCActor &parentActor,
 #endif //SYSTEMOC_ENABLE_MAESTRO
@@ -152,7 +152,7 @@ public:
 
   /// @brief Returns waiter for input/output pattern (enough token/free space)
   smoc::smoc_event_waiter* getIOPatternWaiter() const
-    { return transitionImpl->getIOPattern()->getWaiter(); }
+    { return firingRuleImpl->getIOPattern()->getWaiter(); }
 
   /// @brief Test if transition is enabled.
   /// If debug is true, the check of the guard is for debugging purposes
