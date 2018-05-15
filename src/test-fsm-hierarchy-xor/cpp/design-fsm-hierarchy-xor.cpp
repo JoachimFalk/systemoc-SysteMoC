@@ -101,17 +101,17 @@ public:
   Transform(sc_core::sc_module_name name)
     : smoc_actor(name, a), a("a")
   {
-    smoc_firing_state   s_s_a("s_s_a");
-    smoc_firing_state   s_s_b("s_s_b");
+    smoc_firing_state   c_a_a("c_a_a");
+    smoc_firing_state   c_a_b("c_a_b");
 
-    smoc_xor_state  s_a;
-    s_a.init(s_s_a).add(s_s_b);
+    smoc_xor_state  c_a;
+    c_a.init(c_a_a).add(c_a_b);
 
-    smoc_firing_state   s_b("s_b");
+    smoc_firing_state   c_b("c_b");
 
     smoc_firing_state   b("b");
     smoc_xor_state  c;
-    c.init(s_a).add(s_b);
+    c.init(c_a).add(c_b);
 
     smoc_firing_state   d("d");
     smoc_firing_state   e("e");
@@ -146,8 +146,8 @@ public:
     
     b =
          SMOC_GUARD(Transform::odd)
-      >> SMOC_CALL(Transform::process)("b -> s_s_b")
-      >> s_s_b
+      >> SMOC_CALL(Transform::process)("b -> c_a_b")
+      >> c_a_b
     |    !SMOC_GUARD(Transform::odd)
       >> SMOC_CALL(Transform::process)("b -> c")
       >> c;
@@ -156,17 +156,17 @@ public:
      * Sub FSM(s)
      */
 
-    s_a =
-         SMOC_CALL(Transform::process)("s_a -> s_b")
-      >> s_b;
+    c_a =
+         SMOC_CALL(Transform::process)("c_a -> c_b")
+      >> c_b;
 
     /*
      * Transitions from sub FSM(s)
      */
 
-    s_b =
+    c_b =
          SMOC_GUARD(Transform::odd)
-      >> SMOC_CALL(Transform::process)("s_b -> e")
+      >> SMOC_CALL(Transform::process)("c_b -> e")
       >> e;
 
     c =
