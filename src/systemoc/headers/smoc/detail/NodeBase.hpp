@@ -98,7 +98,7 @@ namespace smoc { namespace Detail { namespace FSM {
 
 class FiringFSM;
 class RuntimeState;
-class FiringRuleImpl;
+class RuntimeFiringRule;
 class RuntimeTransition;
 
 } } } // namespace smoc::Detail::FSM
@@ -264,7 +264,7 @@ private:
   /// @brief VPC data introduction interval event
   smoc::smoc_vpc_event_p        diiEvent;
   FSM::RuntimeState            *commState;
-  FSM::FiringRuleImpl          *commAction;
+  FSM::RuntimeFiringRule       *commAction;
 #endif // SYSTEMOC_ENABLE_VPC
 
   /// @brief is this an actor, a graph, or something else.

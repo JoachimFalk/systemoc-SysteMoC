@@ -40,8 +40,9 @@
 
 #ifdef SYSTEMOC_NEED_IDS
 
-#include <stdint.h> // For uint32_t
 #include <limits>
+#include <cstdint> // For uint32_t
+#include <cassert>
 
 namespace smoc { namespace Detail {
 

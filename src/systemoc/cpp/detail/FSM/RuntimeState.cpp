@@ -33,19 +33,55 @@
  * ENHANCEMENTS, OR MODIFICATIONS.
  */
 
-#include "ExpandedTransition.hpp"
+#include "RuntimeState.hpp"
+#include "../SimulationContext.hpp"
 
 namespace smoc { namespace Detail { namespace FSM {
 
-  ExpandedTransition::ExpandedTransition(
-      StateImpl      const *src,
-      CondMultiState const &in,
-      RuntimeFiringRule    *firingRule,
-      MultiState     const & dest)
-    : src(src)
-    , in(in)
-    , firingRule(firingRule)
-    , dest(dest)
-  {}
+  RuntimeState::RuntimeState(std::string const &name
+#if defined(SYSTEMOC_ENABLE_MAESTRO) && defined(MAESTRO_ENABLE_BRUCKNER)
+      , Bruckner::Model::Hierarchical* sParent = nullptr
+#endif//defined(SYSTEMOC_ENABLE_MAESTRO) && defined(MAESTRO_ENABLE_BRUCKNER)
+    ) :
+#if defined(SYSTEMOC_ENABLE_MAESTRO) && defined(MAESTRO_ENABLE_BRUCKNER)
+      Bruckner::Model::State(name),
+#endif // !defined(SYSTEMOC_ENABLE_MAESTRO) || !defined(MAESTRO_ENABLE_BRUCKNER)
+      stateName(name)
+  {
+    assert(!name.empty());
+#if defined(SYSTEMOC_ENABLE_MAESTRO) && defined(MAESTRO_ENABLE_BRUCKNER)
+    dynamic_cast<Bruckner::Model::Hierarchical *>(this)->parent = sParent;
+#endif //defined(SYSTEMOC_ENABLE_MAESTRO) && defined(MAESTRO_ENABLE_BRUCKNER)
+#ifdef SYSTEMOC_NEED_IDS
+    // Allocate Id for myself.
+    getSimCTX()->getIdPool().addIdedObj(this);
+#endif // SYSTEMOC_NEED_IDS
+  }
+
+  RuntimeState::~RuntimeState() {
+  //idPool.unregObj(this);
+  }
+
+  const RuntimeTransitionList& RuntimeState::getTransitions() const
+    { return tl; }
+
+  RuntimeTransitionList& RuntimeState::getTransitions()
+    { return tl; }
+
+  void RuntimeState::addTransition(const RuntimeTransition& t,
+                                   NodeBase *node) {
+    tl.push_back(t);
+    tl.back().before_end_of_elaboration(node); // FIXME: Fix this hack!
+  }
+
+  void RuntimeState::end_of_elaboration(smoc::Detail::NodeBase *node) {
+    RuntimeTransitionList::iterator iterEnd = getTransitions().end();
+    for (RuntimeTransitionList::iterator iter = getTransitions().begin();
+         iter != iterEnd;
+         ++iter) {
+      iter->end_of_elaboration(node);
+      am.insert(iter->getIOPatternWaiter());
+    }
+  }
 
 } } } // namespace smoc::Detail::FSM

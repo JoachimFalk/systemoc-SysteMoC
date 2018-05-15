@@ -64,7 +64,9 @@
 
 #include "apply_visitor.hpp"
 #include "SimulationContext.hpp"
-#include "FSM/smoc_firing_rules_impl.hpp"
+
+#include "FSM/RuntimeState.hpp"
+#include "FSM/RuntimeTransition.hpp"
 #include "FSM/FiringFSM.hpp"
 
 //#define SYSTEMOC_DEBUG

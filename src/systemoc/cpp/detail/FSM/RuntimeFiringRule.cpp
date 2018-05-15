@@ -33,55 +33,13 @@
  * ENHANCEMENTS, OR MODIFICATIONS.
  */
 
-#ifndef _INCLUDED_SMOC_DETAIL_FSM_FIRINGRULEIMPL_HPP
-#define _INCLUDED_SMOC_DETAIL_FSM_FIRINGRULEIMPL_HPP
-
-#include <smoc/smoc_guard.hpp>
-#include <systemoc/detail/smoc_func_call.hpp> // for smoc_action
-
-#include <smoc/detail/IOPattern.hpp>
-#include <smoc/detail/VpcInterface.hpp>
-
-#include <systemoc/smoc_config.h>
+#include "RuntimeFiringRule.hpp"
 
 namespace smoc { namespace Detail { namespace FSM {
 
-  class FiringRuleImpl
-#ifdef SYSTEMOC_ENABLE_VPC
-    : public VpcTaskInterface
-#endif // SYSTEMOC_ENABLE_VPC
-  {
-  private:
-    /// @brief Guard for the firing rule (AST assembled from smoc_guard.hpp nodes)
-    smoc_guard guard;
-
-    /// @brief Action of the firing rule, might be a list of actions.
-    smoc_action action;
-
-    /// @brief IO Guard for the firing rule, this is derived from guard.
-    IOPattern *ioPattern;
-  public:
-    FiringRuleImpl(
-        smoc_guard  const &g,
-        smoc_action const &f);
-
-    /// @brief Returns the guard
-    smoc_guard const &getGuard() const
-      { return guard; }
-
-    /// @brief Returns the action
-    smoc_action const &getAction() const
-      { return action; }
-
-    /// @brief Returns input/output pattern (enough token/free space)
-    const IOPattern *getIOPattern() const
-      { assert(ioPattern); return ioPattern; }
-
-    /// @brief Returns input/output pattern (enough token/free space)
-    void setIOPattern(IOPattern *iop)
-      { assert(iop); ioPattern = iop; }
-  };
+  RuntimeFiringRule::RuntimeFiringRule(
+      smoc_guard  const &g,
+      smoc_action const &f)
+    : guard(g), action(f), ioPattern(nullptr) {}
 
 } } } // namespace smoc::Detail::FSM
-
-#endif /* _INCLUDED_SMOC_DETAIL_FSM_FIRINGRULEIMPL_HPP */
