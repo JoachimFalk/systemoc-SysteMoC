@@ -90,7 +90,7 @@ ExpandedTransition::ExpandedTransition(
     smoc_guard const &g,
     const smoc_action& f,
     const MultiState& dest)
-  : TransitionBase(g, f),
+  : smoc_firing_rule(g, f),
     src(src),
     in(in),
     dest(dest)
@@ -101,7 +101,7 @@ ExpandedTransition::ExpandedTransition(
     const CondMultiState& in,
     smoc_guard const &g,
     const smoc_action& f)
-  : TransitionBase(g, f),
+  : smoc_firing_rule(g, f),
     src(src),
     in(in)
 {}
@@ -110,7 +110,7 @@ ExpandedTransition::ExpandedTransition(
     const StateImpl* src,
     smoc_guard const &g,
     const smoc_action& f)
-  : TransitionBase(g, f),
+  : smoc_firing_rule(g, f),
     src(src)
 {}
 

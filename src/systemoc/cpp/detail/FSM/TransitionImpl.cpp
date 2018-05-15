@@ -37,16 +37,11 @@
 
 namespace smoc { namespace Detail { namespace FSM {
 
-  TransitionBase::TransitionBase(
-      smoc_guard  const &g,
-      smoc_action const &f)
-    : guard(g), action(f) {}
-
   PartialTransition::PartialTransition(
       const smoc_guard  &g,
       const smoc_action &f,
       BaseStateImpl *dest)
-    : TransitionBase(g, f), dest(dest) {}
+    : smoc_firing_rule(g, f), dest(dest) {}
 
   BaseStateImpl* PartialTransition::getDestState() const
     { return dest; }

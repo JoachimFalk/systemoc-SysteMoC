@@ -91,7 +91,7 @@ typedef std::set<const FiringStateImpl*> ProdState;
 typedef std::set<const StateImpl*> MultiState;
 typedef std::map<const StateImpl*,bool> CondMultiState;
 
-class ExpandedTransition : public TransitionBase {
+class ExpandedTransition : public smoc_firing_rule {
 private:
   /// @brief Source state
   const StateImpl* src;
