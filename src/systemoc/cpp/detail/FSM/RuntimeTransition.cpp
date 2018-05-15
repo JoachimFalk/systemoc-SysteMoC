@@ -268,24 +268,7 @@ namespace smoc { namespace Detail { namespace FSM {
 #endif //SYSTEMOC_ENABLE_MAESTRO
   }
 
-  static
-  IOPattern *getCachedIOPattern(const IOPattern &iop) {
-    typedef std::set<IOPattern> Cache;
-    static Cache* cache = new Cache();
-    return &const_cast<IOPattern&>(*cache->insert(iop).first);
-  }
-
   void RuntimeTransition::end_of_elaboration(smoc::Detail::NodeBase *node) {
-    IOPattern tmp;
-    smoc::Expr::evalTo<smoc::Expr::Sensitivity>(getExpr(), tmp);
-    tmp.finalise();
-#ifdef SYSTEMOC_DEBUG
-    if (smoc::Detail::outDbg.isVisible(smoc::Detail::Debug::Low)) {
-      smoc::Detail::outDbg << "=> " << tmp << std::endl;
-    }
-#endif //defined(SYSTEMOC_DEBUG)
-    IOPattern *iop = getCachedIOPattern(tmp);
-    firingRule->setIOPattern(iop);
 #ifdef SYSTEMOC_ENABLE_HOOKING
     actionStr = boost::apply_visitor(TransitionActionNameVisitor(), getAction());
 
