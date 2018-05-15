@@ -46,17 +46,27 @@ namespace smoc { namespace Detail { namespace FSM {
 using CoSupport::String::Concat;
 
 static
-std::ostream &operator<<(std::ostream &os, const ProdState &p) {
-  //os << "(";
-  for(ProdState::const_iterator s = p.begin();
-      s != p.end(); ++s)
-  {
-    if (s != p.begin())
-      os << FiringFSM::PRODSTATE_SEPARATOR;
-    assert(!(*s)->getName().empty());
-    os << (*s)->getHierarchicalName();
+std::ostream &operator<<(std::ostream &os, ProdState const &p) {
+  // We need to sort the names of the states in the prod state in order to
+  // generate a deterministic prod state name. For this sorting, we need a
+  // map due to corner case of identical state names. The integer is the
+  // multiplicity of a state name. This should almost always be one.
+  std::map<std::string, int> names;
+  for (FiringStateImpl const *s : p) {
+    assert(!s->getName().empty());
+    std::string name(s->getHierarchicalName());
+    assert(!name.empty());
+    names[name]++;
   }
-  //os << ")";
+  bool first = true;
+  for (std::map<std::string, int>::value_type &v : names) {
+    for (; v.second; --v.second) {
+      if (!first)
+        os << FiringFSM::PRODSTATE_SEPARATOR;
+      first = false;
+      os << v.first;
+    }
+  }
   return os;
 }
 
