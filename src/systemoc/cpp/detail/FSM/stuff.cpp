@@ -424,33 +424,28 @@ void RuntimeTransition::end_of_elaboration(smoc::Detail::NodeBase *node) {
 #endif //SYSTEMOC_ENABLE_HOOKING
 }
  
-static int UnnamedStateCount = 0;
-
-RuntimeState::RuntimeState(const std::string name)
-  : stateName(name.empty() ? Concat("smoc_firing_state_")(UnnamedStateCount++) : name)
-{
-  finalise();
-}
-
+RuntimeState::RuntimeState(std::string const &name
 #if defined(SYSTEMOC_ENABLE_MAESTRO) && defined(MAESTRO_ENABLE_BRUCKNER)
-RuntimeState::RuntimeState(const std::string name, Bruckner::Model::Hierarchical* sParent)
-  : State(name),
-    stateName(name.empty() ? Concat("smoc_firing_state_")(UnnamedStateCount++) : name)
+    , Bruckner::Model::Hierarchical* sParent = nullptr
+#endif//defined(SYSTEMOC_ENABLE_MAESTRO) && defined(MAESTRO_ENABLE_BRUCKNER)
+  ) :
+#if defined(SYSTEMOC_ENABLE_MAESTRO) && defined(MAESTRO_ENABLE_BRUCKNER)
+    Bruckner::Model::State(name),
+#endif // !defined(SYSTEMOC_ENABLE_MAESTRO) || !defined(MAESTRO_ENABLE_BRUCKNER)
+    stateName(name)
 {
-  dynamic_cast<Bruckner::Model::Hierarchical*>(this)->parent = sParent;
-  finalise();
-}
+  assert(!name.empty());
+#if defined(SYSTEMOC_ENABLE_MAESTRO) && defined(MAESTRO_ENABLE_BRUCKNER)
+  dynamic_cast<Bruckner::Model::Hierarchical *>(this)->parent = sParent;
 #endif //defined(SYSTEMOC_ENABLE_MAESTRO) && defined(MAESTRO_ENABLE_BRUCKNER)
+#ifdef SYSTEMOC_NEED_IDS
+  // Allocate Id for myself.
+  getSimCTX()->getIdPool().addIdedObj(this);
+#endif // SYSTEMOC_NEED_IDS
+}
 
 RuntimeState::~RuntimeState() {
 //idPool.unregObj(this);
-}
-
-void RuntimeState::finalise() {
-#ifdef SYSTEMOC_NEED_IDS  
-  // Allocate Id for myself.
-  getSimCTX()->getIdPool().addIdedObj(this);
-#endif // SYSTEMOC_NEED_IDS  
 }
 
 const RuntimeTransitionList& RuntimeState::getTransitions() const
@@ -475,12 +470,11 @@ void RuntimeState::end_of_elaboration(smoc::Detail::NodeBase *node) {
   }
 }
 
-StateImpl::StateImpl(const std::string& name)
-  : BaseStateImpl(),
-    name(name.empty() ? Concat("x")(UnnamedStateCount++) : name),
-    parent(0),
-    code(0),
-    bits(1)
+StateImpl::StateImpl(const std::string &name)
+  : BaseStateImpl()
+  , name(name)
+  , parent(nullptr)
+  , code(0), bits(1)
 {
   if(name.find(FiringFSM::HIERARCHY_SEPARATOR) != std::string::npos)
     assert(!"smoc_hierarchical_state: Invalid state name");
@@ -516,11 +510,15 @@ std::string StateImpl::getHierarchicalName() const {
   if(!parent || parent == getFiringFSM()->top) {
     return name;
   }
-  assert(!name.empty());
-  return
-    parent->getHierarchicalName() +
-    FiringFSM::HIERARCHY_SEPARATOR +
-    name;
+  std::string parentName = parent->getHierarchicalName();
+  if (name.empty())
+    return parentName;
+  else if (parentName.empty())
+    return name;
+  else
+    return parentName +
+      FiringFSM::HIERARCHY_SEPARATOR +
+      name;
 }
   
 #ifdef FSM_FINALIZE_BENCHMARK

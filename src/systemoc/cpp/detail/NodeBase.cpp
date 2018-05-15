@@ -99,7 +99,7 @@ void NodeBase::before_end_of_elaboration() {
   getSimCTX()->getSimulatorInterface()->registerTask(this);
   if (getFiringFSM()) {
 #ifdef SYSTEMOC_ENABLE_VPC
-    this->commState = new FSM::RuntimeState();
+    this->commState = new FSM::RuntimeState("commState");
     this->diiEvent.reset(new smoc::smoc_vpc_event());
     commState->addTransition(
         FSM::RuntimeTransition(

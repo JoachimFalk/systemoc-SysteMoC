@@ -251,13 +251,12 @@ class RuntimeState
 private:
   std::string           stateName;
   RuntimeTransitionList tl;
-
-  void  finalise();
 public:
-  RuntimeState(const std::string name = "");
+  RuntimeState(std::string const &name
 #if defined(SYSTEMOC_ENABLE_MAESTRO) && defined(MAESTRO_ENABLE_BRUCKNER)
-  RuntimeState(const std::string name = "", Bruckner::Model::Hierarchical* sParent = nullptr);
-#endif //defined(SYSTEMOC_ENABLE_MAESTRO) && defined(MAESTRO_ENABLE_BRUCKNER)
+      , Bruckner::Model::Hierarchical* sParent = nullptr
+#endif
+    );
 
   const RuntimeTransitionList& getTransitions() const;
   RuntimeTransitionList& getTransitions();
@@ -302,7 +301,7 @@ private:
 
 protected:
   /// @brief Constructor
-  StateImpl(const std::string& name);
+  StateImpl(std::string const &name);
 
   /// @brief Child states
   typedef std::vector<StateImpl*> C;
