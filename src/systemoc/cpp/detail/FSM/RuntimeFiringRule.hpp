@@ -33,74 +33,55 @@
  * ENHANCEMENTS, OR MODIFICATIONS.
  */
 
-#ifndef _INCLUDED_SMOC_DETAIL_FSM_EXPANDEDTRANSITION_HPP
-#define _INCLUDED_SMOC_DETAIL_FSM_EXPANDEDTRANSITION_HPP
+#ifndef _INCLUDED_SMOC_DETAIL_FSM_RUNTIMEFIRINGRULE_HPP
+#define _INCLUDED_SMOC_DETAIL_FSM_RUNTIMEFIRINGRULE_HPP
 
-#include <smoc/smoc_firing_rule.hpp>
+#include <smoc/smoc_guard.hpp>
+#include <systemoc/detail/smoc_func_call.hpp> // for smoc_action
 
-#include "RuntimeFiringRule.hpp"
+#include <smoc/detail/IOPattern.hpp>
+#include <smoc/detail/VpcInterface.hpp>
 
-#include <list>
-#include <set>
-#include <map>
+#include <systemoc/smoc_config.h>
 
 namespace smoc { namespace Detail { namespace FSM {
 
-  class StateImpl;
-  typedef std::set<const StateImpl *>      MultiState;
-  typedef std::map<const StateImpl *,bool> CondMultiState;
-
-  /**
-   * Lifetime of PartialTransition and ExpandedTransition:
-   *
-   * PartialTransition represents the transitions modeled by the user.
-   * PartialTransitions, especially in the presence of connector states, are
-   * expanded to ExpandedTransitions. ExpandedTransitions are used to build the
-   * product FSM, which leads to the creation of RuntimeTransitions. After
-   * expanding, FiringRuleImpls are derived from the ExpandedTransitions.
-   *
-   * Several RuntimeTransitions in the "runtime" FSM share smoc_actions and
-   * guards in terms of shared_ptrs to a FiringRuleImpl.
-   */
-  class ExpandedTransition {
+  class RuntimeFiringRule
+#ifdef SYSTEMOC_ENABLE_VPC
+    : public VpcTaskInterface
+#endif // SYSTEMOC_ENABLE_VPC
+  {
   private:
-    /// @brief Source state
-    const StateImpl* src;
+    /// @brief Guard for the firing rule (AST assembled from smoc_guard.hpp nodes)
+    smoc_guard guard;
 
-    /// @brief IN conditions
-    CondMultiState in;
+    /// @brief Action of the firing rule, might be a list of actions.
+    smoc_action action;
 
-    /// @brief action and guard of the transition
-    RuntimeFiringRule *firingRule;
-
-    /// @brief Target state(s)
-    MultiState dest;
+    /// @brief IO Guard for the firing rule, this is derived from guard.
+    IOPattern *ioPattern;
   public:
-    /// @brief Constructor
-    ExpandedTransition(
-        StateImpl      const *src,
-        CondMultiState const &in,
-        RuntimeFiringRule    *firingRule,
-        MultiState     const & dest);
+    RuntimeFiringRule(
+        smoc_guard  const &g,
+        smoc_action const &f);
 
-    /// @brief Returns the source state
-    StateImpl const *getSrcState() const
-      { return src; }
+    /// @brief Returns the guard
+    smoc_guard const &getGuard() const
+      { return guard; }
 
-    /// @brief Returns the IN conditions
-    CondMultiState const &getCondStates() const
-      { return in; }
+    /// @brief Returns the action
+    smoc_action const &getAction() const
+      { return action; }
 
-    /// @brief Returns the target state(s)
-    MultiState const &getDestStates() const
-      { return dest; }
+    /// @brief Returns input/output pattern (enough token/free space)
+    const IOPattern *getIOPattern() const
+      { assert(ioPattern); return ioPattern; }
 
-    RuntimeFiringRule *getFiringRule() const
-      { return firingRule; }
+    /// @brief Returns input/output pattern (enough token/free space)
+    void setIOPattern(IOPattern *iop)
+      { assert(iop); ioPattern = iop; }
   };
-
-  typedef std::list<ExpandedTransition> ExpandedTransitionList;
 
 } } } // namespace smoc::Detail::FSM
 
-#endif /* _INCLUDED_SMOC_DETAIL_FSM_EXPANDEDTRANSITION_HPP */
+#endif /* _INCLUDED_SMOC_DETAIL_FSM_RUNTIMEFIRINGRULE_HPP */

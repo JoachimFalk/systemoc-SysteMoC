@@ -56,8 +56,10 @@ libsystemoc_la_SOURCES = \
 	src/systemoc/cpp/detail/FSM/BaseStateImpl.cpp \
 	src/systemoc/cpp/detail/FSM/ExpandedTransition.cpp \
 	src/systemoc/cpp/detail/FSM/FiringFSM.cpp \
-	src/systemoc/cpp/detail/FSM/FiringRuleImpl.cpp \
 	src/systemoc/cpp/detail/FSM/PartialTransition.cpp \
+	src/systemoc/cpp/detail/FSM/RuntimeFiringRule.cpp \
+	src/systemoc/cpp/detail/FSM/RuntimeState.cpp \
+	src/systemoc/cpp/detail/FSM/RuntimeTransition.cpp \
 	src/systemoc/cpp/detail/FSM/stuff.cpp \
 	src/systemoc/cpp/detail/GraphBase.cpp \
 	src/systemoc/cpp/detail/IdPool.cpp \

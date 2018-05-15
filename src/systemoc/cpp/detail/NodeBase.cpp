@@ -51,9 +51,13 @@
 #endif //SYSTEMOC_ENABLE_MAESTRO
 
 #include "SimulationContext.hpp"
-#include "FSM/smoc_firing_rules_impl.hpp"
+
 #include "FSM/FiringFSM.hpp"
-#include "FSM/FiringRuleImpl.hpp"
+#include "FSM/RuntimeState.hpp"
+#include "FSM/RuntimeTransition.hpp"
+#include "FSM/RuntimeFiringRule.hpp"
+
+#include "FSM/smoc_firing_rules_impl.hpp"
 
 namespace smoc { namespace Detail {
 
@@ -102,7 +106,7 @@ void NodeBase::before_end_of_elaboration() {
 #ifdef SYSTEMOC_ENABLE_VPC
     this->diiEvent.reset(new smoc::smoc_vpc_event());
     this->commState  = new FSM::RuntimeState("commState");
-    this->commAction = new FSM::FiringRuleImpl(
+    this->commAction = new FSM::RuntimeFiringRule(
         smoc::Expr::till(*diiEvent),
         smoc_action());
     commState->addTransition(this->commAction, this);

@@ -33,13 +33,68 @@
  * ENHANCEMENTS, OR MODIFICATIONS.
  */
 
-#include "FiringRuleImpl.hpp"
+#ifndef _INCLUDED_SMOC_DETAIL_FSM_RUNTIMESTATE_HPP
+#define _INCLUDED_SMOC_DETAIL_FSM_RUNTIMESTATE_HPP
+
+#include <smoc/detail/NamedIdedObj.hpp>
+#include <smoc/detail/SimCTXBase.hpp>
+#include <smoc/detail/NodeBase.hpp>
+
+#include "RuntimeTransition.hpp"
+
+#include <systemoc/smoc_config.h>
+
+#include <string>
 
 namespace smoc { namespace Detail { namespace FSM {
 
-  FiringRuleImpl::FiringRuleImpl(
-      smoc_guard  const &g,
-      smoc_action const &f)
-    : guard(g), action(f), ioPattern(nullptr) {}
+  typedef std::set<smoc::smoc_event_waiter*> EventWaiterSet;
+
+  class RuntimeState
+    :
+#if defined(SYSTEMOC_ENABLE_MAESTRO) && defined(MAESTRO_ENABLE_BRUCKNER)
+      public Bruckner::Model::State,
+#endif //defined(SYSTEMOC_ENABLE_MAESTRO) && defined(MAESTRO_ENABLE_BRUCKNER)
+#ifdef SYSTEMOC_NEED_IDS
+      public NamedIdedObj,
+#endif // SYSTEMOC_NEED_IDS
+      public SimCTXBase
+  {
+      typedef RuntimeState this_type;
+
+      friend class RuntimeTransition;
+  private:
+    std::string           stateName;
+    RuntimeTransitionList tl;
+  public:
+    RuntimeState(std::string const &name
+#if defined(SYSTEMOC_ENABLE_MAESTRO) && defined(MAESTRO_ENABLE_BRUCKNER)
+        , Bruckner::Model::Hierarchical* sParent = nullptr
+#endif
+      );
+
+    RuntimeTransitionList       &getTransitions();
+    RuntimeTransitionList const &getTransitions() const;
+
+    void addTransition(const RuntimeTransition& t,
+                       NodeBase *node);
+
+    void end_of_elaboration(NodeBase *node);
+
+    EventWaiterSet am;
+
+    const char *name()
+      { return stateName.c_str(); }
+
+    ~RuntimeState();
+  private:
+#ifdef SYSTEMOC_NEED_IDS
+    // To reflect stateName back to NamedIdedObj base class.
+    const char *name() const
+      { return stateName.c_str(); }
+#endif // SYSTEMOC_NEED_IDS
+  };
 
 } } } // namespace smoc::Detail::FSM
+
+#endif /* _INCLUDED_SMOC_DETAIL_FSM_RUNTIMESTATE_HPP */

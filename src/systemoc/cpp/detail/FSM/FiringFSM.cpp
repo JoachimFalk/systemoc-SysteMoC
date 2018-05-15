@@ -34,6 +34,10 @@
  */
 
 #include "FiringFSM.hpp"
+#include "RuntimeState.hpp"
+#include "RuntimeTransition.hpp"
+#include "RuntimeFiringRule.hpp"
+
 #include "smoc_firing_rules_impl.hpp"
 
 #include <CoSupport/String/Concat.hpp>
@@ -143,8 +147,8 @@ FiringFSM::RuntimeStateSet const &FiringFSM::getStates() const
 RuntimeState *FiringFSM::getInitialState() const
   { return init; }
 
-FiringRuleImpl *FiringFSM::acquireFiringRule(smoc_firing_rule const &smocFiringRule) {
-  firingRules.push_front(FiringRuleImpl(smocFiringRule.getGuard(), smocFiringRule.getAction()));
+RuntimeFiringRule *FiringFSM::acquireFiringRule(smoc_firing_rule const &smocFiringRule) {
+  firingRules.push_front(RuntimeFiringRule(smocFiringRule.getGuard(), smocFiringRule.getAction()));
   return &firingRules.front();
 }
 

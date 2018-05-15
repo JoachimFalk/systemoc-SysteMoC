@@ -38,7 +38,7 @@
 
 #include <smoc/smoc_firing_rule.hpp>
 
-#include "FiringRuleImpl.hpp"
+#include "RuntimeFiringRule.hpp"
 
 #include <list>
 
