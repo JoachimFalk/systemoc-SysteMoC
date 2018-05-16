@@ -89,6 +89,7 @@ namespace smoc { namespace Detail { namespace FSM {
   public:
     /// @brief Constructor
     RuntimeTransition(
+        NodeBase           *node,
         RuntimeFiringRule  *firingRule,
 #ifdef SYSTEMOC_ENABLE_MAESTRO
         MetaMap::SMoCActor &parentActor,
@@ -122,8 +123,6 @@ namespace smoc { namespace Detail { namespace FSM {
     void *getID() const;
 
     void before_end_of_elaboration(NodeBase *node);
-
-    void end_of_elaboration(NodeBase *node);
 
 #ifdef SYSTEMOC_ENABLE_MAESTRO
     virtual bool hasWaitAction();

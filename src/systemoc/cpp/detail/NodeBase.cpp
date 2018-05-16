@@ -109,7 +109,9 @@ void NodeBase::before_end_of_elaboration() {
     this->commAction = new FSM::RuntimeFiringRule(
         smoc::Expr::till(*diiEvent),
         smoc_action());
-    commState->addTransition(this->commAction, this);
+    commState->addTransition(
+        FSM::RuntimeTransition(this, this->commAction),
+        this);
 #endif // SYSTEMOC_ENABLE_VPC
     getFiringFSM()->before_end_of_elaboration(this,
       CoSupport::DataTypes::FacadeCoreAccess::getImpl(*initialState));

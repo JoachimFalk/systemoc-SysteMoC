@@ -335,6 +335,7 @@ void FiringFSM::before_end_of_elaboration(
 #endif //SYSTEMOC_ENABLE_MAESTRO
           rs->addTransition(
             RuntimeTransition(
+              actorOrGraphNode,
               t->getFiringRule(),
 #ifdef SYSTEMOC_ENABLE_MAESTRO
               *a,

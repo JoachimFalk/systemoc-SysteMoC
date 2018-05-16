@@ -79,7 +79,6 @@ namespace smoc { namespace Detail { namespace FSM {
     for (RuntimeTransitionList::iterator iter = getTransitions().begin();
          iter != iterEnd;
          ++iter) {
-      iter->end_of_elaboration(node);
       am.insert(iter->getIOPatternWaiter());
     }
   }
