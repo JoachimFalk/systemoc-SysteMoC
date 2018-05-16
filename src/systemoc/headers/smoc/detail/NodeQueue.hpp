@@ -38,10 +38,14 @@
 
 #include <smoc/detail/NodeBase.hpp>
 
+#include "../smoc_event.hpp"
+
 #include <systemc>
+
+#include <boost/shared_ptr.hpp>
+
 #include <queue>
 
-#include "../smoc_event.hpp"
 
 namespace smoc { namespace Detail {
 
