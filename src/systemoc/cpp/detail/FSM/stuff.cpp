@@ -63,11 +63,6 @@
 #include "RuntimeFiringRule.hpp"
 #include "../SimulationContext.hpp"
 
-#ifdef SYSTEMOC_ENABLE_HOOKING
-# include <boost/regex.hpp> 
-# include "../TransitionHook.hpp"
-#endif // SYSTEMOC_ENABLE_HOOKING
-
 #ifdef MAESTRO_ENABLE_POLYPHONIC
 # include <Maestro/PolyphoniC/ActionOnThreadVisitor.hpp>
 #endif // MAESTRO_ENABLE_POLYPHONIC
@@ -83,30 +78,6 @@ template<class C> inline bool single(const C& c) {
   if(c.empty()) return false;
   return ++c.begin() == c.end();
 }
-
-class TransitionActionNameVisitor {
-public:
-  typedef std::string result_type;
-public:
-  result_type operator()(smoc_action const &f) const {
-    std::ostringstream str;
-    
-    for (smoc_action::const_iterator i = f.begin(); i != f.end(); ++i) {
-      if (i != f.begin())
-        str << ";";
-      str << i->getFuncName() << "(";
-      for (ParamInfoList::const_iterator pIter = i->getParams().begin();
-           pIter != i->getParams().end();
-           ++pIter) {
-        if (pIter != i->getParams().begin())
-          str << ",";
-        str << pIter->value;
-      }
-      str << ")";
-    }
-    return str.str();
-  }
-};
 
 class Action_HasWaitVisitor {
 public:
