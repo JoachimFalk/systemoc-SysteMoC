@@ -6,7 +6,7 @@ graph [label="FSM of top.src"]
 digraph G {
 graph [label="FSM of top.fir"]
 0[color="red" label="q_0" style="filled"];
-0->0 [label="#o_0≥1⋀#i_0≥1"];
+0->0 [label="#i_0≥1⋀#o_0≥1"];
 }
 digraph G {
 graph [label="FSM of top.sink"]

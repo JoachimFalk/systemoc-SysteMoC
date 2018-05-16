@@ -3,10 +3,10 @@ graph [label="FSM of top.src"]
 0[label="q_0"];
 1[label="q_1"];
 2[color="red" label="start" style="filled"];
-0->0 [label="#o_2≥1⋀#o_1≥1&&(cv==1)"];
-0->0 [label="#o_0≥1⋀#o_2≥1⋀#o_1≥1&&(cv==2)"];
-0->0 [label="#o_3≥1⋀#o_1≥1&&(cv==3)"];
-0->1 [label="&&(cv==0)"];
+0->0 [label="#o_1≥1⋀#o_2≥1&&(cv==1)"];
+0->0 [label="#o_0≥1⋀#o_1≥1⋀#o_2≥1&&(cv==2)"];
+0->0 [label="#o_1≥1⋀#o_3≥1&&(cv==3)"];
+0->1 [label="(cv==0)"];
 2->0 [label="#o_1≥1"];
 }
 digraph G {
