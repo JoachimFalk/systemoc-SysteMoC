@@ -14,7 +14,7 @@ graph [label="FSM of top.process"]
 2[label="q_2"];
 0->1 [label="#i_0≥1⋀#o_0≥1"];
 1->2 [label="#i_0≥5⋀#o_0≥5"];
-2->0 [label="#o_0≥3⋀#i_0≥3"];
+2->0 [label="#i_0≥3⋀#o_0≥3"];
 }
 digraph G {
 graph [label="FSM of top.sink"]

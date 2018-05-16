@@ -14,7 +14,7 @@ graph [label="FSM of top.transform"]
 0->0 [label="#i_0≥1⋀#o_0≥1&&(mod&&mod)"];
 0->0 [label="#i_0≥1⋀#o_0≥1&&(mod&&mod)"];
 0->0 [label="#i_0≥1⋀#o_0≥1&&(mod&&((!mod)&&(!mod)))"];
-0->0 [label="#o_0≥1⋀#i_0≥1&&((!mod)&&mod)"];
-0->0 [label="#o_0≥1⋀#i_0≥1&&((!mod)&&mod)"];
-0->0 [label="#o_0≥1⋀#i_0≥1&&((!mod)&&((!mod)&&(!mod)))"];
+0->0 [label="#i_0≥1⋀#o_0≥1&&((!mod)&&mod)"];
+0->0 [label="#i_0≥1⋀#o_0≥1&&((!mod)&&mod)"];
+0->0 [label="#i_0≥1⋀#o_0≥1&&((!mod)&&((!mod)&&(!mod)))"];
 }
