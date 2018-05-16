@@ -37,11 +37,6 @@
 
 namespace smoc { namespace Detail { namespace FSM {
 
-  RuntimeFiringRule::RuntimeFiringRule(
-      smoc_guard  const &g,
-      smoc_action const &f)
-    : guard(g), action(f), ioPatternWaiter(nullptr) {}
-
   smoc_event_waiter *RuntimeFiringRule::getIOPatternWaiter() const {
     if (!ioPatternWaiter) {
       IOPattern tmp;

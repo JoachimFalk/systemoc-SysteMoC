@@ -102,17 +102,17 @@ public:
 
   RuntimeState          *getInitialState() const;
 
-  RuntimeFiringRule        *acquireFiringRule(smoc_firing_rule const &smocFiringRule);
+  RuntimeFiringRule     *acquireFiringRule(smoc_firing_rule const &smocFiringRule);
 
 private:
-  typedef std::set<BaseStateImpl *>   BaseStateImplSet;
-  typedef std::list<RuntimeFiringRule>   FiringRuleImplList;
+  typedef std::set<BaseStateImpl *>    BaseStateImplSet;
+  typedef std::list<RuntimeFiringRule> RuntimeFiringRuleList;
 
   /// @brief Top states
   BaseStateImplSet      states;
 
   /// @brief list of all guards/action pairs used by the runtime transitions
-  FiringRuleImplList    firingRules;
+  RuntimeFiringRuleList firingRules;
 
   /// @brief Refcount
   size_t use_count_;

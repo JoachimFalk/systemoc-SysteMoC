@@ -47,9 +47,9 @@ public:
 
 private:
   /// @brief guard (AST assembled from smoc_guard.hpp nodes)
-  smoc_guard  guard;
+  smoc_guard const guard;
   /// @brief Action
-  smoc_action action;
+  smoc_action const action;
 public:
   /// @brief Constructor
   explicit smoc_firing_rule(smoc_guard const &g)

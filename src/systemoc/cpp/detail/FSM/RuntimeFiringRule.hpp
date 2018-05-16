@@ -38,6 +38,7 @@
 
 #include <smoc/smoc_guard.hpp>
 #include <systemoc/detail/smoc_func_call.hpp> // for smoc_action
+#include <smoc/smoc_firing_rule.hpp>
 
 #include <smoc/detail/IOPattern.hpp>
 #include <smoc/detail/VpcInterface.hpp>
@@ -47,31 +48,17 @@
 namespace smoc { namespace Detail { namespace FSM {
 
   class RuntimeFiringRule
+    : public smoc_firing_rule
 #ifdef SYSTEMOC_ENABLE_VPC
-    : public VpcTaskInterface
+    , public VpcTaskInterface
 #endif // SYSTEMOC_ENABLE_VPC
   {
   private:
-    /// @brief Guard for the firing rule (AST assembled from smoc_guard.hpp nodes)
-    smoc_guard guard;
-
-    /// @brief Action of the firing rule, might be a list of actions.
-    smoc_action action;
-
     /// @brief Event waiter for input/output guards (enough token/free space)
     mutable smoc_event_waiter *ioPatternWaiter;
   public:
-    RuntimeFiringRule(
-        smoc_guard  const &g,
-        smoc_action const &f);
-
-    /// @brief Returns the guard
-    smoc_guard const &getGuard() const
-      { return guard; }
-
-    /// @brief Returns the action
-    smoc_action const &getAction() const
-      { return action; }
+    RuntimeFiringRule(smoc_guard  const &g, smoc_action const &f)
+      : smoc_firing_rule(g,f), ioPatternWaiter(nullptr) {}
 
     /// @brief Returns event waiter for input/output guards (enough token/free space)
     smoc_event_waiter *getIOPatternWaiter() const;
