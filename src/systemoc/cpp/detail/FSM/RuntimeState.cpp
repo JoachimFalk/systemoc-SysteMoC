@@ -74,13 +74,9 @@ namespace smoc { namespace Detail { namespace FSM {
     tl.back().before_end_of_elaboration(node); // FIXME: Fix this hack!
   }
 
-  void RuntimeState::end_of_elaboration(smoc::Detail::NodeBase *node) {
-    RuntimeTransitionList::iterator iterEnd = getTransitions().end();
-    for (RuntimeTransitionList::iterator iter = getTransitions().begin();
-         iter != iterEnd;
-         ++iter) {
-      am.insert(iter->getIOPatternWaiter());
-    }
+  void RuntimeState::end_of_elaboration() {
+    for (RuntimeTransition &t : getTransitions())
+      am.insert(t.getIOPatternWaiter());
   }
 
 } } } // namespace smoc::Detail::FSM

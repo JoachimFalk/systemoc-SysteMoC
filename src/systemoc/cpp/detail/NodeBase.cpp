@@ -115,9 +115,6 @@ void NodeBase::before_end_of_elaboration() {
 #endif // SYSTEMOC_ENABLE_VPC
     getFiringFSM()->before_end_of_elaboration(this,
       CoSupport::DataTypes::FacadeCoreAccess::getImpl(*initialState));
-//#ifdef SYSTEMOC_ENABLE_VPC
-//  getCommState()->before_end_of_elaboration(this);
-//#endif // SYSTEMOC_ENABLE_VPC
   }
 #ifdef SYSTEMOC_DEBUG
   if (smoc::Detail::outDbg.isVisible(smoc::Detail::Debug::High)) {
@@ -138,7 +135,8 @@ void NodeBase::end_of_elaboration() {
   if (getFiringFSM()) {
     getFiringFSM()->end_of_elaboration(this);
 #ifdef SYSTEMOC_ENABLE_VPC
-    getCommState()->end_of_elaboration(this);
+    commAction->end_of_elaboration();
+    commState->end_of_elaboration();
 #endif // SYSTEMOC_ENABLE_VPC
   }
 #ifdef SYSTEMOC_DEBUG
@@ -442,10 +440,9 @@ void NodeBase::scheduleLegacyWithCommState() {
   enum {
     MODE_DIISTART,
     MODE_DIIEND
-  } execMode =
-    getCurrentState() != getCommState()
-      ? MODE_DIISTART
-      : MODE_DIIEND;
+  } execMode = inCommState()
+      ? MODE_DIIEND
+      : MODE_DIISTART;
 
 # ifdef SYSTEMOC_DEBUG
   if (smoc::Detail::outDbg.isVisible(smoc::Detail::Debug::High)) {
@@ -464,9 +461,9 @@ void NodeBase::scheduleLegacyWithCommState() {
     FSM::RuntimeState *nextState = ct->execute(this);
     // Insert the magic commState by saving nextState in the sole outgoing
     // transition of the commState
-    getCommState()->getTransitions().front().dest = nextState;
+    commState->getTransitions().front().dest = nextState;
     // and setting our current state to the commState.
-    setCurrentState(getCommState());
+    setCurrentState(commState);
     executing = false;
   } else {
     // Get out of commState into saved nextState.

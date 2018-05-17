@@ -35,21 +35,22 @@
 
 #include "RuntimeFiringRule.hpp"
 
+#include <cassert>
+
 namespace smoc { namespace Detail { namespace FSM {
 
-  smoc_event_waiter *RuntimeFiringRule::getIOPatternWaiter() const {
-    if (!ioPatternWaiter) {
-      IOPattern tmp;
-      smoc::Expr::evalTo<smoc::Expr::Sensitivity>(getGuard(), tmp);
-      tmp.finalise();
-    #ifdef SYSTEMOC_DEBUG
-      if (smoc::Detail::outDbg.isVisible(smoc::Detail::Debug::Low)) {
-        smoc::Detail::outDbg << "=> " << tmp << std::endl;
-      }
-    #endif //defined(SYSTEMOC_DEBUG)
-      ioPatternWaiter = tmp.getWaiter();
+  void RuntimeFiringRule::end_of_elaboration() {
+    assert(!ioPatternWaiter);
+
+    IOPattern tmp;
+    smoc::Expr::evalTo<smoc::Expr::Sensitivity>(getGuard(), tmp);
+    tmp.finalise();
+#ifdef SYSTEMOC_DEBUG
+    if (smoc::Detail::outDbg.isVisible(smoc::Detail::Debug::Low)) {
+      smoc::Detail::outDbg << "=> " << tmp << std::endl;
     }
-    return ioPatternWaiter;
+#endif //defined(SYSTEMOC_DEBUG)
+    ioPatternWaiter = tmp.getWaiter();
   }
 
 } } } // namespace smoc::Detail::FSM
