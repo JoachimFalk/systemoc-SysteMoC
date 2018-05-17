@@ -369,12 +369,11 @@ void FiringFSM::before_end_of_elaboration(
 #endif // FSM_FINALIZE_BENCHMARK
 }
 
-void FiringFSM::end_of_elaboration(NodeBase *node)
-{
-  RuntimeStateSet::iterator iterEnd = getStates().end();
-  for (RuntimeStateSet::iterator iter = getStates().begin(); iter != iterEnd; ++iter) {
-    (*iter)->end_of_elaboration(node);
-  }
+void FiringFSM::end_of_elaboration(NodeBase *node) {
+  for (RuntimeFiringRule &fr : firingRules)
+    fr.end_of_elaboration();
+  for (RuntimeState *s : getStates())
+    s->end_of_elaboration();
 }
 
 void FiringFSM::addState(BaseStateImpl *state) {

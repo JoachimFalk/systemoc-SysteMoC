@@ -45,6 +45,12 @@
 
 #include <systemoc/smoc_config.h>
 
+namespace smoc { namespace Detail {
+
+  class NodeBase;
+
+} } // namespace smoc::Detail
+
 namespace smoc { namespace Detail { namespace FSM {
 
   class RuntimeFiringRule
@@ -53,15 +59,21 @@ namespace smoc { namespace Detail { namespace FSM {
     , public VpcTaskInterface
 #endif // SYSTEMOC_ENABLE_VPC
   {
-  private:
-    /// @brief Event waiter for input/output guards (enough token/free space)
-    mutable smoc_event_waiter *ioPatternWaiter;
+    friend class FiringFSM; // For end_of_elaboration call
+    friend class Detail::NodeBase; // FIXME: For end_of_elaboration call for transition leaving commState
   public:
     RuntimeFiringRule(smoc_guard  const &g, smoc_action const &f)
       : smoc_firing_rule(g,f), ioPatternWaiter(nullptr) {}
 
     /// @brief Returns event waiter for input/output guards (enough token/free space)
-    smoc_event_waiter *getIOPatternWaiter() const;
+    smoc_event_waiter *getIOPatternWaiter() const
+      { assert(ioPatternWaiter); return ioPatternWaiter; }
+  protected:
+    /// @bried compute ioPatternWaiter.
+    void end_of_elaboration();
+  private:
+    /// @brief Event waiter for input/output guards (enough token/free space)
+    smoc_event_waiter *ioPatternWaiter;
   };
 
 } } } // namespace smoc::Detail::FSM

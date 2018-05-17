@@ -229,15 +229,6 @@ public:
   FSM::RuntimeState *getCurrentState() const
     { return currentState; }
 
-#ifdef SYSTEMOC_ENABLE_VPC
-  FSM::RuntimeState *getCommState() const
-    { return commState; }
-
-  //true if actual state is a communication state
-  bool inCommState() const
-    { return currentState == commState; }
-#endif // SYSTEMOC_ENABLE_VPC
-
   /// @brief Collect ports from child objects
   smoc_sysc_port_list getPorts() const;
 
@@ -316,6 +307,12 @@ private:
 
   void addMySelfAsListener(FSM::RuntimeState *state);
   void delMySelfAsListener(FSM::RuntimeState *state);
+
+#ifdef SYSTEMOC_ENABLE_VPC
+  //true if actual state is a communication state
+  bool inCommState() const
+    { return currentState == commState; }
+#endif // SYSTEMOC_ENABLE_VPC
 
 protected:
   void schedule();

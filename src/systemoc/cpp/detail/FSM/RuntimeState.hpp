@@ -79,7 +79,7 @@ namespace smoc { namespace Detail { namespace FSM {
     void addTransition(const RuntimeTransition& t,
                        NodeBase *node);
 
-    void end_of_elaboration(NodeBase *node);
+    void end_of_elaboration();
 
     EventWaiterSet am;
 
