@@ -36,8 +36,11 @@
 #ifndef _INCLUDED_SMOC_SIMULATORAPI_TASKINTERFACE_HPP
 #define _INCLUDED_SMOC_SIMULATORAPI_TASKINTERFACE_HPP
 
+#include "FiringRuleInterface.hpp"
+
 #include <systemc>
 
+#include <list>
 
 namespace smoc {
 
@@ -82,6 +85,8 @@ namespace smoc { namespace SimulatorAPI {
       { return this->schedulerInfo; }
 
     // These methods must be implemented by the task and are called by the scheduler
+
+    virtual std::list<FiringRuleInterface *> const &getFiringRules() = 0;
 
     // This will return the SystemC name of the actor.
     virtual const char *name() const = 0;
