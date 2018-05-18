@@ -1,7 +1,7 @@
 // -*- tab-width:8; intent-tabs-mode:nil; c-basic-offset:2; -*-
 // vim: set sw=2 ts=8 et:
 /*
- * Copyright (c) 2004-2018 Hardware-Software-CoDesign, University of Erlangen-Nuremberg.
+ * Copyright (c) 2018 Hardware-Software-CoDesign, University of Erlangen-Nuremberg.
  * 
  *   This library is free software; you can redistribute it and/or modify it under
  *   the terms of the GNU Lesser General Public License as published by the Free
@@ -33,62 +33,41 @@
  * ENHANCEMENTS, OR MODIFICATIONS.
  */
 
-#ifndef _INCLUDED_SMOC_SIMULATORAPI_SIMULATORINTERFACE_HPP
-#define _INCLUDED_SMOC_SIMULATORAPI_SIMULATORINTERFACE_HPP
+#ifndef _INCLUDED_SMOC_SIMULATORAPI_FIRINGRULEINTERFACE_HPP
+#define _INCLUDED_SMOC_SIMULATORAPI_FIRINGRULEINTERFACE_HPP
 
-#include "TaskInterface.hpp"
-#include "TransitionInterface.hpp"
-#include "SchedulerInterface.hpp"
-
-
-#include <boost/program_options/options_description.hpp>
-#include <boost/program_options/variables_map.hpp>
-
-#include <vector>
-
-namespace smoc { namespace Detail {
-
-class SimulationContext;
-
-} } // namespace smoc::Detail
+#include <systemc>
 
 namespace smoc { namespace SimulatorAPI {
 
-  class SimulatorInterface {
-    // This is needed for SimulationContext
-    // to access getRegisteredSimulators().
-    friend class Detail::SimulationContext;
-  public:
-    enum EnablementStatus {
-      IS_DISABLED,
-      MAYBE_ACTIVE,
-      MUSTBE_ACTIVE
-    };
-
-    SimulatorInterface();
-
-    virtual void populateOptionsDescription(
-        int &argc, char ** &argv,
-        boost::program_options::options_description &pub,
-        boost::program_options::options_description &priv) = 0;
-
-    virtual EnablementStatus evaluateOptionsMap(
-        boost::program_options::variables_map &vm) = 0;
-
-    virtual void registerTask(TaskInterface *task) = 0;
-
-    virtual ~SimulatorInterface();
+  class FiringRuleInterface {
   private:
-    // Global CTOR initialization order is undefined between translation units.
-    // Hence, using std::vector<SimulatorInterface *> registeredSimulator as a
-    // global variable or static member variable does not insure that this variable
-    // will already have been initialized during the CTOR call used for other
-    // global variables. Hence, we use the below given helper function to guarantee
-    // this property.
-    static
-    std::vector<SimulatorInterface *> &getRegisteredSimulators();
+    // Opaque data pointer for the scheduler.
+    void               *schedulerInfo;
+  public:
+    FiringRuleInterface();
+
+    void                setSchedulerInfo(void *schedulerInfo)
+      { this->schedulerInfo = schedulerInfo; }
+    void               *getSchedulerInfo() const
+      { return this->schedulerInfo; }
+
+    // These methods must be implemented by the transition and are called by the scheduler
+
+    // This will return the SystemC name of the transition.
+    virtual const char *name() const = 0;
+
+    // This will test if the transition is enabled.
+    // This will be implemented by the SysteMoC transition and called by the scheduler.
+    virtual bool isEnabled() const = 0;
+
+    // This will execute the transition. The transition must be enabled if this method is called.
+    // This will be implemented by the SysteMoC actor and called by the scheduler.
+    virtual void execute() = 0;
+
+    virtual ~FiringRuleInterface();
   };
 
 } } // namespace smoc::SimulatorAPI
 
-#endif /* _INCLUDED_SMOC_SIMULATORAPI_SIMULATORINTERFACE_HPP */
+#endif /* _INCLUDED_SMOC_SIMULATORAPI_FIRINGRULEINTERFACE_HPP */

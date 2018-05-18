@@ -101,8 +101,8 @@ void NodeBase::before_end_of_elaboration() {
   }
 #endif //defined(SYSTEMOC_DEBUG)
   sc_core::sc_module::before_end_of_elaboration();
-  getSimCTX()->getSimulatorInterface()->registerTask(this);
   if (getFiringFSM()) {
+    getSimCTX()->getSimulatorInterface()->registerTask(this);
 #ifdef SYSTEMOC_ENABLE_VPC
     this->diiEvent.reset(new smoc::smoc_vpc_event());
     this->commState  = new FSM::RuntimeState("commState");
@@ -363,6 +363,12 @@ void NodeBase::setUseActivationCallback(bool flag) {
 
 bool NodeBase::getUseActivationCallback() const
   { return useActivationCallback; }
+
+
+std::list<SimulatorAPI::FiringRuleInterface *> const &NodeBase::getFiringRules() {
+  static std::list<SimulatorAPI::FiringRuleInterface *> retval;
+  return retval;
+}
 
 void NodeBase::setActive(bool flag) {
   if (currentState) {

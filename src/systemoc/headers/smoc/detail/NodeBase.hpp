@@ -305,6 +305,8 @@ private:
   void setUseActivationCallback(bool flags);
   bool getUseActivationCallback() const;
 
+  std::list<SimulatorAPI::FiringRuleInterface *> const &getFiringRules();
+
   void addMySelfAsListener(FSM::RuntimeState *state);
   void delMySelfAsListener(FSM::RuntimeState *state);
 
@@ -313,7 +315,6 @@ private:
   bool inCommState() const
     { return currentState == commState; }
 #endif // SYSTEMOC_ENABLE_VPC
-
 protected:
   void schedule();
 

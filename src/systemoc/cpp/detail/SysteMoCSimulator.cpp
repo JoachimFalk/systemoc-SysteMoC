@@ -73,8 +73,6 @@ public:
       boost::program_options::variables_map &vm);
 
   void registerTask(SimulatorAPI::TaskInterface *task);
-
-  void registerTransition(SimulatorAPI::TransitionInterface *transition);
 };
 
 SysteMoCSimulator::SysteMoCSimulator() {
@@ -99,12 +97,6 @@ void SysteMoCSimulator::registerTask(
 {
   // Prefix all SysteMoC internal modules with __smoc_ to enable filtering out the module on smx dump!
   task->setScheduler(new SysteMoCScheduler("__smoc_scheduler", task));
-}
-
-void SysteMoCSimulator::registerTransition(
-    SimulatorAPI::TransitionInterface *transition)
-{
-  // Do nothing
 }
 
 SysteMoCSimulator systeMoCSimulator;
