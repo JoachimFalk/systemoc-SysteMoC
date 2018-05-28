@@ -9,6 +9,7 @@
 
 #include <smoc/SimulatorAPI/SchedulerInterface.hpp>
 #include <smoc/SimulatorAPI/TaskInterface.hpp>
+#include <smoc/SimulatorAPI/FiringRuleInterface.hpp>
 #include <smoc/SimulatorAPI/SimulatorInterface.hpp>
 
 namespace smoc { namespace Detail {
@@ -24,6 +25,8 @@ public:
   // This will be called by SysteMoC if useActivationCallback()
   // return true.
   void notifyActivation(SimulatorAPI::TaskInterface *task, bool activation);
+
+  void registerFiringRule(SimulatorAPI::TaskInterface *task, SimulatorAPI::FiringRuleInterface *fr);
 
 private:
   SimulatorAPI::TaskInterface *task;
@@ -56,6 +59,10 @@ void SysteMoCScheduler::notifyActivation(SimulatorAPI::TaskInterface *task, bool
     scheduleRequest.notify(task->getNextReleaseTime()-sc_core::sc_time_stamp());
   else
     scheduleRequest.cancel();
+}
+
+void SysteMoCScheduler::registerFiringRule(SimulatorAPI::TaskInterface *task, SimulatorAPI::FiringRuleInterface *fr) {
+
 }
 
 class SysteMoCSimulator

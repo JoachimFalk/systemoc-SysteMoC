@@ -75,10 +75,10 @@ libsystemoc_la_SOURCES = \
 	src/systemoc/cpp/detail/TraceLog.cpp \
 	src/systemoc/cpp/detail/TransitionHook.cpp \
 	src/systemoc/cpp/detail/VpcInterface.cpp \
+	src/systemoc/cpp/SimulatorAPI/FiringRuleInterface.cpp \
 	src/systemoc/cpp/SimulatorAPI/SchedulerInterface.cpp \
 	src/systemoc/cpp/SimulatorAPI/SimulatorInterface.cpp \
 	src/systemoc/cpp/SimulatorAPI/TaskInterface.cpp \
-	src/systemoc/cpp/SimulatorAPI/TransitionInterface.cpp \
 	src/systemoc/cpp/smoc_actor.cpp \
 	src/systemoc/cpp/smoc_and_state.cpp \
 	src/systemoc/cpp/smoc_base_state.cpp \

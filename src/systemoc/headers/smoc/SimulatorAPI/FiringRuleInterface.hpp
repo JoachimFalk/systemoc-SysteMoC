@@ -38,7 +38,12 @@
 
 #include <systemc>
 
+#include <vector>
+#include <string>
+
 namespace smoc { namespace SimulatorAPI {
+
+  typedef std::vector<std::string> FunctionNames;
 
   class FiringRuleInterface {
   private:
@@ -52,18 +57,11 @@ namespace smoc { namespace SimulatorAPI {
     void               *getSchedulerInfo() const
       { return this->schedulerInfo; }
 
-    // These methods must be implemented by the transition and are called by the scheduler
+    virtual FunctionNames getGuardNames() const = 0;
 
-    // This will return the SystemC name of the transition.
-    virtual const char *name() const = 0;
+    virtual size_t        getGuardComplexity() const = 0;
 
-    // This will test if the transition is enabled.
-    // This will be implemented by the SysteMoC transition and called by the scheduler.
-    virtual bool isEnabled() const = 0;
-
-    // This will execute the transition. The transition must be enabled if this method is called.
-    // This will be implemented by the SysteMoC actor and called by the scheduler.
-    virtual void execute() = 0;
+    virtual FunctionNames getActionNames() const = 0;
 
     virtual ~FiringRuleInterface();
   };

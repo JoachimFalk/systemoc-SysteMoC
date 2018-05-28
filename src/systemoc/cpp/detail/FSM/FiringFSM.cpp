@@ -33,6 +33,8 @@
  * ENHANCEMENTS, OR MODIFICATIONS.
  */
 
+#include <smoc/SimulatorAPI/SchedulerInterface.hpp>
+
 #include "FiringFSM.hpp"
 #include "RuntimeState.hpp"
 #include "RuntimeTransition.hpp"
@@ -370,8 +372,21 @@ void FiringFSM::before_end_of_elaboration(
 }
 
 void FiringFSM::end_of_elaboration(NodeBase *node) {
-  for (RuntimeFiringRule &fr : firingRules)
+  for (RuntimeFiringRule &fr : firingRules) {
     fr.end_of_elaboration();
+    node->getScheduler()->registerFiringRule(node, &fr);
+#ifdef SYSTEMOC_ENABLE_VPC
+    //calculate delay for guard
+    //initialize VpcTaskInterface
+    fr.diiEvent = node->diiEvent;
+    fr.vpcTask =
+      SystemC_VPC::Director::getInstance().registerActor(node,
+                  node->name(), fr.getActionNames(), fr.getGuardNames(), fr.getGuardComplexity());
+# ifdef SYSTEMOC_DEBUG_VPC_IF
+    fr.actor = node->name();
+# endif // SYSTEMOC_DEBUG_VPC_IF
+#endif //SYSTEMOC_ENABLE_VPC
+  }
   for (RuntimeState *s : getStates())
     s->end_of_elaboration();
 }

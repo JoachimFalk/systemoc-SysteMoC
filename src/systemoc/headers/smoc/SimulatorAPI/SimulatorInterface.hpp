@@ -37,7 +37,6 @@
 #define _INCLUDED_SMOC_SIMULATORAPI_SIMULATORINTERFACE_HPP
 
 #include "TaskInterface.hpp"
-#include "TransitionInterface.hpp"
 #include "SchedulerInterface.hpp"
 
 
