@@ -141,7 +141,7 @@ class NodeBase
   friend class ::smoc_reset_chan;
   friend class smoc::smoc_periodic_actor;
   friend class smoc::smoc_graph;
-  friend class FSM::RuntimeTransition;
+  friend class FSM::FiringFSM;
   friend class GraphBase;
   friend class DumpActor; // To access constrArgs by SMXDumper
   friend class ProcessVisitor; // To disable actors by SMXImporter.

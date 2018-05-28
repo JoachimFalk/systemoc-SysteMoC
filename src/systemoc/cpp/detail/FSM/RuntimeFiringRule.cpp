@@ -39,6 +39,103 @@
 
 namespace smoc { namespace Detail { namespace FSM {
 
+  typedef SimulatorAPI::FunctionNames FunctionNames;
+
+  namespace {
+
+    class GuardNameVisitor: public ExprVisitor<FunctionNames> {
+    public:
+      typedef ExprVisitor<FunctionNames>            base_type;
+      typedef GuardNameVisitor                      this_type;
+
+    public:
+      GuardNameVisitor(FunctionNames &names)
+        : functionNames(names)
+        , complexity(0) {}
+
+      int getComplexity(){
+        return complexity;
+      }
+      result_type visitVar(const std::string &name, const std::string &type){
+        return nullptr;
+      }
+      result_type visitLiteral(const std::string &type,
+          const std::string &value){
+        if (type == "m") {
+          val.push_back(value);
+        }
+        complexity++;
+        return nullptr;
+      }
+      result_type visitMemGuard(
+          const std::string &name, const std::string& cxxType,
+          const std::string &reType, const ParamInfoList &params){
+        functionNames.push_back(name);
+        complexity++;
+        return nullptr;
+      }
+      result_type visitEvent(const std::string &name){
+        return nullptr;
+      }
+      result_type visitPortTokens(PortBase &p){
+        return nullptr;
+      }
+      result_type visitToken(PortBase &p, size_t n){
+        return nullptr;
+      }
+      result_type visitComm(PortBase &p,
+          boost::function<result_type (base_type &)> e){
+        return nullptr;
+      }
+      result_type visitUnOp(OpUnT op,
+          boost::function<result_type (base_type &)> e){
+        e(*this);
+        return nullptr;
+      }
+      result_type visitBinOp(OpBinT op,
+          boost::function<result_type (base_type &)> a,
+          boost::function<result_type (base_type &)> b){
+        a(*this);
+        b(*this);
+
+        return nullptr;
+      }
+    private:
+      FunctionNames        &functionNames;
+      int                   complexity;
+      std::vector<std::string>   val;
+    };
+
+  } // namespace anonymous
+
+  /// Implement SimulatorAPI::FiringRuleInterface
+  FunctionNames RuntimeFiringRule::getGuardNames() const {
+    FunctionNames guardNames;
+
+    GuardNameVisitor visitor(guardNames);
+    Expr::evalTo(visitor, getGuard());
+    return guardNames;
+  }
+
+  /// Implement SimulatorAPI::FiringRuleInterface
+  size_t        RuntimeFiringRule::getGuardComplexity() const {
+    FunctionNames guardNames;
+
+    GuardNameVisitor visitor(guardNames);
+    Expr::evalTo(visitor, getGuard());
+    return visitor.getComplexity();
+  }
+
+  /// Implement SimulatorAPI::FiringRuleInterface
+  FunctionNames RuntimeFiringRule::getActionNames() const {
+    FunctionNames actionNames;
+
+    for (smoc_func_call const &f : getAction()) {
+      actionNames.push_back(f.getFuncName());
+    }
+    return actionNames;
+  }
+
   void RuntimeFiringRule::end_of_elaboration() {
     assert(!ioPatternWaiter);
 

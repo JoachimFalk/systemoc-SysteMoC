@@ -33,15 +33,15 @@
  * ENHANCEMENTS, OR MODIFICATIONS.
  */
 
-#include <smoc/SimulatorAPI/TransitionInterface.hpp>
+#include <smoc/SimulatorAPI/FiringRuleInterface.hpp>
 
 namespace smoc { namespace SimulatorAPI {
 
-  TransitionInterface::TransitionInterface()
+  FiringRuleInterface::FiringRuleInterface()
     : schedulerInfo(nullptr)
     {}
 
-  TransitionInterface::~TransitionInterface()
+  FiringRuleInterface::~FiringRuleInterface()
     {}
 
 } } // namespace smoc::SimulatorAPI

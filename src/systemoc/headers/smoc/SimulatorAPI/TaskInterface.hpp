@@ -56,7 +56,7 @@ namespace smoc { namespace Detail {
 
 namespace smoc { namespace Detail { namespace FSM {
 
-  class RuntimeTransition;
+  class FiringFSM;
 
 } } } // namespace smoc::Detail::FSM
 
@@ -153,7 +153,7 @@ namespace smoc { namespace SimulatorAPI {
   {
     friend class smoc::smoc_periodic_actor;
     friend class smoc::Detail::NodeBase;
-    friend class smoc::Detail::FSM::RuntimeTransition;
+    friend class smoc::Detail::FSM::FiringFSM; // for getScheduler()
   public:
     virtual ~TaskHandle();
   };

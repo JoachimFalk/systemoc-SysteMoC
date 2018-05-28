@@ -47,7 +47,6 @@ nobase_include_HEADERS = \
 	smoc/SimulatorAPI/SchedulerInterface.hpp \
 	smoc/SimulatorAPI/SimulatorInterface.hpp \
 	smoc/SimulatorAPI/TaskInterface.hpp \
-	smoc/SimulatorAPI/TransitionInterface.hpp \
 	smoc/detail/ChanBase.hpp \
 	smoc/detail/ConnectProvider.hpp \
 	smoc/detail/DebugOStream.hpp \

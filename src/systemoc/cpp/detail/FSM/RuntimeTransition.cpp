@@ -272,43 +272,25 @@ namespace smoc { namespace Detail { namespace FSM {
     // Allocate Id for myself.
     getSimCTX()->getIdPool().addIdedObj(this);
 #endif // SYSTEMOC_NEED_IDS
-#if defined(SYSTEMOC_ENABLE_VPC) || defined(SYSTEMOC_ENABLE_TRANSITION_TRACE)
-    FunctionNames guardNames;
-    FunctionNames actionNames;
-
-    smoc::Detail::GuardNameVisitor visitor(guardNames);
-    smoc::Expr::evalTo(visitor, getExpr());
-
-    boost::apply_visitor(
-        smoc::Detail::ActionNameVisitor(actionNames), getAction());
-#endif // defined(SYSTEMOC_ENABLE_VPC) || defined(SYSTEMOC_ENABLE_TRANSITION_TRACE)
-#ifdef SYSTEMOC_ENABLE_VPC
-    //calculate delay for guard
-    //initialize VpcTaskInterface
-    this->firingRule->diiEvent = node->diiEvent;
-    this->firingRule->vpcTask =
-      SystemC_VPC::Director::getInstance().registerActor(node,
-                  node->name(), actionNames, guardNames, visitor.getComplexity());
-# ifdef SYSTEMOC_DEBUG_VPC_IF
-    this->firingRule->actor = node->name();
-# endif // SYSTEMOC_DEBUG_VPC_IF
-#endif //SYSTEMOC_ENABLE_TRANSITION_TRACE
 #ifdef SYSTEMOC_ENABLE_TRANSITION_TRACE
-    if (getSimCTX()->isTraceDumpingEnabled()){
+    if (getSimCTX()->isTraceDumpingEnabled()) {
+      RuntimeFiringRule::FunctionNames guardNames  = firingRule->getGuardNames();
+      RuntimeFiringRule::FunctionNames actionNames = firingRule->getActionNames();
+
       getSimCTX()->getTraceFile() << "<functions transition_id=\"" << getId() << "\">";
-      for(FunctionNames::const_iterator iter = guardNames.begin();
+      for(RuntimeFiringRule::FunctionNames::const_iterator iter = guardNames.begin();
           iter != guardNames.end();
           ++iter){
         getSimCTX()->getTraceFile() << " " << *iter;
       }
-      for(FunctionNames::const_iterator iter = actionNames.begin();
+      for(RuntimeFiringRule::FunctionNames::const_iterator iter = actionNames.begin();
           iter != actionNames.end();
           ++iter){
         getSimCTX()->getTraceFile() << " " << *iter;
       }
       getSimCTX()->getTraceFile() << "</functions>\n";
     }
-#endif //SYSTEMOC_ENABLE_VPC
+#endif //SYSTEMOC_ENABLE_TRANSITION_TRACE
 #ifdef SYSTEMOC_ENABLE_MAESTRO
     //Fill guardNames
     smoc::dMM::MMGuardNameVisitor gVisitor((this->guardNames));
