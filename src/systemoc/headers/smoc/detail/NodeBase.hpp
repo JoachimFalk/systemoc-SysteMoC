@@ -67,17 +67,6 @@
 
 #include <smoc/SimulatorAPI/TaskInterface.hpp>
 
-// FIXME: These macros are all obsolete, delete them!
-#define VAR(variable)       this->var(variable, #variable)
-#define TILL(event)         this->till(event, #event)
-#define LITERAL(lit)        this->literal(lit)
-#define CALL(func)          this->call(this, &func, #func)
-#define GUARD(func)         this->guard(this, &func, #func)
-#ifdef SYSTEMOC_ENABLE_MAESTRO
-#define CALLI(ins,func)     this->call(ins, &func, #func)
-#define GUARDI(ins,func)    this->guard(ins, &func, #func)
-#endif //SYSTEMOC_ENABLE_MAESTRO
-
 #define SMOC_REGISTER_CPARAM(name)  this->registerParam(#name,name)
 #define SMOC_CALL(func)             this->call(this, &func, #func)
 #define SMOC_GUARD(func)            this->guard(this, &func, #func)
