@@ -42,6 +42,8 @@
 
 #include "smoc_firing_rules_impl.hpp"
 
+#include <systemoc/smoc_config.h>
+
 #include <CoSupport/String/Concat.hpp>
 
 #include <cassert>
@@ -372,6 +374,12 @@ void FiringFSM::before_end_of_elaboration(
 }
 
 void FiringFSM::end_of_elaboration(NodeBase *node) {
+#ifdef SYSTEMOC_DEBUG
+  if (smoc::Detail::outDbg.isVisible(smoc::Detail::Debug::High)) {
+    smoc::Detail::outDbg << "<FiringFSM::end_of_elaboration name=\"" << node->name() << "\">"
+         << std::endl << smoc::Detail::Indent::Up;
+  }
+#endif //defined(SYSTEMOC_DEBUG)
   for (RuntimeFiringRule &fr : firingRules) {
     fr.end_of_elaboration();
     node->getScheduler()->registerFiringRule(node, &fr);
@@ -389,6 +397,12 @@ void FiringFSM::end_of_elaboration(NodeBase *node) {
   }
   for (RuntimeState *s : getStates())
     s->end_of_elaboration();
+#ifdef SYSTEMOC_DEBUG
+  if (smoc::Detail::outDbg.isVisible(smoc::Detail::Debug::High)) {
+    smoc::Detail::outDbg << smoc::Detail::Indent::Down << "</FiringFSM::end_of_elaboration>"
+         << std::endl;
+  }
+#endif //defined(SYSTEMOC_DEBUG)
 }
 
 void FiringFSM::addState(BaseStateImpl *state) {
