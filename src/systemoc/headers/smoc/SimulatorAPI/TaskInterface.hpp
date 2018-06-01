@@ -94,15 +94,6 @@ namespace smoc { namespace SimulatorAPI {
     // This will execute the actor. The actor must be fireable if this method is called.
     // This will be implemented by the SysteMoC actor and called by the scheduler.
     virtual void schedule() = 0;
-    // FIXME: Remove this interface after SystemC-VPC has been modified to
-    // always use the schedule call above.
-    //
-    // This will execute the actor. The actor must be fireable if this method is called.
-    // This will be implemented by the SysteMoC actor and called by the scheduler.
-    // In comparison to the schedule method this method will insert the commState
-    // into every transition. The commState is left if the DII event is notified
-    // by SystemC-VPC.
-    virtual void scheduleLegacyWithCommState() = 0;
 
     // This will test if the actor is fireable.
     // This will be implemented by the SysteMoC actor and called by the scheduler.
