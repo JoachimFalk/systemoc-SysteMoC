@@ -41,6 +41,19 @@
 // Not needed for actor, but users will likely require this.
 #include "smoc_firing_rules.hpp"
 
+#include <systemoc/smoc_config.h>
+
 using smoc::smoc_actor;
+
+// Legacy macros
+#define VAR(variable)       SMOC_VAR(variable)
+#define TILL(event)         SMOC_TILL(event)
+#define LITERAL(lit)        SMOC_LITERAL(lit)
+#define CALL(func)          SMOC_CALL(func)
+#define GUARD(func)         SMOC_GUARD(func)
+#ifdef SYSTEMOC_ENABLE_MAESTRO
+# define CALLI(ins,func)    this->call(ins, &func, #func)
+# define GUARDI(ins,func)   this->guard(ins, &func, #func)
+#endif //SYSTEMOC_ENABLE_MAESTRO
 
 #endif /* _INCLUDED_SYSTEMOC_SMOC_ACTOR_HPP */
