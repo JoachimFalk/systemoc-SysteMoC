@@ -73,9 +73,7 @@ NodeBase::NodeBase(sc_core::sc_module_name name, NodeType nodeType, smoc_state *
   , currentState(nullptr)
   , ct(nullptr)
 #ifdef SYSTEMOC_ENABLE_VPC
-  , diiEvent(nullptr)
-  , commState(nullptr)
-  , commAction(nullptr)
+  , diiEvent(new smoc::smoc_vpc_event())
 #endif // SYSTEMOC_ENABLE_VPC
   , nodeType(nodeType)
   , executing(false)
@@ -103,16 +101,6 @@ void NodeBase::before_end_of_elaboration() {
   sc_core::sc_module::before_end_of_elaboration();
   if (getFiringFSM()) {
     getSimCTX()->getSimulatorInterface()->registerTask(this);
-#ifdef SYSTEMOC_ENABLE_VPC
-    this->diiEvent.reset(new smoc::smoc_vpc_event());
-    this->commState  = new FSM::RuntimeState("commState");
-    this->commAction = new FSM::RuntimeFiringRule(
-        smoc::Expr::till(*diiEvent),
-        smoc_action());
-    commState->addTransition(
-        FSM::RuntimeTransition(this, this->commAction),
-        this);
-#endif // SYSTEMOC_ENABLE_VPC
     getFiringFSM()->before_end_of_elaboration(this,
       CoSupport::DataTypes::FacadeCoreAccess::getImpl(*initialState));
   }
@@ -134,10 +122,6 @@ void NodeBase::end_of_elaboration() {
   sc_core::sc_module::end_of_elaboration();
   if (getFiringFSM()) {
     getFiringFSM()->end_of_elaboration(this);
-#ifdef SYSTEMOC_ENABLE_VPC
-    commAction->end_of_elaboration();
-    commState->end_of_elaboration();
-#endif // SYSTEMOC_ENABLE_VPC
   }
 #ifdef SYSTEMOC_DEBUG
   if (smoc::Detail::outDbg.isVisible(smoc::Detail::Debug::High)) {
@@ -184,10 +168,6 @@ smoc_sysc_port_list NodeBase::getPorts() const {
 }
 
 NodeBase::~NodeBase() {
-#ifdef SYSTEMOC_ENABLE_VPC
-  delete commState;
-  delete commAction;
-#endif // SYSTEMOC_ENABLE_VPC
 }
 
 void NodeBase::doReset() {
@@ -398,11 +378,7 @@ bool NodeBase::searchActiveTransition(bool debug) {
   for (FSM::RuntimeTransitionList::iterator t = tl.begin();
        t != tl.end();
        ++t) {
-    if (t->check(debug
-#ifdef SYSTEMOC_ENABLE_VPC
-          || currentState == commState
-#endif // SYSTEMOC_ENABLE_VPC
-      )) {
+    if (t->check(debug)) {
       ct = &*t;
       break;
     }
@@ -431,61 +407,6 @@ void NodeBase::schedule() {
     smoc::Detail::outDbg << smoc::Detail::Indent::Down << "</NodeBase::schedule>" << std::endl;
   }
 #endif // SYSTEMOC_DEBUG
-}
-
-// FIXME: Remove this interface after SystemC-VPC has been modified to
-// always use the schedule call above.
-//
-// This will execute the actor. The actor must be fireable if this method is called.
-// This will be implemented by the SysteMoC actor and called by the scheduler.
-// In comparison to the schedule method this method will insert the commState
-// into every transition. The commState is left if the DII event is notified
-// by SystemC-VPC.
-void NodeBase::scheduleLegacyWithCommState() {
-#ifdef SYSTEMOC_ENABLE_VPC
-  enum {
-    MODE_DIISTART,
-    MODE_DIIEND
-  } execMode = inCommState()
-      ? MODE_DIIEND
-      : MODE_DIISTART;
-
-# ifdef SYSTEMOC_DEBUG
-  if (smoc::Detail::outDbg.isVisible(smoc::Detail::Debug::High)) {
-    static const char *execModeName[] = { "diiStart", "diiEnd" };
-
-    smoc::Detail::outDbg << "<NodeBase::scheduleLegacyWithCommState name=\"" << name()
-        << "\" mode=\"" << execModeName[execMode]
-        << "\">" << std::endl << smoc::Detail::Indent::Up;
-  }
-# endif // SYSTEMOC_DEBUG
-  assert(active);
-  assert(ct);
-  assert(ct->check(true));
-  if (execMode == MODE_DIISTART) {
-    executing = true;
-    FSM::RuntimeState *nextState = ct->execute(this);
-    // Insert the magic commState by saving nextState in the sole outgoing
-    // transition of the commState
-    commState->getTransitions().front().dest = nextState;
-    // and setting our current state to the commState.
-    setCurrentState(commState);
-    executing = false;
-  } else {
-    // Get out of commState into saved nextState.
-    setCurrentState(ct->dest);
-  }
-  assert(!ct);
-  if (useActivationCallback)
-    searchActiveTransition();
-#ifdef SYSTEMOC_DEBUG
-  if (smoc::Detail::outDbg.isVisible(smoc::Detail::Debug::High)) {
-    smoc::Detail::outDbg << smoc::Detail::Indent::Down << "</NodeBase::scheduleLegacyWithCommState>" << std::endl;
-  }
-#endif // SYSTEMOC_DEBUG
-#else // !defined(SYSTEMOC_ENABLE_VPC)
-  assert(!"Never use this! Only for SystemC-VPC legacy support!");
-#endif
 }
 
 bool NodeBase::canFire() {

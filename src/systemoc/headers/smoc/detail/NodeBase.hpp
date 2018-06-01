@@ -243,8 +243,6 @@ private:
   // vpc_event_xxx must be constructed before commState
   /// @brief VPC data introduction interval event
   smoc::smoc_vpc_event_p        diiEvent;
-  FSM::RuntimeState            *commState;
-  FSM::RuntimeFiringRule       *commAction;
 #endif // SYSTEMOC_ENABLE_VPC
 
   /// @brief is this an actor, a graph, or something else.
@@ -299,15 +297,8 @@ private:
   void addMySelfAsListener(FSM::RuntimeState *state);
   void delMySelfAsListener(FSM::RuntimeState *state);
 
-#ifdef SYSTEMOC_ENABLE_VPC
-  //true if actual state is a communication state
-  bool inCommState() const
-    { return currentState == commState; }
-#endif // SYSTEMOC_ENABLE_VPC
 protected:
   void schedule();
-
-  void scheduleLegacyWithCommState();
 
   bool canFire();
 

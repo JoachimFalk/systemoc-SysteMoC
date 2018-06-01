@@ -71,11 +71,7 @@ void smoc_periodic_actor::schedule() {
   reexecute           = false;
   periodicActorActive = true;
   smoc_actor::schedule();
-  if (!reexecute && periodicActorActive
-#ifdef SYSTEMOC_ENABLE_VPC
-      && !this->inCommState()
-#endif //SYSTEMOC_ENABLE_VPC
-      )
+  if (!reexecute && periodicActorActive)
     updateReleaseTime();
 }
 
@@ -92,11 +88,7 @@ bool smoc_periodic_actor::canFire() {
 
 // Override getNextReleaseTime from ScheduleInterface
 sc_core::sc_time const &smoc_periodic_actor::getNextReleaseTime() const {
-  if (reexecute || !periodicActorActive
-#ifdef SYSTEMOC_ENABLE_VPC
-      || this->inCommState()
-#endif //SYSTEMOC_ENABLE_VPC
-      )
+  if (reexecute || !periodicActorActive)
     return sc_core::sc_time_stamp();
   else
     return nextReleaseTime;
