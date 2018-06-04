@@ -122,7 +122,7 @@ public:
       // TODO: we should assert this in the configuration API
 
       //create components
-      VC::Component::Ptr cpu = VC::createComponent("CPU", VC::Scheduler::StaticPriority_NP);
+      VC::Component::Ptr cpu = VC::createComponent("CPU", VC::Scheduler::StaticPriorityNoPreempt);
 
       // configuration
       cpu->setScheduler(VC::Scheduler::FCFS);
