@@ -5,7 +5,7 @@
  <measurefile name=""/>
 
  <resources>
-  <component name="CPU" scheduler="PSNOPRE">
+  <component name="CPU" scheduler="SPNOPRE">
    <attribute type="tracing" value="VCD"/>
   </component>
  </resources>
