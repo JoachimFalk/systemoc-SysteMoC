@@ -56,8 +56,8 @@ namespace smoc { namespace Detail {
 namespace smoc { namespace Detail { namespace FSM {
 
   class RuntimeFiringRule
-    : public smoc_firing_rule
-    , public SimulatorAPI::FiringRuleInterface
+    : public SimulatorAPI::FiringRuleInterface
+    , public smoc_firing_rule
 #ifdef SYSTEMOC_ENABLE_VPC
     , public VpcTaskInterface
 #endif // SYSTEMOC_ENABLE_VPC
@@ -67,7 +67,7 @@ namespace smoc { namespace Detail { namespace FSM {
   public:
     typedef SimulatorAPI::FunctionNames FunctionNames;
 
-    RuntimeFiringRule(smoc_guard  const &g, smoc_action const &f)
+    RuntimeFiringRule(smoc_guard const &g, smoc_action const &f)
       : smoc_firing_rule(g,f), ioPatternWaiter(nullptr) {}
 
     /// @brief Returns event waiter for input/output guards (enough token/free space)

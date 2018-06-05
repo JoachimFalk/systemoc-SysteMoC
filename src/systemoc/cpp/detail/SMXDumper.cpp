@@ -66,6 +66,7 @@
 #include "SimulationContext.hpp"
 
 #include "FSM/RuntimeState.hpp"
+#include "FSM/RuntimeFiringRule.hpp"
 #include "FSM/RuntimeTransition.hpp"
 #include "FSM/FiringFSM.hpp"
 
@@ -802,14 +803,17 @@ public:
 protected:
   ProcessSubVisitor &sv;
 
-  struct TransitionInfo {
+  struct FiringRuleInfo {
     SGX::Action::Ptr  actionPtr;
     SGX::ASTNode::Ptr astPtr;
   };
 
-  typedef std::map<std::string, FSM::RuntimeState const *>           StateNameMap;
-  typedef std::map<FSM::RuntimeState const *, SGX::FiringState::Ptr> StateMap;
-  typedef std::map<void *, TransitionInfo>                           TransitionInfoMap;
+  typedef std::map<std::string, FSM::RuntimeState const *>
+    StateNameMap;
+  typedef std::map<FSM::RuntimeState const *, SGX::FiringState::Ptr>
+    StateMap;
+  typedef std::map<FSM::RuntimeFiringRule const *, FiringRuleInfo>
+    FiringRuleInfoMap;
 public:
   DumpFiringFSM(ProcessSubVisitor &sv)
     : sv(sv) {}
@@ -822,7 +826,7 @@ public:
 //  FSM::FiringFSM             *smocFSM       = a.getFiringFSM();
     SGX::FiringStateList::Ref   sgxStateList  = sgxFSM.states();
     StateMap                    stateMap;
-    TransitionInfoMap           transitionInfoMap;
+    FiringRuleInfoMap           firingRuleInfoMap;
 
     ActionNGXVisitor            actionVisitor;
     ExprNGXVisitor              exprVisitor(sv.ports);
@@ -877,14 +881,14 @@ public:
         StateMap::const_iterator dIter = stateMap.find(tIter->getDestState());
         assert(dIter != stateMap.end());
         sgxTran.dstState() = dIter->second;
-        std::pair<TransitionInfoMap::iterator, bool> inserted =
-          transitionInfoMap.insert(std::make_pair(tIter->getID(), TransitionInfo()));
+        std::pair<FiringRuleInfoMap::iterator, bool> inserted =
+          firingRuleInfoMap.insert(std::make_pair(tIter->getFiringRule(), FiringRuleInfo()));
         if (inserted.second) {
           inserted.first->second.actionPtr = boost::apply_visitor(actionVisitor,
             const_cast<smoc_action &>(tIter->getAction()));
           if (sv.ctx.simCTX->isSMXDumpingASTEnabled()) {
             boost::scoped_ptr<SGX::ASTNode> astNode(
-              Expr::evalTo(exprVisitor, tIter->getExpr()));
+              Expr::evalTo(exprVisitor, tIter->getGuard()));
             inserted.first->second.astPtr = astNode->toPtr();
           }
         }
