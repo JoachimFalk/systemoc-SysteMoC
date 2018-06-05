@@ -81,12 +81,11 @@ namespace smoc { namespace Detail { namespace FSM {
     , MetaMap::SMoCActor &pActor
 #endif //SYSTEMOC_ENABLE_MAESTRO
     , RuntimeState *dest)
-    :
+    : SimulatorAPI::TransitionInterface(firingRule)
 #ifdef SYSTEMOC_ENABLE_MAESTRO
-      Transition(pActor),
+    , Transition(pActor)
 #endif //SYSTEMOC_ENABLE_MAESTRO
-      firingRule(firingRule)
-    , dest(dest)
+    , destState(dest)
   {
 #if defined(SYSTEMOC_ENABLE_MAESTRO) && defined(MAESTRO_ENABLE_BRUCKNER)
     //FSMTransition
@@ -111,21 +110,6 @@ namespace smoc { namespace Detail { namespace FSM {
 #endif //SYSTEMOC_ENABLE_HOOKING
   }
 
-  const smoc::Expr::Ex<bool>::type &RuntimeTransition::getExpr() const
-    { return firingRule->getGuard(); }
-
-  RuntimeState* RuntimeTransition::getDestState() const
-    { return dest; }
-
-  std::string RuntimeTransition::getDestStateName() const
-    { return dest->stateName; }
-
-  const smoc_action& RuntimeTransition::getAction() const
-    { return firingRule->getAction(); }
-
-  void *RuntimeTransition::getID() const
-    { return firingRule; }
-
 #ifdef SYSTEMOC_ENABLE_MAESTRO
   /**
    * Method to be used by a thread to execute this transition's actions
@@ -148,9 +132,9 @@ namespace smoc { namespace Detail { namespace FSM {
     bool result = getIOPatternWaiter()->isActive();
     if (result) {
       smoc::Detail::ActivationStatus retval =
-          smoc::Expr::evalTo<smoc::Expr::Value>(getExpr());
+          smoc::Expr::evalTo<smoc::Expr::Value>(getGuard());
 #if defined(SYSTEMOC_ENABLE_DEBUG)
-      smoc::Expr::evalTo<smoc::Expr::CommReset>(getExpr());
+      smoc::Expr::evalTo<smoc::Expr::CommReset>(getGuard());
 #endif // defined(SYSTEMOC_ENABLE_DEBUG)
       switch (retval.toSymbol()) {
         case smoc::Detail::_ENABLED:
@@ -165,7 +149,7 @@ namespace smoc { namespace Detail { namespace FSM {
     }
 #if defined(SYSTEMOC_ENABLE_VPC)
     if (!debug) {
-      firingRule->vpcTask.check();
+      getFiringRule()->vpcTask.check();
     }
 #endif //SYSTEMOC_ENABLE_VPC
     return result;
@@ -185,7 +169,7 @@ namespace smoc { namespace Detail { namespace FSM {
 #endif //SYSTEMOC_ENABLE_DATAFLOW_TRACE
 
 #if defined(SYSTEMOC_ENABLE_DEBUG) || defined(SYSTEMOC_ENABLE_DATAFLOW_TRACE)
-    smoc::Expr::evalTo<smoc::Expr::CommSetup>(getExpr());
+    smoc::Expr::evalTo<smoc::Expr::CommSetup>(getGuard());
 #endif //defined(SYSTEMOC_ENABLE_DEBUG) || defined(SYSTEMOC_ENABLE_DATAFLOW_TRACE)
 
 #ifdef SYSTEMOC_ENABLE_HOOKING
@@ -203,7 +187,7 @@ namespace smoc { namespace Detail { namespace FSM {
       boost::apply_visitor(ActionOnThreadVisitor(dest, MM::MMAPI::getInstance()->runtimeManager), getAction());
 #else // !MAESTRO_ENABLE_POLYPHONIC
     RuntimeState *nextState =
-      boost::apply_visitor(ActionVisitor(dest), getAction());
+      boost::apply_visitor(ActionVisitor(getDestState()), getAction());
 #endif // !MAESTRO_ENABLE_POLYPHONIC
 
 #if defined(SYSTEMOC_ENABLE_MAESTRO) && defined(MAESTRO_ENABLE_BRUCKNER)
@@ -234,10 +218,10 @@ namespace smoc { namespace Detail { namespace FSM {
 #endif // SYSTEMOC_ENABLE_TRANSITION_TRACE
 
 #if defined(SYSTEMOC_ENABLE_VPC)
-    VpcTaskInterface *vti = this->firingRule;
+    VpcTaskInterface *vti = getFiringRule();
     vti->getDiiEvent()->reset();
-    smoc::Expr::evalTo<smoc::Expr::CommExec>(getExpr(), VpcInterface(vti));
-    SystemC_VPC::EventPair events = this->firingRule->startCompute();
+    smoc::Expr::evalTo<smoc::Expr::CommExec>(getGuard(), VpcInterface(vti));
+    SystemC_VPC::EventPair events = getFiringRule()->startCompute();
 # ifdef SYSTEMOC_ENABLE_DATAFLOW_TRACE
     if(!*events.latency) {
       // latency event not signaled
@@ -248,11 +232,11 @@ namespace smoc { namespace Detail { namespace FSM {
     }
 # endif //SYSTEMOC_ENABLE_DATAFLOW_TRACE
 #else // !defined(SYSTEMOC_ENABLE_VPC)
-    smoc::Expr::evalTo<smoc::Expr::CommExec>(getExpr());
+    smoc::Expr::evalTo<smoc::Expr::CommExec>(getGuard());
 #endif // !defined(SYSTEMOC_ENABLE_VPC)
 
 #ifdef SYSTEMOC_ENABLE_DEBUG
-    smoc::Expr::evalTo<smoc::Expr::CommReset>(getExpr());
+    smoc::Expr::evalTo<smoc::Expr::CommReset>(getGuard());
 #endif // SYSTEMOC_ENABLE_DEBUG
 
 #ifdef SYSTEMOC_ENABLE_DATAFLOW_TRACE
@@ -274,8 +258,8 @@ namespace smoc { namespace Detail { namespace FSM {
 #endif // SYSTEMOC_NEED_IDS
 #ifdef SYSTEMOC_ENABLE_TRANSITION_TRACE
     if (getSimCTX()->isTraceDumpingEnabled()) {
-      RuntimeFiringRule::FunctionNames guardNames  = firingRule->getGuardNames();
-      RuntimeFiringRule::FunctionNames actionNames = firingRule->getActionNames();
+      RuntimeFiringRule::FunctionNames guardNames  = getFiringRule()->getGuardNames();
+      RuntimeFiringRule::FunctionNames actionNames = getFiringRule()->getActionNames();
 
       getSimCTX()->getTraceFile() << "<functions transition_id=\"" << getId() << "\">";
       for(RuntimeFiringRule::FunctionNames::const_iterator iter = guardNames.begin();
@@ -294,7 +278,7 @@ namespace smoc { namespace Detail { namespace FSM {
 #ifdef SYSTEMOC_ENABLE_MAESTRO
     //Fill guardNames
     smoc::dMM::MMGuardNameVisitor gVisitor((this->guardNames));
-    smoc::Expr::evalTo(gVisitor, getExpr());
+    smoc::Expr::evalTo(gVisitor, getGuard());
 
     //Fill actionNames
     boost::apply_visitor(smoc::dMM::MMActionNameVisitor((this->actionNames)), getAction());

@@ -44,6 +44,8 @@
 
 #include "RuntimeFiringRule.hpp"
 
+#include <smoc/SimulatorAPI/TransitionInterface.hpp>
+
 #include <systemoc/smoc_config.h>
 
 namespace smoc { namespace Detail { namespace FSM {
@@ -51,24 +53,18 @@ namespace smoc { namespace Detail { namespace FSM {
   class RuntimeState;
 
   class RuntimeTransition
-    :
+    : public SimulatorAPI::TransitionInterface
 #ifdef SYSTEMOC_NEED_IDS
-      public IdedObj,
+    , public IdedObj
 #endif // SYSTEMOC_NEED_IDS
 #ifdef SYSTEMOC_ENABLE_MAESTRO
-      public MetaMap::Transition,
+    , public MetaMap::Transition
 #endif //SYSTEMOC_ENABLE_MAESTRO
-      public SimCTXBase
+    , public SimCTXBase
   {
     typedef RuntimeTransition this_type;
-
-    friend class RuntimeState; // for ap (FIXME: for what?)
-    friend class Detail::NodeBase; // for dest
   private:
-    RuntimeFiringRule   *firingRule;
-
-    /// @brief Target state
-    RuntimeState        *dest;
+    RuntimeState *destState;
 
 #ifdef SYSTEMOC_ENABLE_MAESTRO
     /**
@@ -90,27 +86,31 @@ namespace smoc { namespace Detail { namespace FSM {
     /// @brief Constructor
     RuntimeTransition(
         NodeBase           *node,
-        RuntimeFiringRule  *firingRule,
 #ifdef SYSTEMOC_ENABLE_MAESTRO
         MetaMap::SMoCActor &parentActor,
 #endif //SYSTEMOC_ENABLE_MAESTRO
-        RuntimeState *dest = nullptr);
+        RuntimeFiringRule  *firingRule,
+        RuntimeState       *dest);
+
+    /// @brief Returns the RuntimeFiringRule
+    RuntimeFiringRule *getFiringRule() const
+      { return static_cast<RuntimeFiringRule *>(firingRule); }
 
     /// @brief Returns the target state
-    RuntimeState* getDestState() const;
-
-    /// @brief Returns the name of the target state
-    std::string getDestStateName() const;
+    RuntimeState *getDestState() const
+      { return destState; }
 
     /// @brief Returns the action
-    const smoc_action &getAction() const;
+    smoc_action const &getAction() const
+      { return  getFiringRule()->getAction(); }
 
     /// @brief Returns the guard
-    const smoc::Expr::Ex<bool>::type &getExpr() const;
+    smoc_guard const  &getGuard() const
+      { return getFiringRule()->getGuard(); }
 
     /// @brief Returns waiter for input/output pattern (enough token/free space)
-    smoc::smoc_event_waiter* getIOPatternWaiter() const
-      { return firingRule->getIOPatternWaiter(); }
+    smoc::smoc_event_waiter *getIOPatternWaiter() const
+      { return getFiringRule()->getIOPatternWaiter(); }
 
     /// @brief Test if transition is enabled.
     /// If debug is true, the check of the guard is for debugging purposes
@@ -119,8 +119,6 @@ namespace smoc { namespace Detail { namespace FSM {
 
     /// @brief Execute transitions
     RuntimeState *execute(NodeBase *actor);
-
-    void *getID() const;
 
     void before_end_of_elaboration(NodeBase *node);
 
