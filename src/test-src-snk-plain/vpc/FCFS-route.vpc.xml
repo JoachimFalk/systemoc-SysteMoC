@@ -1,0 +1,43 @@
+<?xml version="1.0"?>
+<!DOCTYPE vpcconfiguration SYSTEM "vpc.dtd">
+<vpcconfiguration>
+ <resultfile name=""/>
+ <measurefile name=""/>
+
+ <resources>
+  <component name="CPU" scheduler="FCFS">
+    <attribute type="tracing" value="VCD"/>
+    <attribute type="transaction_delay" value="200 us" />
+  </component>
+  <component name="BUS" scheduler="FCFS">
+    <attribute type="tracing" value="VCD"/>
+    <attribute type="transaction_delay" value="300 us" />
+  </component>
+  <component name="MEM" scheduler="FCFS">
+    <attribute type="tracing" value="VCD"/>
+    <attribute type="transaction_delay" value="400 us" />
+  </component>
+ </resources>
+
+ <mappings>
+  <mapping source="top.src" target="CPU">
+    <timing fname="m_h_src::src"   delay="7.5 ms"/>
+  </mapping>
+  <mapping source="top.snk" target="CPU">
+    <timing fname="m_h_sink::sink" delay="10.0 ms"/>
+  </mapping>
+ </mappings>
+
+ <topology>
+  <route source="top.src" destination="queue">
+    <hop name="CPU"/>
+    <hop name="BUS"/>
+    <hop name="MEM"/>
+  </route>
+  <route source="queue" destination="top.snk">
+    <hop name="MEM"/>
+    <hop name="BUS"/>
+    <hop name="CPU"/>
+  </route>
+ </topology>
+</vpcconfiguration>
