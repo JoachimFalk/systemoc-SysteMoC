@@ -81,6 +81,7 @@ noinst_PROGRAMS= \
 	test-fsm-hierarchy-and-diss-falk \
 	test-fsm-hierarchy-xor \
 	test-fsm-hierarchy-xor-diss-falk \
+	test-fsm-hooking \
 	test-fsm-junction-state \
 	test-getValueAt \
 	test-periodic \
@@ -279,6 +280,16 @@ test-fsm-hierarchy-xor-diss-falk.log: test-fsm-hierarchy-xor-diss-falk
 	./'$<' 100 > "$@" || { rm -f "$@"; exit 1; }
 test-fsm-hierarchy-xor-diss-falk-top.%.log: test-fsm-hierarchy-xor-diss-falk.log
 	grep 'top.$*:' '$<' > '$@' || { rm -f "$@"; exit 1; }
+
+test_fsm_hooking_LDADD		= $(SYSTEMOC_LIBS)
+test_fsm_hooking_DEPENDENCIES	= $(SYSTEMOC_DEPENDENCIES)
+test_fsm_hooking_SOURCES	= \
+	src/test-fsm-hooking/cpp/design-fsm-hooking.cpp
+
+test-fsm-hooking.log: test-fsm-hooking
+	./'$<' 100 > "$@" || { rm -f "$@"; exit 1; }
+test-fsm-hooking-top.%.log: test-fsm-hooking.log
+	grep 'top.$*\[' '$<' > '$@' || { rm -f "$@"; exit 1; }
 
 test_fsm_junction_state_LDADD			= $(SYSTEMOC_LIBS)
 test_fsm_junction_state_DEPENDENCIES		= $(SYSTEMOC_DEPENDENCIES)
