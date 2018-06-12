@@ -149,13 +149,13 @@ fi
 # --enable-hooking option
 AC_ARG_ENABLE(
  [hooking],
- [[  --enable-hooking        Turn on hooking infrastructure [default=no]]],
+ [[  --enable-hooking        Turn on hooking infrastructure [default=yes]]],
  [case "${enableval}" in
     yes)  enable_hooking=yes  ;;
     no)   enable_hooking=no   ;;
     *)    AC_MSG_ERROR(bad value ${enableval} for --enable-hooking) ;;
   esac],
- [enable_hooking=no #default]
+ [enable_hooking=yes #default]
 )
 
 AM_CONDITIONAL([SYSTEMOC_ENABLE_HOOKING], [test x"$enable_hooking" = x"yes"])

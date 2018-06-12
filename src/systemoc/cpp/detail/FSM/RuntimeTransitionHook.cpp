@@ -33,37 +33,50 @@
  * ENHANCEMENTS, OR MODIFICATIONS.
  */
 
-#ifndef _INCLUDED_SMOC_DETAIL_TRANSITIONHOOK_HPP
-#define _INCLUDED_SMOC_DETAIL_TRANSITIONHOOK_HPP
-
 #include <systemoc/smoc_config.h>
 
 #ifdef SYSTEMOC_ENABLE_HOOKING
 
-#include <string>
+#include <smoc/smoc_actor.hpp>
 
-#include <smoc/smoc_hooking.hpp>
+#include "RuntimeTransitionHook.hpp"
+#include "FiringFSM.hpp"
 
-#include <boost/function.hpp>
-#include <boost/regex.hpp>
+namespace smoc { namespace Detail { namespace FSM {
 
-namespace smoc { namespace Detail {
+  RuntimeTransitionHook::RuntimeTransitionHook(
+      std::string const &srcStateRegex,
+      std::string const &actionRegex,
+      std::string const &dstStateRegex,
+      smoc_pre_hook_callback  const &pre,
+      smoc_post_hook_callback const &post)
+    : srcState(srcState), action(action), dstState(dstState),
+      preCallback(pre), postCallback(post) {}
 
-/// Specify a transition hooking rule and its pre and post callbacks
-struct TransitionHook {
-  boost::regex            srcState;
-  boost::regex            action;
-  boost::regex            dstState;
-  smoc_pre_hook_callback  preCallback;
-  smoc_post_hook_callback postCallback;
+  bool RuntimeTransitionHook::match(
+      std::string const &srcState,
+      std::string const &actionStr,
+      std::string const &dstState) const
+  {
+    return boost::regex_search(srcState, this->srcState) &&
+           boost::regex_search(actionStr, this->action) &&
+           boost::regex_search(dstState, this->dstState);
+  }
 
-  TransitionHook(
-    const std::string &srcState, const std::string &action, const std::string &dstState,
-    const smoc_pre_hook_callback &pre, const smoc_post_hook_callback &post);
-};
+} } } // namespace smoc::Detail::FSM
 
-} } // namespace smoc::Detail
+namespace smoc {
+
+  void smoc_add_transition_hook(smoc_actor *node,
+    std::string const &srcStateRegex,
+    std::string const &actionRegex,
+    std::string const &dstStateRegex,
+    smoc_pre_hook_callback  const &pre,
+    smoc_post_hook_callback const &post)
+{
+  node->getFiringFSM()->addTransitionHook(srcStateRegex, actionRegex, dstStateRegex, pre, post);
+}
+
+} // namespace smoc
 
 #endif // SYSTEMOC_ENABLE_HOOKING
-
-#endif /* _INCLUDED_SMOC_DETAIL_TRANSITIONHOOK_HPP */

@@ -46,20 +46,20 @@
 
 namespace smoc {
 
-namespace Detail {
-
-  struct TransitionHook;
-
-} // namespace Detail
-
 class smoc_actor;
 
 typedef boost::function<bool (smoc_actor *, const std::string &, const std::string &, const std::string &)> smoc_pre_hook_callback;
 typedef boost::function<void (smoc_actor *, const std::string &, const std::string &, const std::string &)> smoc_post_hook_callback;
 
+/// Add transition hook matching srcStateRegex, actionRegex, and dstStateRegex.
+/// For runtime transitions matching the hook, the pre and post callbacks are called
+/// before and after the action of the transition has been executed, respectively.
 void smoc_add_transition_hook(smoc_actor *,
-  const std::string &srcState, const std::string &action, const std::string &dstState,
-  const smoc_pre_hook_callback &pre, const smoc_post_hook_callback &post);
+  std::string const &srcStateRegex,
+  std::string const &actionRegex,
+  std::string const &dstStateRegex,
+  smoc_pre_hook_callback  const &pre,
+  smoc_post_hook_callback const &post);
 
 } // namespace smoc
 

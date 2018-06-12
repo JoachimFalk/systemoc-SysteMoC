@@ -43,6 +43,7 @@
 #include <set>
 
 #include "BaseStateImpl.hpp"
+#include "RuntimeTransitionHook.hpp"
 #include "RuntimeFiringRule.hpp"
 
 namespace smoc { namespace Detail { namespace FSM {
@@ -96,7 +97,15 @@ public:
   /// @brief Decrement ref count
   bool delRef();
 
-  //void dumpDot(FiringStateImpl* init);
+  /// @brief Add transition hook matching srcStateRegex, actionRegex, and dstStateRegex.
+  /// For runtime transitions matching the hook, the pre and post callbacks are called
+  /// before and after the action of the transition has been executed, respectively.
+  void addTransitionHook(
+    std::string const &srcStateRegex,
+    std::string const &actionRegex,
+    std::string const &dstStateRegex,
+    smoc_pre_hook_callback  const &pre,
+    smoc_post_hook_callback const &post);
 
   const RuntimeStateSet &getStates() const;
 
@@ -107,6 +116,10 @@ public:
 private:
   typedef std::set<BaseStateImpl *>    BaseStateImplSet;
   typedef std::list<RuntimeFiringRule> RuntimeFiringRuleList;
+
+#ifdef SYSTEMOC_ENABLE_HOOKING
+  RuntimeTransitionHooks transitionHooks;
+#endif //SYSTEMOC_ENABLE_HOOKING
 
   /// @brief Top states
   BaseStateImplSet      states;

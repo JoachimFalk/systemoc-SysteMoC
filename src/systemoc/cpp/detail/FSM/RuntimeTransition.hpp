@@ -43,6 +43,7 @@
 #include <smoc/detail/NodeBase.hpp>
 
 #include "RuntimeFiringRule.hpp"
+#include "RuntimeTransitionHook.hpp"
 
 #include <smoc/SimulatorAPI/TransitionInterface.hpp>
 
@@ -85,12 +86,16 @@ namespace smoc { namespace Detail { namespace FSM {
   public:
     /// @brief Constructor
     RuntimeTransition(
-        NodeBase           *node,
+#ifdef SYSTEMOC_ENABLE_HOOKING
+      RuntimeTransitionHooks const &transitionHooks,
+      RuntimeState                 *srcState,
+#endif //SYSTEMOC_ENABLE_HOOKING
+      RuntimeFiringRule            *firingRule,
 #ifdef SYSTEMOC_ENABLE_MAESTRO
-        MetaMap::SMoCActor &parentActor,
+      MetaMap::SMoCActor           &parentActor,
 #endif //SYSTEMOC_ENABLE_MAESTRO
-        RuntimeFiringRule  *firingRule,
-        RuntimeState       *dest);
+      RuntimeState                 *destState
+    );
 
     /// @brief Returns the RuntimeFiringRule
     RuntimeFiringRule *getFiringRule() const

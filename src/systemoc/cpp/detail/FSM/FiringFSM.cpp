@@ -156,6 +156,17 @@ RuntimeFiringRule *FiringFSM::acquireFiringRule(smoc_firing_rule const &smocFiri
   return &firingRules.front();
 }
 
+void FiringFSM::addTransitionHook(
+  std::string const &srcStateRegex,
+  std::string const &actionRegex,
+  std::string const &dstStateRegex,
+  smoc_pre_hook_callback  const &pre,
+  smoc_post_hook_callback const &post)
+{
+  transitionHooks.push_back(
+      RuntimeTransitionHook(srcStateRegex, actionRegex, dstStateRegex, pre, post));
+}
+
 void FiringFSM::before_end_of_elaboration(
     NodeBase              *actorOrGraphNode,
     StateImpl *hsinit)
@@ -339,11 +350,14 @@ void FiringFSM::before_end_of_elaboration(
 #endif //SYSTEMOC_ENABLE_MAESTRO
           rs->addTransition(
             RuntimeTransition(
-              actorOrGraphNode,
+#ifdef SYSTEMOC_ENABLE_HOOKING
+              transitionHooks,
+              rs,
+#endif //SYSTEMOC_ENABLE_HOOKING
+              t->getFiringRule(),
 #ifdef SYSTEMOC_ENABLE_MAESTRO
               *a,
 #endif //SYSTEMOC_ENABLE_MAESTRO
-              t->getFiringRule(),
               rd),
             actorOrGraphNode);
 #ifdef FSM_FINALIZE_BENCHMARK

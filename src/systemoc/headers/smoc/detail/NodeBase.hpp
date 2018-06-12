@@ -57,9 +57,7 @@
 #include "../../systemoc/detail/smoc_func_call.hpp"
 #include "PortBase.hpp"
 
-#ifdef SYSTEMOC_ENABLE_HOOKING
-# include <smoc/smoc_hooking.hpp>
-#endif //SYSTEMOC_ENABLE_HOOKING
+#include <smoc/smoc_hooking.hpp>
 
 #ifdef MAESTRO_ENABLE_POLYPHONIC
 # include <PolyphoniC/Callip.h>
@@ -135,12 +133,12 @@ class NodeBase
   friend class DumpActor; // To access constrArgs by SMXDumper
   friend class ProcessVisitor; // To disable actors by SMXImporter.
   friend class QSSActionVisitor; // To schedule contained actors
-#ifdef SYSTEMOC_ENABLE_HOOKING
-  // To manipulate transitionHooks
-  friend void ::smoc::smoc_add_transition_hook(smoc_actor *node,
-      const std::string &srcState, const std::string &action, const std::string &dstState,
-      const smoc_pre_hook_callback &pre, const smoc_post_hook_callback &post);
-#endif //SYSTEMOC_ENABLE_HOOKING
+//#ifdef SYSTEMOC_ENABLE_HOOKING
+//  // To manipulate transitionHooks
+//  friend void ::smoc::smoc_add_transition_hook(smoc_actor *node,
+//      const std::string &srcState, const std::string &action, const std::string &dstState,
+//      const smoc_pre_hook_callback &pre, const smoc_post_hook_callback &post);
+//#endif //SYSTEMOC_ENABLE_HOOKING
 protected:
   // This is used by smoc_actor and smoc_graph.
   enum NodeType {
@@ -260,11 +258,6 @@ private:
 
   // FIXME: (Maybe) Only actors have this info => move to smoc_actor?
   ParamInfoVisitor   constrArgs;
-
-#ifdef SYSTEMOC_ENABLE_HOOKING
-  std::list<Detail::TransitionHook *> transitionHooks;
-#endif //SYSTEMOC_ENABLE_HOOKING
-
 
 #ifdef SYSTEMOC_ENABLE_MAESTRO
 public:
