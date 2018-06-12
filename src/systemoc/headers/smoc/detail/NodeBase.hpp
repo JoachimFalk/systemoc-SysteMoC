@@ -71,6 +71,7 @@
 #define SMOC_VAR(variable)          this->var(variable, #variable)
 #define SMOC_TILL(event)            this->till(event, #event)
 #define SMOC_LITERAL(lit)           this->literal(lit)
+#define SMOC_TOKEN(p,n)             this->token(p,n)
 
 class smoc_reset_chan;
 
@@ -177,21 +178,27 @@ protected:
   
   template <typename T>
   static
-  typename smoc::Expr::Var<T>::type
+  typename Expr::Var<T>::type
   var(T &x, const char *name = nullptr)
-    { return smoc::Expr::var(x,name); }
+    { return Expr::var(x,name); }
 
   template <typename T>
   static
-  typename smoc::Expr::Literal<T>::type
+  typename Expr::Literal<T>::type
   literal(T const &x)
-    { return smoc::Expr::literal(x); }
+    { return Expr::literal(x); }
 
   // FIXME: change this to work on plain SystemC events!
   static
-  smoc::Expr::SMOCEvent::type
+  Expr::SMOCEvent::type
   till(smoc::smoc_event_waiter &e, const char *name = "")
-    { return smoc::Expr::till(e,name); }
+    { return Expr::till(e,name); }
+
+  template <typename P>
+  static
+  typename Expr::Token<P>::type
+  token(P &p, size_t pos)
+    { return typename Expr::Token<P>::type(p,pos); }
 
   template<class T>
   void registerParam(const std::string& name, const T& t) {
