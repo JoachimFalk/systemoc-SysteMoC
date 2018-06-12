@@ -60,6 +60,7 @@ libsystemoc_la_SOURCES = \
 	src/systemoc/cpp/detail/FSM/RuntimeFiringRule.cpp \
 	src/systemoc/cpp/detail/FSM/RuntimeState.cpp \
 	src/systemoc/cpp/detail/FSM/RuntimeTransition.cpp \
+	src/systemoc/cpp/detail/FSM/RuntimeTransitionHook.cpp \
 	src/systemoc/cpp/detail/FSM/stuff.cpp \
 	src/systemoc/cpp/detail/GraphBase.cpp \
 	src/systemoc/cpp/detail/IdPool.cpp \
@@ -73,7 +74,6 @@ libsystemoc_la_SOURCES = \
 	src/systemoc/cpp/detail/SMXImporter.cpp \
 	src/systemoc/cpp/detail/SysteMoCSimulator.cpp \
 	src/systemoc/cpp/detail/TraceLog.cpp \
-	src/systemoc/cpp/detail/TransitionHook.cpp \
 	src/systemoc/cpp/detail/VpcInterface.cpp \
 	src/systemoc/cpp/SimulatorAPI/FiringRuleInterface.cpp \
 	src/systemoc/cpp/SimulatorAPI/SchedulerInterface.cpp \

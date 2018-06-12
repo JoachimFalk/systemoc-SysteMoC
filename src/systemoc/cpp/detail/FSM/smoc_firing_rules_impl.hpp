@@ -59,10 +59,6 @@
 #include <smoc/detail/NamedIdedObj.hpp>
 #include <smoc/detail/IOPattern.hpp>
 
-#ifdef SYSTEMOC_ENABLE_HOOKING
-# include <smoc/smoc_hooking.hpp>
-#endif //SYSTEMOC_ENABLE_HOOKING
-
 #ifdef SYSTEMOC_ENABLE_VPC
 #include <smoc/detail/VpcInterface.hpp>
 #endif //SYSTEMOC_ENABLE_VPC

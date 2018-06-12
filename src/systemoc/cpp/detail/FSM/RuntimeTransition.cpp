@@ -42,11 +42,6 @@
 
 #include <systemoc/smoc_config.h>
 
-#ifdef SYSTEMOC_ENABLE_HOOKING
-# include "../TransitionHook.hpp"
-# include <boost/regex.hpp>
-#endif // SYSTEMOC_ENABLE_HOOKING
-
 namespace smoc { namespace Detail { namespace FSM {
 
   class TransitionActionNameVisitor {
@@ -75,36 +70,36 @@ namespace smoc { namespace Detail { namespace FSM {
 
   /// @brief Constructor
   RuntimeTransition::RuntimeTransition(
-      NodeBase           *node
-    , RuntimeFiringRule  *firingRule
+#ifdef SYSTEMOC_ENABLE_HOOKING
+    RuntimeTransitionHooks const &transitionHooks,
+    RuntimeState                 *srcState,
+#endif //SYSTEMOC_ENABLE_HOOKING
+    RuntimeFiringRule            *firingRule,
 #ifdef SYSTEMOC_ENABLE_MAESTRO
-    , MetaMap::SMoCActor &pActor
+    MetaMap::SMoCActor           &parentActor,
 #endif //SYSTEMOC_ENABLE_MAESTRO
-    , RuntimeState *dest)
-    : SimulatorAPI::TransitionInterface(firingRule)
+    RuntimeState                 *destState
+  ) : SimulatorAPI::TransitionInterface(firingRule)
 #ifdef SYSTEMOC_ENABLE_MAESTRO
     , Transition(pActor)
 #endif //SYSTEMOC_ENABLE_MAESTRO
-    , destState(dest)
+    , destState(destState)
+#ifdef SYSTEMOC_ENABLE_HOOKING
+    , actionStr(boost::apply_visitor(TransitionActionNameVisitor(), getAction()))
+#endif //SYSTEMOC_ENABLE_HOOKING
   {
+    assert(firingRule);
+    assert(destState);
 #if defined(SYSTEMOC_ENABLE_MAESTRO) && defined(MAESTRO_ENABLE_BRUCKNER)
     //FSMTransition
     this->parent = dynamic_cast<Bruckner::Model::Hierarchical*>(this->parentActor);
 #endif //defined(SYSTEMOC_ENABLE_MAESTRO) && defined(MAESTRO_ENABLE_BRUCKNER)
 #ifdef SYSTEMOC_ENABLE_HOOKING
-    if (dest) { // FIXME: Remove this if (dest) if the commState in NodeBase is gone!
-      // Real transition, i.e., not the transition leaving the commState!
-      actionStr = boost::apply_visitor(TransitionActionNameVisitor(), getAction());
-
-      for (std::list<smoc::Detail::TransitionHook *>::const_iterator iter = node->transitionHooks.begin();
-           iter != node->transitionHooks.end();
-           ++iter) {
-        if (boost::regex_search(node->getCurrentState()->name(), (*iter)->srcState) &&
-            boost::regex_search(actionStr, (*iter)->action) &&
-            boost::regex_search( dest->name(), (*iter)->dstState)) {
-          preHooks.push_back(&(*iter)->preCallback);
-          postHooks.push_back(&(*iter)->postCallback);
-        }
+    assert(srcState);
+    for (RuntimeTransitionHook const &th : transitionHooks) {
+      if (th.match(srcState->name(), actionStr, destState->name())) {
+        preHooks.push_back(&th.preCallback);
+        postHooks.push_back(&th.postCallback);
       }
     }
 #endif //SYSTEMOC_ENABLE_HOOKING
@@ -176,7 +171,7 @@ namespace smoc { namespace Detail { namespace FSM {
     for (PreHooks::const_iterator iter = preHooks.begin();
          iter != preHooks.end();
          ++iter) {
-      (*iter)->operator()(static_cast<smoc_actor *>(node), node->getCurrentState()->name(), actionStr, dest->name());
+      (*iter)->operator()(static_cast<smoc_actor *>(node), node->getCurrentState()->name(), actionStr, destState->name());
     }
 #endif // SYSTEMOC_ENABLE_HOOKING
 
@@ -208,7 +203,7 @@ namespace smoc { namespace Detail { namespace FSM {
     for (PostHooks::const_iterator iter = postHooks.begin();
          iter != postHooks.end();
          ++iter) {
-      (*iter)->operator()(static_cast<smoc_actor *>(node), node->getCurrentState()->name(), actionStr, dest->name());
+      (*iter)->operator()(static_cast<smoc_actor *>(node), node->getCurrentState()->name(), actionStr, destState->name());
     }
 #endif // SYSTEMOC_ENABLE_HOOKING
 
