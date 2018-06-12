@@ -1,0 +1,11 @@
+top.snk1[Snk::snk()]: in[0] == 8; top.snk1:start -- received token with value 8 --> top.snk1:start
+top.snk1[Snk::snk()]: in[0] == 1; top.snk1:start -- received token with value 1 --> top.snk1:start
+top.snk1[Snk::snk()]: in[0] == 1; top.snk1:start -- received token with value 1 --> top.snk1:start
+top.snk1[Snk::snk()]: in[0] == 1; top.snk1:start -- received token with value 1 --> top.snk1:start
+top.snk1[Snk::snk()]: in[0] == 0; top.snk1:start -- received token with value 0 --> top.snk1:start
+top.snk1[Snk::snk()]: in[0] == 4; top.snk1:start -- received token with value 4 --> top.snk1:start
+top.snk1[Snk::snk()]: in[0] == 1; top.snk1:start -- received token with value 1 --> top.snk1:start
+top.snk1[Snk::snk()]: in[0] == 1; top.snk1:start -- received token with value 1 --> top.snk1:start
+top.snk1[Snk::snk()]: in[0] == 0; top.snk1:start -- received token with value 0 --> top.snk1:start
+top.snk1[Snk::snk()]: in[0] == 1; top.snk1:start -- received token with value 1 --> top.snk1:start
+top.snk1[Snk::snk()]: in[0] == 0; top.snk1:start -- received token with value 0 --> top.snk1:start
