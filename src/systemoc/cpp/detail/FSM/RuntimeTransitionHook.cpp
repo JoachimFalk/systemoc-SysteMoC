@@ -50,8 +50,11 @@ namespace smoc { namespace Detail { namespace FSM {
       std::string const &dstStateRegex,
       smoc_pre_hook_callback  const &pre,
       smoc_post_hook_callback const &post)
-    : srcState(srcState), action(action), dstState(dstState),
-      preCallback(pre), postCallback(post) {}
+    : srcState(srcStateRegex)
+    , action(actionRegex)
+    , dstState(dstStateRegex)
+    , preCallback(pre)
+    , postCallback(post) {}
 
   bool RuntimeTransitionHook::match(
       std::string const &srcState,
