@@ -97,6 +97,7 @@ public:
   /// @brief Decrement ref count
   bool delRef();
 
+#ifdef SYSTEMOC_ENABLE_HOOKING
   /// @brief Add transition hook matching srcStateRegex, actionRegex, and dstStateRegex.
   /// For runtime transitions matching the hook, the pre and post callbacks are called
   /// before and after the action of the transition has been executed, respectively.
@@ -106,6 +107,7 @@ public:
     std::string const &dstStateRegex,
     smoc_pre_hook_callback  const &pre,
     smoc_post_hook_callback const &post);
+#endif //SYSTEMOC_ENABLE_HOOKING
 
   const RuntimeStateSet &getStates() const;
 

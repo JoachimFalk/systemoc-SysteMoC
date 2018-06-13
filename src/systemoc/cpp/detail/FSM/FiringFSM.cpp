@@ -156,6 +156,7 @@ RuntimeFiringRule *FiringFSM::acquireFiringRule(smoc_firing_rule const &smocFiri
   return &firingRules.front();
 }
 
+#ifdef SYSTEMOC_ENABLE_HOOKING
 void FiringFSM::addTransitionHook(
   std::string const &srcStateRegex,
   std::string const &actionRegex,
@@ -166,6 +167,7 @@ void FiringFSM::addTransitionHook(
   transitionHooks.push_back(
       RuntimeTransitionHook(srcStateRegex, actionRegex, dstStateRegex, pre, post));
 }
+#endif //SYSTEMOC_ENABLE_HOOKING
 
 void FiringFSM::before_end_of_elaboration(
     NodeBase              *actorOrGraphNode,
