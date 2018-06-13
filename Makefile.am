@@ -81,7 +81,6 @@ noinst_PROGRAMS= \
 	test-fsm-hierarchy-and-diss-falk \
 	test-fsm-hierarchy-xor \
 	test-fsm-hierarchy-xor-diss-falk \
-	test-fsm-hooking \
 	test-fsm-junction-state \
 	test-getValueAt \
 	test-periodic \
@@ -104,6 +103,11 @@ noinst_PROGRAMS= \
 	test-systemc-blocking-cosim \
 	test-systemc-nonblocking-cosim \
 	test-systemc-sqr
+
+if SYSTEMOC_ENABLE_HOOKING
+noinst_PROGRAMS+= \
+	test-fsm-hooking
+endif
 
 %.smx: %
 	./'$<' --systemoc-export-smx='$@' || \
