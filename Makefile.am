@@ -511,7 +511,7 @@ test-src-snk-plain.log: test-src-snk-plain
 test-src-snk-plain-%.log: test-src-snk-plain.log
 	grep '$*:' '$<' > '$@' || { rm -f "$@"; exit 1; }
 if VPC
-test-src-snk-plain-%.log test-src-snk-plain-%-CPU.vcd: test-src-snk-plain src/test-src-snk-plain/vpc/%.vpc.xml
+test-src-snk-plain-%.log test-src-snk-plain-%-CPU.vcd test-src-snk-plain-%-BUS.vcd test-src-snk-plain-%-MEM.vcd: test-src-snk-plain src/test-src-snk-plain/vpc/%.vpc.xml
 	set -- $^; VPCTRACEFILEPREFIX=test-src-snk-plain-$*- VPCCONFIGURATION=$$2 ./'$<' 100 > 'test-src-snk-plain-$*.log'
 endif
 
