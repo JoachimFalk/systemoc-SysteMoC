@@ -47,12 +47,6 @@
 
 #include <systemoc/smoc_config.h>
 
-namespace smoc { namespace Detail {
-
-  class NodeBase;
-
-} } // namespace smoc::Detail
-
 namespace smoc { namespace Detail { namespace FSM {
 
   class RuntimeFiringRule
@@ -63,7 +57,6 @@ namespace smoc { namespace Detail { namespace FSM {
 #endif // SYSTEMOC_ENABLE_VPC
   {
     friend class FiringFSM; // For end_of_elaboration call
-    friend class Detail::NodeBase; // FIXME: For end_of_elaboration call for transition leaving commState
   public:
     typedef SimulatorAPI::FunctionNames FunctionNames;
 
@@ -75,6 +68,10 @@ namespace smoc { namespace Detail { namespace FSM {
       { assert(ioPatternWaiter); return ioPatternWaiter; }
 
     /// Implement SimulatorAPI::FiringRuleInterface
+    void          freeInputs();
+    /// Implement SimulatorAPI::FiringRuleInterface
+    void          releaseOutputs();
+    /// Implement SimulatorAPI::FiringRuleInterface
     FunctionNames getGuardNames() const;
     /// Implement SimulatorAPI::FiringRuleInterface
     size_t        getGuardComplexity() const;
@@ -82,7 +79,7 @@ namespace smoc { namespace Detail { namespace FSM {
     FunctionNames getActionNames() const;
 
   protected:
-    /// @bried compute ioPatternWaiter.
+    /// @brief compute ioPatternWaiter.
     void end_of_elaboration();
   private:
     /// @brief Event waiter for input/output guards (enough token/free space)

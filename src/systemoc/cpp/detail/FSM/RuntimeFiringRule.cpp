@@ -101,12 +101,24 @@ namespace smoc { namespace Detail { namespace FSM {
         return nullptr;
       }
     private:
-      FunctionNames        &functionNames;
-      int                   complexity;
+      FunctionNames             &functionNames;
+      int                        complexity;
       std::vector<std::string>   val;
     };
 
   } // namespace anonymous
+
+  /// Implement SimulatorAPI::FiringRuleInterface
+  void RuntimeFiringRule::freeInputs() {
+
+
+  }
+
+  /// Implement SimulatorAPI::FiringRuleInterface
+  void RuntimeFiringRule::releaseOutputs() {
+
+
+  }
 
   /// Implement SimulatorAPI::FiringRuleInterface
   FunctionNames RuntimeFiringRule::getGuardNames() const {
@@ -139,15 +151,15 @@ namespace smoc { namespace Detail { namespace FSM {
   void RuntimeFiringRule::end_of_elaboration() {
     assert(!ioPatternWaiter);
 
-    IOPattern tmp;
-    smoc::Expr::evalTo<smoc::Expr::Sensitivity>(getGuard(), tmp);
-    tmp.finalise();
+    IOPattern ioPattern;
+    smoc::Expr::evalTo<smoc::Expr::Sensitivity>(getGuard(), ioPattern);
+    ioPattern.finalise();
 #ifdef SYSTEMOC_DEBUG
     if (smoc::Detail::outDbg.isVisible(smoc::Detail::Debug::Low)) {
-      smoc::Detail::outDbg << "=> " << tmp << std::endl;
+      smoc::Detail::outDbg << "=> " << ioPattern << std::endl;
     }
 #endif //defined(SYSTEMOC_DEBUG)
-    ioPatternWaiter = tmp.getWaiter();
+    ioPatternWaiter = ioPattern.getWaiter();
   }
 
 } } } // namespace smoc::Detail::FSM
