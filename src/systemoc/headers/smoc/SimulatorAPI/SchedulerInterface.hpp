@@ -43,11 +43,17 @@ namespace smoc { namespace SimulatorAPI {
 
   class SchedulerInterface {
   public:
+    // This must be implemented by the scheduler and will be called by
+    // SysteMoC for each firing rule of a SysteMoC actor (task).
+    virtual void registerFiringRule(TaskInterface *task, FiringRuleInterface *fr) = 0;
+
     // This must be implemented by the scheduler and will be called by the
     // SysteMoC task if task->getUseActivationCallback() returns true.
     virtual void notifyActivation(TaskInterface *task, bool activation) = 0;
 
-    virtual void registerFiringRule(TaskInterface *task, FiringRuleInterface *fr) = 0;
+    virtual void checkFiringRule(FiringRuleInterface *fr) = 0;
+
+    virtual void executeFiringRule(FiringRuleInterface *fr) = 0;
 
     virtual ~SchedulerInterface() {}
   };
