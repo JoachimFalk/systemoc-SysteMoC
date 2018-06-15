@@ -28,6 +28,10 @@ public:
 
   void registerFiringRule(SimulatorAPI::TaskInterface *task, SimulatorAPI::FiringRuleInterface *fr);
 
+  void checkFiringRule(SimulatorAPI::FiringRuleInterface *fr);
+
+  void executeFiringRule(SimulatorAPI::FiringRuleInterface *fr);
+
 private:
   SimulatorAPI::TaskInterface *task;
 
@@ -63,6 +67,15 @@ void SysteMoCScheduler::notifyActivation(SimulatorAPI::TaskInterface *task, bool
 
 void SysteMoCScheduler::registerFiringRule(SimulatorAPI::TaskInterface *task, SimulatorAPI::FiringRuleInterface *fr) {
 
+}
+
+void SysteMoCScheduler::checkFiringRule(SimulatorAPI::FiringRuleInterface *fr) {
+
+}
+
+void SysteMoCScheduler::executeFiringRule(SimulatorAPI::FiringRuleInterface *fr) {
+  fr->freeInputs();
+  fr->releaseOutputs();
 }
 
 class SysteMoCSimulator
