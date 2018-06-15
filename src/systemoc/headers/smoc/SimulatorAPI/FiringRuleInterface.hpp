@@ -57,6 +57,10 @@ namespace smoc { namespace SimulatorAPI {
     void               *getSchedulerInfo() const
       { return this->schedulerInfo; }
 
+    virtual void          freeInputs() = 0;
+
+    virtual void          releaseOutputs() = 0;
+
     virtual FunctionNames getGuardNames() const = 0;
 
     virtual size_t        getGuardComplexity() const = 0;
