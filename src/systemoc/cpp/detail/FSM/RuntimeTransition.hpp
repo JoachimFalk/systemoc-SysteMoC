@@ -120,7 +120,7 @@ namespace smoc { namespace Detail { namespace FSM {
     /// @brief Test if transition is enabled.
     /// If debug is true, the check of the guard is for debugging purposes
     /// and should no consumed any simulated time.
-    bool check(bool debug = false) const;
+    bool check() const;
 
     /// @brief Execute transitions
     RuntimeState *execute(NodeBase *actor);
