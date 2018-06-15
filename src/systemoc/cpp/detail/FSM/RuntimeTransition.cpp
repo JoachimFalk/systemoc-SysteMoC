@@ -118,7 +118,7 @@ namespace smoc { namespace Detail { namespace FSM {
   }
 #endif //SYSTEMOC_ENABLE_MAESTRO
 
-  bool RuntimeTransition::check(bool debug) const {
+  bool RuntimeTransition::check() const {
 #ifdef SYSTEMOC_DEBUG
     if (smoc::Detail::outDbg.isVisible(smoc::Detail::Debug::Medium)) {
       smoc::Detail::outDbg << "[" << getIOPatternWaiter() << "] " << *getIOPatternWaiter() << std::endl;
@@ -142,11 +142,6 @@ namespace smoc { namespace Detail { namespace FSM {
           result = false;
       }
     }
-#if defined(SYSTEMOC_ENABLE_VPC)
-    if (!debug) {
-      getFiringRule()->vpcTask.check();
-    }
-#endif //SYSTEMOC_ENABLE_VPC
     return result;
   }
 
