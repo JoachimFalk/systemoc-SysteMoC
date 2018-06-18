@@ -247,9 +247,9 @@ namespace smoc { namespace Detail {
 //  virtual result_type visitMemProc(const std::string &name, const std::string &retType, const std::string &obj, const std::string &addr) = 0;
     virtual result_type visitMemGuard(const std::string &name, const std::string& cxxType, const std::string &reType, const ParamInfoList &params) = 0;
     virtual result_type visitEvent(const std::string &name) = 0;
-    virtual result_type visitPortTokens(PortBase &p) = 0;
+//  virtual result_type visitPortTokens(PortBase &p) = 0;
     virtual result_type visitToken(PortBase &p, size_t n) = 0;
-    virtual result_type visitComm(PortBase &p, boost::function<result_type (this_type &)> e) = 0;
+    virtual result_type visitComm(PortBase &p, size_t c, size_t r) = 0;
     virtual result_type visitUnOp(OpUnT op, boost::function<result_type (this_type &)> e) = 0;
     virtual result_type visitBinOp(OpBinT op, boost::function<result_type (this_type &)> a, boost::function<result_type (this_type &)> b) = 0;
 
@@ -1537,136 +1537,12 @@ operator >> (const D<A> &a, const D<B> &b) {
 #undef DUNOPEXECUTE
 
 /****************************************************************************
- * DPortTokens represents a count of available tokens or free space in
- * the port p
- */
-
-template<class P>
-class DPortTokens {
-  typedef DPortTokens<P> this_type;
-
-  template <class E> friend class VisitorApplication;
-  template <class E> friend class CommExec;
-#if defined(SYSTEMOC_ENABLE_DEBUG)
-  template <class E> friend class CommSetup;
-  template <class E> friend class CommReset;
-#endif //defined(SYSTEMOC_ENABLE_DEBUG)
-  template <class E> friend class Value;
-private:
-  P &p; ///< The smoc port
-public:
-  explicit DPortTokens(P &p): p(p) {}
-};
-
-template<class P>
-struct D<DPortTokens<P> >: public DBase<DPortTokens<P> > {
-  D(P &p)
-    : DBase<DPortTokens<P> >(DPortTokens<P>(p)) {}
-};
-
-template<class P>
-class VisitorApplication<DPortTokens<P> > {
-public:
-  typedef void                      *result_type;
-  typedef Detail::ExprVisitor<void> &param1_type;
-
-  static inline
-  result_type apply(const DPortTokens<P> &e, param1_type p)
-    { return p.visitPortTokens(e.p); }
-};
-
-// Make a convenient typedef for the token type.
-template<class P>
-struct PortTokens {
-  typedef D<DPortTokens<P> > type;
-};
-
-template <class P>
-typename PortTokens<P>::type portTokens(P &p)
-  { return typename PortTokens<P>::type(p); }
-
-/****************************************************************************
- * DBinOp<DPortTokens<P>,E,OpBinT::Ge> represents a request for available/free
- * number of tokens on actor ports
- */
-
-#if defined(SYSTEMOC_ENABLE_DEBUG)
-template <class P, class E>
-struct CommReset<DBinOp<DPortTokens<P>,E,Expr::OpBinT::Ge> >
-{
-  typedef void result_type;
-
-  static inline
-  result_type apply(const DBinOp<DPortTokens<P>,E,Expr::OpBinT::Ge> &e)
-  {
-# ifdef SYSTEMOC_DEBUG
-    if (Detail::outDbg.isVisible(Detail::Debug::Low)) {
-      Detail::outDbg << "CommReset<DBinOp<DPortTokens<P>,E,OpBinT::Ge> >"
-                 "::apply(" << e.a.p.name() << ", ... )" << std::endl << Detail::Indent::Up;
-    }
-# endif //defined(SYSTEMOC_DEBUG)
-    e.a.p.setLimit(0);
-# ifdef SYSTEMOC_DEBUG
-    if (Detail::outDbg.isVisible(Detail::Debug::Low)) {
-      Detail::outDbg << Detail::Indent::Down;
-    }
-# endif //defined(SYSTEMOC_DEBUG)
-  }
-};
-
-template <class P, class E>
-struct CommSetup<DBinOp<DPortTokens<P>,E,Expr::OpBinT::Ge> >
-{
-  typedef void result_type;
-
-  static inline
-  result_type apply(const DBinOp<DPortTokens<P>,E,Expr::OpBinT::Ge> &e)
-  {
-# ifdef SYSTEMOC_DEBUG
-    if (Detail::outDbg.isVisible(Detail::Debug::Low)) {
-      Detail::outDbg << "CommSetup<DBinOp<DPortTokens<P>,E,OpBinT::Ge> >"
-                "::apply(" << e.a.p.name() << ", ... )" << std::endl << Detail::Indent::Up;
-    }
-# endif //defined(SYSTEMOC_DEBUG)
-    size_t req = Value<E>::apply(e.b);
-# ifdef SYSTEMOC_ENABLE_DATAFLOW_TRACE
-    e.a.p.traceCommSetup(req);
-# endif //defined(SYSTEMOC_ENABLE_DATAFLOW_TRACE)
-    e.a.p.setLimit(req);
-# ifdef SYSTEMOC_DEBUG
-    if (Detail::outDbg.isVisible(Detail::Debug::Low)) {
-      Detail::outDbg << Detail::Indent::Down;
-    }
-# endif //defined(SYSTEMOC_DEBUG)
-  }
-};
-#endif //defined(SYSTEMOC_ENABLE_DEBUG)
-
-template <class P, class E>
-struct Value<DBinOp<DPortTokens<P>,E,Expr::OpBinT::Ge> >
-{
-  typedef Detail::ENABLED result_type;
-
-  static inline
-  result_type apply(const DBinOp<DPortTokens<P>,E,Expr::OpBinT::Ge> &e)
-  {
-#if defined(SYSTEMOC_ENABLE_DEBUG)
-    size_t req = Value<E>::apply(e.b);
-    assert(e.a.p.availableCount() >= req);
-    // FIXME: WHY is this needed? This should already be done by CommSetup!
-    e.a.p.setLimit(req); 
-#endif //defined(SYSTEMOC_ENABLE_DEBUG)
-    return result_type();
-  }
-};
-
-/****************************************************************************
  * DComm represents request to consume/produce tokens
  */
 
-template<class P, class E>
+template<class P>
 class DComm {
-  typedef DComm<P,E> this_type;
+  typedef DComm<P> this_type;
 
   friend class VisitorApplication<this_type>;
   friend class CommExec<this_type>;
@@ -1677,76 +1553,58 @@ class DComm {
   friend class Sensitivity<this_type>;
   friend class Value<this_type>;
 private:
-  P &p; ///< The smoc port
-  E  committed; // was "E   e;"
-  E  required;
+  P      &p; ///< The smoc port
+  size_t committed;
+  size_t required;
 public:
-  explicit DComm(Detail::PortBase &p, const E &c, const E &r):
+  explicit DComm(Detail::PortBase &p, size_t c, size_t r):
     p(p), committed(c), required(r) {}
 };
 
-template<class P, class E>
-struct D<DComm<P,E> >: public DBase<DComm<P,E> > {
-  D(P &p, const E &r, const E &c): DBase<DComm<P,E> >(DComm<P,E>(p, r, c)) {}
+template<class P>
+struct D<DComm<P> >: public DBase<DComm<P> > {
+  D(P &p, size_t c, size_t r): DBase<DComm<P> >(DComm<P>(p, c, r)) {}
 };
 
-// Make a convenient typedef for the token type.
-template<class P, class E>
-struct Comm {
-  typedef D<DComm<P,E> > type;
-};
+//// Make a convenient typedef for the token type.
+//template<class P, class E>
+//struct Comm {
+//  typedef D<DComm<P,E> > type;
+//};
+//
+//template <class P, class E>
+//typename Comm<P,E>::type comm(P &p, E const &r, E const &c)
+//  { return typename Comm<P,E>::type(p,r,c); }
 
-template <class P, class E>
-typename Comm<P,E>::type comm(P &p, E const &r, E const &c)
-  { return typename Comm<P,E>::type(p,r,c); }
-
-template<class P, class E>
-class VisitorApplication<DComm<P,E> > {
+template<class P>
+class VisitorApplication<DComm<P> > {
 public:
   typedef void                      *result_type;
   typedef Detail::ExprVisitor<void> &param1_type;
 
   static inline
-  result_type apply(const DComm<P,E> &e, param1_type p)
-    { return p.visitComm(e.p, boost::bind(VisitorApplication<E>::apply, e.committed, _1)); }
+  result_type apply(const DComm<P> &e, param1_type p)
+    { return p.visitComm(e.p, e.committed, e.required); }
 };
 
-template <class P, class E>
-struct Sensitivity<DComm<P,E> >
-{
-  typedef Detail::Process      match_type;
+template <class P>
+struct Value<DComm<P> > {
+  typedef Detail::ENABLED result_type;
 
-  typedef void                 result_type;
-  typedef Detail::IOPattern   &param1_type;
-
-  static
-  void apply(const DComm<P,E>  &comm,
-             Detail::IOPattern &ap)
-  {
-# ifdef SYSTEMOC_DEBUG
-    if (Detail::outDbg.isVisible(Detail::Debug::Low)) {
-      Detail::outDbg << "Sensitivity<DComm<P,E> >::apply(#" << comm.p.name() << ">=req, "
-          << ap << ")" << std::endl << Detail::Indent::Up;
-    }
-# endif //defined(SYSTEMOC_DEBUG)
-    size_t n = Value<E>::apply(comm.required);
-    ap.addPortRequirement(comm.p, n);
-#ifdef SYSTEMOC_DEBUG
-    if (Detail::outDbg.isVisible(Detail::Debug::Low)) {
-      Detail::outDbg << "req: " << n << std::endl << Detail::Indent::Down;
-    }
-#endif //defined(SYSTEMOC_DEBUG)
+  static inline
+  result_type apply(const DComm<P> &e) {
+    return result_type();
   }
 };
 
-template <class P, class E>
-struct CommExec<DComm<P, E> > {
+template <class P>
+struct CommExec<DComm<P> > {
   typedef Detail::Process         match_type;
   typedef void                    result_type;
 
 #ifdef SYSTEMOC_ENABLE_VPC
   static inline
-  result_type apply(const DComm<P, E>                &e,
+  result_type apply(const DComm<P>                   &e,
                     const smoc::Detail::VpcInterface  vpcIf) {
 # ifdef SYSTEMOC_DEBUG
     if (Detail::outDbg.isVisible(Detail::Debug::Low)) {
@@ -1755,7 +1613,7 @@ struct CommExec<DComm<P, E> > {
 # endif //defined(SYSTEMOC_DEBUG)
   //std::cerr << "accessCount = " << e.p.getAccessCount() << std::endl;
     e.p.resetAccessCount();
-    e.p.commExec(Value<E>::apply(e.committed), vpcIf);
+    e.p.commExec(e.committed, vpcIf);
 #ifdef SYSTEMOC_DEBUG
     if (Detail::outDbg.isVisible(Detail::Debug::Low)) {
       Detail::outDbg << Detail::Indent::Down;
@@ -1764,13 +1622,13 @@ struct CommExec<DComm<P, E> > {
   }
 #else //!defined(SYSTEMOC_ENABLE_VPC)
   static inline
-  result_type apply(const DComm<P, E> &e) {
+  result_type apply(const DComm<P> &e) {
 # ifdef SYSTEMOC_DEBUG
     if (Detail::outDbg.isVisible(Detail::Debug::Low)) {
       Detail::outDbg << "CommExec<DComm<P, E> >::apply(" << e.p.name() << ")" << std::endl << Detail::Indent::Up;
     }
 # endif //defined(SYSTEMOC_DEBUG)
-    e.p.commExec(Value<E>::apply(e.committed));
+    e.p.commExec(e.committed);
 #ifdef SYSTEMOC_DEBUG
     if (Detail::outDbg.isVisible(Detail::Debug::Low)) {
       Detail::outDbg << Detail::Indent::Down;
@@ -1781,13 +1639,81 @@ struct CommExec<DComm<P, E> > {
 
 };
 
-template <class P, class E>
-struct Value<DComm<P, E> > {
-  typedef Detail::ENABLED result_type;
+#if defined(SYSTEMOC_ENABLE_DEBUG)
+template <class P>
+struct CommReset<DComm<P> >
+{
+  typedef void result_type;
 
   static inline
-  result_type apply(const DComm<P, E> &e) {
-    return result_type();
+  result_type apply(const DComm<P> &e)
+  {
+# ifdef SYSTEMOC_DEBUG
+    if (Detail::outDbg.isVisible(Detail::Debug::Low)) {
+      Detail::outDbg << "CommReset<DComm<P> >"
+                 "::apply(" << e.p.name() << ", ... )" << std::endl << Detail::Indent::Up;
+    }
+# endif //defined(SYSTEMOC_DEBUG)
+    e.p.setLimit(0);
+# ifdef SYSTEMOC_DEBUG
+    if (Detail::outDbg.isVisible(Detail::Debug::Low)) {
+      Detail::outDbg << Detail::Indent::Down;
+    }
+# endif //defined(SYSTEMOC_DEBUG)
+  }
+};
+
+template <class P>
+struct CommSetup<DComm<P> >
+{
+  typedef void result_type;
+
+  static inline
+  result_type apply(const DComm<P> &e)
+  {
+# ifdef SYSTEMOC_DEBUG
+    if (Detail::outDbg.isVisible(Detail::Debug::Low)) {
+      Detail::outDbg << "CommSetup<DComm<P> >"
+                "::apply(" << e.p.name() << ", ... )" << std::endl << Detail::Indent::Up;
+    }
+# endif //defined(SYSTEMOC_DEBUG)
+# ifdef SYSTEMOC_ENABLE_DATAFLOW_TRACE
+    e.p.traceCommSetup(e.required);
+# endif //defined(SYSTEMOC_ENABLE_DATAFLOW_TRACE)
+    e.p.setLimit(e.required);
+# ifdef SYSTEMOC_DEBUG
+    if (Detail::outDbg.isVisible(Detail::Debug::Low)) {
+      Detail::outDbg << Detail::Indent::Down;
+    }
+# endif //defined(SYSTEMOC_DEBUG)
+  }
+};
+#endif //defined(SYSTEMOC_ENABLE_DEBUG)
+
+template <class P>
+struct Sensitivity<DComm<P> >
+{
+  typedef Detail::Process      match_type;
+
+  typedef void                 result_type;
+  typedef Detail::IOPattern   &param1_type;
+
+  static
+  void apply(const DComm<P>  &comm,
+             Detail::IOPattern &ap)
+  {
+# ifdef SYSTEMOC_DEBUG
+    if (Detail::outDbg.isVisible(Detail::Debug::Low)) {
+      Detail::outDbg << "Sensitivity<DComm<P,E> >::apply(#" << comm.p.name() << ">=req, "
+          << ap << ")" << std::endl << Detail::Indent::Up;
+    }
+# endif //defined(SYSTEMOC_DEBUG)
+    ap.addPortRequirement(comm.p, comm.required);
+#ifdef SYSTEMOC_DEBUG
+    if (Detail::outDbg.isVisible(Detail::Debug::Low)) {
+      Detail::outDbg << "req: " << comm.required << std::endl << Detail::Indent::Down;
+    }
+#endif //defined(SYSTEMOC_DEBUG)
   }
 };
 

@@ -126,6 +126,9 @@ namespace smoc { namespace Detail { namespace FSM {
 #endif // SYSTEMOC_DEBUG
     bool result = getIOPatternWaiter()->isActive();
     if (result) {
+#if defined(SYSTEMOC_ENABLE_DEBUG)
+      smoc::Expr::evalTo<smoc::Expr::CommSetup>(getGuard());
+#endif //defined(SYSTEMOC_ENABLE_DEBUG) || defined(SYSTEMOC_ENABLE_DATAFLOW_TRACE)
       smoc::Detail::ActivationStatus retval =
           smoc::Expr::evalTo<smoc::Expr::Value>(getGuard());
 #if defined(SYSTEMOC_ENABLE_DEBUG)

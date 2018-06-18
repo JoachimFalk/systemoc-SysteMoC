@@ -73,7 +73,7 @@ SimulationContextSMXImporting::SimulationContextSMXImporting()
 class ASTEvaluator
 : public SGX::ASTTools::ASTEvaluator<
     ASTEvaluator,
-    boost::mpl::vector<boost::blank, Expr::Ex<bool>::type, PortBase *, int> >
+    boost::mpl::vector<boost::blank, Expr::Ex<ENABLED>::type, PortBase *, int> >
 {
   template<class,class> friend class SGX::ASTTools::ASTEvaluator;
 private:
@@ -118,18 +118,14 @@ protected:
   }
 
   inline
-  result_type translateASTNode(const SGX::ASTNodeBinOpLAnd &, Expr::Ex<bool>::type const &lhs, Expr::Ex<bool>::type const &rhs)
+  result_type translateASTNode(const SGX::ASTNodeBinOpLAnd &, Expr::Ex<ENABLED>::type const &lhs, Expr::Ex<ENABLED>::type const &rhs)
     { return lhs && rhs; }
 
   inline
   result_type translateASTNode(const SGX::ASTNodeBinOpGe &, PortBase *p, int request) {
     // FIXME: This should reuse smoc_port_in<T>::communicate / smoc_port_out<T>::communicate.
     return
-      Expr::comm(*p,
-                 Expr::DLiteral<size_t>(0),
-                 Expr::DLiteral<size_t>(request))
-      && //FIXME: Expr::comm knows n and m -> should remove Expr::portTokens
-      Expr::portTokens(*p) >= request;
+      Expr::D<Expr::DComm<PortBase> >(*p, 0, request);
   }
 
 };
@@ -242,7 +238,7 @@ public:
 
         ASTEvaluator astEvaluator(getSimCTX()->getIdPool());
         *srcStateIter->second |=
-            boost::get<Expr::Ex<bool>::type>(astEvaluator.evaluate(*sgxTransition.activationPattern())) >>
+            boost::get<Expr::Ex<ENABLED>::type>(astEvaluator.evaluate(*sgxTransition.activationPattern())) >>
             SMOC_CALL(QSSCluster::flummy)(
                 apply_visitor(QSSActionVisitor(getSimCTX()->getIdPool()), *sgxTransition.action())) >> *dstStateIter->second;
           ;
