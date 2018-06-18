@@ -60,8 +60,7 @@ namespace smoc { namespace Detail { namespace FSM {
   public:
     typedef SimulatorAPI::FunctionNames FunctionNames;
 
-    RuntimeFiringRule(smoc_guard const &g, smoc_action const &f)
-      : smoc_firing_rule(g,f), ioPatternWaiter(nullptr) {}
+    RuntimeFiringRule(smoc_guard const &g, smoc_action const &f);
 
     /// @brief Returns event waiter for input/output guards (enough token/free space)
     smoc_event_waiter *getIOPatternWaiter() const

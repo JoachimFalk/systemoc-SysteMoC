@@ -43,10 +43,10 @@ namespace smoc { namespace Detail { namespace FSM {
 
   namespace {
 
-    class GuardNameVisitor: public ExprVisitor<FunctionNames> {
+    class GuardNameVisitor: public ExprVisitor<void> {
     public:
-      typedef ExprVisitor<FunctionNames>            base_type;
-      typedef GuardNameVisitor                      this_type;
+      typedef ExprVisitor<void>            base_type;
+      typedef GuardNameVisitor             this_type;
 
     public:
       GuardNameVisitor(FunctionNames &names)
@@ -83,8 +83,7 @@ namespace smoc { namespace Detail { namespace FSM {
       result_type visitToken(PortBase &p, size_t n){
         return nullptr;
       }
-      result_type visitComm(PortBase &p,
-          boost::function<result_type (base_type &)> e){
+      result_type visitComm(PortBase &p, size_t c, size_t r) {
         return nullptr;
       }
       result_type visitUnOp(OpUnT op,
@@ -107,6 +106,17 @@ namespace smoc { namespace Detail { namespace FSM {
     };
 
   } // namespace anonymous
+
+  RuntimeFiringRule::RuntimeFiringRule(smoc_guard const &g, smoc_action const &f)
+    : smoc_firing_rule(g,f), ioPatternWaiter(nullptr)
+  {
+
+
+
+
+  }
+
+
 
   /// Implement SimulatorAPI::FiringRuleInterface
   void RuntimeFiringRule::freeInputs() {

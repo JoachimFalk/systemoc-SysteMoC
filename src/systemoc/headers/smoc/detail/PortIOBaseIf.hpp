@@ -75,6 +75,8 @@ public:
       { return static_cast<PORT       *>(this); }
     PORT const *getImpl() const
       { return static_cast<PORT const *>(this); }
+
+    typedef Expr::D<Expr::DComm<PortBase> > IOGuard;
   public:
     typedef this_type                         chan_base_type;
     typedef IFACE                             iface_type;
@@ -82,31 +84,19 @@ public:
     typedef typename iface_type::data_type    data_type;
     typedef typename access_type::return_type return_type;
 
-    typedef Expr::BinOp<
-      Expr::DComm<PortBase,Expr::DLiteral<size_t> >,
-      Expr::DBinOp<Expr::DPortTokens<PortBase>,Expr::DLiteral<size_t>,Expr::OpBinT::Ge>,
-      Expr::OpBinT::LAnd>::type                     CommAndPortTokensGuard;
-    typedef Expr::PortTokens<PortBase>::type  PortTokensGuard;
   public:
+//  PortTokensGuard getConsumableTokens()
+//    { return Expr::portTokens(*static_cast<PortBase *>(getImpl())); }
+
     // operator(n,m) n: How many tokens to consume, m: How many tokens must be available
-    CommAndPortTokensGuard communicate(size_t n, size_t m) {
+    IOGuard operator ()(size_t n, size_t m) {
       assert(m >= n);
-      return
-        Expr::comm(*static_cast<PortBase *>(getImpl()),
-                   Expr::DLiteral<size_t>(n),
-                   Expr::DLiteral<size_t>(m))
-        && //FIXME: Expr::comm knows n and m -> should remove Expr::portTokens
-        Expr::portTokens(*static_cast<PortBase *>(getImpl())) >= m;
+      return IOGuard(*static_cast<PortBase *>(getImpl()), n, m);
     }
-
-    PortTokensGuard getConsumableTokens()
-      { return Expr::portTokens(*static_cast<PortBase *>(getImpl())); }
-
-    // reflect operator () to channel interface
-    CommAndPortTokensGuard operator ()(size_t n, size_t m)
-      { return this->communicate(n,m); }
-    CommAndPortTokensGuard operator ()(size_t n)
-      { return this->communicate(n,n); }
+    // operator(n) n: How many tokens must be available and are consumed on firing.
+    IOGuard operator ()(size_t n) {
+      return IOGuard(*static_cast<PortBase *>(getImpl()), n, n);
+    }
 
     // Provide [] access operator for port.
     return_type operator[](size_t n) const {
@@ -204,41 +194,29 @@ public:
       { return static_cast<PORT       *>(this); }
     PORT const *getImpl() const
       { return static_cast<PORT const *>(this); }
+
+    typedef Expr::D<Expr::DComm<PortBase> > IOGuard;
   public:
     typedef this_type                         chan_base_type;
     typedef IFACE                             iface_type;
     typedef typename iface_type::access_type  access_type;
     typedef typename iface_type::data_type    data_type;
     typedef typename access_type::return_type return_type;
-
-    typedef Expr::BinOp<
-      Expr::DComm<PortBase,Expr::DLiteral<size_t> >,
-      Expr::DBinOp<Expr::DPortTokens<PortBase>,Expr::DLiteral<size_t>,Expr::OpBinT::Ge>,
-      Expr::OpBinT::LAnd>::type                     CommAndPortTokensGuard;
-    typedef Expr::PortTokens<PortBase>::type  PortTokensGuard;
   public:
+//  PortTokensGuard getFreeSpace()
+//    { return Expr::portTokens(*static_cast<PortBase *>(getImpl())); }
+
     // operator(n,m) n: How many tokens to produce, m: How much space must be available
-    CommAndPortTokensGuard communicate(size_t n, size_t m) {
+    IOGuard operator ()(size_t n, size_t m) {
       assert(m >= n);
-      return
-        Expr::comm(*static_cast<PortBase *>(getImpl()),
-                   Expr::DLiteral<size_t>(n),
-                   Expr::DLiteral<size_t>(m))
-        && //FIXME: Expr::comm knows n and m -> should remove Expr::portTokens
-        Expr::portTokens(*static_cast<PortBase *>(getImpl())) >= m;
+      return IOGuard(*static_cast<PortBase *>(getImpl()), n, m);
+    }
+    // operator(n) n: How much space (in tokens) is available and tokens are produced on firing
+    IOGuard operator ()(size_t n) {
+      return IOGuard(*static_cast<PortBase *>(getImpl()), n, n);
     }
 
-    PortTokensGuard getFreeSpace()
-      { return Expr::portTokens(*static_cast<PortBase *>(getImpl())); }
-
-    // reflect operator () to channel interface
-    CommAndPortTokensGuard operator ()(size_t n, size_t m)
-      { return this->communicate(n,m); }
-    CommAndPortTokensGuard operator ()(size_t n)
-      { return this->communicate(n,n); }
-
     // Provide [] access operator for port.
-
     return_type operator[](size_t n) const {
 #ifdef SYSTEMOC_PORT_ACCESS_COUNTER
       const_cast<PORT *>(getImpl())->incrementAccessCount();

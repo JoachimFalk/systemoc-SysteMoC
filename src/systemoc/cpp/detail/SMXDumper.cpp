@@ -49,6 +49,7 @@
 
 #include <CoSupport/compatibility-glue/nullptr.h>
 #include <CoSupport/String/Concat.hpp>
+#include <CoSupport/String/convert.hpp>
 
 #include <smoc/detail/DebugOStream.hpp>
 #include <smoc/detail/DumpingInterfaces.hpp>
@@ -80,6 +81,7 @@ typedef std::map<sc_core::sc_port_base const *, SGX::Port::Ptr>  SCPortBase2Port
 typedef std::map<sc_core::sc_interface *, SGX::Port::Ptr>  SCInterface2Port;
 
 using CoSupport::String::Concat;
+using CoSupport::String::asStr;
 
 SimulationContextSMXDumping::SimulationContextSMXDumping()
   : dumpPreSimSMXKeepGoing(false)
@@ -135,9 +137,8 @@ public:
   result_type visitLiteral(const std::string &type, const std::string &value);
   result_type visitMemGuard(const std::string &name, const std::string& cxxType, const std::string &reType, const ParamInfoList &params);
   result_type visitEvent(const std::string &name);
-  result_type visitPortTokens(PortBase &p);
   result_type visitToken(PortBase &p, size_t n);
-  result_type visitComm(PortBase &p, boost::function<result_type (base_type &)> e);
+  result_type visitComm(PortBase &p, size_t c, size_t r);
   result_type visitUnOp(OpUnT op, boost::function<result_type (base_type &)> e);
   result_type visitBinOp(OpBinT op, boost::function<result_type (base_type &)> a, boost::function<result_type (base_type &)> b);
 };
@@ -180,15 +181,6 @@ ExprNGXVisitor::result_type ExprNGXVisitor::visitEvent(const std::string &name) 
   return astNode.release();
 }
 
-ExprNGXVisitor::result_type ExprNGXVisitor::visitPortTokens(PortBase &p) {
-  std::unique_ptr<SGX::ASTNodePortTokens> astNode(new SGX::ASTNodePortTokens);
-  SCPortBase2Port::iterator iter = ports.find(&p);
-  assert(iter != ports.end() && "WTF?!: Got port in activation pattern which is not from the same actor as the FSM?!");
-  astNode->port() = iter->second;
-  astNode->valueType() = typeid(size_t).name();
-  return astNode.release();
-}
-
 ExprNGXVisitor::result_type ExprNGXVisitor::visitToken(PortBase &p, size_t n) {
   std::unique_ptr<SGX::ASTNodeToken> astNode(new SGX::ASTNodeToken);
   SCPortBase2Port::iterator iter = ports.find(&p);
@@ -198,13 +190,34 @@ ExprNGXVisitor::result_type ExprNGXVisitor::visitToken(PortBase &p, size_t n) {
   return astNode.release();
 }
 
-ExprNGXVisitor::result_type ExprNGXVisitor::visitComm(PortBase &p, boost::function<result_type (base_type &)> e) {
-  std::unique_ptr<SGX::ASTNodeComm> astNode(new SGX::ASTNodeComm);
+ExprNGXVisitor::result_type ExprNGXVisitor::visitComm(PortBase &p, size_t c, size_t r) {
   SCPortBase2Port::iterator iter = ports.find(&p);
   assert(iter != ports.end() && "WTF?!: Got port in activation pattern which is not from the same actor as the FSM?!");
-  astNode->port() = iter->second;
-  std::unique_ptr<SGX::ASTNode> childNode(e(*this));
-  astNode->childNode() = childNode->toPtr();
+
+  SGX::ASTNodeLiteral committed;
+  committed.valueType() = typeid(size_t).name();
+  committed.value() = asStr(c);
+  SGX::ASTNodeComm commNode;
+  commNode.port() = iter->second;
+  commNode.childNode() = committed.toPtr();
+
+  SGX::ASTNodePortTokens portTokens;
+  portTokens.port() = iter->second;
+  portTokens.valueType() = typeid(size_t).name();
+  SGX::ASTNodeLiteral required;
+  required.valueType() = typeid(size_t).name();
+  required.value() = asStr(r);
+  SGX::ASTNodeBinOp sufficientTokensSpace;
+  sufficientTokensSpace.opType() = SGX::OpBinT::Ge;
+  sufficientTokensSpace.leftNode() = portTokens.toPtr();
+  sufficientTokensSpace.rightNode() = required.toPtr();
+
+  // Don't swap commNode and sufficientTokensSpace. This is
+  // needed by SGXUtils::ASTTools!
+  std::unique_ptr<SGX::ASTNodeBinOp> astNode(new SGX::ASTNodeBinOp);
+  astNode->opType() = SGX::OpBinT::LAnd;
+  astNode->leftNode() = commNode.toPtr();
+  astNode->rightNode() = sufficientTokensSpace.toPtr();
   return astNode.release();
 }
 
