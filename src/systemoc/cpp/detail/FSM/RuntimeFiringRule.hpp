@@ -77,6 +77,27 @@ namespace smoc { namespace Detail { namespace FSM {
     size_t        getGuardComplexity() const;
     /// Implement SimulatorAPI::FiringRuleInterface
     FunctionNames getActionNames() const;
+
+    void          commSetup() {
+#if defined(SYSTEMOC_ENABLE_DEBUG) || defined(SYSTEMOC_ENABLE_DATAFLOW_TRACE)
+      for (PortInfo portInfo : portInfos) {
+# ifdef SYSTEMOC_ENABLE_DATAFLOW_TRACE
+        portInfo.port.traceCommSetup(portInfo.required);
+# endif // SYSTEMOC_ENABLE_DATAFLOW_TRACE
+# ifdef SYSTEMOC_ENABLE_DEBUG
+        portInfo.port.setLimit(portInfo.required);
+# endif // SYSTEMOC_ENABLE_DEBUG
+      }
+#endif // defined(SYSTEMOC_ENABLE_DEBUG) || defined(SYSTEMOC_ENABLE_DATAFLOW_TRACE)
+    }
+
+    void          commReset() {
+#if defined(SYSTEMOC_ENABLE_DEBUG)
+      for (PortInfo portInfo : portInfos)
+        portInfo.port.setLimit(0);
+#endif //defined(SYSTEMOC_ENABLE_DEBUG)
+    }
+
   private:
     class GuardVisitor;
 

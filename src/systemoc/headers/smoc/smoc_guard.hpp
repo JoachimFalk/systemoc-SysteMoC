@@ -304,30 +304,6 @@ public:
 
 };
 
-#if defined(SYSTEMOC_ENABLE_DEBUG)
-// Default do nothing
-template <class E>
-class CommReset
-{
-public:
-  typedef void result_type;
-
-  static inline
-  result_type apply(const E &e) {}
-};
-
-// Default do nothing
-template <class E>
-class CommSetup
-{
-public:
-  typedef void result_type;
-
-  static inline
-  result_type apply(const E &e) {}
-};
-#endif //defined(SYSTEMOC_ENABLE_DEBUG)
-
 /****************************************************************************
  * Expr evalTo helper functions
  */
@@ -400,10 +376,6 @@ private:
 
   friend class VisitorApplication<this_type>;
   friend class CommExec<this_type>;
-#if defined(SYSTEMOC_ENABLE_DEBUG)
-  friend class CommSetup<this_type>;
-  friend class CommReset<this_type>;
-#endif // defined(SYSTEMOC_ENABLE_DEBUG)
   friend class Value<this_type>;
 private:
   struct virt_ty: public CoSupport::SmartPtr::RefCountObject {
@@ -416,10 +388,6 @@ private:
     virtual void       evalToCommExec()    const = 0;
 #endif //!defined(SYSTEMOC_ENABLE_VPC)
 
-#if defined(SYSTEMOC_ENABLE_DEBUG)
-    virtual void       evalToCommReset()   const = 0;
-    virtual void       evalToCommSetup()   const = 0;
-#endif //defined(SYSTEMOC_ENABLE_DEBUG)
     virtual T          evalToValue()       const = 0;
   };
 
@@ -444,12 +412,6 @@ private:
       { CommExec<E>::apply(e); }
 #endif // !defined(SYSTEMOC_ENABLE_VPC)
 
-#if defined(SYSTEMOC_ENABLE_DEBUG)
-    void       evalToCommReset() const
-      { CommReset<E>::apply(e); }
-    void       evalToCommSetup() const
-      { CommSetup<E>::apply(e); }
-#endif //defined(SYSTEMOC_ENABLE_DEBUG)
     T          evalToValue() const
       { return Value<E>::apply(e); }
   };
@@ -515,52 +477,6 @@ public:
 #endif //!defined(SYSTEMOC_ENABLE_VPC)
 };
 
-#if defined(SYSTEMOC_ENABLE_DEBUG)
-template <typename T>
-class CommReset<DVirtual<T> >
-{
-public:
-  typedef void result_type;
-  
-  static inline
-  result_type apply(const DVirtual <T> &e) {
-# ifdef SYSTEMOC_DEBUG
-    if (Detail::outDbg.isVisible(Detail::Debug::Low)) {
-      Detail::outDbg << "CommReset<DVirtual<T> >::apply(e)" << std::endl << Detail::Indent::Up;
-    }
-# endif //defined(SYSTEMOC_DEBUG)
-    e.v->evalToCommReset();
-# ifdef SYSTEMOC_DEBUG
-    if (Detail::outDbg.isVisible(Detail::Debug::Low)) {
-      Detail::outDbg << Detail::Indent::Down;
-    }
-# endif //defined(SYSTEMOC_DEBUG)
-  }
-};
-
-template <typename T>
-class CommSetup<DVirtual<T> >
-{
-public:
-  typedef void result_type;
-  
-  static inline
-  result_type apply(const DVirtual <T> &e) {
-# ifdef SYSTEMOC_DEBUG
-    if (Detail::outDbg.isVisible(Detail::Debug::Low)) {
-      Detail::outDbg << "CommSetup<DVirtual<T> >::apply(e)" << std::endl << Detail::Indent::Up;
-    }
-# endif //defined(SYSTEMOC_DEBUG)
-    e.v->evalToCommSetup();
-# ifdef SYSTEMOC_DEBUG
-    if (Detail::outDbg.isVisible(Detail::Debug::Low)) {
-      Detail::outDbg << Detail::Indent::Down;
-    }
-# endif //defined(SYSTEMOC_DEBUG)
-  }
-};
-#endif //defined(SYSTEMOC_ENABLE_DEBUG)
-
 template <typename T>
 class Value<DVirtual<T> >
 {
@@ -593,10 +509,6 @@ private:
 
   friend class VisitorApplication<this_type>;
   friend class CommExec<this_type>;
-#if defined(SYSTEMOC_ENABLE_DEBUG)
-  friend class CommSetup<this_type>;
-  friend class CommReset<this_type>;
-#endif //defined(SYSTEMOC_ENABLE_DEBUG)
   friend class Value<this_type>;
 private:
   const T    &x;
@@ -655,10 +567,6 @@ private:
 
   friend class VisitorApplication<this_type>;
   friend class CommExec<this_type>;
-#if defined(SYSTEMOC_ENABLE_DEBUG)
-  friend class CommSetup<this_type>;
-  friend class CommReset<this_type>;
-#endif //defined(SYSTEMOC_ENABLE_DEBUG)
   friend class Value<this_type>;
 private:
   const T v;
@@ -717,10 +625,6 @@ private:
   
   friend class VisitorApplication<this_type>;
   friend class CommExec<this_type>;
-#if defined(SYSTEMOC_ENABLE_DEBUG)
-  friend class CommSetup<this_type>;
-  friend class CommReset<this_type>;
-#endif //defined(SYSTEMOC_ENABLE_DEBUG)
   friend class Value<this_type>;
 private:
   F  f;
@@ -792,10 +696,6 @@ private:
 
   friend class VisitorApplication<this_type>;
   friend class CommExec<this_type>;
-#if defined(SYSTEMOC_ENABLE_DEBUG)
-  friend class CommSetup<this_type>;
-  friend class CommReset<this_type>;
-#endif //defined(SYSTEMOC_ENABLE_DEBUG)
   friend class Value<this_type>;
 private:
   smoc_event_waiter &v;
@@ -859,10 +759,6 @@ private:
 
   friend class VisitorApplication<this_type>;
   friend class CommExec<this_type>;
-#if defined(SYSTEMOC_ENABLE_DEBUG)
-  friend class CommSetup<this_type>;
-  friend class CommReset<this_type>;
-#endif //defined(SYSTEMOC_ENABLE_DEBUG)
   friend class Value<this_type>;
 private:
   A a;
@@ -964,56 +860,6 @@ public:
 #endif // !defined(SYSTEMOC_ENABLE_VPC)
 
 };
-
-#if defined(SYSTEMOC_ENABLE_DEBUG)
-template <class A, class B>
-class CommReset<DBinOp<A,B,Expr::OpBinT::LAnd> >
-{
-public:
-  typedef void result_type;
-  
-  static inline
-  result_type apply(const DBinOp<A,B,Expr::OpBinT::LAnd> &e)
-  {
-# ifdef SYSTEMOC_DEBUG
-    if (Detail::outDbg.isVisible(Detail::Debug::Low)) {
-      Detail::outDbg << "CommReset<DBinOp<A,B,OpBinT::LAnd> >::apply(e)" << std::endl << Detail::Indent::Up;
-    }
-# endif //defined(SYSTEMOC_DEBUG)
-    CommReset<A>::apply(e.a);
-    CommReset<B>::apply(e.b);
-# ifdef SYSTEMOC_DEBUG
-    if (Detail::outDbg.isVisible(Detail::Debug::Low)) {
-      Detail::outDbg << Detail::Indent::Down;
-    }
-# endif //defined(SYSTEMOC_DEBUG)
-  }
-};
-
-template <class A, class B>
-class CommSetup<DBinOp<A,B,Expr::OpBinT::LAnd> >
-{
-public:
-  typedef void result_type;
-  
-  static inline
-  result_type apply(const DBinOp<A,B,Expr::OpBinT::LAnd> &e)
-  {
-# ifdef SYSTEMOC_DEBUG
-    if (Detail::outDbg.isVisible(Detail::Debug::Low)) {
-      Detail::outDbg << "CommSetup<DBinOp<A,B,OpBinT::LAnd> >::apply(e)" << std::endl << Detail::Indent::Up;
-    }
-# endif //defined(SYSTEMOC_DEBUG)
-    CommSetup<A>::apply(e.a);
-    CommSetup<B>::apply(e.b);
-# ifdef SYSTEMOC_DEBUG
-    if (Detail::outDbg.isVisible(Detail::Debug::Low)) {
-      Detail::outDbg << Detail::Indent::Down;
-    }
-# endif //defined(SYSTEMOC_DEBUG)
-  }
-};
-#endif //defined(SYSTEMOC_ENABLE_DEBUG)
 
 template <class A, class B, OpBinT::Op Op>
 class Value<DBinOp<A,B,Op> >
@@ -1248,10 +1094,6 @@ private:
 
   friend class VisitorApplication<this_type>;
   friend class CommExec<this_type>;
-#if defined(SYSTEMOC_ENABLE_DEBUG)
-  friend class CommSetup<this_type>;
-  friend class CommReset<this_type>;
-#endif //defined(SYSTEMOC_ENABLE_DEBUG)
   friend class Value<this_type>;
 private:
   E e;
@@ -1395,10 +1237,6 @@ class DComm {
 
   friend class VisitorApplication<this_type>;
   friend class CommExec<this_type>;
-#if defined(SYSTEMOC_ENABLE_DEBUG)
-  friend class CommSetup<this_type>;
-  friend class CommReset<this_type>;
-#endif //defined(SYSTEMOC_ENABLE_DEBUG)
   friend class Value<this_type>;
 private:
   P      &p; ///< The smoc port
@@ -1487,57 +1325,6 @@ struct CommExec<DComm<P> > {
 
 };
 
-#if defined(SYSTEMOC_ENABLE_DEBUG)
-template <class P>
-struct CommReset<DComm<P> >
-{
-  typedef void result_type;
-
-  static inline
-  result_type apply(const DComm<P> &e)
-  {
-# ifdef SYSTEMOC_DEBUG
-    if (Detail::outDbg.isVisible(Detail::Debug::Low)) {
-      Detail::outDbg << "CommReset<DComm<P> >"
-                 "::apply(" << e.p.name() << ", ... )" << std::endl << Detail::Indent::Up;
-    }
-# endif //defined(SYSTEMOC_DEBUG)
-    e.p.setLimit(0);
-# ifdef SYSTEMOC_DEBUG
-    if (Detail::outDbg.isVisible(Detail::Debug::Low)) {
-      Detail::outDbg << Detail::Indent::Down;
-    }
-# endif //defined(SYSTEMOC_DEBUG)
-  }
-};
-
-template <class P>
-struct CommSetup<DComm<P> >
-{
-  typedef void result_type;
-
-  static inline
-  result_type apply(const DComm<P> &e)
-  {
-# ifdef SYSTEMOC_DEBUG
-    if (Detail::outDbg.isVisible(Detail::Debug::Low)) {
-      Detail::outDbg << "CommSetup<DComm<P> >"
-                "::apply(" << e.p.name() << ", ... )" << std::endl << Detail::Indent::Up;
-    }
-# endif //defined(SYSTEMOC_DEBUG)
-# ifdef SYSTEMOC_ENABLE_DATAFLOW_TRACE
-    e.p.traceCommSetup(e.required);
-# endif //defined(SYSTEMOC_ENABLE_DATAFLOW_TRACE)
-    e.p.setLimit(e.required);
-# ifdef SYSTEMOC_DEBUG
-    if (Detail::outDbg.isVisible(Detail::Debug::Low)) {
-      Detail::outDbg << Detail::Indent::Down;
-    }
-# endif //defined(SYSTEMOC_DEBUG)
-  }
-};
-#endif //defined(SYSTEMOC_ENABLE_DEBUG)
-
 /****************************************************************************
  * DToken is a placeholder for a token in the expression.
  */
@@ -1550,10 +1337,6 @@ public:
   
   friend class VisitorApplication<this_type>;
   friend class CommExec<this_type>;
-#if defined(SYSTEMOC_ENABLE_DEBUG)
-  friend class CommSetup<this_type>;
-  friend class CommReset<this_type>;
-#endif //defined(SYSTEMOC_ENABLE_DEBUG)
   friend class Value<this_type>;
 private:
   P      &p; ///< The smoc port

@@ -59,10 +59,6 @@ namespace smoc {
 namespace smoc { namespace Expr {
 
   template <class E> class CommExec;
-#if defined(SYSTEMOC_ENABLE_DEBUG)
-  template <class E> class CommSetup;
-  template <class E> class CommReset;
-#endif //defined(SYSTEMOC_ENABLE_DEBUG)
   template <class E> class Value;
 
 } } // namespace smoc::Detail
@@ -96,10 +92,6 @@ class PortBase
   friend class FSM::RuntimeFiringRule; // for blockEvent
   friend class smoc::smoc_actor;
   template <class E> friend class Expr::CommExec;
-#if defined(SYSTEMOC_ENABLE_DEBUG)
-  template <class E> friend class Expr::CommSetup;
-  template <class E> friend class Expr::CommReset;
-#endif
   template <class E> friend class Expr::Value;
 
   template <class PORT, class IFACE> friend class PortInBaseIf::PortMixin;
