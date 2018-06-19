@@ -131,7 +131,6 @@ namespace smoc { namespace Detail { namespace FSM {
   };
 
   typedef std::list<RuntimeTransition>   RuntimeTransitionList;
-  typedef std::list<RuntimeTransition *> RuntimeTransitionPtrList;
 
 } } } // namespace smoc::Detail::FSM
 

@@ -150,14 +150,10 @@ namespace smoc { namespace Detail { namespace FSM {
 #endif // SYSTEMOC_DEBUG
     bool result = getIOPatternWaiter()->isActive();
     if (result) {
-#if defined(SYSTEMOC_ENABLE_DEBUG)
-      smoc::Expr::evalTo<smoc::Expr::CommSetup>(getGuard());
-#endif //defined(SYSTEMOC_ENABLE_DEBUG) || defined(SYSTEMOC_ENABLE_DATAFLOW_TRACE)
+      getFiringRule()->commSetup();
       smoc::Detail::ActivationStatus retval =
           smoc::Expr::evalTo<smoc::Expr::Value>(getGuard());
-#if defined(SYSTEMOC_ENABLE_DEBUG)
-      smoc::Expr::evalTo<smoc::Expr::CommReset>(getGuard());
-#endif // defined(SYSTEMOC_ENABLE_DEBUG)
+      getFiringRule()->commReset();
       switch (retval.toSymbol()) {
         case smoc::Detail::_ENABLED:
           break;
@@ -185,9 +181,7 @@ namespace smoc { namespace Detail { namespace FSM {
     this->getSimCTX()->getDataflowTraceLog()->traceTransition(getId());
 #endif //SYSTEMOC_ENABLE_DATAFLOW_TRACE
 
-#if defined(SYSTEMOC_ENABLE_DEBUG) || defined(SYSTEMOC_ENABLE_DATAFLOW_TRACE)
-    smoc::Expr::evalTo<smoc::Expr::CommSetup>(getGuard());
-#endif //defined(SYSTEMOC_ENABLE_DEBUG) || defined(SYSTEMOC_ENABLE_DATAFLOW_TRACE)
+    getFiringRule()->commSetup();
 
 #ifdef SYSTEMOC_ENABLE_HOOKING
     for (PreHooks::const_iterator iter = preHooks.begin();
@@ -252,9 +246,7 @@ namespace smoc { namespace Detail { namespace FSM {
     smoc::Expr::evalTo<smoc::Expr::CommExec>(getGuard());
 #endif // !defined(SYSTEMOC_ENABLE_VPC)
 
-#ifdef SYSTEMOC_ENABLE_DEBUG
-    smoc::Expr::evalTo<smoc::Expr::CommReset>(getGuard());
-#endif // SYSTEMOC_ENABLE_DEBUG
+    getFiringRule()->commReset();
 
 #ifdef SYSTEMOC_ENABLE_DATAFLOW_TRACE
     this->getSimCTX()->getDataflowTraceLog()->traceEndActor(node);
