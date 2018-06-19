@@ -136,7 +136,7 @@ public:
   result_type visitVar(const std::string &name, const std::string &type);
   result_type visitLiteral(const std::string &type, const std::string &value);
   result_type visitMemGuard(const std::string &name, const std::string& cxxType, const std::string &reType, const ParamInfoList &params);
-  result_type visitEvent(const std::string &name);
+  result_type visitEvent(smoc_event_waiter &e, std::string const &name);
   result_type visitToken(PortBase &p, size_t n);
   result_type visitComm(PortBase &p, size_t c, size_t r);
   result_type visitUnOp(OpUnT op, boost::function<result_type (base_type &)> e);
@@ -174,7 +174,7 @@ ExprNGXVisitor::result_type ExprNGXVisitor::visitMemGuard(
   return astNode.release();
 }
 
-ExprNGXVisitor::result_type ExprNGXVisitor::visitEvent(const std::string &name) {
+ExprNGXVisitor::result_type ExprNGXVisitor::visitEvent(smoc_event_waiter &e, std::string const &name) {
   std::unique_ptr<SGX::ASTNodeEvent> astNode(new SGX::ASTNodeEvent);
   astNode->name() = name;
   astNode->valueType() = typeid(bool).name();

@@ -101,8 +101,6 @@ void NodeBase::before_end_of_elaboration() {
   sc_core::sc_module::before_end_of_elaboration();
   if (getFiringFSM()) {
     getSimCTX()->getSimulatorInterface()->registerTask(this);
-    getFiringFSM()->before_end_of_elaboration(this,
-      CoSupport::DataTypes::FacadeCoreAccess::getImpl(*initialState));
   }
 #ifdef SYSTEMOC_DEBUG
   if (smoc::Detail::outDbg.isVisible(smoc::Detail::Debug::High)) {
@@ -121,7 +119,8 @@ void NodeBase::end_of_elaboration() {
 #endif //defined(SYSTEMOC_DEBUG)
   sc_core::sc_module::end_of_elaboration();
   if (getFiringFSM()) {
-    getFiringFSM()->end_of_elaboration(this);
+    getFiringFSM()->end_of_elaboration(this,
+      CoSupport::DataTypes::FacadeCoreAccess::getImpl(*initialState));
   }
 #ifdef SYSTEMOC_DEBUG
   if (smoc::Detail::outDbg.isVisible(smoc::Detail::Debug::High)) {

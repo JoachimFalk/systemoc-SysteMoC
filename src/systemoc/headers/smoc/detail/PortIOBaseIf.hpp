@@ -60,7 +60,6 @@ class PortInBaseIf: public PortBaseIf {
   template<class>       friend class ChanAdapterMid;
 
   // Friends needed for guard evaluation
-  template <class E> friend class Expr::Sensitivity;
   template <class E> friend class Expr::CommExec;
 #if defined(SYSTEMOC_ENABLE_DEBUG)
   template <class E> friend class Expr::CommReset;
@@ -179,7 +178,6 @@ class PortOutBaseIf: public PortBaseIf {
   template<class>       friend class ChanAdapterMid;
 
   // Friends needed for guard evaluation
-  template <class E> friend class Expr::Sensitivity;
   template <class E> friend class Expr::CommExec;
 #if defined(SYSTEMOC_ENABLE_DEBUG)
   template <class E> friend class Expr::CommReset;

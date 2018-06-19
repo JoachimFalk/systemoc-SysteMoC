@@ -64,7 +64,6 @@ libsystemoc_la_SOURCES = \
 	src/systemoc/cpp/detail/FSM/stuff.cpp \
 	src/systemoc/cpp/detail/GraphBase.cpp \
 	src/systemoc/cpp/detail/IdPool.cpp \
-	src/systemoc/cpp/detail/IOPattern.cpp \
 	src/systemoc/cpp/detail/LatencyQueue.cpp \
 	src/systemoc/cpp/detail/NodeBase.cpp \
 	src/systemoc/cpp/detail/NodeQueue.cpp \

@@ -57,7 +57,6 @@
 #include <systemoc/detail/smoc_func_call.hpp>
 
 #include <smoc/detail/NamedIdedObj.hpp>
-#include <smoc/detail/IOPattern.hpp>
 
 #ifdef SYSTEMOC_ENABLE_VPC
 #include <smoc/detail/VpcInterface.hpp>

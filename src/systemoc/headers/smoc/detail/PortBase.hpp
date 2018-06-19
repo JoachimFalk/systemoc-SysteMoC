@@ -50,6 +50,12 @@
 # include <smoc/detail/VpcInterface.hpp>
 #endif //SYSTEMOC_ENABLE_VPC
 
+namespace smoc {
+
+  class smoc_actor;
+
+} // namespace smoc
+
 namespace smoc { namespace Expr {
 
   template <class E> class CommExec;
@@ -57,23 +63,23 @@ namespace smoc { namespace Expr {
   template <class E> class CommSetup;
   template <class E> class CommReset;
 #endif //defined(SYSTEMOC_ENABLE_DEBUG)
-  template <class E> class Sensitivity;
   template <class E> class Value;
 
 } } // namespace smoc::Detail
 
-namespace smoc {
 
-  class smoc_actor;
+namespace smoc { namespace Detail { namespace FSM {
 
-} // namespace smoc
+  class RuntimeFiringRule;
+
+} } } // namespace smoc::Detail::FSM
+
 
 /****************************************************************************/
 
 namespace smoc { namespace Detail {
 
 class NodeBase;
-class PortInfo;
 
 /// Class representing the base class of all SysteMoC ports.
 class PortBase
@@ -87,14 +93,13 @@ class PortBase
   typedef PortBase this_type;
   
   friend class NodeBase;
-  friend class PortInfo;
+  friend class FSM::RuntimeFiringRule; // for blockEvent
   friend class smoc::smoc_actor;
   template <class E> friend class Expr::CommExec;
 #if defined(SYSTEMOC_ENABLE_DEBUG)
   template <class E> friend class Expr::CommSetup;
   template <class E> friend class Expr::CommReset;
 #endif
-  template <class E> friend class Expr::Sensitivity;
   template <class E> friend class Expr::Value;
 
   template <class PORT, class IFACE> friend class PortInBaseIf::PortMixin;

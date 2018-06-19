@@ -63,7 +63,6 @@
 
 #include "smoc_event.hpp"
 #include "detail/DebugOStream.hpp"
-#include "detail/IOPattern.hpp"
 
 #ifdef SYSTEMOC_ENABLE_VPC
 # include "detail/VpcInterface.hpp"
@@ -79,8 +78,8 @@ namespace smoc { namespace Detail {
   class PortBase;
   class PortBaseIf;
 
-  struct Process;   // Process type marker for evalTo<{Sensitivity|CommExec}>( ... )
-  struct Ignore;    // Ignore type marker for evalTo<{Sensitivity|CommExec}>( ... )
+  struct Process;   // Process type marker for evalTo<CommExec>( ... )
+  struct Ignore;    // Ignore type marker for evalTo<CommExec>( ... )
 
   struct DISABLED { operator bool() const { return false; } };
   struct BLOCKED  {};
@@ -241,13 +240,10 @@ namespace smoc { namespace Detail {
   public:
     typedef T *result_type;
   public:
-    virtual result_type visitVar(const std::string &name, const std::string &type) = 0;
-    virtual result_type visitLiteral(const std::string &type, const std::string &value) = 0;
-//  virtual result_type visitProc(const std::string &name, const std::string &retType, const std::string &addr) = 0;
-//  virtual result_type visitMemProc(const std::string &name, const std::string &retType, const std::string &obj, const std::string &addr) = 0;
-    virtual result_type visitMemGuard(const std::string &name, const std::string& cxxType, const std::string &reType, const ParamInfoList &params) = 0;
-    virtual result_type visitEvent(const std::string &name) = 0;
-//  virtual result_type visitPortTokens(PortBase &p) = 0;
+    virtual result_type visitVar(std::string const &name, std::string const &type) = 0;
+    virtual result_type visitLiteral(std::string const &type, std::string const &value) = 0;
+    virtual result_type visitMemGuard(std::string const &name, std::string const &cxxType, std::string const &reType, ParamInfoList const &params) = 0;
+    virtual result_type visitEvent(smoc_event_waiter &e, std::string const &name) = 0;
     virtual result_type visitToken(PortBase &p, size_t n) = 0;
     virtual result_type visitComm(PortBase &p, size_t c, size_t r) = 0;
     virtual result_type visitUnOp(OpUnT op, boost::function<result_type (this_type &)> e) = 0;
@@ -332,26 +328,6 @@ public:
 };
 #endif //defined(SYSTEMOC_ENABLE_DEBUG)
 
-// Default do nothing
-template <class E>
-class Sensitivity
-{
-public:
-  typedef Detail::Ignore       match_type;
-
-  typedef void                 result_type;
-  typedef Detail::IOPattern   &param1_type;
-
-  static inline
-  result_type apply(const E &e, Detail::IOPattern &ap) {
-#ifdef SYSTEMOC_DEBUG
-    if (Detail::outDbg.isVisible(Detail::Debug::Low)) {
-      Detail::outDbg << "Sensitivity<E>::apply(e, " <<  ap << ")" << std::endl;
-    }
-#endif //defined(SYSTEMOC_DEBUG)
-  }
-};
-
 /****************************************************************************
  * Expr evalTo helper functions
  */
@@ -428,7 +404,6 @@ private:
   friend class CommSetup<this_type>;
   friend class CommReset<this_type>;
 #endif // defined(SYSTEMOC_ENABLE_DEBUG)
-  friend class Sensitivity<this_type>;
   friend class Value<this_type>;
 private:
   struct virt_ty: public CoSupport::SmartPtr::RefCountObject {
@@ -445,8 +420,6 @@ private:
     virtual void       evalToCommReset()   const = 0;
     virtual void       evalToCommSetup()   const = 0;
 #endif //defined(SYSTEMOC_ENABLE_DEBUG)
-    virtual void       evalToSensitivity(
-       Detail::IOPattern &ap)              const = 0;
     virtual T          evalToValue()       const = 0;
   };
 
@@ -477,9 +450,6 @@ private:
     void       evalToCommSetup() const
       { CommSetup<E>::apply(e); }
 #endif //defined(SYSTEMOC_ENABLE_DEBUG)
-    void       evalToSensitivity(
-         Detail::IOPattern &ap) const
-      { Sensitivity<E>::apply(e, ap); }
     T          evalToValue() const
       { return Value<E>::apply(e); }
   };
@@ -592,31 +562,6 @@ public:
 #endif //defined(SYSTEMOC_ENABLE_DEBUG)
 
 template <typename T>
-class Sensitivity<DVirtual<T> >
-{
-public:
-  typedef Detail::Process      match_type;
- 
-  typedef void                 result_type;
-  typedef Detail::IOPattern   &param1_type;
-
-  static inline
-  result_type apply(const DVirtual <T> &e, Detail::IOPattern &ap) {
-#ifdef SYSTEMOC_DEBUG
-    if (Detail::outDbg.isVisible(Detail::Debug::Low)) {
-      Detail::outDbg << "Sensitivity<DVirtual<T> >::apply(e, al)" << std::endl << Detail::Indent::Up;
-    }
-#endif //defined(SYSTEMOC_DEBUG)
-    e.v->evalToSensitivity(ap);
-#ifdef SYSTEMOC_DEBUG
-    if (Detail::outDbg.isVisible(Detail::Debug::Low)) {
-      Detail::outDbg << Detail::Indent::Down;
-    }
-#endif //defined(SYSTEMOC_DEBUG)
-  }
-};
-
-template <typename T>
 class Value<DVirtual<T> >
 {
 public:
@@ -652,7 +597,6 @@ private:
   friend class CommSetup<this_type>;
   friend class CommReset<this_type>;
 #endif //defined(SYSTEMOC_ENABLE_DEBUG)
-  friend class Sensitivity<this_type>;
   friend class Value<this_type>;
 private:
   const T    &x;
@@ -715,7 +659,6 @@ private:
   friend class CommSetup<this_type>;
   friend class CommReset<this_type>;
 #endif //defined(SYSTEMOC_ENABLE_DEBUG)
-  friend class Sensitivity<this_type>;
   friend class Value<this_type>;
 private:
   const T v;
@@ -778,7 +721,6 @@ private:
   friend class CommSetup<this_type>;
   friend class CommReset<this_type>;
 #endif //defined(SYSTEMOC_ENABLE_DEBUG)
-  friend class Sensitivity<this_type>;
   friend class Value<this_type>;
 private:
   F  f;
@@ -854,7 +796,6 @@ private:
   friend class CommSetup<this_type>;
   friend class CommReset<this_type>;
 #endif //defined(SYSTEMOC_ENABLE_DEBUG)
-  friend class Sensitivity<this_type>;
   friend class Value<this_type>;
 private:
   smoc_event_waiter &v;
@@ -873,7 +814,7 @@ public:
   
   static inline
   result_type apply(const DSMOCEvent &e, param1_type p)
-    { return p.visitEvent(e.name); }
+    { return p.visitEvent(e.v, e.name); }
 };
 
 template <>
@@ -886,24 +827,6 @@ struct Value<DSMOCEvent> {
     assert(e.v);
 #endif //defined(SYSTEMOC_ENABLE_DEBUG)
     return result_type();
-  }
-};
-
-template <>
-struct Sensitivity<DSMOCEvent> {
-  typedef Detail::Process      match_type;
-
-  typedef void                 result_type;
-  typedef Detail::IOPattern   &param1_type;
-
-  static inline
-  void apply(const DSMOCEvent &e, Detail::IOPattern &ap) {
-#ifdef SYSTEMOC_DEBUG
-    if (Detail::outDbg.isVisible(Detail::Debug::Low)) {
-      Detail::outDbg << "Sensitivity<DSMOCEvent>::apply(" << e.v << ", " << ap << ")" << std::endl;
-    }
-#endif //defined(SYSTEMOC_DEBUG)
-    ap.addEvent(e.v); // add (plain) event used in activation patterns (especially Expr::till)
   }
 };
 
@@ -940,7 +863,6 @@ private:
   friend class CommSetup<this_type>;
   friend class CommReset<this_type>;
 #endif //defined(SYSTEMOC_ENABLE_DEBUG)
-  friend class Sensitivity<this_type>;
   friend class Value<this_type>;
 private:
   A a;
@@ -1092,35 +1014,6 @@ public:
   }
 };
 #endif //defined(SYSTEMOC_ENABLE_DEBUG)
-
-template <class A, class B, OpBinT::Op Op>
-class Sensitivity<DBinOp<A,B,Op> >
-{
-public:
-  typedef DBinOpExecute<
-    typename Sensitivity<A>::match_type,
-    typename Sensitivity<B>::match_type,
-    Op, Expr::Sensitivity>                OpT;
-  typedef typename OpT::match_type        match_type;
-  
-  typedef void                            result_type;
-  typedef Detail::IOPattern              &param1_type;
-  
-  static inline
-  void apply(const DBinOp<A,B,Op> &e, Detail::IOPattern &ap) {
-#ifdef SYSTEMOC_DEBUG
-    if (Detail::outDbg.isVisible(Detail::Debug::Low)) {
-      Detail::outDbg << "Sensitivity<DBinOp<A,B,Op>>::apply(e, " << ap << ")" << std::endl << Detail::Indent::Up;
-    }
-#endif //defined(SYSTEMOC_DEBUG)
-    OpT::apply(e.a, e.b, ap);
-#ifdef SYSTEMOC_DEBUG
-    if (Detail::outDbg.isVisible(Detail::Debug::Low)) {
-      Detail::outDbg << Detail::Indent::Down;
-    }
-#endif //defined(SYSTEMOC_DEBUG)
-  }
-};
 
 template <class A, class B, OpBinT::Op Op>
 class Value<DBinOp<A,B,Op> >
@@ -1278,49 +1171,6 @@ struct DBinOpExecute<Detail::Process,Detail::Process,Expr::OpBinT::LAnd,CommExec
 #endif // !defined(SYSTEMOC_ENABLE_VPC)
 };
 
-template <OpBinT::Op op>
-struct DBinOpExecute<Detail::Ignore,Detail::Ignore,op,Sensitivity> {
-  typedef Detail::Ignore match_type;
-
-  template <class A, class B>
-  static inline
-  void apply(const A &a, const B &b, Detail::IOPattern &ap)
-    {}
-};
-
-template <>
-struct DBinOpExecute<Detail::Process,Detail::Ignore,Expr::OpBinT::LAnd,Sensitivity>
-{
-  typedef Detail::Process match_type;
-
-  template <class A, class B>
-  static inline
-  void apply(const A &a, const B &b, Detail::IOPattern &ap)
-    { Sensitivity<A>::apply(a, ap); }
-};
-
-template <>
-struct DBinOpExecute<Detail::Ignore,Detail::Process,Expr::OpBinT::LAnd,Sensitivity>
-{
-  typedef Detail::Process match_type;
-
-  template <class A, class B>
-  static inline
-  void apply(const A &a, const B &b, Detail::IOPattern &ap)
-    { Sensitivity<B>::apply(b, ap); }
-};
-
-template <>
-struct DBinOpExecute<Detail::Process,Detail::Process,Expr::OpBinT::LAnd,Sensitivity>
-{
-  typedef Detail::Process match_type;
-
-  template <class A, class B>
-  static inline
-  void apply(const A &a, const B &b, Detail::IOPattern &ap)
-    { Sensitivity<A>::apply(a, ap); Sensitivity<B>::apply(b, ap); }
-};
-
 template <>
 struct DBinOpExecute<Detail::ENABLED,bool,Expr::OpBinT::LAnd,Value>
 {
@@ -1402,7 +1252,6 @@ private:
   friend class CommSetup<this_type>;
   friend class CommReset<this_type>;
 #endif //defined(SYSTEMOC_ENABLE_DEBUG)
-  friend class Sensitivity<this_type>;
   friend class Value<this_type>;
 private:
   E e;
@@ -1550,7 +1399,6 @@ class DComm {
   friend class CommSetup<this_type>;
   friend class CommReset<this_type>;
 #endif //defined(SYSTEMOC_ENABLE_DEBUG)
-  friend class Sensitivity<this_type>;
   friend class Value<this_type>;
 private:
   P      &p; ///< The smoc port
@@ -1690,33 +1538,6 @@ struct CommSetup<DComm<P> >
 };
 #endif //defined(SYSTEMOC_ENABLE_DEBUG)
 
-template <class P>
-struct Sensitivity<DComm<P> >
-{
-  typedef Detail::Process      match_type;
-
-  typedef void                 result_type;
-  typedef Detail::IOPattern   &param1_type;
-
-  static
-  void apply(const DComm<P>  &comm,
-             Detail::IOPattern &ap)
-  {
-# ifdef SYSTEMOC_DEBUG
-    if (Detail::outDbg.isVisible(Detail::Debug::Low)) {
-      Detail::outDbg << "Sensitivity<DComm<P,E> >::apply(#" << comm.p.name() << ">=req, "
-          << ap << ")" << std::endl << Detail::Indent::Up;
-    }
-# endif //defined(SYSTEMOC_DEBUG)
-    ap.addPortRequirement(comm.p, comm.required);
-#ifdef SYSTEMOC_DEBUG
-    if (Detail::outDbg.isVisible(Detail::Debug::Low)) {
-      Detail::outDbg << "req: " << comm.required << std::endl << Detail::Indent::Down;
-    }
-#endif //defined(SYSTEMOC_DEBUG)
-  }
-};
-
 /****************************************************************************
  * DToken is a placeholder for a token in the expression.
  */
@@ -1733,7 +1554,6 @@ public:
   friend class CommSetup<this_type>;
   friend class CommReset<this_type>;
 #endif //defined(SYSTEMOC_ENABLE_DEBUG)
-  friend class Sensitivity<this_type>;
   friend class Value<this_type>;
 private:
   P      &p; ///< The smoc port
