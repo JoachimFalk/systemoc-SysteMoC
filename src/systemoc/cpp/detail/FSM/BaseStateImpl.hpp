@@ -38,7 +38,6 @@
 
 #include <smoc/smoc_firing_rule.hpp>
 #include <smoc/smoc_transition.hpp>
-#include <smoc/detail/IOPattern.hpp>
 #include <smoc/detail/VpcInterface.hpp>
 #include <systemoc/detail/smoc_func_call.hpp>
 

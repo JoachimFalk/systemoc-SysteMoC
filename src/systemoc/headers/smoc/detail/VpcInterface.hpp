@@ -63,7 +63,7 @@ public:
   SystemC_VPC::FastLink vpcCommTask;
 
   // event used for timing simulation when reading inputs "VPC::read()"
-  smoc_vpc_event_p readEventLat;  // cached by IOPattern
+  smoc_vpc_event_p readEventLat;
   static smoc_vpc_event_p dummyDii;
 
 # ifdef SYSTEMOC_DEBUG_VPC_IF

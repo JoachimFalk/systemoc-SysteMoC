@@ -73,14 +73,10 @@ public:
   /// @brief Destructor
   ~FiringFSM();
 
-  /// @brief Hierarchical before end-of-elaboration callback
-  void before_end_of_elaboration(
-      NodeBase              *actor,
-      StateImpl *init);
-
   /// @brief Hierarchical end-of-elaboration callback
   void end_of_elaboration(
-      NodeBase              *actor);
+      NodeBase  *node,
+      StateImpl *init);
 
   /// @brief Merge firing FSMs
   void unify(this_type *fr);

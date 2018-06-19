@@ -169,14 +169,15 @@ void FiringFSM::addTransitionHook(
 }
 #endif //SYSTEMOC_ENABLE_HOOKING
 
-void FiringFSM::before_end_of_elaboration(
-    NodeBase              *actorOrGraphNode,
-    StateImpl *hsinit)
-{
-//smoc::Detail::outDbg << "FiringFSM::before_end_of_elaboration(...) this == " << this << std::endl;
-//ScopedIndent s0(smoc::Detail::outDbg);
+void FiringFSM::end_of_elaboration(NodeBase *node, StateImpl *hsinit) {
+#ifdef SYSTEMOC_DEBUG
+  if (smoc::Detail::outDbg.isVisible(smoc::Detail::Debug::High)) {
+    smoc::Detail::outDbg << "<FiringFSM::end_of_elaboration name=\"" << node->name() << "\">"
+         << std::endl << smoc::Detail::Indent::Up;
+  }
+#endif //defined(SYSTEMOC_DEBUG)
 
-  assert(actorOrGraphNode);
+  assert(node);
 
 //smoc::Detail::outDbg << "Actor or Graph: " << actorOrGraphNode->name() << std::endl;
 
@@ -274,9 +275,9 @@ void FiringFSM::before_end_of_elaboration(
     top->getInitialState(psinit, Marking());
 
 #if defined(SYSTEMOC_ENABLE_MAESTRO) && defined(MAESTRO_ENABLE_BRUCKNER)
-    init = *rts.insert(new RuntimeState (Concat("")(psinit), dynamic_cast<Bruckner::Model::Hierarchical*>(actorOrGraphNode) )).first;
+    init = *rts.insert(new RuntimeState (Concat("")(psinit), dynamic_cast<Bruckner::Model::Hierarchical*>(node) )).first;
 #else //!defined(SYSTEMOC_ENABLE_MAESTRO) || !defined(MAESTRO_ENABLE_BRUCKNER)
-    init = *rts.insert(new RuntimeState(Concat(actorOrGraphNode->name())(":")(psinit))).first;
+    init = *rts.insert(new RuntimeState(Concat(node->name())(":")(psinit))).first;
 #endif //!defined(SYSTEMOC_ENABLE_MAESTRO) || !defined(MAESTRO_ENABLE_BRUCKNER)
 
     ns.push_back(
@@ -331,9 +332,9 @@ void FiringFSM::before_end_of_elaboration(
             // FIXME: construct state name and pass to RuntimeState
             ProdState f = ins.first->first;
 #if defined(SYSTEMOC_ENABLE_MAESTRO) && defined(MAESTRO_ENABLE_BRUCKNER)
-            ins.first->second = *rts.insert(new RuntimeState(Concat("")(f), dynamic_cast<Bruckner::Model::Hierarchical*>(actorOrGraphNode))).first;
+            ins.first->second = *rts.insert(new RuntimeState(Concat("")(f), dynamic_cast<Bruckner::Model::Hierarchical*>(node))).first;
 #else //!defined(SYSTEMOC_ENABLE_MAESTRO) || !defined(MAESTRO_ENABLE_BRUCKNER)
-            ins.first->second = *rts.insert(new RuntimeState(Concat(actorOrGraphNode->name())(":")(f))).first;
+            ins.first->second = *rts.insert(new RuntimeState(Concat(node->name())(":")(f))).first;
 #endif //!defined(SYSTEMOC_ENABLE_MAESTRO) || !defined(MAESTRO_ENABLE_BRUCKNER)
             ns.push_back(ins.first);
 #ifdef FSM_FINALIZE_BENCHMARK
@@ -346,8 +347,8 @@ void FiringFSM::before_end_of_elaboration(
 
 #ifdef SYSTEMOC_ENABLE_MAESTRO
           MetaMap::SMoCActor* a = nullptr;
-          if (actorOrGraphNode->isActor()) {
-            a = dynamic_cast<MetaMap::SMoCActor*>(actorOrGraphNode);
+          if (node->isActor()) {
+            a = dynamic_cast<MetaMap::SMoCActor*>(node);
           }
 #endif //SYSTEMOC_ENABLE_MAESTRO
           rs->addTransition(
@@ -361,7 +362,7 @@ void FiringFSM::before_end_of_elaboration(
               *a,
 #endif //SYSTEMOC_ENABLE_MAESTRO
               rd),
-            actorOrGraphNode);
+            node);
 #ifdef FSM_FINALIZE_BENCHMARK
           nRunTrans++;
 #endif // FSM_FINALIZE_BENCHMARK
@@ -382,22 +383,12 @@ void FiringFSM::before_end_of_elaboration(
   clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &ts);
   uint64_t finEnd = ts.tv_sec*1000000000ull + ts.tv_nsec;
 
-  std::cerr << "Finalised FSM of actor/graph '" << actorOrGraphNode->name() << "' in "
+  std::cerr << "Finalised FSM of actor/graph '" << node->name() << "' in "
             << ((finEnd - finStart) / 1e9) << "s"
             << "; #states: " << nRunStates << "; #trans: " << nRunTrans
             << std::endl;
 #endif // FSM_FINALIZE_BENCHMARK
-}
-
-void FiringFSM::end_of_elaboration(NodeBase *node) {
-#ifdef SYSTEMOC_DEBUG
-  if (smoc::Detail::outDbg.isVisible(smoc::Detail::Debug::High)) {
-    smoc::Detail::outDbg << "<FiringFSM::end_of_elaboration name=\"" << node->name() << "\">"
-         << std::endl << smoc::Detail::Indent::Up;
-  }
-#endif //defined(SYSTEMOC_DEBUG)
   for (RuntimeFiringRule &fr : firingRules) {
-    fr.end_of_elaboration();
     node->getScheduler()->registerFiringRule(node, &fr);
 #ifdef SYSTEMOC_ENABLE_VPC
     //calculate delay for guard
@@ -405,7 +396,7 @@ void FiringFSM::end_of_elaboration(NodeBase *node) {
     fr.diiEvent = node->diiEvent;
     fr.vpcTask =
       SystemC_VPC::Director::getInstance().registerActor(node,
-                  node->name(), fr.getActionNames(), fr.getGuardNames(), fr.getGuardComplexity());
+          node->name(), fr.getActionNames(), fr.getGuardNames(), fr.getGuardComplexity());
 # ifdef SYSTEMOC_DEBUG_VPC_IF
     fr.actor = node->name();
 # endif // SYSTEMOC_DEBUG_VPC_IF

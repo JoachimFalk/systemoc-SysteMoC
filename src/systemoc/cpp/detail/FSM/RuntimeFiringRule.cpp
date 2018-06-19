@@ -36,87 +36,87 @@
 #include "RuntimeFiringRule.hpp"
 
 #include <cassert>
+#include <set>
 
 namespace smoc { namespace Detail { namespace FSM {
 
   typedef SimulatorAPI::FunctionNames FunctionNames;
 
-  namespace {
+  class RuntimeFiringRule::GuardVisitor: public ExprVisitor<void> {
+  private:
+    typedef ExprVisitor<void> base_type;
+    typedef GuardVisitor      this_type;
+  public:
+    GuardVisitor(RuntimeFiringRule &fr)
+      : fr(fr) {}
 
-    class GuardNameVisitor: public ExprVisitor<void> {
-    public:
-      typedef ExprVisitor<void>            base_type;
-      typedef GuardNameVisitor             this_type;
+    result_type visitVar(std::string const &name, std::string const &type) {
+      return nullptr;
+    }
+    result_type visitLiteral(std::string const &type, std::string const &value) {
+      fr.guardComplexity++;
+      return nullptr;
+    }
+    result_type visitMemGuard(
+        std::string const &name, std::string const &cxxType,
+        std::string const &reType, ParamInfoList const &params) {
+      fr.guardNames.push_back(name);
+      fr.guardComplexity++;
+      return nullptr;
+    }
+    result_type visitEvent(smoc_event_waiter &e, std::string const &name) {
+      *fr.ioPatternWaiter &= e;
+      return nullptr;
+    }
+    result_type visitToken(PortBase &p, size_t n){
+      return nullptr;
+    }
+    result_type visitComm(PortBase &p, size_t c, size_t r) {
+      fr.portInfos.push_back(PortInfo(p, c, r));
+      return nullptr;
+    }
+    result_type visitUnOp(OpUnT op,
+        boost::function<result_type (base_type &)> e){
+      e(*this);
+      return nullptr;
+    }
+    result_type visitBinOp(OpBinT op,
+        boost::function<result_type (base_type &)> a,
+        boost::function<result_type (base_type &)> b){
+      a(*this);
+      b(*this);
+      return nullptr;
+    }
+  private:
+    RuntimeFiringRule &fr;
+  };
 
-    public:
-      GuardNameVisitor(FunctionNames &names)
-        : functionNames(names)
-        , complexity(0) {}
-
-      int getComplexity(){
-        return complexity;
-      }
-      result_type visitVar(const std::string &name, const std::string &type){
-        return nullptr;
-      }
-      result_type visitLiteral(const std::string &type,
-          const std::string &value){
-        if (type == "m") {
-          val.push_back(value);
-        }
-        complexity++;
-        return nullptr;
-      }
-      result_type visitMemGuard(
-          const std::string &name, const std::string& cxxType,
-          const std::string &reType, const ParamInfoList &params){
-        functionNames.push_back(name);
-        complexity++;
-        return nullptr;
-      }
-      result_type visitEvent(const std::string &name){
-        return nullptr;
-      }
-      result_type visitPortTokens(PortBase &p){
-        return nullptr;
-      }
-      result_type visitToken(PortBase &p, size_t n){
-        return nullptr;
-      }
-      result_type visitComm(PortBase &p, size_t c, size_t r) {
-        return nullptr;
-      }
-      result_type visitUnOp(OpUnT op,
-          boost::function<result_type (base_type &)> e){
-        e(*this);
-        return nullptr;
-      }
-      result_type visitBinOp(OpBinT op,
-          boost::function<result_type (base_type &)> a,
-          boost::function<result_type (base_type &)> b){
-        a(*this);
-        b(*this);
-
-        return nullptr;
-      }
-    private:
-      FunctionNames             &functionNames;
-      int                        complexity;
-      std::vector<std::string>   val;
-    };
-
-  } // namespace anonymous
-
-  RuntimeFiringRule::RuntimeFiringRule(smoc_guard const &g, smoc_action const &f)
-    : smoc_firing_rule(g,f), ioPatternWaiter(nullptr)
-  {
-
-
-
-
+  static
+  smoc_event_and_list *getCAP(const smoc_event_and_list &ap) {
+    typedef std::set<smoc_event_and_list> Cache;
+    static Cache* cache = new Cache();
+    return &const_cast<smoc_event_and_list &>(*cache->insert(ap).first);
   }
 
-
+  RuntimeFiringRule::RuntimeFiringRule(smoc_guard const &g, smoc_action const &f)
+    : smoc_firing_rule(g,f)
+    , guardComplexity(0)
+    , ioPatternWaiter(nullptr)
+  {
+    smoc_event_and_list tmp;
+    ioPatternWaiter = &tmp;
+    GuardVisitor visitor(*this);
+    Expr::evalTo(visitor, getGuard());
+    for (PortInfo portInfo : portInfos) {
+      tmp &= portInfo.port.blockEvent(portInfo.required);
+    }
+    ioPatternWaiter = getCAP(tmp);
+//#ifdef SYSTEMOC_DEBUG
+//    if (smoc::Detail::outDbg.isVisible(smoc::Detail::Debug::Low)) {
+//      smoc::Detail::outDbg << "=> " << ioPattern << std::endl;
+//    }
+//#endif //defined(SYSTEMOC_DEBUG)
+  }
 
   /// Implement SimulatorAPI::FiringRuleInterface
   void RuntimeFiringRule::freeInputs() {
@@ -132,20 +132,12 @@ namespace smoc { namespace Detail { namespace FSM {
 
   /// Implement SimulatorAPI::FiringRuleInterface
   FunctionNames RuntimeFiringRule::getGuardNames() const {
-    FunctionNames guardNames;
-
-    GuardNameVisitor visitor(guardNames);
-    Expr::evalTo(visitor, getGuard());
     return guardNames;
   }
 
   /// Implement SimulatorAPI::FiringRuleInterface
   size_t        RuntimeFiringRule::getGuardComplexity() const {
-    FunctionNames guardNames;
-
-    GuardNameVisitor visitor(guardNames);
-    Expr::evalTo(visitor, getGuard());
-    return visitor.getComplexity();
+    return guardComplexity;
   }
 
   /// Implement SimulatorAPI::FiringRuleInterface
@@ -156,20 +148,6 @@ namespace smoc { namespace Detail { namespace FSM {
       actionNames.push_back(f.getFuncName());
     }
     return actionNames;
-  }
-
-  void RuntimeFiringRule::end_of_elaboration() {
-    assert(!ioPatternWaiter);
-
-    IOPattern ioPattern;
-    smoc::Expr::evalTo<smoc::Expr::Sensitivity>(getGuard(), ioPattern);
-    ioPattern.finalise();
-#ifdef SYSTEMOC_DEBUG
-    if (smoc::Detail::outDbg.isVisible(smoc::Detail::Debug::Low)) {
-      smoc::Detail::outDbg << "=> " << ioPattern << std::endl;
-    }
-#endif //defined(SYSTEMOC_DEBUG)
-    ioPatternWaiter = ioPattern.getWaiter();
   }
 
 } } } // namespace smoc::Detail::FSM

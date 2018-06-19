@@ -36,16 +36,18 @@
 #ifndef _INCLUDED_SMOC_DETAIL_FSM_RUNTIMEFIRINGRULE_HPP
 #define _INCLUDED_SMOC_DETAIL_FSM_RUNTIMEFIRINGRULE_HPP
 
-#include <smoc/smoc_guard.hpp>
-#include <systemoc/detail/smoc_func_call.hpp> // for smoc_action
+#include <smoc/SimulatorAPI/FiringRuleInterface.hpp>
 #include <smoc/smoc_firing_rule.hpp>
-
-#include <smoc/detail/IOPattern.hpp>
 #include <smoc/detail/VpcInterface.hpp>
 
-#include <smoc/SimulatorAPI/FiringRuleInterface.hpp>
+#include <smoc/smoc_guard.hpp>
+#include <systemoc/detail/smoc_func_call.hpp> // for smoc_action
+#include <smoc/smoc_event.hpp>
+#include <smoc/detail/PortBase.hpp>
 
 #include <systemoc/smoc_config.h>
+
+#include <vector>
 
 namespace smoc { namespace Detail { namespace FSM {
 
@@ -56,7 +58,6 @@ namespace smoc { namespace Detail { namespace FSM {
     , public VpcTaskInterface
 #endif // SYSTEMOC_ENABLE_VPC
   {
-    friend class FiringFSM; // For end_of_elaboration call
   public:
     typedef SimulatorAPI::FunctionNames FunctionNames;
 
@@ -76,13 +77,26 @@ namespace smoc { namespace Detail { namespace FSM {
     size_t        getGuardComplexity() const;
     /// Implement SimulatorAPI::FiringRuleInterface
     FunctionNames getActionNames() const;
-
-  protected:
-    /// @brief compute ioPatternWaiter.
-    void end_of_elaboration();
   private:
+    class GuardVisitor;
+
+    struct PortInfo {
+      PortInfo(PortBase &p, size_t c, size_t r)
+        : port(p), commited(c), required(r) {}
+
+      PortBase     &port;
+      size_t const  commited;
+      size_t const  required;
+    };
+
+    typedef std::vector<PortInfo> PortInfos;
+
+    PortInfos     portInfos;
+    FunctionNames guardNames;
+    size_t        guardComplexity;
+
     /// @brief Event waiter for input/output guards (enough token/free space)
-    smoc_event_waiter *ioPatternWaiter;
+    smoc_event_and_list *ioPatternWaiter;
   };
 
 } } } // namespace smoc::Detail::FSM
