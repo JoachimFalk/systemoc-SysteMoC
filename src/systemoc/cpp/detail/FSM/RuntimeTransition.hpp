@@ -125,8 +125,6 @@ namespace smoc { namespace Detail { namespace FSM {
     /// @brief Execute transitions
     RuntimeState *execute(NodeBase *actor);
 
-    void before_end_of_elaboration(NodeBase *node);
-
 #ifdef SYSTEMOC_ENABLE_MAESTRO
     virtual bool hasWaitAction();
 #endif //SYSTEMOC_ENABLE_MAESTRO

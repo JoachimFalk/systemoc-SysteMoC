@@ -68,15 +68,9 @@ namespace smoc { namespace Detail { namespace FSM {
   RuntimeTransitionList& RuntimeState::getTransitions()
     { return tl; }
 
-  void RuntimeState::addTransition(const RuntimeTransition& t,
-                                   NodeBase *node) {
+  void RuntimeState::addTransition(RuntimeTransition const &t) {
     tl.push_back(t);
-    tl.back().before_end_of_elaboration(node); // FIXME: Fix this hack!
-  }
-
-  void RuntimeState::end_of_elaboration() {
-    for (RuntimeTransition &t : getTransitions())
-      am.insert(t.getIOPatternWaiter());
+    am.insert(t.getIOPatternWaiter());
   }
 
 } } } // namespace smoc::Detail::FSM
