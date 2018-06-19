@@ -90,10 +90,10 @@ namespace smoc { namespace Detail { namespace FSM {
   {
     assert(firingRule);
     assert(destState);
-#if defined(SYSTEMOC_ENABLE_MAESTRO) && defined(MAESTRO_ENABLE_BRUCKNER)
-    //FSMTransition
-    this->parent = dynamic_cast<Bruckner::Model::Hierarchical*>(this->parentActor);
-#endif //defined(SYSTEMOC_ENABLE_MAESTRO) && defined(MAESTRO_ENABLE_BRUCKNER)
+#ifdef SYSTEMOC_NEED_IDS
+    // Allocate Id for myself.
+    getSimCTX()->getIdPool().addIdedObj(this);
+#endif // SYSTEMOC_NEED_IDS
 #ifdef SYSTEMOC_ENABLE_HOOKING
     assert(srcState);
     for (RuntimeTransitionHook const &th : transitionHooks) {
@@ -103,6 +103,30 @@ namespace smoc { namespace Detail { namespace FSM {
       }
     }
 #endif //SYSTEMOC_ENABLE_HOOKING
+#ifdef SYSTEMOC_ENABLE_TRANSITION_TRACE
+    if (getSimCTX()->isTraceDumpingEnabled()) {
+      getSimCTX()->getTraceFile() << "<functions transition_id=\"" << getId() << "\">";
+      for(std::string const &guardName : getFiringRule()->getGuardNames()) {
+        getSimCTX()->getTraceFile() << " " << guardName;
+      }
+      for(std::string const &actionName : getFiringRule()->getActionNames()) {
+        getSimCTX()->getTraceFile() << " " << actionName;
+      }
+      getSimCTX()->getTraceFile() << "</functions>\n";
+    }
+#endif //SYSTEMOC_ENABLE_TRANSITION_TRACE
+#ifdef SYSTEMOC_ENABLE_MAESTRO
+# ifdef MAESTRO_ENABLE_BRUCKNER
+    //FSMTransition
+    this->parent = dynamic_cast<Bruckner::Model::Hierarchical*>(this->parentActor);
+# endif //MAESTRO_ENABLE_BRUCKNER
+    //Fill guardNames
+    smoc::dMM::MMGuardNameVisitor gVisitor((this->guardNames));
+    smoc::Expr::evalTo(gVisitor, getGuard());
+
+    //Fill actionNames
+    boost::apply_visitor(smoc::dMM::MMActionNameVisitor((this->actionNames)), getAction());
+#endif //SYSTEMOC_ENABLE_MAESTRO
   }
 
 #ifdef SYSTEMOC_ENABLE_MAESTRO
@@ -242,40 +266,6 @@ namespace smoc { namespace Detail { namespace FSM {
     }
 #endif // SYSTEMOC_DEBUG
     return nextState;
-  }
-
-  void RuntimeTransition::before_end_of_elaboration(NodeBase *node) {
-#ifdef SYSTEMOC_NEED_IDS
-    // Allocate Id for myself.
-    getSimCTX()->getIdPool().addIdedObj(this);
-#endif // SYSTEMOC_NEED_IDS
-#ifdef SYSTEMOC_ENABLE_TRANSITION_TRACE
-    if (getSimCTX()->isTraceDumpingEnabled()) {
-      RuntimeFiringRule::FunctionNames guardNames  = getFiringRule()->getGuardNames();
-      RuntimeFiringRule::FunctionNames actionNames = getFiringRule()->getActionNames();
-
-      getSimCTX()->getTraceFile() << "<functions transition_id=\"" << getId() << "\">";
-      for(RuntimeFiringRule::FunctionNames::const_iterator iter = guardNames.begin();
-          iter != guardNames.end();
-          ++iter){
-        getSimCTX()->getTraceFile() << " " << *iter;
-      }
-      for(RuntimeFiringRule::FunctionNames::const_iterator iter = actionNames.begin();
-          iter != actionNames.end();
-          ++iter){
-        getSimCTX()->getTraceFile() << " " << *iter;
-      }
-      getSimCTX()->getTraceFile() << "</functions>\n";
-    }
-#endif //SYSTEMOC_ENABLE_TRANSITION_TRACE
-#ifdef SYSTEMOC_ENABLE_MAESTRO
-    //Fill guardNames
-    smoc::dMM::MMGuardNameVisitor gVisitor((this->guardNames));
-    smoc::Expr::evalTo(gVisitor, getGuard());
-
-    //Fill actionNames
-    boost::apply_visitor(smoc::dMM::MMActionNameVisitor((this->actionNames)), getAction());
-#endif //SYSTEMOC_ENABLE_MAESTRO
   }
 
 } } } // namespace smoc::Detail::FSM

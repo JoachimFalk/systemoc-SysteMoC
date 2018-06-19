@@ -61,11 +61,7 @@ namespace smoc { namespace Detail { namespace FSM {
       public SimCTXBase
   {
       typedef RuntimeState this_type;
-
       friend class RuntimeTransition;
-  private:
-    std::string           stateName;
-    RuntimeTransitionList tl;
   public:
     RuntimeState(std::string const &name
 #if defined(SYSTEMOC_ENABLE_MAESTRO) && defined(MAESTRO_ENABLE_BRUCKNER)
@@ -76,10 +72,7 @@ namespace smoc { namespace Detail { namespace FSM {
     RuntimeTransitionList       &getTransitions();
     RuntimeTransitionList const &getTransitions() const;
 
-    void addTransition(const RuntimeTransition& t,
-                       NodeBase *node);
-
-    void end_of_elaboration();
+    void addTransition(RuntimeTransition const &t);
 
     EventWaiterSet am;
 
@@ -88,6 +81,9 @@ namespace smoc { namespace Detail { namespace FSM {
 
     ~RuntimeState();
   private:
+    std::string           stateName;
+    RuntimeTransitionList tl;
+
 #ifdef SYSTEMOC_NEED_IDS
     // To reflect stateName back to NamedIdedObj base class.
     const char *name() const

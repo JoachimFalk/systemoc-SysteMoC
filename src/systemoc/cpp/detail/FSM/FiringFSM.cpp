@@ -361,8 +361,7 @@ void FiringFSM::end_of_elaboration(NodeBase *node, StateImpl *hsinit) {
 #ifdef SYSTEMOC_ENABLE_MAESTRO
               *a,
 #endif //SYSTEMOC_ENABLE_MAESTRO
-              rd),
-            node);
+              rd));
 #ifdef FSM_FINALIZE_BENCHMARK
           nRunTrans++;
 #endif // FSM_FINALIZE_BENCHMARK
@@ -402,8 +401,6 @@ void FiringFSM::end_of_elaboration(NodeBase *node, StateImpl *hsinit) {
 # endif // SYSTEMOC_DEBUG_VPC_IF
 #endif //SYSTEMOC_ENABLE_VPC
   }
-  for (RuntimeState *s : getStates())
-    s->end_of_elaboration();
 #ifdef SYSTEMOC_DEBUG
   if (smoc::Detail::outDbg.isVisible(smoc::Detail::Debug::High)) {
     smoc::Detail::outDbg << smoc::Detail::Indent::Down << "</FiringFSM::end_of_elaboration>"
