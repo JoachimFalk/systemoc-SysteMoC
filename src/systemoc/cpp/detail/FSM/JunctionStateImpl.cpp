@@ -33,48 +33,43 @@
  * ENHANCEMENTS, OR MODIFICATIONS.
  */
 
-#include <smoc/smoc_state.hpp>
+#include "JunctionStateImpl.hpp"
 
-#include "detail/FSM/StateImpl.hpp"
+#include "FiringFSM.hpp"
 
-#include <systemoc/smoc_config.h>
+namespace smoc { namespace Detail { namespace FSM {
 
-namespace smoc {
-
-smoc_state::smoc_state(const SmartPtr &p)
-  : FFType(_StorageType(p)) {}
-
-smoc_state::ImplType *smoc_state::getImpl() const
-  { return CoSupport::DataTypes::FacadeCoreAccess::getImpl(*this); }
+  JunctionStateImpl::JunctionStateImpl()
+    : BaseStateImpl() {}
   
-smoc_state::Ref smoc_state::select(
-    const std::string& name)
-  { return smoc_state(Detail::FSM::PStateImpl(getImpl()->select(name))); }
-
-smoc_state::ConstRef smoc_state::select(
-    const std::string& name) const
-  { return smoc_state(Detail::FSM::PStateImpl(getImpl()->select(name))); }
+  void JunctionStateImpl::expandTransition(
+      ExpandedTransitionList &etl,
+      StateImpl        const *srcState,
+      CondMultiState   const &conditions,
+      smoc_firing_rule const &accFiringRule) const
+  {
+//  smoc::Detail::outDbg << "JunctionStateImpl::expandTransition(etl,t) this == " << this << std::endl;
+//  ScopedIndent s0(smoc::Detail::outDbg);
+    if (ptl.empty())
+      throw FiringFSM::ModelingError("smoc_junction_state: Must specify at least one transition");
   
-const std::string& smoc_state::getName() const
-  { return getImpl()->getName(); }
-
-std::string smoc_state::getHierarchicalName() const
-  { return getImpl()->getHierarchicalName(); }
-
-#ifdef SYSTEMOC_ENABLE_MAESTRO
-/**
-* @rosales: Clone method to enable the reassigment of the initial state
-* Rationale: States have a overloaded assignment operator
-*/
-smoc_state& smoc_state::clone(const smoc_state &st) {
-  Detail::FSM::StateImpl *copyImp = st.getImpl();
-  Detail::FSM::StateImpl *thisImp = this->getImpl();
-
-  *thisImp = *copyImp;
-  this->pImpl = st.pImpl;
-
-  return *this;
-}
-#endif
-
-} // namespace smoc
+    for (PartialTransitionList::const_iterator pt = ptl.begin();
+         pt != ptl.end();
+         ++pt)
+    {
+      assert(pt->getDestState());
+      pt->getDestState()->expandTransition(
+          etl, srcState, conditions,
+          smoc_firing_rule(
+              accFiringRule.getGuard() && pt->getGuard(),
+              merge(accFiringRule.getAction(), pt->getAction())));
+    }
+  }
+  
+  void intrusive_ptr_add_ref(JunctionStateImpl *p)
+    { intrusive_ptr_add_ref(static_cast<BaseStateImpl *>(p)); }
+  
+  void intrusive_ptr_release(JunctionStateImpl *p)
+    { intrusive_ptr_release(static_cast<BaseStateImpl *>(p)); }
+  
+} } } // namespace smoc::Detail::FSM

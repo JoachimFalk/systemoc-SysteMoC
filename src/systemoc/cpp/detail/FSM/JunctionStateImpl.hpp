@@ -33,48 +33,27 @@
  * ENHANCEMENTS, OR MODIFICATIONS.
  */
 
-#include <smoc/smoc_state.hpp>
+#ifndef _INCLUDED_SMOC_DETAIL_FSM_JUNCTIONSTATEIMPL_HPP
+#define _INCLUDED_SMOC_DETAIL_FSM_JUNCTIONSTATEIMPL_HPP
 
-#include "detail/FSM/StateImpl.hpp"
+#include "BaseStateImpl.hpp"
 
-#include <systemoc/smoc_config.h>
+namespace smoc { namespace Detail { namespace FSM {
 
-namespace smoc {
+  class JunctionStateImpl: public BaseStateImpl {
+    typedef JunctionStateImpl this_type;
+  public:
+    /// @brief Constructor
+    JunctionStateImpl();
+    
+    /// @brief See BaseStateImpl
+    void expandTransition(
+        ExpandedTransitionList &etl,
+        StateImpl        const *srcState,
+        CondMultiState   const &conditions,
+        smoc_firing_rule const &accFiringRule) const;
+  };
 
-smoc_state::smoc_state(const SmartPtr &p)
-  : FFType(_StorageType(p)) {}
+} } } // namepsace smoc::Detail::FSM
 
-smoc_state::ImplType *smoc_state::getImpl() const
-  { return CoSupport::DataTypes::FacadeCoreAccess::getImpl(*this); }
-  
-smoc_state::Ref smoc_state::select(
-    const std::string& name)
-  { return smoc_state(Detail::FSM::PStateImpl(getImpl()->select(name))); }
-
-smoc_state::ConstRef smoc_state::select(
-    const std::string& name) const
-  { return smoc_state(Detail::FSM::PStateImpl(getImpl()->select(name))); }
-  
-const std::string& smoc_state::getName() const
-  { return getImpl()->getName(); }
-
-std::string smoc_state::getHierarchicalName() const
-  { return getImpl()->getHierarchicalName(); }
-
-#ifdef SYSTEMOC_ENABLE_MAESTRO
-/**
-* @rosales: Clone method to enable the reassigment of the initial state
-* Rationale: States have a overloaded assignment operator
-*/
-smoc_state& smoc_state::clone(const smoc_state &st) {
-  Detail::FSM::StateImpl *copyImp = st.getImpl();
-  Detail::FSM::StateImpl *thisImp = this->getImpl();
-
-  *thisImp = *copyImp;
-  this->pImpl = st.pImpl;
-
-  return *this;
-}
-#endif
-
-} // namespace smoc
+#endif /* _INCLUDED_SMOC_DETAIL_FSM_JUNCTIONSTATEIMPL_HPP */

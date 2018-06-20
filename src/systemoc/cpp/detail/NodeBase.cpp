@@ -56,8 +56,7 @@
 #include "FSM/RuntimeState.hpp"
 #include "FSM/RuntimeTransition.hpp"
 #include "FSM/RuntimeFiringRule.hpp"
-
-#include "FSM/smoc_firing_rules_impl.hpp"
+#include "FSM/StateImpl.hpp"
 
 namespace smoc { namespace Detail {
 

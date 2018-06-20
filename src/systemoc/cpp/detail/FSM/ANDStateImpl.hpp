@@ -33,48 +33,33 @@
  * ENHANCEMENTS, OR MODIFICATIONS.
  */
 
-#include <smoc/smoc_state.hpp>
+#ifndef _INCLUDED_SMOC_DETAIL_FSM_ANDSTATEIMPL_HPP
+#define _INCLUDED_SMOC_DETAIL_FSM_ANDSTATEIMPL_HPP
 
-#include "detail/FSM/StateImpl.hpp"
+#include "StateImpl.hpp"
 
-#include <systemoc/smoc_config.h>
+namespace smoc { namespace Detail { namespace FSM {
 
-namespace smoc {
+  class ANDStateImpl: public StateImpl {
+    typedef ANDStateImpl this_type;
+  public:
+    /// @brief Constructor
+    ANDStateImpl(std::string const &name = "");
 
-smoc_state::smoc_state(const SmartPtr &p)
-  : FFType(_StorageType(p)) {}
+    /// @brief Add partition to this AND state
+    void add(StateImpl *part);
 
-smoc_state::ImplType *smoc_state::getImpl() const
-  { return CoSupport::DataTypes::FacadeCoreAccess::getImpl(*this); }
-  
-smoc_state::Ref smoc_state::select(
-    const std::string& name)
-  { return smoc_state(Detail::FSM::PStateImpl(getImpl()->select(name))); }
+    /// @brief See StateImpl
+    void getInitialState(ProdState &p, Marking const &m) const;
+    
+    /// @brief See StateImpl
+    const StateImpl *getTopState(MultiState const &d, bool isSrcState) const;
+  protected:
+#ifdef FSM_FINALIZE_BENCHMARK
+    void countStates(size_t &nLeaf, size_t &nAnd, size_t &nXOR, size_t &nTrans) const;
+#endif // FSM_FINALIZE_BENCHMARK
+  };
 
-smoc_state::ConstRef smoc_state::select(
-    const std::string& name) const
-  { return smoc_state(Detail::FSM::PStateImpl(getImpl()->select(name))); }
-  
-const std::string& smoc_state::getName() const
-  { return getImpl()->getName(); }
+} } } // namepsace smoc::Detail::FSM
 
-std::string smoc_state::getHierarchicalName() const
-  { return getImpl()->getHierarchicalName(); }
-
-#ifdef SYSTEMOC_ENABLE_MAESTRO
-/**
-* @rosales: Clone method to enable the reassigment of the initial state
-* Rationale: States have a overloaded assignment operator
-*/
-smoc_state& smoc_state::clone(const smoc_state &st) {
-  Detail::FSM::StateImpl *copyImp = st.getImpl();
-  Detail::FSM::StateImpl *thisImp = this->getImpl();
-
-  *thisImp = *copyImp;
-  this->pImpl = st.pImpl;
-
-  return *this;
-}
-#endif
-
-} // namespace smoc
+#endif /* _INCLUDED_SMOC_DETAIL_FSM_ANDSTATEIMPL_HPP */

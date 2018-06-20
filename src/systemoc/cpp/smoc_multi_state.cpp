@@ -35,7 +35,7 @@
 
 #include <smoc/smoc_multi_state.hpp>
 
-#include "detail/FSM/smoc_firing_rules_impl.hpp"
+#include "detail/FSM/MultiStateImpl.hpp"
 
 #include <systemoc/smoc_config.h>
 

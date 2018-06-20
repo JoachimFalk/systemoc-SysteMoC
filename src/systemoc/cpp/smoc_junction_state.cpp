@@ -35,7 +35,7 @@
 
 #include <smoc/smoc_junction_state.hpp>
 
-#include "detail/FSM/smoc_firing_rules_impl.hpp"
+#include "detail/FSM/JunctionStateImpl.hpp"
 
 #include <systemoc/smoc_config.h>
 

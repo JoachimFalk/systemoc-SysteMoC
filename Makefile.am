@@ -53,15 +53,20 @@ lib_LTLIBRARIES = libsystemoc.la
 libsystemoc_la_SOURCES = \
 	src/systemoc/cpp/detail/ChanBase.cpp \
 	src/systemoc/cpp/detail/DebugOStream.cpp \
+	src/systemoc/cpp/detail/FSM/ANDStateImpl.cpp \
 	src/systemoc/cpp/detail/FSM/BaseStateImpl.cpp \
 	src/systemoc/cpp/detail/FSM/ExpandedTransition.cpp \
 	src/systemoc/cpp/detail/FSM/FiringFSM.cpp \
+        src/systemoc/cpp/detail/FSM/FiringStateImpl.cpp \
+        src/systemoc/cpp/detail/FSM/JunctionStateImpl.cpp \
+        src/systemoc/cpp/detail/FSM/MultiStateImpl.cpp \
 	src/systemoc/cpp/detail/FSM/PartialTransition.cpp \
 	src/systemoc/cpp/detail/FSM/RuntimeFiringRule.cpp \
 	src/systemoc/cpp/detail/FSM/RuntimeState.cpp \
 	src/systemoc/cpp/detail/FSM/RuntimeTransition.cpp \
 	src/systemoc/cpp/detail/FSM/RuntimeTransitionHook.cpp \
-	src/systemoc/cpp/detail/FSM/stuff.cpp \
+        src/systemoc/cpp/detail/FSM/StateImpl.cpp \
+        src/systemoc/cpp/detail/FSM/XORStateImpl.cpp \
 	src/systemoc/cpp/detail/GraphBase.cpp \
 	src/systemoc/cpp/detail/IdPool.cpp \
 	src/systemoc/cpp/detail/LatencyQueue.cpp \

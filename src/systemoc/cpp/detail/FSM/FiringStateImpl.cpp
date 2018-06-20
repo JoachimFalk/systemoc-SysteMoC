@@ -33,48 +33,51 @@
  * ENHANCEMENTS, OR MODIFICATIONS.
  */
 
-#include <smoc/smoc_state.hpp>
+#include "FiringStateImpl.hpp"
 
-#include "detail/FSM/StateImpl.hpp"
+#include <cassert>
 
-#include <systemoc/smoc_config.h>
+namespace smoc { namespace Detail { namespace FSM {
 
-namespace smoc {
+  FiringStateImpl::FiringStateImpl(std::string const &name)
+    : StateImpl(name.empty()
+        ? sc_core::sc_gen_unique_name("q", false)
+        : name)
+  {}
 
-smoc_state::smoc_state(const SmartPtr &p)
-  : FFType(_StorageType(p)) {}
+  void FiringStateImpl::getInitialState(
+      ProdState &p, Marking const &m) const
+  {
+//  smoc::Detail::outDbg << "FiringStateImpl::getInitialState(p,m) this == " << this << std::endl;
+//  ScopedIndent s0(smoc::Detail::outDbg);
+    p.insert(this);
+  }
 
-smoc_state::ImplType *smoc_state::getImpl() const
-  { return CoSupport::DataTypes::FacadeCoreAccess::getImpl(*this); }
+  #ifdef FSM_FINALIZE_BENCHMARK
+  void FiringStateImpl::countStates(size_t &nLeaf, size_t &nAnd, size_t &nXor, size_t &nTrans) const {
+    nLeaf++;
+    StateImpl::countStates(nLeaf, nAnd, nXor, nTrans);
+  }
+  #endif // FSM_FINALIZE_BENCHMARK
+
+  StateImpl const *FiringStateImpl::getTopState(
+      MultiState const &d, bool isSrcState) const
+  {
+    for(MultiState::const_iterator s = d.begin();
+        s != d.end(); ++s)
+    {
+      if (*s != this) {
+        assert(getParent());
+        return getParent()->getTopState(d, false);
+      }
+    }
+    return this;
+  }
   
-smoc_state::Ref smoc_state::select(
-    const std::string& name)
-  { return smoc_state(Detail::FSM::PStateImpl(getImpl()->select(name))); }
-
-smoc_state::ConstRef smoc_state::select(
-    const std::string& name) const
-  { return smoc_state(Detail::FSM::PStateImpl(getImpl()->select(name))); }
+  void intrusive_ptr_add_ref(FiringStateImpl *p)
+    { intrusive_ptr_add_ref(static_cast<BaseStateImpl *>(p)); }
   
-const std::string& smoc_state::getName() const
-  { return getImpl()->getName(); }
+  void intrusive_ptr_release(FiringStateImpl *p)
+    { intrusive_ptr_release(static_cast<BaseStateImpl *>(p)); }
 
-std::string smoc_state::getHierarchicalName() const
-  { return getImpl()->getHierarchicalName(); }
-
-#ifdef SYSTEMOC_ENABLE_MAESTRO
-/**
-* @rosales: Clone method to enable the reassigment of the initial state
-* Rationale: States have a overloaded assignment operator
-*/
-smoc_state& smoc_state::clone(const smoc_state &st) {
-  Detail::FSM::StateImpl *copyImp = st.getImpl();
-  Detail::FSM::StateImpl *thisImp = this->getImpl();
-
-  *thisImp = *copyImp;
-  this->pImpl = st.pImpl;
-
-  return *this;
-}
-#endif
-
-} // namespace smoc
+} } } // namespace smoc::Detail::FSM
