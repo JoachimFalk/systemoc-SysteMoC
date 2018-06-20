@@ -90,7 +90,7 @@ class PortBase
   
   friend class NodeBase;
   friend class FSM::RuntimeFiringRule; // for blockEvent
-  friend class smoc::smoc_actor;
+  friend class smoc::smoc_actor; // for finaliseVpcLink
   template <class E> friend class Expr::CommExec;
   template <class E> friend class Expr::Value;
 

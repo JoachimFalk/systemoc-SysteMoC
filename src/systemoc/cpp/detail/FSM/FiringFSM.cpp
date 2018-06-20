@@ -39,8 +39,8 @@
 #include "RuntimeState.hpp"
 #include "RuntimeTransition.hpp"
 #include "RuntimeFiringRule.hpp"
-
-#include "smoc_firing_rules_impl.hpp"
+#include "XORStateImpl.hpp"
+#include "FiringStateImpl.hpp"
 
 #include <systemoc/smoc_config.h>
 

@@ -33,48 +33,62 @@
  * ENHANCEMENTS, OR MODIFICATIONS.
  */
 
-#include <smoc/smoc_state.hpp>
+#include "ANDStateImpl.hpp"
+#include "FiringFSM.hpp"
 
-#include "detail/FSM/StateImpl.hpp"
+namespace smoc { namespace Detail { namespace FSM {
 
-#include <systemoc/smoc_config.h>
-
-namespace smoc {
-
-smoc_state::smoc_state(const SmartPtr &p)
-  : FFType(_StorageType(p)) {}
-
-smoc_state::ImplType *smoc_state::getImpl() const
-  { return CoSupport::DataTypes::FacadeCoreAccess::getImpl(*this); }
+  ANDStateImpl::ANDStateImpl(std::string const &name)
+    : StateImpl(name)
+  {}
   
-smoc_state::Ref smoc_state::select(
-    const std::string& name)
-  { return smoc_state(Detail::FSM::PStateImpl(getImpl()->select(name))); }
-
-smoc_state::ConstRef smoc_state::select(
-    const std::string& name) const
-  { return smoc_state(Detail::FSM::PStateImpl(getImpl()->select(name))); }
+  void ANDStateImpl::add(StateImpl *part) {
+    StateImpl::add(part);
+  }
   
-const std::string& smoc_state::getName() const
-  { return getImpl()->getName(); }
+  void ANDStateImpl::getInitialState(
+      ProdState &p, Marking const &m) const
+  {
+    for(C::const_iterator s = c.begin(); s != c.end(); ++s) {
+      (*s)->getInitialState(p, m);
+    }
+  }
 
-std::string smoc_state::getHierarchicalName() const
-  { return getImpl()->getHierarchicalName(); }
+  #ifdef FSM_FINALIZE_BENCHMARK
+  void ANDStateImpl::countStates(size_t& nLeaf, size_t& nAnd, size_t& nXor, size_t& nTrans) const {
+    nAnd++;
+    StateImpl::countStates(nLeaf, nAnd, nXor, nTrans);
+  }
+  #endif // FSM_FINALIZE_BENCHMARK
 
-#ifdef SYSTEMOC_ENABLE_MAESTRO
-/**
-* @rosales: Clone method to enable the reassigment of the initial state
-* Rationale: States have a overloaded assignment operator
-*/
-smoc_state& smoc_state::clone(const smoc_state &st) {
-  Detail::FSM::StateImpl *copyImp = st.getImpl();
-  Detail::FSM::StateImpl *thisImp = this->getImpl();
+  StateImpl const *ANDStateImpl::getTopState(
+      MultiState const &d, bool isSrcState) const
+  {
+    for(MultiState::const_iterator s = d.begin();
+        s != d.end(); ++s)
+    {
+      if(!isAncestor(*s)) {
+        assert(getParent());
+        return getParent()->getTopState(d, false);
+      }
+      else if(*s == this) {
+        isSrcState = true;
+      }
+    }
+  
+    if(isSrcState)
+      return this;
 
-  *thisImp = *copyImp;
-  this->pImpl = st.pImpl;
+    // if we come here, user tried to cross a partition
+    // boundary without leaving the AND state
 
-  return *this;
-}
-#endif
+    throw FiringFSM::ModelingError("smoc_and_state: Can't create inter-partition transitions");
+  }
+  
+  void intrusive_ptr_add_ref(ANDStateImpl *p)
+    { intrusive_ptr_add_ref(static_cast<BaseStateImpl *>(p)); }
+  
+  void intrusive_ptr_release(ANDStateImpl *p)
+    { intrusive_ptr_release(static_cast<BaseStateImpl *>(p)); }
 
-} // namespace smoc
+} } } // namespace smoc::Detail::FSM

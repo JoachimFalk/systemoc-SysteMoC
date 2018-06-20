@@ -35,7 +35,7 @@
 
 #include <smoc/smoc_and_state.hpp>
 
-#include "detail/FSM/smoc_firing_rules_impl.hpp"
+#include "detail/FSM/ANDStateImpl.hpp"
 
 #include <systemoc/smoc_config.h>
 
