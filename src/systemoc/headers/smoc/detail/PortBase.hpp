@@ -36,19 +36,20 @@
 #ifndef _INCLUDED_SMOC_DETAIL_PORTBASE_HPP
 #define _INCLUDED_SMOC_DETAIL_PORTBASE_HPP
 
-#include <systemoc/smoc_config.h>
+#include "NamedIdedObj.hpp"
+#include "PortIOBaseIf.hpp"
+#include "SimCTXBase.hpp"
+#include "../smoc_event.hpp"
 
-#include <list>
+#ifdef SYSTEMOC_ENABLE_VPC
+# include "VpcInterface.hpp"
+#endif //SYSTEMOC_ENABLE_VPC
+
+#include <systemoc/smoc_config.h>
 
 #include <systemc>
 
-#include <smoc/detail/NamedIdedObj.hpp>
-#include <smoc/detail/PortIOBaseIf.hpp>
-#include <smoc/smoc_event.hpp>
-
-#ifdef SYSTEMOC_ENABLE_VPC
-# include <smoc/detail/VpcInterface.hpp>
-#endif //SYSTEMOC_ENABLE_VPC
+#include <list>
 
 namespace smoc {
 
@@ -81,9 +82,9 @@ class NodeBase;
 class PortBase
 : public sc_core::sc_port_base,
 #ifdef SYSTEMOC_NEED_IDS
-  public smoc::Detail::NamedIdedObj,
+  public NamedIdedObj,
 #endif // SYSTEMOC_NEED_IDS
-  public smoc::Detail::SimCTXBase,
+  public SimCTXBase,
   private boost::noncopyable
 {
   typedef PortBase this_type;
@@ -136,10 +137,10 @@ protected:
 #ifdef SYSTEMOC_ENABLE_DATAFLOW_TRACE
   void        traceCommSetup(size_t req);
 #endif //SYSTEMOC_ENABLE_DATAFLOW_TRACE
-  smoc::smoc_event_waiter &blockEvent(size_t n);
-  size_t      availableCount() const;
+  smoc_event_waiter &blockEvent(size_t n);
+  size_t             availableCount() const;
 #ifdef SYSTEMOC_ENABLE_VPC
-  virtual void commExec(size_t n,  smoc::Detail::VpcInterface vpcIf);
+  virtual void commExec(size_t n,  VpcInterface vpcIf);
 #else //!defined(SYSTEMOC_ENABLE_VPC)
   virtual void commExec(size_t n);
 #endif //!defined(SYSTEMOC_ENABLE_VPC)
