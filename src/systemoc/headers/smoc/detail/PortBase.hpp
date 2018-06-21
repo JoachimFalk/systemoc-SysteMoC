@@ -90,7 +90,6 @@ class PortBase
   
   friend class NodeBase;
   friend class FSM::RuntimeFiringRule; // for blockEvent
-  friend class smoc::smoc_actor; // for finaliseVpcLink
   template <class E> friend class Expr::CommExec;
   template <class E> friend class Expr::Value;
 
@@ -99,31 +98,27 @@ class PortBase
 public:
   typedef std::vector<PortBaseIf *>       Interfaces;
   typedef std::vector<PortBaseIf const *> ConstInterfaces;
-protected:
-  typedef std::vector<PortBaseIf::access_type *> PortAccesses;
-private:
-  typedef std::map<size_t, smoc_event_and_list>   BlockEventMap;
 
-  PortBase *parent;
-  // FIXME: In the future the FIFO may not be at the lca level of the connected actors.
-  //        Hence, we may have multiple FIFOs at a lower level in the pg hierarchy.
-  //        Therefore, we might need to support multiple child ports.
-  PortBase *child; 
+  Interfaces      const &get_interfaces()
+    { return interfaces; }
+  ConstInterfaces const &get_interfaces() const
+    { return reinterpret_cast<ConstInterfaces const &>(interfaces); }
 
-  Interfaces    interfaces;
-protected:
-  PortAccesses  portAccesses;
-private:
-  BlockEventMap blockEventMap;
+#ifdef SYSTEMOC_NEED_IDS
+  // To reflect SystemC name back to NamedIdedObj base class.
+  const char *name() const
+    { return this->sc_core::sc_port_base::name(); }
+#endif // SYSTEMOC_NEED_IDS
 
-  // SystemC 2.2 requires this method
-  // (must also return the correct number!!!)
-  int  interface_count();
-  void add_interface(sc_core::sc_interface *);
+  // FIXME: Make this protected
+  PortBase       *copyPort(const char *name, NgId id);
 
-#ifdef SYSTEMOC_ENABLE_VPC
-  void finaliseVpcLink(std::string actorName);
-#endif //SYSTEMOC_ENABLE_VPC
+  PortBase const *getParentPort() const;
+  PortBase const *getActorPort() const;
+
+  virtual bool isInput()  const = 0;
+  bool         isOutput() const
+    { return !isInput(); }
 protected:
   PortBase(const char* name_, sc_core::sc_port_policy policy);
 
@@ -135,8 +130,6 @@ protected:
   virtual void before_end_of_elaboration();
 
   virtual void end_of_elaboration();
-
-  virtual ~PortBase();
 
   virtual PortBase *dupPort(const char *name) = 0;
 
@@ -153,32 +146,39 @@ protected:
 #ifdef SYSTEMOC_ENABLE_DEBUG
   void setLimit(size_t req);
 #endif //SYSTEMOC_ENABLE_DEBUG
-public:
-  // FIXME: Make this protected
-  PortBase       *copyPort(const char *name, NgId id);
 
-  PortBase const *getParentPort() const;
-  PortBase const *getActorPort() const;
+  virtual ~PortBase();
 
-  virtual bool isInput()  const = 0;
-  bool         isOutput() const
-    { return !isInput(); }
+  typedef std::vector<PortBaseIf::access_type *> PortAccesses;
 
-  Interfaces      const &get_interfaces()
-    { return interfaces; }
-  ConstInterfaces const &get_interfaces() const
-    { return reinterpret_cast<ConstInterfaces const &>(interfaces); }
+  PortAccesses  portAccesses;
 private:
+  typedef std::map<size_t, smoc_event_and_list>   BlockEventMap;
+
+  PortBase     *parent;
+  // FIXME: In the future the FIFO may not be at the lca level of the connected actors.
+  //        Hence, we may have multiple FIFOs at a lower level in the pg hierarchy.
+  //        Therefore, we might need to support multiple child ports.
+  PortBase     *child;
+
+  Interfaces    interfaces;
+
+  BlockEventMap blockEventMap;
+
+  // SystemC 2.2 requires this method
+  // (must also return the correct number!!!)
+  int  interface_count();
+  void add_interface(sc_core::sc_interface *);
+
+#ifdef SYSTEMOC_ENABLE_VPC
+  friend class smoc::smoc_actor; // for finaliseVpcLink
+
+  void finaliseVpcLink(std::string actorName);
+#endif //SYSTEMOC_ENABLE_VPC
+
   // disable get_interface() from sc_core::sc_port_base
   sc_core::sc_interface       *get_interface();
   sc_core::sc_interface const *get_interface() const;
-
-public:
-#ifdef SYSTEMOC_NEED_IDS
-  // To reflect SystemC name back to NamedIdedObj base class.
-  const char *name() const
-    { return this->sc_core::sc_port_base::name(); }
-#endif // SYSTEMOC_NEED_IDS
 };
 
 typedef std::list<PortBase *>             smoc_sysc_port_list;

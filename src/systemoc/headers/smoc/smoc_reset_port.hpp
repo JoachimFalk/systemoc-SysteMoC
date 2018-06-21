@@ -33,16 +33,15 @@
  * ENHANCEMENTS, OR MODIFICATIONS.
  */
 
-#ifndef _INCLUDED_SYSTEMOC_SMOC_PORT_HPP
-#define _INCLUDED_SYSTEMOC_SMOC_PORT_HPP
+#ifndef _INCLUDED_SMOC_SMOC_RESET_PORT_HPP
+#define _INCLUDED_SMOC_SMOC_RESET_PORT_HPP
 
-#include "../smoc/smoc_port_in.hpp"
-using smoc::smoc_port_in;
+#include "smoc_port_out.hpp"
 
-#include "../smoc/smoc_port_out.hpp"
-using smoc::smoc_port_out;
+namespace smoc {
 
-#include "../smoc/smoc_reset_port.hpp"
-using smoc::smoc_reset_port;
+  typedef smoc_port_out<void> smoc_reset_port;
 
-#endif /* _INCLUDED_SYSTEMOC_SMOC_PORT_HPP */
+} // namespace smoc
+
+#endif /* _INCLUDED_SMOC_SMOC_RESET_PORT_HPP */

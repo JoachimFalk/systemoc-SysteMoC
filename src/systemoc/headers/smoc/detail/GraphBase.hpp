@@ -36,17 +36,13 @@
 #ifndef _INCLUDED_SMOC_DETAIL_GRAPHBASE_HPP
 #define _INCLUDED_SMOC_DETAIL_GRAPHBASE_HPP
 
-#include <systemc>
-
-//#include "SimulationContext.hpp"
-
 #include "../smoc_scheduler_top.hpp"
 
 #include "NodeBase.hpp"
-// FIXME: Migrate these includes to smoc
-#include "../../systemoc/smoc_port.hpp"
+#include "../smoc_port_in.hpp"
+#include "../smoc_port_out.hpp"
+// FIXME: Migrate this includes to smoc
 #include "../../systemoc/smoc_fifo.hpp"
-//#include "../../systemoc/smoc_chan_adapter.hpp"
 
 #ifdef SYSTEMOC_ENABLE_MAESTRO
 #include <Maestro/MetaMap/CommunicationComponent.hpp>
@@ -54,6 +50,8 @@
 
 #include <boost/mpl/if.hpp>
 #include <boost/mpl/bool.hpp>
+
+#include <systemc>
 
 namespace smoc { namespace Detail {
 

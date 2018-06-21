@@ -39,12 +39,24 @@
 // This should be the main header for SysteMoC with smoc namespace.
 // If there are additional headers required, please add them here.
 #include "smoc/smoc_actor.hpp"
+#include "smoc/smoc_and_state.hpp"
+#include "smoc/smoc_base_state.hpp"
 #include "smoc/smoc_event.hpp"
-#include "smoc/smoc_guard.hpp"
+#include "smoc/smoc_firing_rule.hpp"
+#include "smoc/smoc_firing_state.hpp"
 #include "smoc/smoc_graph.hpp"
+#include "smoc/smoc_guard.hpp"
 #include "smoc/smoc_hooking.hpp"
+#include "smoc/smoc_junction_state.hpp"
+#include "smoc/smoc_multi_state.hpp"
 #include "smoc/smoc_periodic_actor.hpp"
+#include "smoc/smoc_port_in.hpp"
+#include "smoc/smoc_port_out.hpp"
 #include "smoc/smoc_register.hpp"
+#include "smoc/smoc_reset_port.hpp"
 #include "smoc/smoc_scheduler_top.hpp"
+#include "smoc/smoc_state.hpp"
+#include "smoc/smoc_transition.hpp"
+#include "smoc/smoc_xor_state.hpp"
 
 #endif /* _INCLUDED_SMOC_HPP */

@@ -30,15 +30,18 @@ nobase_include_HEADERS = \
 	smoc/smoc_and_state.hpp \
 	smoc/smoc_base_state.hpp \
 	smoc/smoc_event.hpp \
-	smoc/smoc_guard.hpp \
 	smoc/smoc_firing_rule.hpp \
 	smoc/smoc_firing_state.hpp \
 	smoc/smoc_graph.hpp \
+	smoc/smoc_guard.hpp \
 	smoc/smoc_hooking.hpp \
 	smoc/smoc_junction_state.hpp \
 	smoc/smoc_multi_state.hpp \
 	smoc/smoc_periodic_actor.hpp \
+	smoc/smoc_port_in.hpp \
+	smoc/smoc_port_out.hpp \
 	smoc/smoc_register.hpp \
+	smoc/smoc_reset_port.hpp \
 	smoc/smoc_scheduler_top.hpp \
 	smoc/smoc_state.hpp \
 	smoc/smoc_transition.hpp \
@@ -64,6 +67,7 @@ nobase_include_HEADERS = \
 	smoc/detail/NodeQueue.hpp \
 	smoc/detail/PortBase.hpp \
 	smoc/detail/PortBaseIf.hpp \
+	smoc/detail/PortCommon.hpp \
 	smoc/detail/PortIOBaseIf.hpp \
 	smoc/detail/QueueFRVWPtr.hpp \
 	smoc/detail/QueueRVWPtr.hpp \
