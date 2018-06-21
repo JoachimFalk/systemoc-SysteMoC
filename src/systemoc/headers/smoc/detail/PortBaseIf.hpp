@@ -51,32 +51,11 @@
 
 namespace smoc { namespace Detail {
 
-#ifdef SYSTEMOC_PORT_ACCESS_COUNTER
-class AccessCounter {
-public:
-  AccessCounter(): accessCount() {}
-
-  inline size_t getAccessCount() const   { return accessCount; }
-  inline void   resetAccessCount()       { accessCount = 0; }
-
-  // called from smoc::port_in::operator[] const
-  // -> has to be const (accessCount is mutable)
-  inline void   incrementAccessCount() const
-    { accessCount++; }
-
-private:
-  mutable size_t accessCount;
-};
-#endif // SYSTEMOC_PORT_ACCESS_COUNTER
-
 class PortBase;
 
 class PortBaseIf
 : public virtual sc_core::sc_interface
   , public SimCTXBase
-#ifdef SYSTEMOC_PORT_ACCESS_COUNTER
-  , public AccessCounter
-#endif //SYSTEMOC_PORT_ACCESS_COUNTER
 #ifdef SYSTEMOC_ENABLE_VPC
   , public VpcPortInterface
 #endif //SYSTEMOC_ENABLE_VPC

@@ -95,9 +95,6 @@ public:
 
     // Provide [] access operator for port.
     return_type operator[](size_t n) const {
-#ifdef SYSTEMOC_PORT_ACCESS_COUNTER
-      const_cast<PORT *>(getImpl())->incrementAccessCount();
-#endif // SYSTEMOC_PORT_ACCESS_COUNTER
       return (*portAccess)[n];
     }
 
@@ -208,9 +205,6 @@ public:
 
     // Provide [] access operator for port.
     return_type operator[](size_t n) const {
-#ifdef SYSTEMOC_PORT_ACCESS_COUNTER
-      const_cast<PORT *>(getImpl())->incrementAccessCount();
-#endif // SYSTEMOC_PORT_ACCESS_COUNTER
       return (*portAccess)[n];
     }
   protected:

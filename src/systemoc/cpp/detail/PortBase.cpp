@@ -167,23 +167,6 @@ void PortBase::finaliseVpcLink(std::string actorName){
 }
 #endif //SYSTEMOC_ENABLE_VPC
 
-#ifdef SYSTEMOC_PORT_ACCESS_COUNTER
-size_t      PortBase::getAccessCount() const {
-  return interfaces.front()->getAccessCount();
-}
-void        PortBase::resetAccessCount() {
-  for (Interfaces::iterator iter = interfaces.begin();
-       iter != interfaces.end();
-       ++iter)
-    (*iter)->resetAccessCount();
-}
-void        PortBase::incrementAccessCount() {
-  for (Interfaces::iterator iter = interfaces.begin();
-       iter != interfaces.end();
-       ++iter)
-    (*iter)->incrementAccessCount();
-}
-#endif // SYSTEMOC_PORT_ACCESS_COUNTER
 #ifdef SYSTEMOC_ENABLE_DATAFLOW_TRACE
 void        PortBase::traceCommSetup(size_t req) {
   for (Interfaces::iterator iter = interfaces.begin();
