@@ -1288,41 +1288,32 @@ struct CommExec<DComm<P> > {
   typedef Detail::Process         match_type;
   typedef void                    result_type;
 
+  static inline
+  result_type apply(const DComm<P>                   &e
 #ifdef SYSTEMOC_ENABLE_VPC
-  static inline
-  result_type apply(const DComm<P>                   &e,
-                    const smoc::Detail::VpcInterface  vpcIf) {
-# ifdef SYSTEMOC_DEBUG
-    if (Detail::outDbg.isVisible(Detail::Debug::Low)) {
-      Detail::outDbg << "CommExec<DComm<P, E> >::apply(" << e.p.name() << ", vpcIf)" << std::endl << std::endl << Detail::Indent::Up;
-    }
-# endif //defined(SYSTEMOC_DEBUG)
-  //std::cerr << "accessCount = " << e.p.getAccessCount() << std::endl;
-    e.p.resetAccessCount();
-    e.p.commExec(e.committed, vpcIf);
+                   ,const smoc::Detail::VpcInterface  vpcIf
+#endif //SYSTEMOC_ENABLE_VPC
+                   ) {
 #ifdef SYSTEMOC_DEBUG
-    if (Detail::outDbg.isVisible(Detail::Debug::Low)) {
-      Detail::outDbg << Detail::Indent::Down;
-    }
-#endif //defined(SYSTEMOC_DEBUG)
-  }
-#else //!defined(SYSTEMOC_ENABLE_VPC)
-  static inline
-  result_type apply(const DComm<P> &e) {
-# ifdef SYSTEMOC_DEBUG
     if (Detail::outDbg.isVisible(Detail::Debug::Low)) {
       Detail::outDbg << "CommExec<DComm<P, E> >::apply(" << e.p.name() << ")" << std::endl << Detail::Indent::Up;
     }
-# endif //defined(SYSTEMOC_DEBUG)
-    e.p.commExec(e.committed);
+#endif //defined(SYSTEMOC_DEBUG)
+#ifdef SYSTEMOC_PORT_ACCESS_COUNTER
+//  std::cerr << "accessCount = " << e.p.getAccessCount() << std::endl;
+    e.p.resetAccessCount();
+#endif //SYSTEMOC_PORT_ACCESS_COUNTER
+    e.p.commExec(e.committed
+#ifdef SYSTEMOC_ENABLE_VPC
+        , vpcIf
+#endif //SYSTEMOC_ENABLE_VPC
+        );
 #ifdef SYSTEMOC_DEBUG
     if (Detail::outDbg.isVisible(Detail::Debug::Low)) {
       Detail::outDbg << Detail::Indent::Down;
     }
 #endif //defined(SYSTEMOC_DEBUG)
   }
-#endif //!defined(SYSTEMOC_ENABLE_VPC)
-
 };
 
 /****************************************************************************
