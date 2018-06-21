@@ -140,11 +140,6 @@ protected:
 
   virtual PortBase *dupPort(const char *name) = 0;
 
-#ifdef SYSTEMOC_PORT_ACCESS_COUNTER
-  size_t      getAccessCount() const;
-  void        resetAccessCount();
-  void        incrementAccessCount();
-#endif // SYSTEMOC_PORT_ACCESS_COUNTER
 #ifdef SYSTEMOC_ENABLE_DATAFLOW_TRACE
   void        traceCommSetup(size_t req);
 #endif //SYSTEMOC_ENABLE_DATAFLOW_TRACE

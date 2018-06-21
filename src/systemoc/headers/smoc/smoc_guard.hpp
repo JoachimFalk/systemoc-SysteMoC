@@ -1299,10 +1299,6 @@ struct CommExec<DComm<P> > {
       Detail::outDbg << "CommExec<DComm<P, E> >::apply(" << e.p.name() << ")" << std::endl << Detail::Indent::Up;
     }
 #endif //defined(SYSTEMOC_DEBUG)
-#ifdef SYSTEMOC_PORT_ACCESS_COUNTER
-//  std::cerr << "accessCount = " << e.p.getAccessCount() << std::endl;
-    e.p.resetAccessCount();
-#endif //SYSTEMOC_PORT_ACCESS_COUNTER
     e.p.commExec(e.committed
 #ifdef SYSTEMOC_ENABLE_VPC
         , vpcIf
