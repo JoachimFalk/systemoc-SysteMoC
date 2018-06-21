@@ -68,10 +68,6 @@
 # include "detail/VpcInterface.hpp"
 #endif // SYSTEMOC_ENABLE_VPC
 
-//forward declaration
-template <typename IFACE>
-class smoc_port_base;
-
 namespace smoc { namespace Detail {
 
   // Forward declarations

@@ -36,18 +36,17 @@
 #ifndef _INCLUDED_SMOC_DETAIL_CHANBASE_HPP
 #define _INCLUDED_SMOC_DETAIL_CHANBASE_HPP
 
-#include <list>
-
-#include <systemc>
-
-#include <CoSupport/SystemC/ChannelModificationListener.hpp> 
+#include "../../systemoc/detail/smoc_port_registry.hpp"
+//#include "../smoc_event.hpp"
+#include "NamedIdedObj.hpp"
 
 #include <systemoc/smoc_config.h>
 
-#include "../../systemoc/detail/smoc_port_registry.hpp"
-#include "../../systemoc/smoc_port.hpp"
-#include "../smoc_event.hpp"
-#include "NamedIdedObj.hpp"
+#include <CoSupport/SystemC/ChannelModificationListener.hpp>
+
+#include <systemc>
+
+#include <list>
 
 class smoc_reset_chan;
 

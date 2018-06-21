@@ -38,7 +38,8 @@
 
 #include <systemoc/smoc_config.h>
 
-#include "../../systemoc/smoc_port.hpp"
+#include "../smoc_port_in.hpp"
+#include "../smoc_port_out.hpp"
 #include "../../systemoc/smoc_chan_adapter.hpp"
 #include "../../systemoc/detail/smoc_port_registry.hpp"
 

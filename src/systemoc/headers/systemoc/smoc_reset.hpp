@@ -52,6 +52,7 @@
 #include "smoc_fifo.hpp"
 #include "smoc_multireader_fifo.hpp"
 #include "smoc_multiplex_fifo.hpp"
+#include "smoc_port.hpp"
 
 #include "detail/smoc_chan_if.hpp"
 //#include "../smoc/detail/Storage.hpp"

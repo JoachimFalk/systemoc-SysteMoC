@@ -1,7 +1,7 @@
 // -*- tab-width:8; intent-tabs-mode:nil; c-basic-offset:2; -*-
 // vim: set sw=2 ts=8 et:
 /*
- * Copyright (c) 2004-2017 Hardware-Software-CoDesign, University of Erlangen-Nuremberg.
+ * Copyright (c) 2004-2018 Hardware-Software-CoDesign, University of Erlangen-Nuremberg.
  * 
  *   This library is free software; you can redistribute it and/or modify it under
  *   the terms of the GNU Lesser General Public License as published by the Free
@@ -33,16 +33,42 @@
  * ENHANCEMENTS, OR MODIFICATIONS.
  */
 
-#ifndef _INCLUDED_SYSTEMOC_SMOC_PORT_HPP
-#define _INCLUDED_SYSTEMOC_SMOC_PORT_HPP
+#ifndef _INCLUDED_SMOC_SMOC_PORT_IN_HPP
+#define _INCLUDED_SMOC_SMOC_PORT_IN_HPP
 
-#include "../smoc/smoc_port_in.hpp"
-using smoc::smoc_port_in;
+#include "detail/PortCommon.hpp"
+#include "../systemoc/detail/smoc_chan_if.hpp"
 
-#include "../smoc/smoc_port_out.hpp"
-using smoc::smoc_port_out;
+#include <systemc>
 
-#include "../smoc/smoc_reset_port.hpp"
-using smoc::smoc_reset_port;
+namespace smoc {
 
-#endif /* _INCLUDED_SYSTEMOC_SMOC_PORT_HPP */
+  template <typename T>
+  class smoc_port_in
+  : public Detail::PortCommon<smoc_port_in_if<T> >
+  {
+    typedef smoc_port_in<T>                         this_type;
+    typedef Detail::PortCommon<smoc_port_in_if<T> > base_type;
+  public:
+    smoc_port_in()
+      : base_type(sc_core::sc_gen_unique_name("i", false), sc_core::SC_ONE_OR_MORE_BOUND)
+    {}
+    smoc_port_in(sc_core::sc_module_name name)
+      : base_type(name, sc_core::SC_ONE_OR_MORE_BOUND)
+    {}
+
+    bool isInput() const { return true; }
+
+  //size_t tokenId(size_t i=0) const
+  //  { return (*this)->inTokenId() + i; }
+
+    size_t numAvailable() const
+      { return this->availableCount(); }
+
+    this_type *dupPort(const char *name)
+      { return new this_type(name); }
+  };
+
+} // namespace smoc
+
+#endif /* _INCLUDED_SMOC_SMOC_PORT_IN_HPP */
