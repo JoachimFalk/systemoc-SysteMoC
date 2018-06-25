@@ -69,21 +69,21 @@ void smoc_graph::constructor() {
 }
 
 void smoc_graph::before_end_of_elaboration() {
-#ifdef SYSTEMOC_DEBUG
+#ifdef SYSTEMOC_ENABLE_DEBUG
   if (smoc::Detail::outDbg.isVisible(smoc::Detail::Debug::High)) {
     smoc::Detail::outDbg << "<smoc_graph::before_end_of_elaboration name=\"" << name() << "\">"
          << std::endl << smoc::Detail::Indent::Up;
   }
-#endif // SYSTEMOC_DEBUG
+#endif // SYSTEMOC_ENABLE_DEBUG
   
   smoc::Detail::GraphBase::before_end_of_elaboration();
 //initDDF();
 
-#ifdef SYSTEMOC_DEBUG
+#ifdef SYSTEMOC_ENABLE_DEBUG
   if (smoc::Detail::outDbg.isVisible(smoc::Detail::Debug::High)) {
     smoc::Detail::outDbg << smoc::Detail::Indent::Down << "</smoc_graph::before_end_of_elaboration>" << std::endl;
   }
-#endif // SYSTEMOC_DEBUG
+#endif // SYSTEMOC_ENABLE_DEBUG
 }
 
 void smoc_graph::disableActor(std::string const &actorName) {

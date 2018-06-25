@@ -39,7 +39,7 @@
 
 namespace smoc { namespace Detail {
 
-#ifdef SYSTEMOC_DEBUG
+#ifdef SYSTEMOC_ENABLE_DEBUG
 std::ostream &operator <<(std::ostream &out, ActivationStatus s) {
   static const char *display[3] = { "DISABLED", "BLOCKED", "ENABLED" };
   
@@ -47,6 +47,6 @@ std::ostream &operator <<(std::ostream &out, ActivationStatus s) {
   out << display[s.value+1];
   return out;
 }
-#endif //defined(SYSTEMOC_DEBUG)
+#endif //defined(SYSTEMOC_ENABLE_DEBUG)
 
 } } // namespace smoc::Detail

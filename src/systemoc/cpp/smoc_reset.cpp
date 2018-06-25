@@ -78,12 +78,12 @@ void smoc_reset_chan::produce(smoc::Detail::PortOutBaseIf *who)
 #endif
   tokenId++;
 
-#ifdef SYSTEMOC_DEBUG
+#ifdef SYSTEMOC_ENABLE_DEBUG
   if (smoc::Detail::outDbg.isVisible(smoc::Detail::Debug::Medium)) {
     smoc::Detail::outDbg << "<smoc_reset_chan::reset name=\"" << name() << "\">"
          << std::endl << smoc::Detail::Indent::Up;
   }
-#endif // SYSTEMOC_DEBUG
+#endif // SYSTEMOC_ENABLE_DEBUG
 
   // reset channels
   for(ChanSet::const_iterator c = chans.begin();
@@ -99,10 +99,10 @@ void smoc_reset_chan::produce(smoc::Detail::PortOutBaseIf *who)
     (*n)->doReset();
   }
   
-#ifdef SYSTEMOC_DEBUG
+#ifdef SYSTEMOC_ENABLE_DEBUG
   if (smoc::Detail::outDbg.isVisible(smoc::Detail::Debug::Medium)) {
     smoc::Detail::outDbg << smoc::Detail::Indent::Down << "</smoc_reset_chan::reset>" << std::endl;
   }
-#endif // SYSTEMOC_DEBUG
+#endif // SYSTEMOC_ENABLE_DEBUG
 }
 

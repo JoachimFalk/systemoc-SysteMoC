@@ -165,7 +165,7 @@ private:
 
 public:
   virtual void end_of_simulation(){
-#ifdef SYSTEMOC_DEBUG
+#ifdef SYSTEMOC_ENABLE_DEBUG
     std::cerr << this->name() << "\t"
               << this->visibleCount() << "\t"
               << this->qfSize() << "\t"
@@ -175,7 +175,7 @@ public:
     latencyQueue.dump();
     readConsumeQueue.dump();
 # endif // SYSTEMOC_ENABLE_VPC
-#endif // SYSTEMOC_DEBUG
+#endif // SYSTEMOC_ENABLE_DEBUG
   }
 
 };

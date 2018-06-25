@@ -62,7 +62,7 @@ void smoc_fifo_chan_base::before_end_of_elaboration() {
 
 void smoc_fifo_chan_base::end_of_simulation() {
   ChanBase::end_of_simulation();
-#ifdef SYSTEMOC_DEBUG
+#ifdef SYSTEMOC_ENABLE_DEBUG
   if (smoc::Detail::outDbg.isVisible(smoc::Detail::Debug::High)) {
     smoc::Detail::outDbg
             << this->name() << "\t"
@@ -75,16 +75,16 @@ void smoc_fifo_chan_base::end_of_simulation() {
     readConsumeQueue.dump();
 # endif // SYSTEMOC_ENABLE_VPC
   }
-#endif // SYSTEMOC_DEBUG
+#endif // SYSTEMOC_ENABLE_DEBUG
 }
 
 void smoc_fifo_chan_base::doReset() {
-#ifdef SYSTEMOC_DEBUG
+#ifdef SYSTEMOC_ENABLE_DEBUG
   if (smoc::Detail::outDbg.isVisible(smoc::Detail::Debug::High)) {
     smoc::Detail::outDbg << "<smoc_fifo_chan_base::doReset name=\"" << name() << "\">"
          << std::endl << smoc::Detail::Indent::Up;
   }
-#endif // SYSTEMOC_DEBUG
+#endif // SYSTEMOC_ENABLE_DEBUG
   ChanBase::doReset();
   // queue and initial tokens set up by smoc_fifo_storage...
   emmSpace.reset();
@@ -92,9 +92,9 @@ void smoc_fifo_chan_base::doReset() {
 
   emmSpace.increasedCount(freeCount());
   emmData.increasedCount(visibleCount());
-#ifdef SYSTEMOC_DEBUG
+#ifdef SYSTEMOC_ENABLE_DEBUG
   if (smoc::Detail::outDbg.isVisible(smoc::Detail::Debug::High)) {
     smoc::Detail::outDbg << smoc::Detail::Indent::Down << "</smoc_fifo_chan_base::doReset>" << std::endl;
   }
-#endif // SYSTEMOC_DEBUG
+#endif // SYSTEMOC_ENABLE_DEBUG
 }

@@ -93,11 +93,11 @@ SimulationContext::SimulationContext(int _argc, char *_argv[])
      "This help message")
     ;
 
-#ifdef SYSTEMOC_DEBUG
+#ifdef SYSTEMOC_ENABLE_DEBUG
   systemocOptions.add_options()
-#else //!defined(SYSTEMOC_DEBUG)
+#else //!defined(SYSTEMOC_ENABLE_DEBUG)
   backwardCompatibilityCruftOptions.add_options()
-#endif //!defined(SYSTEMOC_DEBUG)
+#endif //!defined(SYSTEMOC_ENABLE_DEBUG)
     ("systemoc-debug", po::value<size_t>()->default_value(0), "turn on debug mode")
     ;
 
@@ -163,10 +163,10 @@ SimulationContext::SimulationContext(int _argc, char *_argv[])
   po::store(parsed, vm);
   po::notify(vm);
 
-#ifdef SYSTEMOC_DEBUG
+#ifdef SYSTEMOC_ENABLE_DEBUG
   outDbg.setLevel(Debug::None);
   outDbg << Debug::High;
-#endif // !SYSTEMOC_DEBUG
+#endif // !SYSTEMOC_ENABLE_DEBUG
   
   bool vpc = false;
 
@@ -222,15 +222,15 @@ SimulationContext::SimulationContext(int _argc, char *_argv[])
       exit(0);
     } else if (i->string_key == "systemoc-debug") {
       assert(!i->value.empty());
-#ifdef SYSTEMOC_DEBUG
+#ifdef SYSTEMOC_ENABLE_DEBUG
       int   debugLevel = Debug::None.level - atoi(i->value.front().c_str());
       outDbg.setLevel(debugLevel < 0 ? 0 : debugLevel);
       outDbg << Debug::High;
-#else  // !SYSTEMOC_DEBUG
+#else  // !SYSTEMOC_ENABLE_DEBUG
       std::ostringstream str;
       str << "SysteMoC configured without debug output support: --" << i->string_key << " option not provided!";
       throw std::runtime_error(str.str().c_str());
-#endif // !SYSTEMOC_DEBUG
+#endif // !SYSTEMOC_ENABLE_DEBUG
     } else if (i->string_key == "systemoc-export-smx" ||
                i->string_key == "export-smx") {
       assert(!i->value.empty());

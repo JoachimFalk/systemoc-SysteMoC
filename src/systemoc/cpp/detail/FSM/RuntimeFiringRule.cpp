@@ -111,11 +111,11 @@ namespace smoc { namespace Detail { namespace FSM {
       tmp &= portInfo.port.blockEvent(portInfo.required);
     }
     ioPatternWaiter = getCAP(tmp);
-//#ifdef SYSTEMOC_DEBUG
+//#ifdef SYSTEMOC_ENABLE_DEBUG
 //    if (smoc::Detail::outDbg.isVisible(smoc::Detail::Debug::Low)) {
 //      smoc::Detail::outDbg << "=> " << ioPattern << std::endl;
 //    }
-//#endif //defined(SYSTEMOC_DEBUG)
+//#endif //defined(SYSTEMOC_ENABLE_DEBUG)
   }
 
   /// Implement SimulatorAPI::FiringRuleInterface

@@ -110,17 +110,17 @@ ChanBase::ChanBase(std::string const &name)
 
 /// @brief Remember that reset has been called.
 void ChanBase::doReset() {
-#ifdef SYSTEMOC_DEBUG
+#ifdef SYSTEMOC_ENABLE_DEBUG
   if (smoc::Detail::outDbg.isVisible(smoc::Detail::Debug::High)) {
     smoc::Detail::outDbg << "<smoc_root_chan::doReset name=\"" << name() << "\">"
          << std::endl << smoc::Detail::Indent::Up;
   }
-#endif // SYSTEMOC_DEBUG
-#ifdef SYSTEMOC_DEBUG
+#endif // SYSTEMOC_ENABLE_DEBUG
+#ifdef SYSTEMOC_ENABLE_DEBUG
   if (smoc::Detail::outDbg.isVisible(smoc::Detail::Debug::High)) {
     smoc::Detail::outDbg << smoc::Detail::Indent::Down << "</smoc_root_chan::doReset>" << std::endl;
   }
-#endif // SYSTEMOC_DEBUG
+#endif // SYSTEMOC_ENABLE_DEBUG
 }
 
 void ChanBase::before_end_of_elaboration() {
@@ -128,39 +128,39 @@ void ChanBase::before_end_of_elaboration() {
   // This is required before we use the first call to the name() method!
   generateName();
 #endif //!defined(SYSTEMOC_ENABLE_MAESTROMM_SPEEDUP)
-#ifdef SYSTEMOC_DEBUG
+#ifdef SYSTEMOC_ENABLE_DEBUG
   if (smoc::Detail::outDbg.isVisible(smoc::Detail::Debug::High)) {
     smoc::Detail::outDbg << "<smoc_root_chan::before_end_of_elaboration name=\"" << name() << "\">"
          << std::endl << smoc::Detail::Indent::Up;
   }
-#endif //defined(SYSTEMOC_DEBUG)
+#endif //defined(SYSTEMOC_ENABLE_DEBUG)
   sc_core::sc_prim_channel::before_end_of_elaboration();
 #ifdef SYSTEMOC_NEED_IDS  
   // Allocate Id for myself.
   getSimCTX()->getIdPool().addIdedObj(this);
 #endif //defined(SYSTEMOC_NEED_IDS)
-#ifdef SYSTEMOC_DEBUG
+#ifdef SYSTEMOC_ENABLE_DEBUG
   if (smoc::Detail::outDbg.isVisible(smoc::Detail::Debug::High)) {
     smoc::Detail::outDbg << smoc::Detail::Indent::Down << "</smoc_root_chan::before_end_of_elaboration>" << std::endl;
   }
-#endif //defined(SYSTEMOC_DEBUG)
+#endif //defined(SYSTEMOC_ENABLE_DEBUG)
 }
 
 /// @brief Resets FIFOs which are not in the SysteMoC hierarchy
 void ChanBase::start_of_simulation() {
-#ifdef SYSTEMOC_DEBUG
+#ifdef SYSTEMOC_ENABLE_DEBUG
   if (smoc::Detail::outDbg.isVisible(smoc::Detail::Debug::High)) {
     smoc::Detail::outDbg << "<smoc_root_chan::start_of_simulation name=\"" << name() << "\">"
          << std::endl << smoc::Detail::Indent::Up;
   }
-#endif //defined(SYSTEMOC_DEBUG)
+#endif //defined(SYSTEMOC_ENABLE_DEBUG)
   sc_core::sc_prim_channel::start_of_simulation();
   doReset();
-#ifdef SYSTEMOC_DEBUG
+#ifdef SYSTEMOC_ENABLE_DEBUG
   if (smoc::Detail::outDbg.isVisible(smoc::Detail::Debug::High)) {
     smoc::Detail::outDbg << smoc::Detail::Indent::Down << "</smoc_root_chan::start_of_simulation>" << std::endl;
   }
-#endif //defined(SYSTEMOC_DEBUG)
+#endif //defined(SYSTEMOC_ENABLE_DEBUG)
 }
 
 ChanBase::~ChanBase()

@@ -100,12 +100,12 @@ void smoc_scheduler_top::end_of_simulation() {
 }
 
 void smoc_scheduler_top::_before_end_of_elaboration() {
-#ifdef SYSTEMOC_DEBUG
+#ifdef SYSTEMOC_ENABLE_DEBUG
   if (Detail::outDbg.isVisible(Detail::Debug::High)) {
     Detail::outDbg << "<smoc_scheduler_top::_before_end_of_elaboration name=\"" << this->name() << "\">"
          << std::endl << Detail::Indent::Up;
   }
-#endif //defined(SYSTEMOC_DEBUG)
+#endif //defined(SYSTEMOC_ENABLE_DEBUG)
   try {
 #ifdef SYSTEMOC_ENABLE_SGX
     Detail::importSMX(getSimCTX());
@@ -122,21 +122,21 @@ void smoc_scheduler_top::_before_end_of_elaboration() {
               << e.what();
     exit(-1);
   }
-#ifdef SYSTEMOC_DEBUG
+#ifdef SYSTEMOC_ENABLE_DEBUG
   if (Detail::outDbg.isVisible(Detail::Debug::High)) {
     Detail::outDbg << Detail::Indent::Down << "</smoc_scheduler_top::_before_end_of_elaboration>"
          << std::endl;
   }
-#endif //defined(SYSTEMOC_DEBUG)
+#endif //defined(SYSTEMOC_ENABLE_DEBUG)
 }
 
 void smoc_scheduler_top::_end_of_elaboration() {
-#ifdef SYSTEMOC_DEBUG
+#ifdef SYSTEMOC_ENABLE_DEBUG
   if (Detail::outDbg.isVisible(Detail::Debug::High)) {
     Detail::outDbg << "<smoc_scheduler_top::_end_of_elaboration name=\"" << this->name() << "\">"
          << std::endl << Detail::Indent::Up;
   }
-#endif //defined(SYSTEMOC_DEBUG)
+#endif //defined(SYSTEMOC_ENABLE_DEBUG)
   try {
 #ifdef SYSTEMOC_ENABLE_VPC
     SystemC_VPC::Director::getInstance().endOfVpcFinalize();
@@ -150,12 +150,12 @@ void smoc_scheduler_top::_end_of_elaboration() {
               << e.what();
     exit(-1);
   }
-#ifdef SYSTEMOC_DEBUG
+#ifdef SYSTEMOC_ENABLE_DEBUG
   if (Detail::outDbg.isVisible(Detail::Debug::High)) {
     Detail::outDbg << Detail::Indent::Down << "</smoc_scheduler_top:::_end_of_elaboration>"
          << std::endl;
   }
-#endif //defined(SYSTEMOC_DEBUG)
+#endif //defined(SYSTEMOC_ENABLE_DEBUG)
 }
 
 } // namespace smoc

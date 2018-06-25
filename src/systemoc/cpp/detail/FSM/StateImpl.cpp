@@ -167,28 +167,28 @@ namespace smoc { namespace Detail { namespace FSM {
   }
 
   void StateImpl::finalise(ExpandedTransitionList &etl) {
-#ifdef SYSTEMOC_DEBUG
+#ifdef SYSTEMOC_ENABLE_DEBUG
     if (smoc::Detail::outDbg.isVisible(smoc::Detail::Debug::High)) {
       smoc::Detail::outDbg << "<StateImpl::finalise name=\"" << getName() << "\">"
            << std::endl << smoc::Detail::Indent::Up;
     }
-#endif // SYSTEMOC_DEBUG
+#endif // SYSTEMOC_ENABLE_DEBUG
 
-#ifdef SYSTEMOC_DEBUG
+#ifdef SYSTEMOC_ENABLE_DEBUG
     if (smoc::Detail::outDbg.isVisible(smoc::Detail::Debug::High)) {
       smoc::Detail::outDbg << "Code: " << code << "; Bits: " << bits << std::endl;
     }
-#endif // SYSTEMOC_DEBUG
+#endif // SYSTEMOC_ENABLE_DEBUG
 
     if(!c.empty()) {
       size_t cs = c.size();
       size_t cb = CoSupport::Math::flog2c(static_cast<uint32_t>(cs));
 
-#ifdef SYSTEMOC_DEBUG
+#ifdef SYSTEMOC_ENABLE_DEBUG
       if (smoc::Detail::outDbg.isVisible(smoc::Detail::Debug::High)) {
         smoc::Detail::outDbg << "#C: " << cs << " -> CB: " << cb << std::endl;
       }
-#endif // SYSTEMOC_DEBUG
+#endif // SYSTEMOC_ENABLE_DEBUG
 
       uint64_t cc = code << cb;
 
@@ -213,11 +213,11 @@ namespace smoc { namespace Detail { namespace FSM {
           etl, this, noConditions, *pt);
     }
 
-#ifdef SYSTEMOC_DEBUG
+#ifdef SYSTEMOC_ENABLE_DEBUG
     if (smoc::Detail::outDbg.isVisible(smoc::Detail::Debug::High)) {
       smoc::Detail::outDbg << smoc::Detail::Indent::Down << "</StateImpl::finalise>" << std::endl;
     }
-#endif // SYSTEMOC_DEBUG
+#endif // SYSTEMOC_ENABLE_DEBUG
   }
 
   void StateImpl::expandTransition(

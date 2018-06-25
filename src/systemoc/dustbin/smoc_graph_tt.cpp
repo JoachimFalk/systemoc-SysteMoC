@@ -58,21 +58,21 @@ smoc_graph_tt::smoc_graph_tt() :
 }
   
 void smoc_graph_tt::before_end_of_elaboration() {
-#ifdef SYSTEMOC_DEBUG
+#ifdef SYSTEMOC_ENABLE_DEBUG
   if (smoc::Detail::outDbg.isVisible(smoc::Detail::Debug::High)) {
     smoc::Detail::outDbg << "<smoc_graph::before_end_of_elaboration name=\"" << name() << "\">"
            << std::endl << smoc::Detail::Indent::Up;
   }
-#endif // SYSTEMOC_DEBUG
+#endif // SYSTEMOC_ENABLE_DEBUG
   
   GraphBase::before_end_of_elaboration();
   initTT();
 
-#ifdef SYSTEMOC_DEBUG
+#ifdef SYSTEMOC_ENABLE_DEBUG
   if (smoc::Detail::outDbg.isVisible(smoc::Detail::Debug::High)) {
     smoc::Detail::outDbg << smoc::Detail::Indent::Down << "</smoc_graph::before_end_of_elaboration>" << std::endl;
   }
-#endif // SYSTEMOC_DEBUG
+#endif // SYSTEMOC_ENABLE_DEBUG
 }
 
 void smoc_graph_tt::constructor() {
@@ -99,21 +99,21 @@ void smoc_graph_tt::initTT() {
 }
 
 void smoc_graph_tt::scheduleTT() {
-#ifdef SYSTEMOC_DEBUG
+#ifdef SYSTEMOC_ENABLE_DEBUG
   if (smoc::Detail::outDbg.isVisible(smoc::Detail::Debug::High)) {
     smoc::Detail::outDbg << "<smoc_graph_tt::scheduleTT name=\"" << name() << "\">"
            << std::endl << smoc::Detail::Indent::Up;
   }
-#endif // SYSTEMOC_DEBUG
+#endif // SYSTEMOC_ENABLE_DEBUG
   while(ddf_nodes_activations){
     //schedule the "normal" Tasks (DDF)
     smoc_root_node& n = dynamic_cast<smoc_root_node&>( ddf_nodes_activations.getEventTrigger());
-#ifdef SYSTEMOC_DEBUG
+#ifdef SYSTEMOC_ENABLE_DEBUG
     if (smoc::Detail::outDbg.isVisible(smoc::Detail::Debug::High)) {
       smoc::Detail::outDbg << "<node name=\"" << n.name() << "\">" << std::endl
              << smoc::Detail::Indent::Up;
     }
-#endif // SYSTEMOC_DEBUG
+#endif // SYSTEMOC_ENABLE_DEBUG
     n.schedule();
     smoc_periodic_actor *p_node = dynamic_cast<smoc_periodic_actor *>( &n);
     if(p_node){ // it is a TT-NodeBase
@@ -121,22 +121,22 @@ void smoc_graph_tt::scheduleTT() {
       ddf_nodes_activations.remove(n);
       ttNodeQueue.registerNode(p_node, p_node->getNextReleaseTime());
     }
-#ifdef SYSTEMOC_DEBUG
+#ifdef SYSTEMOC_ENABLE_DEBUG
     if (smoc::Detail::outDbg.isVisible(smoc::Detail::Debug::High)) {
       smoc::Detail::outDbg << smoc::Detail::Indent::Down << "</node>" << std::endl;
     }
-#endif // SYSTEMOC_DEBUG
+#endif // SYSTEMOC_ENABLE_DEBUG
   }
   while(ttNodeQueue){ // TT-Scheduled
     smoc_root_node* next = ttNodeQueue.getNextNode();
     smoc_periodic_actor *entry = dynamic_cast<smoc_periodic_actor *>( next);
     assert(entry);
-#ifdef SYSTEMOC_DEBUG
+#ifdef SYSTEMOC_ENABLE_DEBUG
     if (smoc::Detail::outDbg.isVisible(smoc::Detail::Debug::High)) {
       smoc::Detail::outDbg << "<node name=\"" << next->name() << "\">" << std::endl
              << smoc::Detail::Indent::Up;
     }
-#endif // SYSTEMOC_DEBUG
+#endif // SYSTEMOC_ENABLE_DEBUG
     if(nodeDisabled[entry] == false){
       entry->schedule();
 #ifdef SYSTEMOC_ENABLE_VPC
@@ -149,17 +149,17 @@ void smoc_graph_tt::scheduleTT() {
       }
 #endif //SYSTEMOC_ENABLE_VPC
     }
-#ifdef SYSTEMOC_DEBUG
+#ifdef SYSTEMOC_ENABLE_DEBUG
     if (smoc::Detail::outDbg.isVisible(smoc::Detail::Debug::High)) {
       smoc::Detail::outDbg << smoc::Detail::Indent::Down << "</node>" << std::endl;
     }
-#endif // SYSTEMOC_DEBUG
+#endif // SYSTEMOC_ENABLE_DEBUG
   }
-#ifdef SYSTEMOC_DEBUG
+#ifdef SYSTEMOC_ENABLE_DEBUG
   if (smoc::Detail::outDbg.isVisible(smoc::Detail::Debug::High)) {
     smoc::Detail::outDbg << smoc::Detail::Indent::Down << "</smoc_graph_tt::scheduleTT>" << std::endl;
   }
-#endif // SYSTEMOC_DEBUG
+#endif // SYSTEMOC_ENABLE_DEBUG
 }
 
 void smoc_graph_tt::disableActor(std::string actor_name){
