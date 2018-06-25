@@ -193,17 +193,17 @@ private:
     void signaled(smoc_event_waiter *_e) {
       assert(*_e);
 
-#   ifdef SYSTEMOC_DEBUG
+#   ifdef SYSTEMOC_ENABLE_DEBUG
       std::cerr << "smoc_detail::DeferedTraceLogDumper::signaled(...)" << std::endl;
-#   endif // SYSTEMOC_DEBUG
+#   endif // SYSTEMOC_ENABLE_DEBUG
       this->getSimCTX()->getDataflowTraceLog()->traceStartActor(fifo, mode);
       this->getSimCTX()->getDataflowTraceLog()->traceEndActor(fifo);
       return;
     }
     void eventDestroyed(smoc_event_waiter *_e) {
-#   ifdef SYSTEMOC_DEBUG
+#   ifdef SYSTEMOC_ENABLE_DEBUG
       std::cerr << "smoc_detail::DeferedTraceLogDumper:: eventDestroyed(...)" << std::endl;
-#   endif // SYSTEMOC_DEBUG
+#   endif // SYSTEMOC_ENABLE_DEBUG
       delete this;
     }
 

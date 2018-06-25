@@ -91,60 +91,60 @@ NodeBase::NodeBase(sc_core::sc_module_name name, NodeType nodeType, smoc_state *
 }
 
 void NodeBase::before_end_of_elaboration() {
-#ifdef SYSTEMOC_DEBUG
+#ifdef SYSTEMOC_ENABLE_DEBUG
   if (smoc::Detail::outDbg.isVisible(smoc::Detail::Debug::High)) {
     smoc::Detail::outDbg << "<NodeBase::before_end_of_elaboration name=\"" << this->name() << "\">"
          << std::endl << smoc::Detail::Indent::Up;
   }
-#endif //defined(SYSTEMOC_DEBUG)
+#endif //defined(SYSTEMOC_ENABLE_DEBUG)
   sc_core::sc_module::before_end_of_elaboration();
   if (getFiringFSM()) {
     getSimCTX()->getSimulatorInterface()->registerTask(this);
   }
-#ifdef SYSTEMOC_DEBUG
+#ifdef SYSTEMOC_ENABLE_DEBUG
   if (smoc::Detail::outDbg.isVisible(smoc::Detail::Debug::High)) {
     smoc::Detail::outDbg << smoc::Detail::Indent::Down << "</NodeBase::before_end_of_elaboration>"
          << std::endl;
   }
-#endif //defined(SYSTEMOC_DEBUG)
+#endif //defined(SYSTEMOC_ENABLE_DEBUG)
 }
 
 void NodeBase::end_of_elaboration() {
-#ifdef SYSTEMOC_DEBUG
+#ifdef SYSTEMOC_ENABLE_DEBUG
   if (smoc::Detail::outDbg.isVisible(smoc::Detail::Debug::High)) {
     smoc::Detail::outDbg << "<NodeBase::end_of_elaboration name=\"" << this->name() << "\">"
          << std::endl << smoc::Detail::Indent::Up;
   }
-#endif //defined(SYSTEMOC_DEBUG)
+#endif //defined(SYSTEMOC_ENABLE_DEBUG)
   sc_core::sc_module::end_of_elaboration();
   if (getFiringFSM()) {
     getFiringFSM()->end_of_elaboration(this,
       CoSupport::DataTypes::FacadeCoreAccess::getImpl(*initialState));
   }
-#ifdef SYSTEMOC_DEBUG
+#ifdef SYSTEMOC_ENABLE_DEBUG
   if (smoc::Detail::outDbg.isVisible(smoc::Detail::Debug::High)) {
     smoc::Detail::outDbg << smoc::Detail::Indent::Down << "</NodeBase::end_of_elaboration>"
          << std::endl;
   }
-#endif //defined(SYSTEMOC_DEBUG)
+#endif //defined(SYSTEMOC_ENABLE_DEBUG)
 }
 
 void NodeBase::start_of_simulation() {
-#ifdef SYSTEMOC_DEBUG
+#ifdef SYSTEMOC_ENABLE_DEBUG
   if (smoc::Detail::outDbg.isVisible(smoc::Detail::Debug::High)) {
     smoc::Detail::outDbg << "<NodeBase::start_of_simulation name=\"" << this->name() << "\">"
          << std::endl << smoc::Detail::Indent::Up;
   }
-#endif //defined(SYSTEMOC_DEBUG)
+#endif //defined(SYSTEMOC_ENABLE_DEBUG)
   sc_core::sc_module::start_of_simulation();
   // Don't call the virtual function!
   NodeBase::doReset();
-#ifdef SYSTEMOC_DEBUG
+#ifdef SYSTEMOC_ENABLE_DEBUG
   if (smoc::Detail::outDbg.isVisible(smoc::Detail::Debug::High)) {
     smoc::Detail::outDbg << smoc::Detail::Indent::Down << "</NodeBase::start_of_simulation>"
          << std::endl;
   }
-#endif //defined(SYSTEMOC_DEBUG)
+#endif //defined(SYSTEMOC_ENABLE_DEBUG)
 }
 
 smoc_sysc_port_list NodeBase::getPorts() const {
@@ -169,12 +169,12 @@ NodeBase::~NodeBase() {
 }
 
 void NodeBase::doReset() {
-#ifdef SYSTEMOC_DEBUG
+#ifdef SYSTEMOC_ENABLE_DEBUG
   if (smoc::Detail::outDbg.isVisible(smoc::Detail::Debug::High)) {
     smoc::Detail::outDbg << "<NodeBase::doReset name=\"" << name() << "\">"
          << std::endl << smoc::Detail::Indent::Up;
   }
-#endif // SYSTEMOC_DEBUG
+#endif // SYSTEMOC_ENABLE_DEBUG
 
   // call user-defined reset code (->re-evaluate guards!!!)
   reset();
@@ -185,38 +185,38 @@ void NodeBase::doReset() {
       getScheduler()->notifyActivation(this, searchActiveTransition());
   }
 
-#ifdef SYSTEMOC_DEBUG
+#ifdef SYSTEMOC_ENABLE_DEBUG
   if (smoc::Detail::outDbg.isVisible(smoc::Detail::Debug::High)) {
     smoc::Detail::outDbg << smoc::Detail::Indent::Down << "</NodeBase::doReset>" << std::endl;
   }
-#endif // SYSTEMOC_DEBUG
+#endif // SYSTEMOC_ENABLE_DEBUG
 }
 
 void NodeBase::renotified(smoc::smoc_event_waiter *e) {
-#ifdef SYSTEMOC_DEBUG
+#ifdef SYSTEMOC_ENABLE_DEBUG
   if (smoc::Detail::outDbg.isVisible(smoc::Detail::Debug::High)) {
     smoc::Detail::outDbg << "<NodeBase::renotified name=\"" << name() << "\">"
          << std::endl << smoc::Detail::Indent::Up;
   }
-#endif // SYSTEMOC_DEBUG
+#endif // SYSTEMOC_ENABLE_DEBUG
 
   assert(*e);
   signaled(e);
 
-#ifdef SYSTEMOC_DEBUG
+#ifdef SYSTEMOC_ENABLE_DEBUG
   if (smoc::Detail::outDbg.isVisible(smoc::Detail::Debug::High)) {
     smoc::Detail::outDbg << smoc::Detail::Indent::Down << "</NodeBase::renotified>" << std::endl;
   }
-#endif // SYSTEMOC_DEBUG
+#endif // SYSTEMOC_ENABLE_DEBUG
 }
 
 void NodeBase::signaled(smoc::smoc_event_waiter *e) {
-#ifdef SYSTEMOC_DEBUG
+#ifdef SYSTEMOC_ENABLE_DEBUG
   if (smoc::Detail::outDbg.isVisible(smoc::Detail::Debug::High)) {
     smoc::Detail::outDbg << "<NodeBase::signaled name=\"" << name() << "\">"
          << std::endl << smoc::Detail::Indent::Up;
   }
-#endif // SYSTEMOC_DEBUG
+#endif // SYSTEMOC_ENABLE_DEBUG
   assert(useActivationCallback && active);
   if (!executing) {
     // Never execute t->evaluateGuard() if events are reseted as the state of
@@ -247,11 +247,11 @@ void NodeBase::signaled(smoc::smoc_event_waiter *e) {
     }
   }
   
-#ifdef SYSTEMOC_DEBUG
+#ifdef SYSTEMOC_ENABLE_DEBUG
   if (smoc::Detail::outDbg.isVisible(smoc::Detail::Debug::High)) {
     smoc::Detail::outDbg << smoc::Detail::Indent::Down << "</NodeBase::signaled>" << std::endl;
   }
-#endif // SYSTEMOC_DEBUG
+#endif // SYSTEMOC_ENABLE_DEBUG
 }
 
 void NodeBase::eventDestroyed(smoc::smoc_event_waiter *e) {
@@ -275,12 +275,12 @@ FSM::FiringFSM *NodeBase::getFiringFSM() const {
 }
 
 void NodeBase::setCurrentState(FSM::RuntimeState *newState) {
-#ifdef SYSTEMOC_DEBUG
+#ifdef SYSTEMOC_ENABLE_DEBUG
   if (smoc::Detail::outDbg.isVisible(smoc::Detail::Debug::High)) {
     smoc::Detail::outDbg << "<NodeBase::setCurrentState name=\"" << name() << "\">"
           << std::endl << smoc::Detail::Indent::Up;
   }
-#endif // SYSTEMOC_DEBUG
+#endif // SYSTEMOC_ENABLE_DEBUG
 #ifdef SYSTEMOC_ENABLE_MAESTRO
   if (newState == NULL)
     throw MAESTRORuntimeException(std::string("Error while trying to set the new state to NULL on actor: ") + this->name());
@@ -299,11 +299,11 @@ void NodeBase::setCurrentState(FSM::RuntimeState *newState) {
     currentState = newState;
   ct = nullptr;
 
-#ifdef SYSTEMOC_DEBUG
+#ifdef SYSTEMOC_ENABLE_DEBUG
   if (smoc::Detail::outDbg.isVisible(smoc::Detail::Debug::High)) {
     smoc::Detail::outDbg << smoc::Detail::Indent::Down << "</NodeBase::setCurrentState>" << std::endl;
   }
-#endif // SYSTEMOC_DEBUG
+#endif // SYSTEMOC_ENABLE_DEBUG
 }
 
 void NodeBase::addMySelfAsListener(FSM::RuntimeState *state) {
@@ -391,12 +391,12 @@ bool NodeBase::searchActiveTransition(bool debug) {
 }
 
 void NodeBase::schedule() {
-#ifdef SYSTEMOC_DEBUG
+#ifdef SYSTEMOC_ENABLE_DEBUG
   if (smoc::Detail::outDbg.isVisible(smoc::Detail::Debug::High)) {
     smoc::Detail::outDbg << "<NodeBase::schedule name=\"" << name() << "\">"
          << std::endl << smoc::Detail::Indent::Up;
   }
-#endif // SYSTEMOC_DEBUG
+#endif // SYSTEMOC_ENABLE_DEBUG
   assert(active);
   assert(ct);
   assert(ct->check());
@@ -407,11 +407,11 @@ void NodeBase::schedule() {
   assert(!ct);
   if (useActivationCallback)
     searchActiveTransition();
-#ifdef SYSTEMOC_DEBUG
+#ifdef SYSTEMOC_ENABLE_DEBUG
   if (smoc::Detail::outDbg.isVisible(smoc::Detail::Debug::High)) {
     smoc::Detail::outDbg << smoc::Detail::Indent::Down << "</NodeBase::schedule>" << std::endl;
   }
-#endif // SYSTEMOC_DEBUG
+#endif // SYSTEMOC_ENABLE_DEBUG
 }
 
 bool NodeBase::canFire() {

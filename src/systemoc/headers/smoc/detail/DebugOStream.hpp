@@ -52,13 +52,13 @@ using CoSupport::Streams::Indent;
 using CoSupport::Streams::ScopedIndent;
 
 typedef
-#ifndef SYSTEMOC_DEBUG
+#ifndef SYSTEMOC_ENABLE_DEBUG
   CoSupport::Streams::NullStreambuf::Stream<
 #endif
     CoSupport::Streams::DebugStreambuf::Stream<
       CoSupport::Streams::IndentStreambuf::Stream<
     > >
-#ifndef SYSTEMOC_DEBUG
+#ifndef SYSTEMOC_ENABLE_DEBUG
   >
 #endif
   DebugOStream;

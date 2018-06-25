@@ -196,9 +196,9 @@ namespace smoc { namespace Detail {
   class ActivationStatus {
   public:
     typedef ActivationStatus this_type;
-#ifdef SYSTEMOC_DEBUG
+#ifdef SYSTEMOC_ENABLE_DEBUG
     friend std::ostream &operator <<(std::ostream &, this_type);
-#endif //defined(SYSTEMOC_DEBUG)
+#endif //defined(SYSTEMOC_ENABLE_DEBUG)
   private:
     _XXX value;
   public:

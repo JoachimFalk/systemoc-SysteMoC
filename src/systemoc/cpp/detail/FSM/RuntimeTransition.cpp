@@ -143,11 +143,11 @@ namespace smoc { namespace Detail { namespace FSM {
 #endif //SYSTEMOC_ENABLE_MAESTRO
 
   bool RuntimeTransition::check() const {
-#ifdef SYSTEMOC_DEBUG
+#ifdef SYSTEMOC_ENABLE_DEBUG
     if (smoc::Detail::outDbg.isVisible(smoc::Detail::Debug::Medium)) {
       smoc::Detail::outDbg << "[" << getIOPatternWaiter() << "] " << *getIOPatternWaiter() << std::endl;
     }
-#endif // SYSTEMOC_DEBUG
+#endif // SYSTEMOC_ENABLE_DEBUG
     bool result = getIOPatternWaiter()->isActive();
     if (result) {
       getFiringRule()->commSetup();
@@ -169,12 +169,12 @@ namespace smoc { namespace Detail { namespace FSM {
   }
 
   RuntimeState *RuntimeTransition::execute(NodeBase *node) {
-#ifdef SYSTEMOC_DEBUG
+#ifdef SYSTEMOC_ENABLE_DEBUG
     if (smoc::Detail::outDbg.isVisible(smoc::Detail::Debug::Medium)) {
       smoc::Detail::outDbg << "<transition actor=\"" << node->name()
            << "\">" << std::endl << smoc::Detail::Indent::Up;
     }
-#endif //SYSTEMOC_DEBUG
+#endif //SYSTEMOC_ENABLE_DEBUG
 
 #ifdef SYSTEMOC_ENABLE_DATAFLOW_TRACE
     this->getSimCTX()->getDataflowTraceLog()->traceStartActor(node, "s");
@@ -228,8 +228,8 @@ namespace smoc { namespace Detail { namespace FSM {
       getSimCTX()->getTraceFile() << "<t id=\"" << getId() << "\"/>\n";
 #endif // SYSTEMOC_ENABLE_TRANSITION_TRACE
 
-#if defined(SYSTEMOC_ENABLE_VPC)
     getFiringRule()->commExec();
+#ifdef SYSTEMOC_ENABLE_VPC
     SystemC_VPC::EventPair events = getFiringRule()->startCompute();
 # ifdef SYSTEMOC_ENABLE_DATAFLOW_TRACE
     if(!*events.latency) {
@@ -240,9 +240,7 @@ namespace smoc { namespace Detail { namespace FSM {
       this->getSimCTX()->getDataflowTraceLog()->traceEndActor(node);
     }
 # endif //SYSTEMOC_ENABLE_DATAFLOW_TRACE
-#else // !defined(SYSTEMOC_ENABLE_VPC)
-    getFiringRule()->commExec();
-#endif // !defined(SYSTEMOC_ENABLE_VPC)
+#endif // SYSTEMOC_ENABLE_VPC
 
     getFiringRule()->commReset();
 
@@ -250,11 +248,11 @@ namespace smoc { namespace Detail { namespace FSM {
     this->getSimCTX()->getDataflowTraceLog()->traceEndActor(node);
 #endif //SYSTEMOC_ENABLE_DATAFLOW_TRACE
 
-#ifdef SYSTEMOC_DEBUG
+#ifdef SYSTEMOC_ENABLE_DEBUG
     if (smoc::Detail::outDbg.isVisible(smoc::Detail::Debug::Medium)) {
       smoc::Detail::outDbg << smoc::Detail::Indent::Down << "</transition>"<< std::endl;
     }
-#endif // SYSTEMOC_DEBUG
+#endif // SYSTEMOC_ENABLE_DEBUG
     return nextState;
   }
 

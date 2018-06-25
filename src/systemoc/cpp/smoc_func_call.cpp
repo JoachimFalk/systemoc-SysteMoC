@@ -68,20 +68,20 @@ ActionVisitor::result_type ActionVisitor::operator()(const smoc_action &f) const
 #ifdef SYSTEMOC_ENABLE_DATAFLOW_TRACE
     this->getSimCTX()->getDataflowTraceLog()->traceStartFunction(&*i);
 #endif // SYSTEMOC_ENABLE_DATAFLOW_TRACE
-#ifdef SYSTEMOC_DEBUG
+#ifdef SYSTEMOC_ENABLE_DEBUG
     if (smoc::Detail::outDbg.isVisible(smoc::Detail::Debug::Medium)) {
       smoc::Detail::outDbg << "<action type=\"smoc_func_call\" func=\""
            << i->getFuncName() << "\">" << std::endl;
     }
-#endif // SYSTEMOC_DEBUG
+#endif // SYSTEMOC_ENABLE_DEBUG
   
     (*i)();
 
-#ifdef SYSTEMOC_DEBUG
+#ifdef SYSTEMOC_ENABLE_DEBUG
     if (smoc::Detail::outDbg.isVisible(smoc::Detail::Debug::Medium)) {
       smoc::Detail::outDbg << "</action>" << std::endl;
     }
-#endif // SYSTEMOC_DEBUG
+#endif // SYSTEMOC_ENABLE_DEBUG
 #ifdef SYSTEMOC_ENABLE_DATAFLOW_TRACE
     getSimCTX()->getDataflowTraceLog()->traceEndFunction(&*i);
 #endif // SYSTEMOC_ENABLE_DATAFLOW_TRACE
@@ -119,18 +119,18 @@ smoc::dMM::TransitionOnThreadVisitor::result_type smoc::dMM::TransitionOnThreadV
 # ifdef SYSTEMOC_ENABLE_DATAFLOW_TRACE
       this->getSimCTX()->getDataflowTraceLog()->traceStartFunction(&*i);
 # endif // SYSTEMOC_ENABLE_DATAFLOW_TRACE
-# ifdef SYSTEMOC_DEBUG
+# ifdef SYSTEMOC_ENABLE_DEBUG
       if (smoc::Detail::outDbg.isVisible(smoc::Detail::Debug::Medium)) {
         smoc::Detail::outDbg << "<action type=\"smoc_func_call\" func=\""
           << i->getFuncName() << "\">" << std::endl;
       }
-# endif // SYSTEMOC_DEBUG
+# endif // SYSTEMOC_ENABLE_DEBUG
       (*i)();
-# ifdef SYSTEMOC_DEBUG
+# ifdef SYSTEMOC_ENABLE_DEBUG
       if (smoc::Detail::outDbg.isVisible(smoc::Detail::Debug::Medium)) {
         smoc::Detail::outDbg << "</action>" << std::endl;
       }
-# endif // SYSTEMOC_DEBUG
+# endif // SYSTEMOC_ENABLE_DEBUG
 # ifdef SYSTEMOC_ENABLE_DATAFLOW_TRACE
       getSimCTX()->getDataflowTraceLog()->traceEndFunction(&*i);
 # endif // SYSTEMOC_ENABLE_DATAFLOW_TRACE
@@ -147,20 +147,20 @@ void smoc::dMM::TransitionOnThreadVisitor::executeTransition(const smoc_action& 
 # ifdef SYSTEMOC_ENABLE_DATAFLOW_TRACE
     this->getSimCTX()->getDataflowTraceLog()->traceStartFunction(&*i);
 # endif // SYSTEMOC_ENABLE_DATAFLOW_TRACE
-# ifdef SYSTEMOC_DEBUG
+# ifdef SYSTEMOC_ENABLE_DEBUG
     if (smoc::Detail::outDbg.isVisible(smoc::Detail::Debug::Medium)) {
       smoc::Detail::outDbg << "<action type=\"smoc_func_call\" func=\""
         << i->getFuncName() << "\">" << std::endl;
     }
-# endif // SYSTEMOC_DEBUG
+# endif // SYSTEMOC_ENABLE_DEBUG
 
     (*i)();
 
-# ifdef SYSTEMOC_DEBUG
+# ifdef SYSTEMOC_ENABLE_DEBUG
     if (smoc::Detail::outDbg.isVisible(smoc::Detail::Debug::Medium)) {
       smoc::Detail::outDbg << "</action>" << std::endl;
     }
-# endif // SYSTEMOC_DEBUG
+# endif // SYSTEMOC_ENABLE_DEBUG
 # ifdef SYSTEMOC_ENABLE_DATAFLOW_TRACE
     getSimCTX()->getDataflowTraceLog()->traceEndFunction(&*i);
 # endif // SYSTEMOC_ENABLE_DATAFLOW_TRACE

@@ -170,12 +170,12 @@ void FiringFSM::addTransitionHook(
 #endif //SYSTEMOC_ENABLE_HOOKING
 
 void FiringFSM::end_of_elaboration(NodeBase *node, StateImpl *hsinit) {
-#ifdef SYSTEMOC_DEBUG
+#ifdef SYSTEMOC_ENABLE_DEBUG
   if (smoc::Detail::outDbg.isVisible(smoc::Detail::Debug::High)) {
     smoc::Detail::outDbg << "<FiringFSM::end_of_elaboration name=\"" << node->name() << "\">"
          << std::endl << smoc::Detail::Indent::Up;
   }
-#endif //defined(SYSTEMOC_DEBUG)
+#endif //defined(SYSTEMOC_ENABLE_DEBUG)
 
   assert(node);
 
@@ -401,12 +401,12 @@ void FiringFSM::end_of_elaboration(NodeBase *node, StateImpl *hsinit) {
 # endif // SYSTEMOC_DEBUG_VPC_IF
 #endif //SYSTEMOC_ENABLE_VPC
   }
-#ifdef SYSTEMOC_DEBUG
+#ifdef SYSTEMOC_ENABLE_DEBUG
   if (smoc::Detail::outDbg.isVisible(smoc::Detail::Debug::High)) {
     smoc::Detail::outDbg << smoc::Detail::Indent::Down << "</FiringFSM::end_of_elaboration>"
          << std::endl;
   }
-#endif //defined(SYSTEMOC_DEBUG)
+#endif //defined(SYSTEMOC_ENABLE_DEBUG)
 }
 
 void FiringFSM::addState(BaseStateImpl *state) {

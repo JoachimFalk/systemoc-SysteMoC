@@ -54,12 +54,12 @@ GraphBase::GraphBase(
 {}
   
 void GraphBase::before_end_of_elaboration() {
-#ifdef SYSTEMOC_DEBUG
+#ifdef SYSTEMOC_ENABLE_DEBUG
   if (smoc::Detail::outDbg.isVisible(smoc::Detail::Debug::High)) {
     smoc::Detail::outDbg << "<GraphBase::before_end_of_elaboration name=\"" << name() << "\">"
       << std::endl << smoc::Detail::Indent::Up;
   }
-#endif //defined(SYSTEMOC_DEBUG)
+#endif //defined(SYSTEMOC_ENABLE_DEBUG)
   if (scheduler)
     scheduler->_before_end_of_elaboration();
 
@@ -79,30 +79,30 @@ void GraphBase::before_end_of_elaboration() {
       channels.push_back(channel);
   }
 
-#ifdef SYSTEMOC_DEBUG
+#ifdef SYSTEMOC_ENABLE_DEBUG
   if (smoc::Detail::outDbg.isVisible(smoc::Detail::Debug::High)) {
     smoc::Detail::outDbg << smoc::Detail::Indent::Down << "</GraphBase::before_end_of_elaboration>" << std::endl;
   }
-#endif //defined(SYSTEMOC_DEBUG)
+#endif //defined(SYSTEMOC_ENABLE_DEBUG)
 }
 
 void GraphBase::end_of_elaboration() {
-#ifdef SYSTEMOC_DEBUG
+#ifdef SYSTEMOC_ENABLE_DEBUG
   if (smoc::Detail::outDbg.isVisible(smoc::Detail::Debug::High)) {
     smoc::Detail::outDbg << "<GraphBase::end_of_elaboration name=\"" << name() << "\">"
            << std::endl << smoc::Detail::Indent::Up;
   }
-#endif //defined(SYSTEMOC_DEBUG)
+#endif //defined(SYSTEMOC_ENABLE_DEBUG)
   if (scheduler)
     scheduler->_end_of_elaboration();
 
   NodeBase::end_of_elaboration();
 
-#ifdef SYSTEMOC_DEBUG
+#ifdef SYSTEMOC_ENABLE_DEBUG
   if (smoc::Detail::outDbg.isVisible(smoc::Detail::Debug::High)) {
     smoc::Detail::outDbg << smoc::Detail::Indent::Down << "</GraphBase::end_of_elaboration>" << std::endl;
   }
-#endif //defined(SYSTEMOC_DEBUG)
+#endif //defined(SYSTEMOC_ENABLE_DEBUG)
 }
 
 const NodeList &GraphBase::getNodes() const
@@ -120,12 +120,12 @@ sc_core::sc_object   *GraphBase::getChild(std::string const &name) const {
 }
 
 void GraphBase::doReset() {
-#ifdef SYSTEMOC_DEBUG
+#ifdef SYSTEMOC_ENABLE_DEBUG
   if (smoc::Detail::outDbg.isVisible(smoc::Detail::Debug::High)) {
     smoc::Detail::outDbg << "<GraphBase::doReset name=\"" << name() << "\">"
          << std::endl << smoc::Detail::Indent::Up;
   }
-#endif // SYSTEMOC_DEBUG
+#endif // SYSTEMOC_ENABLE_DEBUG
 
   // Reset all FIFOs.
   for(smoc_chan_list::iterator iter = channels.begin();
@@ -140,11 +140,11 @@ void GraphBase::doReset() {
   // Finally, reset myself.
   NodeBase::doReset();
   
-#ifdef SYSTEMOC_DEBUG
+#ifdef SYSTEMOC_ENABLE_DEBUG
   if (smoc::Detail::outDbg.isVisible(smoc::Detail::Debug::High)) {
     smoc::Detail::outDbg << smoc::Detail::Indent::Down << "</GraphBase::doReset>" << std::endl;
   }
-#endif //SYSTEMOC_DEBUG
+#endif //SYSTEMOC_ENABLE_DEBUG
 }
 
 void GraphBase::setScheduler(smoc_scheduler_top *scheduler) {

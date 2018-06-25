@@ -58,7 +58,7 @@
 #include <memory>
 #include <string>
 
-//#define SYSTEMOC_DEBUG
+//#define SYSTEMOC_ENABLE_DEBUG
 
 namespace smoc { namespace Detail {
 

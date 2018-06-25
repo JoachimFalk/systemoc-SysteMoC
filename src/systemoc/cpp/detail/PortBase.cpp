@@ -78,34 +78,34 @@ void PortBase::bind(this_type &parent_) {
 }
 
 void PortBase::before_end_of_elaboration() {
-#ifdef SYSTEMOC_DEBUG
+#ifdef SYSTEMOC_ENABLE_DEBUG
   outDbg << "<smoc_sysc_port::before_end_of_elaboration name=\"" << this->name() << "\">"
          << std::endl << Indent::Up;
-#endif // SYSTEMOC_DEBUG
+#endif // SYSTEMOC_ENABLE_DEBUG
   sc_core::sc_port_base::before_end_of_elaboration();
 #ifdef SYSTEMOC_NEED_IDS  
   // Allocate Id for myself if not already present.
   if (IdedObjAccess::getId(this) == std::numeric_limits<NgId>::max())
     getSimCTX()->getIdPool().addIdedObj(this);
 #endif // SYSTEMOC_NEED_IDS
-#ifdef SYSTEMOC_DEBUG
+#ifdef SYSTEMOC_ENABLE_DEBUG
   outDbg << Indent::Down << "</smoc_sysc_port::before_end_of_elaboration>" << std::endl;
-#endif // SYSTEMOC_DEBUG
+#endif // SYSTEMOC_ENABLE_DEBUG
 }
 
 void PortBase::end_of_elaboration() {
-#ifdef SYSTEMOC_DEBUG
+#ifdef SYSTEMOC_ENABLE_DEBUG
   outDbg << "<smoc_sysc_port::end_of_elaboration name=\"" << this->name() << "\">"
          << std::endl << Indent::Up;
-#endif // SYSTEMOC_DEBUG
+#endif // SYSTEMOC_ENABLE_DEBUG
   sc_core::sc_port_base::end_of_elaboration();
   for (Interfaces::iterator iter = interfaces.begin();
        iter != interfaces.end();
        ++iter)
     portAccesses.push_back((*iter)->getChannelAccess());
-#ifdef SYSTEMOC_DEBUG
+#ifdef SYSTEMOC_ENABLE_DEBUG
   outDbg << Indent::Down << "</smoc_sysc_port::end_of_elaboration>" << std::endl;
-#endif // SYSTEMOC_DEBUG
+#endif // SYSTEMOC_ENABLE_DEBUG
 }
 
 PortBase const *PortBase::getParentPort() const {
@@ -159,10 +159,10 @@ void PortBase::finaliseVpcLink(std::string actorName){
           SystemC_VPC::Director::getInstance().registerRoute(actorName,
               channelName, this);
     }
-#ifdef SYSTEMOC_DEBUG
+#ifdef SYSTEMOC_ENABLE_DEBUG
     vpi->actor   = actorName;
     vpi->channel = channelName;
-#endif // SYSTEMOC_DEBUG
+#endif // SYSTEMOC_ENABLE_DEBUG
   }
 }
 #endif //SYSTEMOC_ENABLE_VPC
