@@ -64,18 +64,11 @@
 #include "smoc_event.hpp"
 #include "detail/DebugOStream.hpp"
 
-#ifdef SYSTEMOC_ENABLE_VPC
-# include "detail/VpcInterface.hpp"
-#endif // SYSTEMOC_ENABLE_VPC
-
 namespace smoc { namespace Detail {
 
   // Forward declarations
   class PortBase;
   class PortBaseIf;
-
-  struct Process;   // Process type marker for evalTo<CommExec>( ... )
-  struct Ignore;    // Ignore type marker for evalTo<CommExec>( ... )
 
   struct DISABLED { operator bool() const { return false; } };
   struct BLOCKED  {};
@@ -280,26 +273,6 @@ class VisitorApplication {};
 template <class E>
 class Value {};
 
-// Default do nothing
-template <class E>
-class CommExec
-{
-public:
-  typedef Detail::Ignore          match_type;
-
-  typedef void                    result_type;
-#ifdef SYSTEMOC_ENABLE_VPC
-  typedef smoc::Detail::VpcInterface param1_type;
-  
-  static inline
-  result_type apply(const E &e, smoc::Detail::VpcInterface vpcIf) {}
-#else //!defined(SYSTEMOC_ENABLE_VPC)
-  static inline
-  result_type apply(const E &e) {}
-#endif //!defined(SYSTEMOC_ENABLE_VPC)
-
-};
-
 /****************************************************************************
  * Expr evalTo helper functions
  */
@@ -371,19 +344,10 @@ private:
   typedef DVirtual<T> this_type;
 
   friend class VisitorApplication<this_type>;
-  friend class CommExec<this_type>;
   friend class Value<this_type>;
 private:
   struct virt_ty: public CoSupport::SmartPtr::RefCountObject {
-    virtual void              *evalToVisitorApplication(Detail::ExprVisitor<void> &) const = 0;
-
-#if defined(SYSTEMOC_ENABLE_VPC)
-    virtual void       evalToCommExec(
-        smoc::Detail::VpcInterface vpcIf)  const = 0;
-#else //!defined(SYSTEMOC_ENABLE_VPC)
-    virtual void       evalToCommExec()    const = 0;
-#endif //!defined(SYSTEMOC_ENABLE_VPC)
-
+    virtual void      *evalToVisitorApplication(Detail::ExprVisitor<void> &) const = 0;
     virtual T          evalToValue()       const = 0;
   };
 
@@ -397,16 +361,8 @@ private:
   public:
     impl_ty( const E &e ): e(e) {}
 
-    void              *evalToVisitorApplication(Detail::ExprVisitor<void> &v) const 
+    void      *evalToVisitorApplication(Detail::ExprVisitor<void> &v) const
       { return VisitorApplication<E>::apply(e, v); }
-#if defined(SYSTEMOC_ENABLE_VPC)
-    void       evalToCommExec(
-        smoc::Detail::VpcInterface vpcIf) const
-      { CommExec<E>::apply(e, vpcIf); }
-#else // !defined(SYSTEMOC_ENABLE_VPC)
-    void       evalToCommExec() const
-      { CommExec<E>::apply(e); }
-#endif // !defined(SYSTEMOC_ENABLE_VPC)
 
     T          evalToValue() const
       { return Value<E>::apply(e); }
@@ -429,48 +385,6 @@ public:
   static inline
   result_type apply(const DVirtual <T> &e, param1_type p)
     { return e.v->evalToVisitorApplication(p); }
-};
-
-template <typename T>
-class CommExec<DVirtual<T> >
-{
-public:
-  typedef Detail::Process         match_type;
-
-  typedef void                    result_type;
-#if defined(SYSTEMOC_ENABLE_VPC)
-  typedef smoc::Detail::VpcInterface    param1_type;
-
-  static inline
-  result_type apply(const DVirtual <T> &e, smoc::Detail::VpcInterface vpcIf) {
-# ifdef SYSTEMOC_DEBUG
-    if (Detail::outDbg.isVisible(Detail::Debug::Low)) {
-      Detail::outDbg << "CommExec<DVirtual<T> >::apply(e, vpcIf)" << std::endl << Detail::Indent::Up;
-    }
-# endif //defined(SYSTEMOC_DEBUG)
-    e.v->evalToCommExec(vpcIf);
-# ifdef SYSTEMOC_DEBUG
-    if (Detail::outDbg.isVisible(Detail::Debug::Low)) {
-      Detail::outDbg << Detail::Indent::Down;
-    }
-# endif //defined(SYSTEMOC_DEBUG)
-  }
-#else //!defined(SYSTEMOC_ENABLE_VPC)
-  static inline
-  result_type apply(const DVirtual <T> &e) {
-# ifdef SYSTEMOC_DEBUG
-    if (Detail::outDbg.isVisible(Detail::Debug::Low)) {
-      Detail::outDbg << "CommExec<DVirtual<T> >::apply(e)" << std::endl << Detail::Indent::Up;
-    }
-# endif //defined(SYSTEMOC_DEBUG)
-    e.v->evalToCommExec();
-# ifdef SYSTEMOC_DEBUG
-    if (Detail::outDbg.isVisible(Detail::Debug::Low)) {
-      Detail::outDbg << Detail::Indent::Down;
-    }
-# endif //defined(SYSTEMOC_DEBUG)
-  }
-#endif //!defined(SYSTEMOC_ENABLE_VPC)
 };
 
 template <typename T>
@@ -504,7 +418,6 @@ private:
   typedef DVar<T> this_type;
 
   friend class VisitorApplication<this_type>;
-  friend class CommExec<this_type>;
   friend class Value<this_type>;
 private:
   const T    &x;
@@ -562,7 +475,6 @@ private:
   typedef DLiteral<T> this_type;
 
   friend class VisitorApplication<this_type>;
-  friend class CommExec<this_type>;
   friend class Value<this_type>;
 private:
   const T v;
@@ -620,7 +532,6 @@ private:
   typedef DMemGuard<F,PL> this_type;
   
   friend class VisitorApplication<this_type>;
-  friend class CommExec<this_type>;
   friend class Value<this_type>;
 private:
   F  f;
@@ -691,7 +602,6 @@ private:
   typedef DSMOCEvent this_type;
 
   friend class VisitorApplication<this_type>;
-  friend class CommExec<this_type>;
   friend class Value<this_type>;
 private:
   smoc_event_waiter &v;
@@ -754,7 +664,6 @@ private:
   typedef DBinOp<A,B,Op> this_type;
 
   friend class VisitorApplication<this_type>;
-  friend class CommExec<this_type>;
   friend class Value<this_type>;
 private:
   A a;
@@ -805,56 +714,6 @@ public:
       boost::bind(VisitorApplication<A>::apply, e.a, _1),
       boost::bind(VisitorApplication<B>::apply, e.b, _1));
   }
-};
-
-template <class A, class B>
-class CommExec<DBinOp<A,B,Expr::OpBinT::LAnd> >
-{
-public:
-  typedef DBinOpExecute<
-    typename CommExec<A>::match_type,
-    typename CommExec<B>::match_type,
-    Expr::OpBinT::LAnd,Expr::CommExec>      OpT;
-  typedef typename OpT::match_type        match_type;
-
-  typedef void                            result_type;
-#if defined(SYSTEMOC_ENABLE_VPC)
-  typedef smoc::Detail::VpcInterface  param1_type;
-
-  static inline
-  result_type apply(const DBinOp<A,B,Expr::OpBinT::LAnd> &e,
-    smoc::Detail::VpcInterface vpcIf)
-  {
-# ifdef SYSTEMOC_DEBUG
-    if (Detail::outDbg.isVisible(Detail::Debug::Low)) {
-      Detail::outDbg << "CommExec<DBinOp<A,B,OpBinT::LAnd> >::apply(e, vpcIf)" << std::endl << Detail::Indent::Up;
-    }
-# endif //defined(SYSTEMOC_DEBUG)
-    OpT::apply(e.a, e.b, vpcIf);
-# ifdef SYSTEMOC_DEBUG
-    if (Detail::outDbg.isVisible(Detail::Debug::Low)) {
-      Detail::outDbg << Detail::Indent::Down;
-    }
-# endif //defined(SYSTEMOC_DEBUG)
-  }
-#else // !defined(SYSTEMOC_ENABLE_VPC)
-  static inline
-  result_type apply(const DBinOp<A,B,Expr::OpBinT::LAnd> &e)
-  {
-# ifdef SYSTEMOC_DEBUG
-    if (Detail::outDbg.isVisible(Detail::Debug::Low)) {
-      Detail::outDbg << "CommExec<DBinOp<A,B,OpBinT::LAnd> >::apply(e)" << std::endl << Detail::Indent::Up;
-    }
-# endif //defined(SYSTEMOC_DEBUG)
-    OpT::apply(e.a, e.b);
-# ifdef SYSTEMOC_DEBUG
-    if (Detail::outDbg.isVisible(Detail::Debug::Low)) {
-      Detail::outDbg << Detail::Indent::Down;
-    }
-# endif //defined(SYSTEMOC_DEBUG)
-  }
-#endif // !defined(SYSTEMOC_ENABLE_VPC)
-
 };
 
 template <class A, class B, OpBinT::Op Op>
@@ -933,86 +792,6 @@ DOP(LOr,||)
 #undef DOP
 #undef DOPBIN
 
-template <OpBinT::Op op>
-struct DBinOpExecute<Detail::Ignore,Detail::Ignore,op,CommExec> {
-  typedef Detail::Ignore match_type;
-
-#ifdef SYSTEMOC_ENABLE_VPC
-  template <class A, class B>
-  static inline
-  void apply(const A &a, const B &b,
-      smoc::Detail::VpcInterface vpcIf)
-    {}
-#else // !defined(SYSTEMOC_ENABLE_VPC)
-  template <class A, class B>
-  static inline
-  void apply(const A &a, const B &b)
-    {}
-#endif // !defined(SYSTEMOC_ENABLE_VPC)
-};
-
-template <>
-struct DBinOpExecute<Detail::Process,Detail::Ignore,Expr::OpBinT::LAnd,CommExec>
-{
-  typedef Detail::Process match_type;
-
-#ifdef SYSTEMOC_ENABLE_VPC
-  template <class A, class B>
-  static inline
-  void apply(const A &a, const B &b,
-      smoc::Detail::VpcInterface vpcIf)
-    { CommExec<A>::apply(a, vpcIf); }
-#else // !defined(SYSTEMOC_ENABLE_VPC)
-  template <class A, class B>
-  static inline
-  void apply(const A &a, const B &b)
-    { CommExec<A>::apply(a); }
-#endif // !defined(SYSTEMOC_ENABLE_VPC)
-};
-
-template <>
-struct DBinOpExecute<Detail::Ignore,Detail::Process,Expr::OpBinT::LAnd,CommExec>
-{
-  typedef Detail::Process match_type;
-
-#ifdef SYSTEMOC_ENABLE_VPC
-  template <class A, class B>
-  static inline
-  void apply(const A &a, const B &b,
-      smoc::Detail::VpcInterface vpcIf)
-    { CommExec<B>::apply(b, vpcIf); }
-#else // !defined(SYSTEMOC_ENABLE_VPC)
-  template <class A, class B>
-  static inline
-  void apply(const A &a, const B &b)
-    { CommExec<B>::apply(b); }
-#endif // !defined(SYSTEMOC_ENABLE_VPC)
-};
-
-template <>
-struct DBinOpExecute<Detail::Process,Detail::Process,Expr::OpBinT::LAnd,CommExec>
-{
-  typedef Detail::Process match_type;
-
-#ifdef SYSTEMOC_ENABLE_VPC
-  template <class A, class B>
-  static inline
-  void apply(const A &a, const B &b,
-      smoc::Detail::VpcInterface vpcIf)
-  {
-    CommExec<A>::apply(a, vpcIf);
-    CommExec<B>::apply(b, vpcIf);
-  }
-#else // !defined(SYSTEMOC_ENABLE_VPC)
-  template <class A, class B>
-  static inline
-  void apply(const A &a, const B &b) {
-    CommExec<A>::apply(a);
-    CommExec<B>::apply(b);
-  }
-#endif // !defined(SYSTEMOC_ENABLE_VPC)
-};
-
 template <>
 struct DBinOpExecute<Detail::ENABLED,bool,Expr::OpBinT::LAnd,Value>
 {
@@ -1089,7 +868,6 @@ private:
   typedef DUnOp<E,Op> this_type;
 
   friend class VisitorApplication<this_type>;
-  friend class CommExec<this_type>;
   friend class Value<this_type>;
 private:
   E e;
@@ -1232,7 +1010,6 @@ class DComm {
   typedef DComm<P> this_type;
 
   friend class VisitorApplication<this_type>;
-  friend class CommExec<this_type>;
   friend class Value<this_type>;
 private:
   P      &p; ///< The smoc port
@@ -1279,35 +1056,6 @@ struct Value<DComm<P> > {
   }
 };
 
-template <class P>
-struct CommExec<DComm<P> > {
-  typedef Detail::Process         match_type;
-  typedef void                    result_type;
-
-  static inline
-  result_type apply(const DComm<P>                   &e
-#ifdef SYSTEMOC_ENABLE_VPC
-                   ,const smoc::Detail::VpcInterface  vpcIf
-#endif //SYSTEMOC_ENABLE_VPC
-                   ) {
-#ifdef SYSTEMOC_DEBUG
-    if (Detail::outDbg.isVisible(Detail::Debug::Low)) {
-      Detail::outDbg << "CommExec<DComm<P, E> >::apply(" << e.p.name() << ")" << std::endl << Detail::Indent::Up;
-    }
-#endif //defined(SYSTEMOC_DEBUG)
-    e.p.commExec(e.committed
-#ifdef SYSTEMOC_ENABLE_VPC
-        , vpcIf
-#endif //SYSTEMOC_ENABLE_VPC
-        );
-#ifdef SYSTEMOC_DEBUG
-    if (Detail::outDbg.isVisible(Detail::Debug::Low)) {
-      Detail::outDbg << Detail::Indent::Down;
-    }
-#endif //defined(SYSTEMOC_DEBUG)
-  }
-};
-
 /****************************************************************************
  * DToken is a placeholder for a token in the expression.
  */
@@ -1319,7 +1067,6 @@ public:
   typedef DToken<P>                   this_type;
   
   friend class VisitorApplication<this_type>;
-  friend class CommExec<this_type>;
   friend class Value<this_type>;
 private:
   P      &p; ///< The smoc port

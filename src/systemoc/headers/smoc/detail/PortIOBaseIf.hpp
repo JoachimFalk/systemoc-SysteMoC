@@ -59,8 +59,7 @@ class PortInBaseIf: public PortBaseIf {
 
   template<class>       friend class ChanAdapterMid;
 
-  // Friends needed for guard evaluation
-  template <class E> friend class Expr::CommExec;
+  // Friend needed for guard evaluation
   template <class E> friend class Expr::Value;
 public:
   template <class PORT, class IFACE>
@@ -170,8 +169,7 @@ class PortOutBaseIf: public PortBaseIf {
 
   template<class>       friend class ChanAdapterMid;
 
-  // Friends needed for guard evaluation
-  template <class E> friend class Expr::CommExec;
+  // Friend needed for guard evaluation
   template <class E> friend class Expr::Value;
 public:
   template <class PORT, class IFACE>

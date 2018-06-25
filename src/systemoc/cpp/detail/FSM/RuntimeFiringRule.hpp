@@ -98,6 +98,19 @@ namespace smoc { namespace Detail { namespace FSM {
 #endif //defined(SYSTEMOC_ENABLE_DEBUG)
     }
 
+    void          commExec() {
+#ifdef SYSTEMOC_ENABLE_VPC
+      VpcInterface vpcIf(this);
+      getDiiEvent()->reset();
+#endif //!defined(SYSTEMOC_ENABLE_VPC)
+      for (PortInfo portInfo : portInfos)
+        portInfo.port.commExec(portInfo.commited
+#ifdef SYSTEMOC_ENABLE_VPC
+              , vpcIf
+#endif //!defined(SYSTEMOC_ENABLE_VPC)
+            );
+    }
+
   private:
     class GuardVisitor;
 

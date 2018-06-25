@@ -59,7 +59,6 @@ namespace smoc {
 
 namespace smoc { namespace Expr {
 
-  template <class E> class CommExec;
   template <class E> class Value;
 
 } } // namespace smoc::Detail
@@ -91,7 +90,6 @@ class PortBase
   
   friend class NodeBase;
   friend class FSM::RuntimeFiringRule; // for blockEvent
-  template <class E> friend class Expr::CommExec;
   template <class E> friend class Expr::Value;
 
   template <class PORT, class IFACE> friend class PortInBaseIf::PortMixin;
