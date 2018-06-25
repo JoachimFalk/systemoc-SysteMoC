@@ -229,9 +229,7 @@ namespace smoc { namespace Detail { namespace FSM {
 #endif // SYSTEMOC_ENABLE_TRANSITION_TRACE
 
 #if defined(SYSTEMOC_ENABLE_VPC)
-    VpcTaskInterface *vti = getFiringRule();
-    vti->getDiiEvent()->reset();
-    smoc::Expr::evalTo<smoc::Expr::CommExec>(getGuard(), VpcInterface(vti));
+    getFiringRule()->commExec();
     SystemC_VPC::EventPair events = getFiringRule()->startCompute();
 # ifdef SYSTEMOC_ENABLE_DATAFLOW_TRACE
     if(!*events.latency) {
@@ -243,7 +241,7 @@ namespace smoc { namespace Detail { namespace FSM {
     }
 # endif //SYSTEMOC_ENABLE_DATAFLOW_TRACE
 #else // !defined(SYSTEMOC_ENABLE_VPC)
-    smoc::Expr::evalTo<smoc::Expr::CommExec>(getGuard());
+    getFiringRule()->commExec();
 #endif // !defined(SYSTEMOC_ENABLE_VPC)
 
     getFiringRule()->commReset();
