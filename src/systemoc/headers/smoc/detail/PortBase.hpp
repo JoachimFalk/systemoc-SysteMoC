@@ -57,11 +57,11 @@ namespace smoc {
 
 } // namespace smoc
 
-namespace smoc { namespace Expr {
-
-  template <class E> class Value;
-
-} } // namespace smoc::Detail
+//namespace smoc { namespace Expr {
+//
+//  template <class E> class Value;
+//
+//} } // namespace smoc::Expr
 
 
 namespace smoc { namespace Detail { namespace FSM {
@@ -76,6 +76,7 @@ namespace smoc { namespace Detail { namespace FSM {
 namespace smoc { namespace Detail {
 
 class NodeBase;
+class QSSCluster;
 
 /// Class representing the base class of all SysteMoC ports.
 class PortBase
@@ -90,7 +91,7 @@ class PortBase
   
   friend class NodeBase;
   friend class FSM::RuntimeFiringRule; // for blockEvent
-  template <class E> friend class Expr::Value;
+//template <class E> friend class Expr::Value;
 
   template <class PORT, class IFACE> friend class PortInBaseIf::PortMixin;
   template <class PORT, class IFACE> friend class PortOutBaseIf::PortMixin;
@@ -108,9 +109,6 @@ public:
   const char *name() const
     { return this->sc_core::sc_port_base::name(); }
 #endif // SYSTEMOC_NEED_IDS
-
-  // FIXME: Make this protected
-  PortBase       *copyPort(const char *name, NgId id);
 
   PortBase const *getParentPort() const;
   PortBase const *getActorPort() const;
@@ -130,8 +128,6 @@ protected:
 
   virtual void end_of_elaboration();
 
-  virtual PortBase *dupPort(const char *name) = 0;
-
 #ifdef SYSTEMOC_ENABLE_DATAFLOW_TRACE
   void        traceCommSetup(size_t req);
 #endif //SYSTEMOC_ENABLE_DATAFLOW_TRACE
@@ -145,6 +141,14 @@ protected:
 #ifdef SYSTEMOC_ENABLE_DEBUG
   void setLimit(size_t req);
 #endif //SYSTEMOC_ENABLE_DEBUG
+
+#ifdef SYSTEMOC_ENABLE_SGX
+  friend class QSSCluster;  // for copyPort
+
+  PortBase         *copyPort(const char *name, NgId id);
+  /// Helper used by copyPort to create a new instance of the same port type.
+  virtual PortBase *allocatePort(const char *name) = 0;
+#endif //SYSTEMOC_ENABLE_SGX
 
   virtual ~PortBase();
 
