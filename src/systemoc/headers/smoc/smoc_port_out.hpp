@@ -87,9 +87,11 @@ namespace smoc {
       base_type::commExec(n);
   #endif //!defined(SYSTEMOC_ENABLE_VPC)
     }
-
-    this_type *dupPort(const char *name)
+  private:
+#ifdef SYSTEMOC_ENABLE_SGX
+    this_type *allocatePort(const char *name)
       { return new this_type(name); }
+#endif //SYSTEMOC_ENABLE_SGX
   };
 
   template <>
@@ -113,9 +115,11 @@ namespace smoc {
 
     size_t numFree() const
       { return this->availableCount(); }
-
-    this_type *dupPort(const char *name)
+  private:
+#ifdef SYSTEMOC_ENABLE_SGX
+    this_type *allocatePort(const char *name)
       { return new this_type(name); }
+#endif //SYSTEMOC_ENABLE_SGX
   };
 
 } // namespace smoc

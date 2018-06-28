@@ -119,8 +119,9 @@ PortBase const *PortBase::getActorPort() const {
   return retval;
 }
 
+#ifdef SYSTEMOC_ENABLE_SGX
 PortBase       *PortBase::copyPort(const char *name, NgId id) {
-  this_type *retval = this->dupPort(name);
+  this_type *retval = this->allocatePort(name);
   getSimCTX()->getIdPool().addIdedObj(id, retval);
   for (Interfaces::iterator iter = interfaces.begin();
        iter != interfaces.end();
@@ -128,7 +129,7 @@ PortBase       *PortBase::copyPort(const char *name, NgId id) {
     retval->add_interface(*iter);
   return retval;
 }
-
+#endif //SYSTEMOC_ENABLE_SGX
 
 #ifdef SYSTEMOC_ENABLE_VPC
 void PortBase::finaliseVpcLink(std::string actorName){

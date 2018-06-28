@@ -39,6 +39,8 @@
 #include "detail/PortCommon.hpp"
 #include "../systemoc/detail/smoc_chan_if.hpp"
 
+#include <systemoc/smoc_config.h>
+
 #include <systemc>
 
 namespace smoc {
@@ -64,9 +66,11 @@ namespace smoc {
 
     size_t numAvailable() const
       { return this->availableCount(); }
-
-    this_type *dupPort(const char *name)
+  private:
+#ifdef SYSTEMOC_ENABLE_SGX
+    this_type *allocatePort(const char *name)
       { return new this_type(name); }
+#endif //SYSTEMOC_ENABLE_SGX
   };
 
 } // namespace smoc
