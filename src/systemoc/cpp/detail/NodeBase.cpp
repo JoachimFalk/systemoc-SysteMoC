@@ -71,9 +71,6 @@ NodeBase::NodeBase(sc_core::sc_module_name name, NodeType nodeType, smoc_state *
   , initialState(s)
   , currentState(nullptr)
   , ct(nullptr)
-#ifdef SYSTEMOC_ENABLE_VPC
-  , diiEvent(new smoc::smoc_vpc_event())
-#endif // SYSTEMOC_ENABLE_VPC
   , nodeType(nodeType)
   , executing(false)
   , useActivationCallback(true)

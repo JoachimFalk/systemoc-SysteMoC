@@ -41,10 +41,6 @@
 #include "SimCTXBase.hpp"
 #include "../smoc_event.hpp"
 
-#ifdef SYSTEMOC_ENABLE_VPC
-# include "VpcInterface.hpp"
-#endif //SYSTEMOC_ENABLE_VPC
-
 #include <systemoc/smoc_config.h>
 
 #include <systemc>
@@ -56,13 +52,6 @@ namespace smoc {
   class smoc_actor;
 
 } // namespace smoc
-
-//namespace smoc { namespace Expr {
-//
-//  template <class E> class Value;
-//
-//} } // namespace smoc::Expr
-
 
 namespace smoc { namespace Detail { namespace FSM {
 
@@ -91,10 +80,9 @@ class PortBase
   
   friend class NodeBase;
   friend class FSM::RuntimeFiringRule; // for blockEvent
-//template <class E> friend class Expr::Value;
 
-  template <class PORT, class IFACE> friend class PortInBaseIf::PortMixin;
-  template <class PORT, class IFACE> friend class PortOutBaseIf::PortMixin;
+//template <class PORT, class IFACE> friend class PortInBaseIf::PortMixin;
+//template <class PORT, class IFACE> friend class PortOutBaseIf::PortMixin;
 public:
   typedef std::vector<PortBaseIf *>       Interfaces;
   typedef std::vector<PortBaseIf const *> ConstInterfaces;
@@ -133,11 +121,15 @@ protected:
 #endif //SYSTEMOC_ENABLE_DATAFLOW_TRACE
   smoc_event_waiter &blockEvent(size_t n);
   size_t             availableCount() const;
-#ifdef SYSTEMOC_ENABLE_VPC
-  virtual void commExec(size_t n,  VpcInterface vpcIf);
-#else //!defined(SYSTEMOC_ENABLE_VPC)
-  virtual void commExec(size_t n);
-#endif //!defined(SYSTEMOC_ENABLE_VPC)
+
+  virtual void duplicateOutput(size_t n) = 0;
+
+#ifdef SYSTEMOC_ENABLE_ROUTING
+  void commStart(size_t n);
+  void commFinish(size_t n);
+#else //!SYSTEMOC_ENABLE_ROUTING
+  void commExec(size_t n);
+#endif //!SYSTEMOC_ENABLE_ROUTING
 #ifdef SYSTEMOC_ENABLE_DEBUG
   void setLimit(size_t req);
 #endif //SYSTEMOC_ENABLE_DEBUG

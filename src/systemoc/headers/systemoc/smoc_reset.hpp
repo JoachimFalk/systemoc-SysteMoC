@@ -154,13 +154,27 @@ public:
     : chan(chan)
   {}
   
-  /// @brief See PortInBaseIf
-  void commitRead(size_t n
-#ifdef SYSTEMOC_ENABLE_VPC
-      , smoc::smoc_vpc_event_p const &readConsumeEvent
-#endif //defined(SYSTEMOC_ENABLE_VPC)
-    )
-    { assert(0); }
+  /// @brief See PortBaseIf
+  void commStart(size_t consume) {
+    assert(!"WTF?! Must never be called!");
+  }
+  /// @brief See PortBaseIf
+  void commFinish(size_t consume, bool dropped = false) {
+    assert(!"WTF?! Must never be called!");
+  }
+
+  /// @brief See PortBaseIf
+  void commExec(size_t consume) {
+    assert(!"WTF?! Must never be called!");
+  }
+
+//  /// @brief See PortInBaseIf
+//  void commitRead(size_t n
+//#ifdef SYSTEMOC_ENABLE_VPC
+//      , smoc::smoc_vpc_event_p const &readConsumeEvent
+//#endif //defined(SYSTEMOC_ENABLE_VPC)
+//    )
+//    { assert(0); }
  
   /// @brief See PortInBaseIf
   smoc::smoc_event& dataAvailableEvent(size_t n) {
@@ -211,14 +225,30 @@ public:
     : chan(chan)
   {}
   
-  /// @brief See PortOutBaseIf
-  void commitWrite(size_t n
-#ifdef SYSTEMOC_ENABLE_VPC
-      , smoc::Detail::VpcInterface vpcIf
-#endif //defined(SYSTEMOC_ENABLE_VPC)
-    )
-    { assert(n == 1); chan.produce(this); }
+  /// @brief See PortBaseIf
+  void commStart(size_t produce) {
+    assert(produce == 1);
+  }
+  /// @brief See PortBaseIf
+  void commFinish(size_t produce, bool dropped = false) {
+    assert(produce == 1);
+    assert(!dropped);
+    chan.produce(this);
+  }
 
+  /// @brief See PortBaseIf
+  void commExec(size_t produce) {
+    commStart(produce);
+    commFinish(produce);
+  }
+
+//  /// @brief See PortOutBaseIf
+//  void commitWrite(size_t n
+//#ifdef SYSTEMOC_ENABLE_VPC
+//      , smoc::Detail::VpcInterface vpcIf
+//#endif //defined(SYSTEMOC_ENABLE_VPC)
+//    )
+//    { assert(n == 1); chan.produce(this); }
 
   /// @brief See PortOutBaseIf
   smoc::smoc_event &spaceAvailableEvent(size_t n) {

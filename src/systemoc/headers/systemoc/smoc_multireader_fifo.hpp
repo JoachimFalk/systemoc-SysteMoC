@@ -108,18 +108,19 @@ protected:
   void doReset();
 
   /// @brief Called by outlet if it did consume tokens
-#ifdef SYSTEMOC_ENABLE_VPC
-  void consume(smoc::Detail::PortInBaseIf *who, size_t n, smoc::smoc_vpc_event_p const &readConsumeEvent);
-#else
-  void consume(smoc::Detail::PortInBaseIf *who, size_t n);
-#endif
+//#ifdef SYSTEMOC_ENABLE_VPC
+//  void consume(smoc::Detail::PortInBaseIf *who, size_t n, smoc::smoc_vpc_event_p const &readConsumeEvent);
+//#else
+//  void consume(smoc::Detail::PortInBaseIf *who, size_t n);
+//#endif
+  void consume(size_t n);
   
   /// @brief Called by entry if it did produce tokens
-#ifdef SYSTEMOC_ENABLE_VPC
-  void produce(size_t n, smoc::Detail::VpcInterface vpcIf);
-#else
+//#ifdef SYSTEMOC_ENABLE_VPC
+//  void produce(size_t n, smoc::Detail::VpcInterface vpcIf);
+//#else
   void produce(size_t n);
-#endif
+//#endif
   
   /// @brief Calculate token id for next consumed token
   size_t inTokenId() const;
@@ -201,14 +202,31 @@ public:
     {}
 
 protected:
-  /// @brief See PortInBaseIf
-#ifdef SYSTEMOC_ENABLE_VPC
-  void commitRead(size_t n, smoc::smoc_vpc_event_p const &readConsumeEvent)
-    { chan.consume(this, n, readConsumeEvent); }
-#else
-  void commitRead(size_t n)
-    { chan.consume(this, n); }
-#endif
+
+  /// @brief See PortBaseIf
+  void commStart(size_t consume) {
+    chan.consume(consume);
+  }
+  /// @brief See PortBaseIf
+  void commFinish(size_t consume, bool dropped = false) {
+    assert(!dropped);
+    chan.readConsumeEventExpired(consume);
+  }
+
+  /// @brief See PortBaseIf
+  void commExec(size_t consume) {
+    commStart(consume);
+    commFinish(consume);
+  }
+
+//  /// @brief See PortInBaseIf
+//#ifdef SYSTEMOC_ENABLE_VPC
+//  void commitRead(size_t n, smoc::smoc_vpc_event_p const &readConsumeEvent)
+//    { chan.consume(this, n, readConsumeEvent); }
+//#else
+//  void commitRead(size_t n)
+//    { chan.consume(this, n); }
+//#endif
 
   /// @brief See PortInBaseIf
   smoc::smoc_event &dataAvailableEvent(size_t n)
@@ -265,14 +283,30 @@ public:
     {}
 
 protected:
-  /// @brief See PortOutBaseIf
-#ifdef SYSTEMOC_ENABLE_VPC
-  void commitWrite(size_t n, smoc::Detail::VpcInterface vpcIf)
-    { chan.produce(n, vpcIf); }
-#else
-  void commitWrite(size_t n)
-    { chan.produce(n); }
-#endif
+  /// @brief See PortBaseIf
+  void commStart(size_t produce) {
+    chan.produce(produce);
+  }
+  /// @brief See PortBaseIf
+  void commFinish(size_t produce, bool dropped = false) {
+    assert(!dropped);
+    chan.latencyExpired(produce);
+  }
+
+  /// @brief See PortBaseIf
+  void commExec(size_t produce) {
+    commStart(produce);
+    commFinish(produce);
+  }
+
+//  /// @brief See PortOutBaseIf
+//#ifdef SYSTEMOC_ENABLE_VPC
+//  void commitWrite(size_t n, smoc::Detail::VpcInterface vpcIf)
+//    { chan.produce(n, vpcIf); }
+//#else
+//  void commitWrite(size_t n)
+//    { chan.produce(n); }
+//#endif
 
   /// @brief See PortOutBaseIf
   smoc::smoc_event &spaceAvailableEvent(size_t n)

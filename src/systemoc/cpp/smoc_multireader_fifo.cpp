@@ -61,11 +61,12 @@ smoc_multireader_fifo_chan_base::smoc_multireader_fifo_chan_base(const chan_init
   tokenId(0)
 {}
 
-#ifdef SYSTEMOC_ENABLE_VPC
-void smoc_multireader_fifo_chan_base::consume(smoc::Detail::PortInBaseIf *who, size_t n, smoc::smoc_vpc_event_p const &readConsumeEvent)
-#else
-void smoc_multireader_fifo_chan_base::consume(smoc::Detail::PortInBaseIf *who, size_t n)
-#endif
+//#ifdef SYSTEMOC_ENABLE_VPC
+//void smoc_multireader_fifo_chan_base::consume(smoc::Detail::PortInBaseIf *who, size_t n, smoc::smoc_vpc_event_p const &readConsumeEvent)
+//#else
+//void smoc_multireader_fifo_chan_base::consume(smoc::Detail::PortInBaseIf *who, size_t n)
+//#endif
+void smoc_multireader_fifo_chan_base::consume(size_t n)
 {
 #ifdef SYSTEMOC_ENABLE_DEBUG
   if (smoc::Detail::outDbg.isVisible(smoc::Detail::Debug::Medium)) {
@@ -88,13 +89,13 @@ void smoc_multireader_fifo_chan_base::consume(smoc::Detail::PortInBaseIf *who, s
   //emmData.reset();
   //moreData(visibleCount());
   emmData.decreasedCountRenotify(visibleCount());
-#ifdef SYSTEMOC_ENABLE_VPC
-  // Delayed call of readConsumeEventExpired
-  readConsumeQueue.addEntry(n, readConsumeEvent);
-#else
-  // Immediate call of readConsumeEventExpired
-  readConsumeEventExpired(n);
-#endif
+//#ifdef SYSTEMOC_ENABLE_VPC
+//  // Delayed call of readConsumeEventExpired
+//  readConsumeQueue.addEntry(n, readConsumeEvent);
+//#else
+//  // Immediate call of readConsumeEventExpired
+//  readConsumeEventExpired(n);
+//#endif
 #ifdef SYSTEMOC_ENABLE_DEBUG
   if (smoc::Detail::outDbg.isVisible(smoc::Detail::Debug::Medium)) {
     smoc::Detail::outDbg << smoc::Detail::Indent::Down << "</smoc_multireader_fifo_chan_base::consume>" << std::endl;
@@ -102,11 +103,11 @@ void smoc_multireader_fifo_chan_base::consume(smoc::Detail::PortInBaseIf *who, s
 #endif // SYSTEMOC_ENABLE_DEBUG
 }
 
-#ifdef SYSTEMOC_ENABLE_VPC
-void smoc_multireader_fifo_chan_base::produce(size_t n, smoc::Detail::VpcInterface vpcIf)
-#else
+//#ifdef SYSTEMOC_ENABLE_VPC
+//void smoc_multireader_fifo_chan_base::produce(size_t n, smoc::Detail::VpcInterface vpcIf)
+//#else
 void smoc_multireader_fifo_chan_base::produce(size_t n)
-#endif
+//#endif
 {
 #ifdef SYSTEMOC_ENABLE_DEBUG
   if (smoc::Detail::outDbg.isVisible(smoc::Detail::Debug::Medium)) {
@@ -126,16 +127,16 @@ void smoc_multireader_fifo_chan_base::produce(size_t n)
   tokenId += n;
   wpp(n);
   lessSpace(n);
-#ifdef SYSTEMOC_ENABLE_VPC
-  if (vpcIf.isValid()) {
-    // Delayed call of latencyExpired
-    latencyQueue.addEntry(n, vpcIf.getTaskLatEvent(), vpcIf);
-  } else
-#endif //SYSTEMOC_ENABLE_VPC
-  {
-    // Immediate call of latencyExpired
-    latencyExpired(n);
-  }
+//#ifdef SYSTEMOC_ENABLE_VPC
+//  if (vpcIf.isValid()) {
+//    // Delayed call of latencyExpired
+//    latencyQueue.addEntry(n, vpcIf.getTaskLatEvent(), vpcIf);
+//  } else
+//#endif //SYSTEMOC_ENABLE_VPC
+//  {
+//    // Immediate call of latencyExpired
+//    latencyExpired(n);
+//  }
 #ifdef SYSTEMOC_ENABLE_DEBUG
   if (smoc::Detail::outDbg.isVisible(smoc::Detail::Debug::Medium)) {
     smoc::Detail::outDbg << smoc::Detail::Indent::Down << "</smoc_multireader_fifo_chan_base::produce>" << std::endl;

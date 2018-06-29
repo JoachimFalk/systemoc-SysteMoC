@@ -244,12 +244,6 @@ private:
   /// @brief current enabled firing transition
   FSM::RuntimeTransition       *ct;
 
-#ifdef SYSTEMOC_ENABLE_VPC
-  // vpc_event_xxx must be constructed before commState
-  /// @brief VPC data introduction interval event
-  smoc::smoc_vpc_event_p        diiEvent;
-#endif // SYSTEMOC_ENABLE_VPC
-
   /// @brief is this an actor, a graph, or something else.
   NodeType           nodeType;
   /// This should be true if an action of the actor is currently executing

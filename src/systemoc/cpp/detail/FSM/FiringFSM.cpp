@@ -131,18 +131,14 @@ FiringFSM::~FiringFSM() {
 
   delete top;
 
-  for(BaseStateImplSet::const_iterator s = states.begin();
-      s != states.end(); ++s)
-  {
-    assert((*s)->getFiringFSM() == this);
-    delete *s;
+  for(BaseStateImpl *s : states) {
+    assert(s->getFiringFSM() == this);
+    delete s;
   }
-
-  for(RuntimeStateSet::const_iterator s = rts.begin();
-      s != rts.end(); ++s)
-  {
-    delete *s;
-  }
+  for(RuntimeState *s : rts)
+    delete s;
+  for (RuntimeFiringRule *fr : firingRules)
+    delete fr;
 }
 
 FiringFSM::RuntimeStateSet const &FiringFSM::getStates() const
@@ -152,8 +148,9 @@ RuntimeState *FiringFSM::getInitialState() const
   { return init; }
 
 RuntimeFiringRule *FiringFSM::acquireFiringRule(smoc_firing_rule const &smocFiringRule) {
-  firingRules.push_front(RuntimeFiringRule(smocFiringRule.getGuard(), smocFiringRule.getAction()));
-  return &firingRules.front();
+  firingRules.push_front(new RuntimeFiringRule(
+      smocFiringRule.getGuard(), smocFiringRule.getAction()));
+  return firingRules.front();
 }
 
 #ifdef SYSTEMOC_ENABLE_HOOKING
@@ -387,17 +384,16 @@ void FiringFSM::end_of_elaboration(NodeBase *node, StateImpl *hsinit) {
             << "; #states: " << nRunStates << "; #trans: " << nRunTrans
             << std::endl;
 #endif // FSM_FINALIZE_BENCHMARK
-  for (RuntimeFiringRule &fr : firingRules) {
-    node->getScheduler()->registerFiringRule(node, &fr);
+  for (RuntimeFiringRule *fr : firingRules) {
+    node->getScheduler()->registerFiringRule(node, fr);
 #ifdef SYSTEMOC_ENABLE_VPC
     //calculate delay for guard
     //initialize VpcTaskInterface
-    fr.diiEvent = node->diiEvent;
-    fr.vpcTask =
+    fr->vpcTask =
       SystemC_VPC::Director::getInstance().registerActor(node,
-          node->name(), fr.getActionNames(), fr.getGuardNames(), fr.getGuardComplexity());
+          node->name(), fr->getActionNames(), fr->getGuardNames(), fr->getGuardComplexity());
 # ifdef SYSTEMOC_DEBUG_VPC_IF
-    fr.actor = node->name();
+    fr->actor = node->name();
 # endif // SYSTEMOC_DEBUG_VPC_IF
 #endif //SYSTEMOC_ENABLE_VPC
   }

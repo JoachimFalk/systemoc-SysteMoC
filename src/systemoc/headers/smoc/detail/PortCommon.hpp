@@ -55,7 +55,6 @@ namespace smoc { namespace Detail {
 #if defined(SYSTEMOC_ENABLE_MAESTRO) && defined(MAESTRO_ENABLE_BRUCKNER)
     , public Bruckner::Model::Port
 #endif //defined(SYSTEMOC_ENABLE_MAESTRO) && defined(MAESTRO_ENABLE_BRUCKNER)
-    , public IFACE::template PortMixin<PortCommon<IFACE>,IFACE>
   {
     typedef PortCommon<IFACE>  this_type;
     typedef PortBase           base_type;
@@ -64,8 +63,6 @@ namespace smoc { namespace Detail {
     typedef typename iface_type::access_type  access_type;
     typedef typename iface_type::data_type    data_type;
     typedef typename access_type::return_type return_type;
-
-    using IFACE::template PortMixin<PortCommon<IFACE>,IFACE>::operator ();
 
     void operator () (iface_type &interface_)
       { base_type::bind(interface_); }
@@ -79,31 +76,6 @@ namespace smoc { namespace Detail {
       this->instanceName = name_;
 #endif //defined(SYSTEMOC_ENABLE_MAESTRO) && defined(MAESTRO_ENABLE_BRUCKNER)
     }
-
-    virtual void end_of_elaboration() {
-      base_type::end_of_elaboration();
-      IFACE::template PortMixin<PortCommon<IFACE>,IFACE>::end_of_elaboration();
-    }
-
-  // FIXME: If we need this again, we have to rework this to support multiple interfaces.
-  //        We would need to return a proxy class that calls the interface method on all the
-  //        interfaces of this port!
-  //iface_type       *operator -> () {
-  //  smoc::Detail::PortBaseIf *iface = this->get_interface();
-  //  if (iface == nullptr)
-  //    this->report_error(SC_ID_GET_IF_, "port is not bound");
-  //  return static_cast<iface_type *>(iface);
-  //}
-
-  // FIXME: If we need this again, we have to rework this to support multiple interfaces.
-  //        We would need to return a proxy class that calls the interface method on all the
-  //        interfaces of this port!
-  //iface_type const *operator -> () const {
-  //  const smoc::Detail::PortBaseIf *iface = this->get_interface();
-  //  if (iface == nullptr)
-  //    this->report_error(SC_ID_GET_IF_, "port is not bound");
-  //  return static_cast<iface_type const *>(iface);
-  //}
   private:
     const char *if_typename() const
       { return typeid(iface_type).name(); }

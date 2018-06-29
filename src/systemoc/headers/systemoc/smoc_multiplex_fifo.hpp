@@ -244,24 +244,24 @@ protected:
     smoc::Detail::ChanBase::doReset();
   }
 
-#ifdef SYSTEMOC_ENABLE_VPC
-  void commitWrite(size_t n, smoc::Detail::VpcInterface vpcIf)
-#else
-  void commitWrite(size_t n)
-#endif
-  {
-    this->wpp(n);
-    this->emmFree.decreasedCount(this->freeCount());
-#ifdef SYSTEMOC_ENABLE_VPC
-    if (vpcIf.isValid()) {
-      // Delayed call of latencyExpired(n);
-      latencyQueue.addEntry(n, vpcIf.getTaskLatEvent(), vpcIf);
-    } else
-#endif //defined(SYSTEMOC_ENABLE_VPC)
-    {
-      latencyExpired(n);
-    }
-  }
+//#ifdef SYSTEMOC_ENABLE_VPC
+//  void commitWrite(size_t n, smoc::Detail::VpcInterface vpcIf)
+//#else
+//  void commitWrite(size_t n)
+//#endif
+//  {
+//    this->wpp(n);
+//    this->emmFree.decreasedCount(this->freeCount());
+//#ifdef SYSTEMOC_ENABLE_VPC
+//    if (vpcIf.isValid()) {
+//      // Delayed call of latencyExpired(n);
+//      latencyQueue.addEntry(n, vpcIf.getTaskLatEvent(), vpcIf);
+//    } else
+//#endif //defined(SYSTEMOC_ENABLE_VPC)
+//    {
+//      latencyExpired(n);
+//    }
+//  }
 
   void latencyExpired(size_t n) {
   //std::cerr << "smoc_multiplex_fifo_chan_base::latencyExpired(" << n << ") [BEGIN]" << std::endl;
@@ -343,11 +343,11 @@ protected:
   //std::cerr << "visibleCount(): " << visibleCount() << std::endl;
   }
 
-#ifdef SYSTEMOC_ENABLE_VPC
-  void consume(FifoId from, size_t n, smoc::smoc_vpc_event_p const &readConsumeEvent)
-#else
+//#ifdef SYSTEMOC_ENABLE_VPC
+//  void consume(FifoId from, size_t n, smoc::smoc_vpc_event_p const &readConsumeEvent)
+//#else
   void consume(FifoId from, size_t n)
-#endif
+//#endif
   {
   //std::cerr << "smoc_multiplex_fifo_chan_base::consume(" << from << ", " << n << ") [BEGIN]" << std::endl;
   //std::cerr << "fifoOutOfOrder == " << fifoOutOfOrder << std::endl;
@@ -405,12 +405,14 @@ protected:
       }
     }
     
-    //
-#ifdef SYSTEMOC_ENABLE_VPC
-    this->commitRead(n, readConsumeEvent);
-#else //!defined(SYSTEMOC_ENABLE_VPC)
-    this->commitRead(n);
-#endif //!defined(SYSTEMOC_ENABLE_VPC)
+    this->rpp(n);
+    this->emmAvailable.decreasedCount(this->visibleCount());
+//    //
+//#ifdef SYSTEMOC_ENABLE_VPC
+//    this->commitRead(n, readConsumeEvent);
+//#else //!defined(SYSTEMOC_ENABLE_VPC)
+//    this->commitRead(n);
+//#endif //!defined(SYSTEMOC_ENABLE_VPC)
     
     /*
      * Example: Nothing todo
@@ -477,21 +479,21 @@ protected:
   //std::cerr << "visibleCount(): " << visibleCount() << std::endl;
   }
 
-#ifdef SYSTEMOC_ENABLE_VPC
-  void commitRead(size_t n, smoc::smoc_vpc_event_p const &readConsumeEvent)
-#else
-  void commitRead(size_t n)
-#endif
-  {
-    this->rpp(n);
-    this->emmAvailable.decreasedCount(this->visibleCount());
-#ifdef SYSTEMOC_ENABLE_VPC
-    // Delayed call of readConsumeEventExpired(n);
-    readConsumeQueue.addEntry(n, readConsumeEvent);
-#else //!defined(SYSTEMOC_ENABLE_VPC)
-    readConsumeEventExpired(n);
-#endif //!defined(SYSTEMOC_ENABLE_VPC)
-  }
+//#ifdef SYSTEMOC_ENABLE_VPC
+//  void commitRead(size_t n, smoc::smoc_vpc_event_p const &readConsumeEvent)
+//#else
+//  void commitRead(size_t n)
+//#endif
+//  {
+//    this->rpp(n);
+//    this->emmAvailable.decreasedCount(this->visibleCount());
+//#ifdef SYSTEMOC_ENABLE_VPC
+//    // Delayed call of readConsumeEventExpired(n);
+//    readConsumeQueue.addEntry(n, readConsumeEvent);
+//#else //!defined(SYSTEMOC_ENABLE_VPC)
+//    readConsumeEventExpired(n);
+//#endif //!defined(SYSTEMOC_ENABLE_VPC)
+//  }
 
   void readConsumeEventExpired(size_t n) {
   //std::cerr << "smoc_multiplex_fifo_chan_base::readConsumeEventExpired(" << n << ") [BEGIN]" << std::endl;
@@ -532,14 +534,31 @@ public:
   smoc_multiplex_fifo_entry(smoc_multiplex_fifo_chan<T,A> &chan)
     : chan(chan) {}
 protected:
-  /// @brief See PortOutBaseIf
-#ifdef SYSTEMOC_ENABLE_VPC
-  void commitWrite(size_t n, smoc::Detail::VpcInterface vpcIf)
-    { chan.commitWrite(n, vpcIf); }
-#else
-  void commitWrite(size_t n)
-    { chan.commitWrite(n); }
-#endif
+  /// @brief See PortBaseIf
+  void commStart(size_t produce) {
+    chan.wpp(produce);
+    chan.emmFree.decreasedCount(chan.freeCount());
+  }
+  /// @brief See PortBaseIf
+  void commFinish(size_t produce, bool dropped = false) {
+    assert(!dropped);
+    chan.latencyExpired(produce);
+  }
+
+  /// @brief See PortBaseIf
+  void commExec(size_t produce) {
+    commStart(produce);
+    commFinish(produce);
+  }
+
+//  /// @brief See PortOutBaseIf
+//#ifdef SYSTEMOC_ENABLE_VPC
+//  void commitWrite(size_t n, smoc::Detail::VpcInterface vpcIf)
+//    { chan.commitWrite(n, vpcIf); }
+//#else
+//  void commitWrite(size_t n)
+//    { chan.commitWrite(n); }
+//#endif
 
   /// @brief See PortOutBaseIf
   smoc::smoc_event &spaceAvailableEvent(size_t n)
@@ -575,14 +594,32 @@ public:
   smoc_multiplex_fifo_outlet(smoc_multiplex_fifo_chan<T,A> &chan)
     : chan(chan) {}
 protected:
-  /// @brief See PortInBaseIf
-#ifdef SYSTEMOC_ENABLE_VPC
-  void commitRead(size_t n, smoc::smoc_vpc_event_p const &readConsumeEvent)
-    { chan.commitRead(n, readConsumeEvent); }
-#else
-  void commitRead(size_t n)
-    { chan.commitRead(n); }
-#endif
+
+  /// @brief See PortBaseIf
+  void commStart(size_t consume) {
+    chan.rpp(consume);
+    chan.emmAvailable.decreasedCount(chan.visibleCount());
+  }
+  /// @brief See PortBaseIf
+  void commFinish(size_t consume, bool dropped = false) {
+    assert(!dropped);
+    chan.readConsumeEventExpired(consume);
+  }
+
+  /// @brief See PortBaseIf
+  void commExec(size_t consume) {
+    commStart(consume);
+    commFinish(consume);
+  }
+
+//  /// @brief See PortInBaseIf
+//#ifdef SYSTEMOC_ENABLE_VPC
+//  void commitRead(size_t n, smoc::smoc_vpc_event_p const &readConsumeEvent)
+//    { chan.commitRead(n, readConsumeEvent); }
+//#else
+//  void commitRead(size_t n)
+//    { chan.commitRead(n); }
+//#endif
 
   /// @brief See PortInBaseIf
   smoc::smoc_event &dataAvailableEvent(size_t n)
@@ -690,22 +727,42 @@ public:
     chan->deregisterVOutlet(fifoId);
   }
 protected:
-  /// @brief See PortInBaseIf
-#ifdef SYSTEMOC_ENABLE_VPC
-  void commitRead(size_t n, smoc::smoc_vpc_event_p const &readConsumeEvent)
-#else
-  void commitRead(size_t n)
-#endif
-  {
-    assert(countAvailable >= n);
-    countAvailable -= n;
+
+  /// @brief See PortBaseIf
+  void commStart(size_t consume) {
+    assert(countAvailable >= consume);
+    countAvailable -= consume;
     emmAvailable.decreasedCount(countAvailable);
-#ifdef SYSTEMOC_ENABLE_VPC
-    chan->consume(fifoId, n, readConsumeEvent);
-#else
-    chan->consume(fifoId, n);
-#endif
+    chan->consume(fifoId, consume);
   }
+  /// @brief See PortBaseIf
+  void commFinish(size_t consume, bool dropped = false) {
+    assert(!dropped);
+    chan->readConsumeEventExpired(consume);
+  }
+
+  /// @brief See PortBaseIf
+  void commExec(size_t consume) {
+    commStart(consume);
+    commFinish(consume);
+  }
+
+//  /// @brief See PortInBaseIf
+//#ifdef SYSTEMOC_ENABLE_VPC
+//  void commitRead(size_t n, smoc::smoc_vpc_event_p const &readConsumeEvent)
+//#else
+//  void commitRead(size_t n)
+//#endif
+//  {
+//    assert(countAvailable >= n);
+//    countAvailable -= n;
+//    emmAvailable.decreasedCount(countAvailable);
+//#ifdef SYSTEMOC_ENABLE_VPC
+//    chan->consume(fifoId, n, readConsumeEvent);
+//#else
+//    chan->consume(fifoId, n);
+//#endif
+//  }
 
   /// @brief See PortInBaseIf
   smoc::smoc_event &dataAvailableEvent(size_t n)
@@ -817,29 +874,56 @@ public:
     chan->deregisterVEntry(fifoId);
   }
 protected:
-  /// @brief See PortOutBaseIf
-#ifdef SYSTEMOC_ENABLE_VPC
-  void commitWrite(size_t n, smoc::Detail::VpcInterface vpcIf)
-#else
-  void commitWrite(size_t n)
-#endif
-  {
+
+  /// @brief See PortBaseIf
+  void commStart(size_t produce) {
     size_t windex = chan->wIndex();
     size_t fsize  = chan->qfSize();//RRR
-    
-    for (size_t i = 0; i < n; ++i) {
+
+    for (size_t i = 0; i < produce; ++i) {
       A::put(chan->storage[windex].get(), fifoId);
       if (++windex >= fsize)
         windex -= fsize;
     }
-    
-    // This will do a callback to latencyExpired(produce) at the appropriate time
-#ifdef SYSTEMOC_ENABLE_VPC
-    chan->commitWrite(n, vpcIf); 
-#else
-    chan->commitWrite(n); 
-#endif
+
+    chan->wpp(produce);
+    chan->emmFree.decreasedCount(chan->freeCount());
   }
+  /// @brief See PortBaseIf
+  void commFinish(size_t produce, bool dropped = false) {
+    assert(!dropped);
+    chan->latencyExpired(produce);
+  }
+
+  /// @brief See PortBaseIf
+  void commExec(size_t consume) {
+    commStart(consume);
+    commFinish(consume);
+  }
+
+//  /// @brief See PortOutBaseIf
+//#ifdef SYSTEMOC_ENABLE_VPC
+//  void commitWrite(size_t n, smoc::Detail::VpcInterface vpcIf)
+//#else
+//  void commitWrite(size_t n)
+//#endif
+//  {
+//    size_t windex = chan->wIndex();
+//    size_t fsize  = chan->qfSize();//RRR
+//
+//    for (size_t i = 0; i < n; ++i) {
+//      A::put(chan->storage[windex].get(), fifoId);
+//      if (++windex >= fsize)
+//        windex -= fsize;
+//    }
+//
+//    // This will do a callback to latencyExpired(produce) at the appropriate time
+//#ifdef SYSTEMOC_ENABLE_VPC
+//    chan->commitWrite(n, vpcIf);
+//#else
+//    chan->commitWrite(n);
+//#endif
+//  }
 
   /// @brief See PortOutBaseIf
   smoc::smoc_event &spaceAvailableEvent(size_t n)
