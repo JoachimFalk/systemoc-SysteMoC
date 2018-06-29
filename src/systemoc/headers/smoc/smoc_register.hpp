@@ -84,13 +84,13 @@ class smoc_register_outlet_base {
 protected:
   smoc_register_outlet_base(smoc_register_chan_base *chan);
 
-#ifdef SYSTEMOC_ENABLE_VPC
-  /// @brief See PortInBaseIf
-  void commitRead(size_t consume, smoc::smoc_vpc_event_p const &readConsumeEvent);
-#else
-  /// @brief See PortInBaseIf
-  void commitRead(size_t consume);
-#endif
+//#ifdef SYSTEMOC_ENABLE_VPC
+//  /// @brief See PortInBaseIf
+//  void commitRead(size_t consume, smoc::smoc_vpc_event_p const &readConsumeEvent);
+//#else
+//  /// @brief See PortInBaseIf
+//  void commitRead(size_t consume);
+//#endif
 
   smoc_register_chan_base *chan;
   smoc_event               trueEvent;
@@ -114,16 +114,7 @@ public:
   smoc_register_outlet(smoc_register_chan<T> *chan)
     : smoc_register_outlet_base(chan) {}
 
-  // Interface independent of T but needed here in order to override pure virtual methods.
-#ifdef SYSTEMOC_ENABLE_VPC
-  /// @brief See PortInBaseIf
-  void commitRead(size_t consume, smoc::smoc_vpc_event_p const &readConsumeEvent)
-    { smoc_register_outlet_base::commitRead(consume, readConsumeEvent); }
-#else
-  /// @brief See PortInBaseIf
-  void commitRead(size_t consume)
-    { smoc_register_outlet_base::commitRead(consume); }
-#endif
+  // Interfaces independent of T.
 
   /// @brief See PortInBaseIf
   std::string getChannelName() const
@@ -132,6 +123,48 @@ public:
   /// @brief See PortInBaseIf
   size_t numAvailable() const
     { return 1; }
+
+  // Interfaces depending on T.
+
+  /// @brief See smoc_1d_port_access_if
+  return_type operator[](size_t n)
+    { assert(n == 0); return static_cast<smoc_register_chan<T> *>(chan)->actualValue; }
+
+  /// @brief See smoc_1d_port_access_if
+  const return_type operator[](size_t n) const
+    { assert(n == 0); return static_cast<smoc_register_chan<T> *>(chan)->actualValue; }
+
+protected:
+  /// @brief See smoc_port_in_if
+  ring_in_type *getReadPortAccess()
+    { return this; }
+
+  // Interfaces independent of T.
+
+  /// @brief See PortBaseIf
+  void commStart(size_t consume) {
+  }
+  /// @brief See PortBaseIf
+  void commFinish(size_t consume, bool dropped = false) {
+    assert(!dropped);
+  }
+
+  /// @brief See PortBaseIf
+  void commExec(size_t consume) {
+    commStart(consume);
+    commFinish(consume);
+  }
+
+//  // Interface independent of T but needed here in order to override pure virtual methods.
+//#ifdef SYSTEMOC_ENABLE_VPC
+//  /// @brief See PortInBaseIf
+//  void commitRead(size_t consume, smoc::smoc_vpc_event_p const &readConsumeEvent)
+//    { smoc_register_outlet_base::commitRead(consume, readConsumeEvent); }
+//#else
+//  /// @brief See PortInBaseIf
+//  void commitRead(size_t consume)
+//    { smoc_register_outlet_base::commitRead(consume); }
+//#endif
 
   /// @brief See PortInBaseIf
   smoc::smoc_event &dataAvailableEvent(size_t n) {
@@ -156,32 +189,19 @@ public:
   /// @brief See smoc_1d_port_access_if
   void setLimit(size_t l) {}
 
-  // Interfaces depending on T.
-
-  /// @brief See smoc_port_in_if
-  ring_in_type *getReadPortAccess()
-    { return this; }
-
-  /// @brief See smoc_1d_port_access_if
-  return_type operator[](size_t n)
-    { assert(n == 0); return static_cast<smoc_register_chan<T> *>(chan)->actualValue; }
-
-  /// @brief See smoc_1d_port_access_if
-  const return_type operator[](size_t n) const
-    { assert(n == 0); return static_cast<smoc_register_chan<T> *>(chan)->actualValue; }
 };
 
 class smoc_register_entry_base {
 protected:
   smoc_register_entry_base(smoc_register_chan_base *chan);
 
-#ifdef SYSTEMOC_ENABLE_VPC
-  /// @brief See PortOutBaseIf
-  void commitWrite(size_t produce, smoc::Detail::VpcInterface vpcIf);
-#else
-  /// @brief See PortOutBaseIf
-  void commitWrite(size_t produce);
-#endif
+//#ifdef SYSTEMOC_ENABLE_VPC
+//  /// @brief See PortOutBaseIf
+//  void commitWrite(size_t produce, smoc::Detail::VpcInterface vpcIf);
+//#else
+//  /// @brief See PortOutBaseIf
+//  void commitWrite(size_t produce);
+//#endif
 
   smoc_register_chan_base *chan;
   smoc_event               trueEvent;
@@ -205,31 +225,62 @@ public:
   smoc_register_entry(smoc_register_chan<T> *chan)
     : smoc_register_entry_base(chan) {}
 
-  // Interface independent of T but needed here in order to override pure virtual methods.
-
-#ifdef SYSTEMOC_ENABLE_VPC
-  /// @brief See PortOutBaseIf
-  void commitWrite(size_t produce, smoc::Detail::VpcInterface vpcIf)
-    { smoc_register_entry_base::commitWrite(produce, vpcIf); }
-#else
-  /// @brief See PortOutBaseIf
-  void commitWrite(size_t produce)
-    { smoc_register_entry_base::commitWrite(produce); }
-#endif
+  // Interfaces independent of T.
 
   /// @brief See PortOutBaseIf
   std::string getChannelName() const
     { return chan->name();}
 
   /// @brief See PortOutBaseIf
+  size_t numFree() const
+    { return 1; }
+
+  // Interfaces depending on T.
+
+  /// @brief See smoc_1d_port_access_if
+  return_type operator[](size_t n)
+    { assert(n == 0); return static_cast<smoc_register_chan<T> *>(chan)->actualValue; }
+
+  /// @brief See smoc_1d_port_access_if
+  const return_type operator[](size_t n) const
+    { assert(n == 0); return static_cast<smoc_register_chan<T> *>(chan)->actualValue; }
+protected:
+
+  /// @brief See smoc_port_out_if
+  ring_out_type *getWritePortAccess()
+    { return this; }
+
+  // Interfaces independent of T.
+
+  /// @brief See PortBaseIf
+  void commStart(size_t produce) {
+  }
+  /// @brief See PortBaseIf
+  void commFinish(size_t produce, bool dropped = false) {
+    assert(!dropped);
+  }
+
+  /// @brief See PortBaseIf
+  void commExec(size_t produce) {
+    commStart(produce);
+    commFinish(produce);
+  }
+
+//#ifdef SYSTEMOC_ENABLE_VPC
+//  /// @brief See PortOutBaseIf
+//  void commitWrite(size_t produce, smoc::Detail::VpcInterface vpcIf)
+//    { smoc_register_entry_base::commitWrite(produce, vpcIf); }
+//#else
+//  /// @brief See PortOutBaseIf
+//  void commitWrite(size_t produce)
+//    { smoc_register_entry_base::commitWrite(produce); }
+//#endif
+
+  /// @brief See PortOutBaseIf
   smoc::smoc_event &spaceAvailableEvent(size_t n) {
     assert(n <= 1);
     return trueEvent;
   }
-
-  /// @brief See PortOutBaseIf
-  size_t numFree() const
-    { return 1; }
 
 ///// @brief See PortOutBaseIf
 //size_t outTokenId() const
@@ -249,18 +300,6 @@ public:
   void setLimit(size_t l) {}
 
   // Interfaces depending on T.
-
-  /// @brief See smoc_port_out_if
-  ring_out_type *getWritePortAccess()
-    { return this; }
-
-  /// @brief See smoc_1d_port_access_if
-  return_type operator[](size_t n)
-    { assert(n == 0); return static_cast<smoc_register_chan<T> *>(chan)->actualValue; }
-
-  /// @brief See smoc_1d_port_access_if
-  const return_type operator[](size_t n) const
-    { assert(n == 0); return static_cast<smoc_register_chan<T> *>(chan)->actualValue; }
 };
 
 template <typename T>

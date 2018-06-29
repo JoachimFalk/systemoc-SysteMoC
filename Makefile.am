@@ -99,6 +99,7 @@ libsystemoc_la_SOURCES = \
 	src/systemoc/cpp/smoc_multireader_fifo.cpp \
 	src/systemoc/cpp/smoc_multi_state.cpp \
 	src/systemoc/cpp/smoc_periodic_actor.cpp \
+	src/systemoc/cpp/smoc_port_out.cpp \
 	src/systemoc/cpp/smoc_register.cpp \
 	src/systemoc/cpp/smoc_reset.cpp \
 	src/systemoc/cpp/smoc_scheduler_top.cpp \

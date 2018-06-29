@@ -33,75 +33,11 @@
  * ENHANCEMENTS, OR MODIFICATIONS.
  */
 
-#ifndef _INCLUDED_SMOC_DETAIL_PORTBASEIF_HPP
-#define _INCLUDED_SMOC_DETAIL_PORTBASEIF_HPP
+#include <smoc/smoc_port_out.hpp>
 
-#include "SimCTXBase.hpp"
-#include "../smoc_event.hpp"
+namespace smoc {
 
-#include <systemoc/smoc_config.h>
-
-#ifdef SYSTEMOC_ENABLE_VPC
-#include "VpcInterface.hpp"
-#endif // SYSTEMOC_ENABLE_VPC
-
-#include <systemc>
-
-#include <boost/noncopyable.hpp>
-
-namespace smoc { namespace Detail { namespace FSM {
-
-  class RuntimeFiringRule;
-
-} } } // namespace smoc::Detail::FSM
-
-namespace smoc { namespace Detail {
-
-class PortBase;
-
-class PortBaseIf
-: public virtual sc_core::sc_interface
-  , public SimCTXBase
-#ifdef SYSTEMOC_ENABLE_VPC
-  , public VpcPortInterface
-#endif //SYSTEMOC_ENABLE_VPC
-  , private boost::noncopyable
-{
-  friend class PortBase;
-  friend class FSM::RuntimeFiringRule;
-public:
-  // FIXME: Why not merge this with PortBaseIf?!
-  class access_type {
-  public:
-    typedef void return_type;
-
-  #if defined(SYSTEMOC_ENABLE_DEBUG)
-    virtual void setLimit(size_t) = 0;
-  #endif
-    virtual bool tokenIsValid(size_t) const = 0;
-
-    virtual ~access_type() {}
-  };
-protected:
-#ifdef SYSTEMOC_ENABLE_DATAFLOW_TRACE
-  virtual void         traceCommSetup(size_t req) {}
-#endif //SYSTEMOC_ENABLE_DATAFLOW_TRACE
-  virtual smoc_event  &blockEvent(size_t n) = 0;
-  virtual size_t       availableCount() const = 0;
-
-#ifdef SYSTEMOC_ENABLE_ROUTING
-  virtual void commStart(size_t n) = 0;
-  virtual void commFinish(size_t n, bool dropped = false) = 0;
-  virtual void commExec(size_t n) {
-    commStart(n); commFinish(n);
-  }
-#else //!SYSTEMOC_ENABLE_ROUTING
-  virtual void commExec(size_t n) = 0;
-#endif //!SYSTEMOC_ENABLE_ROUTING
-
-  virtual access_type *getChannelAccess() = 0;
-};
-
-} } // namespace smoc::Detail
-
-#endif /* _INCLUDED_SMOC_DETAIL_PORTBASEIF_HPP */
+  template <>
+  void smoc_port_out<void>::duplicateOutput(size_t n) {}
+  
+} // namespace smoc

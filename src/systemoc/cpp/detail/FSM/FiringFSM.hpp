@@ -39,18 +39,23 @@
 #include <smoc/detail/NodeBase.hpp>
 #include <smoc/detail/SimCTXBase.hpp>
 
-#include <stdexcept>
-#include <set>
-
 #include "BaseStateImpl.hpp"
 #include "RuntimeTransitionHook.hpp"
 #include "RuntimeFiringRule.hpp"
+
+#include <boost/noncopyable.hpp>
+
+#include <stdexcept>
+#include <set>
 
 namespace smoc { namespace Detail { namespace FSM {
 
 class XORStateImpl;
 
-class FiringFSM: public SimCTXBase {
+class FiringFSM
+  : public SimCTXBase
+  , private boost::noncopyable
+{
   typedef FiringFSM this_type;
   // ugh
   friend class StateImpl; // for top access?!
@@ -112,8 +117,8 @@ public:
   RuntimeFiringRule     *acquireFiringRule(smoc_firing_rule const &smocFiringRule);
 
 private:
-  typedef std::set<BaseStateImpl *>    BaseStateImplSet;
-  typedef std::list<RuntimeFiringRule> RuntimeFiringRuleList;
+  typedef std::set<BaseStateImpl *>      BaseStateImplSet;
+  typedef std::list<RuntimeFiringRule *> RuntimeFiringRuleList;
 
 #ifdef SYSTEMOC_ENABLE_HOOKING
   RuntimeTransitionHooks transitionHooks;

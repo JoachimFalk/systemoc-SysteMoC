@@ -51,13 +51,42 @@ namespace smoc {
   {
     typedef smoc_port_in<T>                         this_type;
     typedef Detail::PortCommon<smoc_port_in_if<T> > base_type;
+
+    typedef Expr::D<Expr::DComm<Detail::PortBase> > IOGuard;
   public:
     smoc_port_in()
-      : base_type(sc_core::sc_gen_unique_name("i", false), sc_core::SC_ONE_OR_MORE_BOUND)
+      : base_type(sc_core::sc_gen_unique_name("i", false),
+          sc_core::SC_ONE_OR_MORE_BOUND)
+      , portAccess(nullptr)
     {}
     smoc_port_in(sc_core::sc_module_name name)
-      : base_type(name, sc_core::SC_ONE_OR_MORE_BOUND)
+      : base_type(name,
+          sc_core::SC_ONE_OR_MORE_BOUND)
+      , portAccess(nullptr)
     {}
+
+    using base_type::operator ();
+
+    // operator(n,m) n: How many tokens to consume, m: How many tokens must be available
+    IOGuard operator ()(size_t n, size_t m) {
+      assert(m >= n);
+      return IOGuard(*this, n, m);
+    }
+    // operator(n) n: How many tokens must be available and are consumed on firing.
+    IOGuard operator ()(size_t n) {
+      return IOGuard(*this, n, n);
+    }
+
+    // Provide [] access operator for port.
+    typename this_type::return_type operator[](size_t n) const {
+      return (*portAccess)[n];
+    }
+
+    // Provide getValueAt method for port. The methods returms an expression
+    // corresponding to the token value in the fifo at offset n for usage in
+    // transition guards
+    typename Expr::Token<this_type>::type getValueAt(size_t n)
+      { return Expr::token<this_type>(*this,n); }
 
     bool isInput() const { return true; }
 
@@ -66,7 +95,20 @@ namespace smoc {
 
     size_t numAvailable() const
       { return this->availableCount(); }
+  protected:
+    void end_of_elaboration() {
+      // This will populate the portAccesses list.
+      base_type::end_of_elaboration();
+      // This is an input port. Thus, we must have exactly one channel bound.
+      assert(this->portAccesses.size() == 1);
+      portAccess = static_cast<typename this_type::access_type *>(
+          this->portAccesses.front());
+    }
   private:
+    typename this_type::access_type *portAccess;
+
+    void duplicateOutput(size_t n) {}
+
 #ifdef SYSTEMOC_ENABLE_SGX
     this_type *allocatePort(const char *name)
       { return new this_type(name); }

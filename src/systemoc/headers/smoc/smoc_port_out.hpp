@@ -51,12 +51,18 @@ namespace smoc {
   {
     typedef smoc_port_out<T>                         this_type;
     typedef Detail::PortCommon<smoc_port_out_if<T> > base_type;
+
+    typedef Expr::D<Expr::DComm<Detail::PortBase> >  IOGuard;
   public:
     smoc_port_out()
-      : base_type(sc_core::sc_gen_unique_name("o", false), sc_core::SC_ONE_OR_MORE_BOUND)
+      : base_type(sc_core::sc_gen_unique_name("o", false),
+          sc_core::SC_ONE_OR_MORE_BOUND)
+      , portAccess(nullptr)
     {}
     smoc_port_out(sc_core::sc_module_name name)
-      : base_type(name, sc_core::SC_ONE_OR_MORE_BOUND)
+      : base_type(name,
+          sc_core::SC_ONE_OR_MORE_BOUND)
+      , portAccess(nullptr)
     {}
 
     bool isInput() const { return false; }
@@ -66,61 +72,59 @@ namespace smoc {
 
     size_t numFree() const
       { return this->availableCount(); }
+
+    using base_type::operator ();
+
+    // operator(n,m) n: How many tokens to produce, m: How much space must be available
+    IOGuard operator ()(size_t n, size_t m) {
+      assert(m >= n);
+      return IOGuard(*this, n, m);
+    }
+    // operator(n) n: How much space (in tokens) is available and tokens are produced on firing
+    IOGuard operator ()(size_t n) {
+      return IOGuard(*this, n, n);
+    }
+
+    // Provide [] access operator for port.
+    typename this_type::return_type operator[](size_t n) const {
+      return (*portAccess)[n];
+    }
   protected:
-  #ifdef SYSTEMOC_ENABLE_VPC
-    void commExec(size_t n,  smoc::Detail::VpcInterface vpcIf)
-  #else //!defined(SYSTEMOC_ENABLE_VPC)
-    void commExec(size_t n)
-  #endif //!defined(SYSTEMOC_ENABLE_VPC)
-    {
-      for (typename base_type::PortAccesses::iterator iter = ++this->portAccesses.begin();
-           iter != this->portAccesses.end();
-           ++iter) {
-        typename this_type::access_type &access =
-            *static_cast<typename this_type::access_type *>(*iter);
-        for (size_t i = 0; i < n; ++i)
-          access[i] = (*this->portAccess)[i];
-      }
-  #ifdef SYSTEMOC_ENABLE_VPC
-      base_type::commExec(n, vpcIf);
-  #else //!defined(SYSTEMOC_ENABLE_VPC)
-      base_type::commExec(n);
-  #endif //!defined(SYSTEMOC_ENABLE_VPC)
+    void end_of_elaboration() {
+      // This will populate the portAccesses list.
+      base_type::end_of_elaboration();
+      // This is an output port. Thus, we must have at least one channel bound.
+      assert(this->portAccesses.size() >= 1);
+      // There is code in duplicateOutput which copies over the new data from the
+      // first connected channel, i.e., portAccess, to the other ones if present.
+      portAccess = static_cast<typename this_type::access_type *>(
+          this->portAccesses.front());
     }
   private:
+    typename this_type::access_type *portAccess;
+
+    void duplicateOutput(size_t n);
+
 #ifdef SYSTEMOC_ENABLE_SGX
     this_type *allocatePort(const char *name)
       { return new this_type(name); }
 #endif //SYSTEMOC_ENABLE_SGX
   };
+
+  template <typename T>
+  void smoc_port_out<T>::duplicateOutput(size_t n) {
+    for (typename base_type::PortAccesses::iterator iter = ++this->portAccesses.begin();
+         iter != this->portAccesses.end();
+         ++iter) {
+      typename this_type::access_type &access =
+          *static_cast<typename this_type::access_type *>(*iter);
+      for (size_t i = 0; i < n; ++i)
+        access[i] = (*this->portAccess)[i];
+    }
+  }
 
   template <>
-  class smoc_port_out<void>
-  : public Detail::PortCommon<smoc_port_out_if<void> >
-  {
-    typedef smoc_port_out<void>                         this_type;
-    typedef Detail::PortCommon<smoc_port_out_if<void> > base_type;
-  public:
-    smoc_port_out()
-      : base_type(sc_core::sc_gen_unique_name("o", false), sc_core::SC_ONE_OR_MORE_BOUND)
-    {}
-    smoc_port_out(sc_core::sc_module_name name)
-      : base_type(name, sc_core::SC_ONE_OR_MORE_BOUND)
-    {}
-
-    bool isInput() const { return false; }
-
-  //size_t tokenId(size_t i=0) const
-  //  { return (*this)->outTokenId() + i; }
-
-    size_t numFree() const
-      { return this->availableCount(); }
-  private:
-#ifdef SYSTEMOC_ENABLE_SGX
-    this_type *allocatePort(const char *name)
-      { return new this_type(name); }
-#endif //SYSTEMOC_ENABLE_SGX
-  };
+  void smoc_port_out<void>::duplicateOutput(size_t n);
 
 } // namespace smoc
 

@@ -38,6 +38,7 @@
 
 #include <smoc/SimulatorAPI/FiringRuleInterface.hpp>
 #include <smoc/smoc_firing_rule.hpp>
+#include <smoc/smoc_event.hpp>
 #include <smoc/detail/VpcInterface.hpp>
 
 #include <smoc/smoc_guard.hpp>
@@ -47,13 +48,17 @@
 
 #include <systemoc/smoc_config.h>
 
+#include <boost/noncopyable.hpp>
+
 #include <vector>
+#include <list>
 
 namespace smoc { namespace Detail { namespace FSM {
 
   class RuntimeFiringRule
     : public SimulatorAPI::FiringRuleInterface
     , public smoc_firing_rule
+    , private boost::noncopyable
 #ifdef SYSTEMOC_ENABLE_VPC
     , public VpcTaskInterface
 #endif // SYSTEMOC_ENABLE_VPC
@@ -71,6 +76,7 @@ namespace smoc { namespace Detail { namespace FSM {
     void          freeInputs();
     /// Implement SimulatorAPI::FiringRuleInterface
     void          releaseOutputs();
+
     /// Implement SimulatorAPI::FiringRuleInterface
     FunctionNames getGuardNames() const;
     /// Implement SimulatorAPI::FiringRuleInterface
@@ -98,21 +104,23 @@ namespace smoc { namespace Detail { namespace FSM {
 #endif //defined(SYSTEMOC_ENABLE_DEBUG)
     }
 
-    void          commExec() {
-#ifdef SYSTEMOC_ENABLE_VPC
-      VpcInterface vpcIf(this);
-      getDiiEvent()->reset();
-#endif //!defined(SYSTEMOC_ENABLE_VPC)
-      for (PortInfo portInfo : portInfos)
-        portInfo.port.commExec(portInfo.commited
-#ifdef SYSTEMOC_ENABLE_VPC
-              , vpcIf
-#endif //!defined(SYSTEMOC_ENABLE_VPC)
-            );
-    }
+    void          commExec();
 
+    ~RuntimeFiringRule();
   private:
     class GuardVisitor;
+
+#ifdef SYSTEMOC_ENABLE_VPC
+    class DIIListener;
+
+    DIIListener *diiListener;
+
+    class LATListener;
+
+    LATListener *latListener;
+
+    std::list<smoc_vpc_event_p> latQueue;
+#endif //SYSTEMOC_ENABLE_VPC
 
     struct PortInfo {
       PortInfo(PortBase &p, size_t c, size_t r)

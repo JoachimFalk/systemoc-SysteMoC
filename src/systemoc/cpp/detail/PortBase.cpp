@@ -200,21 +200,31 @@ size_t      PortBase::availableCount() const {
     n = (std::min)(n, (*iter)->availableCount());
   return n;
 }
-#ifdef SYSTEMOC_ENABLE_VPC
-void PortBase::commExec(size_t n,  smoc::Detail::VpcInterface vpcIf)
-#else //!defined(SYSTEMOC_ENABLE_VPC)
-void PortBase::commExec(size_t n)
-#endif //!defined(SYSTEMOC_ENABLE_VPC)
-{
-  for (Interfaces::iterator iter = interfaces.begin();
-       iter != interfaces.end();
-       ++iter)
-#ifdef SYSTEMOC_ENABLE_VPC
-    (*iter)->commExec(n, vpcIf);
-#else //!defined(SYSTEMOC_ENABLE_VPC)
-    (*iter)->commExec(n);
-#endif //!defined(SYSTEMOC_ENABLE_VPC)
-}
+
+#ifdef SYSTEMOC_ENABLE_ROUTING
+  void PortBase::commStart(size_t n) {
+    duplicateOutput(n);
+    for (Interfaces::iterator iter = interfaces.begin();
+         iter != interfaces.end();
+         ++iter)
+      (*iter)->commStart(n);
+  }
+  void PortBase::commFinish(size_t n) {
+    for (Interfaces::iterator iter = interfaces.begin();
+         iter != interfaces.end();
+         ++iter)
+      (*iter)->commFinish(n);
+  }
+#else //!SYSTEMOC_ENABLE_ROUTING
+  void PortBase::commExec(size_t n) {
+    duplicateOutput(n);
+    for (Interfaces::iterator iter = interfaces.begin();
+         iter != interfaces.end();
+         ++iter)
+      (*iter)->commExec(n);
+  }
+#endif //!SYSTEMOC_ENABLE_ROUTING
+
 #ifdef SYSTEMOC_ENABLE_DEBUG
 void PortBase::setLimit(size_t req) {
   for (PortAccesses::iterator iter = portAccesses.begin();

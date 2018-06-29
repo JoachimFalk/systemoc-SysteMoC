@@ -57,32 +57,32 @@ smoc_register_outlet_base::smoc_register_outlet_base(
     smoc_register_chan_base *chan)
   : chan(chan), trueEvent(true) {}
 
-/// @brief See PortInBaseIf
-void smoc_register_outlet_base::commitRead(size_t consume
-#ifdef SYSTEMOC_ENABLE_VPC
-      , smoc::smoc_vpc_event_p const &readConsumeEvent
-#endif //SYSTEMOC_ENABLE_VPC
-    )
-{
-#ifdef SYSTEMOC_ENABLE_DATAFLOW_TRACE
-  this->getSimCTX()->getDataflowTraceLog()->traceCommExecIn(chan, consume);
-#endif
-}
+///// @brief See PortInBaseIf
+//void smoc_register_outlet_base::commitRead(size_t consume
+//#ifdef SYSTEMOC_ENABLE_VPC
+//      , smoc::smoc_vpc_event_p const &readConsumeEvent
+//#endif //SYSTEMOC_ENABLE_VPC
+//    )
+//{
+//#ifdef SYSTEMOC_ENABLE_DATAFLOW_TRACE
+//  this->getSimCTX()->getDataflowTraceLog()->traceCommExecIn(chan, consume);
+//#endif
+//}
 
 smoc_register_entry_base::smoc_register_entry_base(
     smoc_register_chan_base *chan)
   : chan(chan), trueEvent(true) {}
 
-/// @brief See PortOutBaseIf
-#ifdef SYSTEMOC_ENABLE_VPC
-void smoc_register_entry_base::commitWrite(size_t produce, smoc::Detail::VpcInterface vpcIf)
-#else
-void smoc_register_entry_base::commitWrite(size_t produce)
-#endif
-{
-#ifdef SYSTEMOC_ENABLE_DATAFLOW_TRACE
-  this->getSimCTX()->getDataflowTraceLog()->traceCommExecOut(chan, produce);
-#endif
-}
+///// @brief See PortOutBaseIf
+//#ifdef SYSTEMOC_ENABLE_VPC
+//void smoc_register_entry_base::commitWrite(size_t produce, smoc::Detail::VpcInterface vpcIf)
+//#else
+//void smoc_register_entry_base::commitWrite(size_t produce)
+//#endif
+//{
+//#ifdef SYSTEMOC_ENABLE_DATAFLOW_TRACE
+//  this->getSimCTX()->getDataflowTraceLog()->traceCommExecOut(chan, produce);
+//#endif
+//}
 
 } // namespace smoc

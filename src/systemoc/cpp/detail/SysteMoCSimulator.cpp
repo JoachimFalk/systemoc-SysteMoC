@@ -74,8 +74,8 @@ void SysteMoCScheduler::checkFiringRule(SimulatorAPI::FiringRuleInterface *fr) {
 }
 
 void SysteMoCScheduler::executeFiringRule(SimulatorAPI::FiringRuleInterface *fr) {
-  fr->freeInputs();
-  fr->releaseOutputs();
+//fr->freeInputs();
+//fr->releaseOutputs();
 }
 
 class SysteMoCSimulator
