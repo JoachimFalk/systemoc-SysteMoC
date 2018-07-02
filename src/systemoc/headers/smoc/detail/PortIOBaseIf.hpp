@@ -40,10 +40,7 @@
 
 #include "../smoc_guard.hpp"
 
-class smoc_multireader_fifo_chan_base;
-
 template<class, class> class smoc_chan_adapter;
-template<class, class> class smoc_multiplex_fifo_chan;
 
 namespace smoc { namespace Detail {
 
@@ -53,49 +50,19 @@ class ChanAdapterMid;
 class PortInBaseIf: public PortBaseIf {
   typedef PortInBaseIf this_type;
 
-  friend class ::smoc_multireader_fifo_chan_base;
-  template<class,class> friend class ::smoc_multiplex_fifo_chan;
   template<class,class> friend class ::smoc_chan_adapter;
-
   template<class>       friend class ChanAdapterMid;
-
-//// Friend needed for guard evaluation
-//template <class E> friend class Expr::Value;
 protected:
   // constructor
   PortInBaseIf() {}
  
-//#ifdef SYSTEMOC_ENABLE_VPC
-//  virtual void        commitRead(size_t consume,
-//    smoc_vpc_event_p const &diiEvent) = 0;
-//#else //!defined(SYSTEMOC_ENABLE_VPC)
-//  virtual void        commitRead(size_t consume) = 0;
-//#endif //!defined(SYSTEMOC_ENABLE_VPC)
-
   virtual smoc_event &dataAvailableEvent(size_t n) = 0;
 
   smoc_event &blockEvent(size_t n)
     { return this->dataAvailableEvent(n); }  
   size_t availableCount() const
     { return this->numAvailable(); }
-//#ifdef SYSTEMOC_ENABLE_VPC
-//  void commExec(
-//      size_t n,
-//      VpcInterface vpcIf)
-//    {
-//      vpcIf.setPortIf(this); // TODO (ms): move to base class?
-//      vpcIf.startVpcRead(n);
-//      return this->commitRead(n, vpcIf.getTaskDiiEvent());
-//    }
-//#else //!defined(SYSTEMOC_ENABLE_VPC)
-//  void commExec(size_t n)
-//    { return this->commitRead(n); }
-//#endif //!defined(SYSTEMOC_ENABLE_VPC)
 
-  /// @brief More tokens available
-  virtual void moreData(size_t n) {}
-  /// @brief Less tokens available
-  virtual void lessData(size_t n) {}
   /// @brief Reset
   virtual void reset() {}
 public:
@@ -109,24 +76,11 @@ public:
 class PortOutBaseIf: public PortBaseIf {
   typedef PortOutBaseIf this_type;
 
-  friend class ::smoc_multireader_fifo_chan_base;
-  template<class,class> friend class ::smoc_multiplex_fifo_chan;
   template<class,class> friend class ::smoc_chan_adapter;
-
   template<class>       friend class ChanAdapterMid;
-
-//// Friend needed for guard evaluation
-//template <class E> friend class Expr::Value;
 protected:
   // constructor
   PortOutBaseIf() {}
-
-//#ifdef SYSTEMOC_ENABLE_VPC
-//  virtual void        commitWrite(size_t produce,
-//    VpcInterface vpcIf) = 0;
-//#else //!defined(SYSTEMOC_ENABLE_VPC)
-//  virtual void        commitWrite(size_t produce) = 0;
-//#endif //!defined(SYSTEMOC_ENABLE_VPC)
 
   virtual smoc_event &spaceAvailableEvent(size_t n) = 0;
 
@@ -134,20 +88,7 @@ protected:
     { return this->spaceAvailableEvent(n); }  
   size_t availableCount() const
     { return this->numFree(); }
-//#ifdef SYSTEMOC_ENABLE_VPC
-//  void commExec(
-//      size_t n,
-//      VpcInterface vpcIf)
-//    { vpcIf.setPortIf(this); return this->commitWrite(n, vpcIf); }
-//#else //!defined(SYSTEMOC_ENABLE_VPC)
-//  void commExec(size_t n)
-//    { return this->commitWrite(n); }
-//#endif //!defined(SYSTEMOC_ENABLE_VPC)
 
-  /// @brief More free space available
-  virtual void moreSpace(size_t n) {}
-  /// @brief Less free space available
-  virtual void lessSpace(size_t n) {}
   /// @brief Reset
   virtual void reset() {}
 public:

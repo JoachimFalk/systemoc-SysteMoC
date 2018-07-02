@@ -84,14 +84,6 @@ class smoc_register_outlet_base {
 protected:
   smoc_register_outlet_base(smoc_register_chan_base *chan);
 
-//#ifdef SYSTEMOC_ENABLE_VPC
-//  /// @brief See PortInBaseIf
-//  void commitRead(size_t consume, smoc::smoc_vpc_event_p const &readConsumeEvent);
-//#else
-//  /// @brief See PortInBaseIf
-//  void commitRead(size_t consume);
-//#endif
-
   smoc_register_chan_base *chan;
   smoc_event               trueEvent;
 };
@@ -155,17 +147,6 @@ protected:
     commFinish(consume);
   }
 
-//  // Interface independent of T but needed here in order to override pure virtual methods.
-//#ifdef SYSTEMOC_ENABLE_VPC
-//  /// @brief See PortInBaseIf
-//  void commitRead(size_t consume, smoc::smoc_vpc_event_p const &readConsumeEvent)
-//    { smoc_register_outlet_base::commitRead(consume, readConsumeEvent); }
-//#else
-//  /// @brief See PortInBaseIf
-//  void commitRead(size_t consume)
-//    { smoc_register_outlet_base::commitRead(consume); }
-//#endif
-
   /// @brief See PortInBaseIf
   smoc::smoc_event &dataAvailableEvent(size_t n) {
     assert(n <= 1);
@@ -194,14 +175,6 @@ protected:
 class smoc_register_entry_base {
 protected:
   smoc_register_entry_base(smoc_register_chan_base *chan);
-
-//#ifdef SYSTEMOC_ENABLE_VPC
-//  /// @brief See PortOutBaseIf
-//  void commitWrite(size_t produce, smoc::Detail::VpcInterface vpcIf);
-//#else
-//  /// @brief See PortOutBaseIf
-//  void commitWrite(size_t produce);
-//#endif
 
   smoc_register_chan_base *chan;
   smoc_event               trueEvent;
@@ -265,16 +238,6 @@ protected:
     commStart(produce);
     commFinish(produce);
   }
-
-//#ifdef SYSTEMOC_ENABLE_VPC
-//  /// @brief See PortOutBaseIf
-//  void commitWrite(size_t produce, smoc::Detail::VpcInterface vpcIf)
-//    { smoc_register_entry_base::commitWrite(produce, vpcIf); }
-//#else
-//  /// @brief See PortOutBaseIf
-//  void commitWrite(size_t produce)
-//    { smoc_register_entry_base::commitWrite(produce); }
-//#endif
 
   /// @brief See PortOutBaseIf
   smoc::smoc_event &spaceAvailableEvent(size_t n) {

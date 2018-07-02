@@ -39,10 +39,6 @@
 #include <smoc/detail/TraceLog.hpp>
 #include <smoc/detail/DebugOStream.hpp>
 
-#ifdef SYSTEMOC_ENABLE_VPC
-# include <vpc.hpp>
-#endif //SYSTEMOC_ENABLE_VPC
-
 smoc_reset_chan::chan_init::chan_init(
     const std::string& name)
   : name(name)

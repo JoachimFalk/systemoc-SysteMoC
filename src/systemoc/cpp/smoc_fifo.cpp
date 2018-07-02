@@ -44,13 +44,11 @@ smoc_fifo_chan_base::smoc_fifo_chan_base(const chan_init& i)
     i.name
 #endif //!defined(SYSTEMOC_ENABLE_MAESTROMM_SPEEDUP)
   ),
-#ifdef SYSTEMOC_ENABLE_VPC
+#ifdef SYSTEMOC_ENABLE_ROUTING
   QueueFRVWPtr(i.n),
-  latencyQueue(std::bind1st(std::mem_fun(&this_type::latencyExpired), this), this, std::bind1st(std::mem_fun(&this_type::latencyExpired_dropped), this)),
-  readConsumeQueue(std::bind1st(std::mem_fun(&this_type::readConsumeEventExpired), this)),
-#else
+#else //!SYSTEMOC_ENABLE_ROUTING
   QueueRWPtr(i.n),
-#endif
+#endif //!SYSTEMOC_ENABLE_ROUTING
   tokenId(0)
 {}
 
@@ -70,10 +68,6 @@ void smoc_fifo_chan_base::end_of_simulation() {
             << this->qfSize() << "\t"
             << this->freeCount() << "\t"
             << this->usedCount() << std::endl;
-# ifdef SYSTEMOC_ENABLE_VPC
-    latencyQueue.dump();
-    readConsumeQueue.dump();
-# endif // SYSTEMOC_ENABLE_VPC
   }
 #endif // SYSTEMOC_ENABLE_DEBUG
 }

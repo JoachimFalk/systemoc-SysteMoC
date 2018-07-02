@@ -36,48 +36,26 @@
 #ifndef _INCLUDED_SYSTEMOC_SMOC_MULTIPLEX_FIFO_HPP
 #define _INCLUDED_SYSTEMOC_SMOC_MULTIPLEX_FIFO_HPP
 
-#include <algorithm>
-#include <utility>
-#include <vector>
-#include <queue>
-#include <map>
+//#include "smoc_chan_adapter.hpp"
+#include "detail/smoc_fifo_storage.hpp"
+#include "detail/smoc_chan_if.hpp"
+#include "../smoc/detail/ChanBase.hpp"
+#include "../smoc/detail/ConnectProvider.hpp"
+#include "../smoc/detail/EventMapManager.hpp"
+#include "../smoc/detail/DumpingInterfaces.hpp"
+#include "../smoc/detail/QueueFRVWPtr.hpp"
+#include "../smoc/detail/QueueRWPtr.hpp"
 
-#include <CoSupport/compatibility-glue/nullptr.h>
+#include <systemoc/smoc_config.h>
 
 #include <CoSupport/commondefs.h>
 
 #include <systemc>
 
-#include <boost/noncopyable.hpp>
 #include <boost/shared_ptr.hpp>
-#include <boost/function.hpp>
+#include <boost/noncopyable.hpp>
 
-#include <functional>
-
-#include <systemoc/smoc_config.h>
-
-#ifdef SYSTEMOC_ENABLE_VPC
-# include <vpc.hpp>
-#endif //SYSTEMOC_ENABLE_VPC
-
-#include <smoc/detail/ChanBase.hpp>
-#include "detail/smoc_chan_if.hpp"
-//#include "../smoc/detail/Storage.hpp"
-#include "smoc_chan_adapter.hpp"
-#include "smoc_fifo.hpp"
-#include <smoc/detail/ConnectProvider.hpp>
-#include <smoc/detail/EventMapManager.hpp>
-#ifdef SYSTEMOC_ENABLE_VPC
-# include <smoc/detail/LatencyQueue.hpp>
-# include <smoc/detail/EventQueue.hpp>
-# include <smoc/detail/QueueFRVWPtr.hpp>
-#else
-# include <smoc/detail/QueueRWPtr.hpp>
-#endif
-
-#include <smoc/detail/DumpingInterfaces.hpp>
-
-class smoc_multiplex_vfifo_chan_base;
+#include <map>
 
 template <class T, class A> class smoc_multiplex_fifo_entry;
 template <class T, class A> class smoc_multiplex_fifo_outlet;
@@ -87,11 +65,11 @@ template <class T, class A> class smoc_multiplex_vfifo_outlet;
 class smoc_multiplex_fifo_chan_base
 : private boost::noncopyable,
   public smoc::Detail::ChanBase,
-#ifdef SYSTEMOC_ENABLE_VPC
+#ifdef SYSTEMOC_ENABLE_ROUTING
   public smoc::Detail::QueueFRVWPtr
-#else
+#else //!SYSTEMOC_ENABLE_ROUTING
   public smoc::Detail::QueueRWPtr
-#endif // SYSTEMOC_ENABLE_VPC
+#endif //!SYSTEMOC_ENABLE_ROUTING
 {
   typedef smoc_multiplex_fifo_chan_base this_type;
 
@@ -205,20 +183,11 @@ public:
 
   /// @brief Channel initializer
   typedef typename smoc_fifo_storage<T, smoc_multiplex_fifo_chan_base>::chan_init chan_init;
-private:
-#ifdef SYSTEMOC_ENABLE_VPC
-  smoc::Detail::LatencyQueue        latencyQueue;
-  smoc::Detail::EventQueue<size_t>  readConsumeQueue;
-#endif
 protected:
   /// @brief Constructor
   smoc_multiplex_fifo_chan(const chan_init &i)
     : smoc_fifo_storage<T, smoc_multiplex_fifo_chan_base>(i)
-#ifdef SYSTEMOC_ENABLE_VPC
-    , latencyQueue(std::bind(&this_type::latencyExpired, this, std::placeholders::_1), this)
-    , readConsumeQueue(std::bind(&this_type::readConsumeEventExpired, this, std::placeholders::_1))
-#endif
-  {}
+    {}
 
   void doReset() {
     // writes initial tokens and resets queue etc.
@@ -230,38 +199,19 @@ protected:
       for(typename VOutletMap::const_iterator o = this->vOutlets.begin();
           o != this->vOutlets.end(); ++o)
       {
-        o->second->reset();
+        static_cast<smoc_multiplex_vfifo_outlet<T, A> *>(o->second)->reset();
       }
 
       for(size_t i = 0; i < this->initialTokens.size(); ++i) {
         FifoId fifoId = A::get(this->initialTokens[i]);
         typename VOutletMap::const_iterator o = this->vOutlets.find(fifoId);
         assert(o != this->vOutlets.end());
-        o->second->moreData(1);
+        static_cast<smoc_multiplex_vfifo_outlet<T, A> *>(o->second)->moreData(1);
       }
     }
     
     smoc::Detail::ChanBase::doReset();
   }
-
-//#ifdef SYSTEMOC_ENABLE_VPC
-//  void commitWrite(size_t n, smoc::Detail::VpcInterface vpcIf)
-//#else
-//  void commitWrite(size_t n)
-//#endif
-//  {
-//    this->wpp(n);
-//    this->emmFree.decreasedCount(this->freeCount());
-//#ifdef SYSTEMOC_ENABLE_VPC
-//    if (vpcIf.isValid()) {
-//      // Delayed call of latencyExpired(n);
-//      latencyQueue.addEntry(n, vpcIf.getTaskLatEvent(), vpcIf);
-//    } else
-//#endif //defined(SYSTEMOC_ENABLE_VPC)
-//    {
-//      latencyExpired(n);
-//    }
-//  }
 
   void latencyExpired(size_t n) {
   //std::cerr << "smoc_multiplex_fifo_chan_base::latencyExpired(" << n << ") [BEGIN]" << std::endl;
@@ -332,7 +282,7 @@ protected:
         FifoId fId = A::get(this->storage[xindex].get());
         typename this_type::VOutletMap::iterator fIter = this->vOutlets.find(fId);
         assert(fIter != this->vOutlets.end());
-        fIter->second->moreData(1);
+        static_cast<smoc_multiplex_vfifo_outlet<T, A> *>(fIter->second)->moreData(1);
       }
     } else {
       this->emmAvailable.increasedCount(vcount);
@@ -343,11 +293,7 @@ protected:
   //std::cerr << "visibleCount(): " << visibleCount() << std::endl;
   }
 
-//#ifdef SYSTEMOC_ENABLE_VPC
-//  void consume(FifoId from, size_t n, smoc::smoc_vpc_event_p const &readConsumeEvent)
-//#else
   void consume(FifoId from, size_t n)
-//#endif
   {
   //std::cerr << "smoc_multiplex_fifo_chan_base::consume(" << from << ", " << n << ") [BEGIN]" << std::endl;
   //std::cerr << "fifoOutOfOrder == " << fifoOutOfOrder << std::endl;
@@ -407,12 +353,6 @@ protected:
     
     this->rpp(n);
     this->emmAvailable.decreasedCount(this->visibleCount());
-//    //
-//#ifdef SYSTEMOC_ENABLE_VPC
-//    this->commitRead(n, readConsumeEvent);
-//#else //!defined(SYSTEMOC_ENABLE_VPC)
-//    this->commitRead(n);
-//#endif //!defined(SYSTEMOC_ENABLE_VPC)
     
     /*
      * Example: Nothing todo
@@ -470,7 +410,7 @@ protected:
       FifoId fId = A::get(this->storage[xindex].get());
       typename this_type::VOutletMap::iterator fIter = this->vOutlets.find(fId);
       assert(fIter != this->vOutlets.end());
-      fIter->second->moreData(1);
+      static_cast<smoc_multiplex_vfifo_outlet<T, A> *>(fIter->second)->moreData(1);
     }
     
   //std::cerr << "smoc_multiplex_fifo_chan_base::consume(" << from << ", " << n << ") [END]" << std::endl;
@@ -478,22 +418,6 @@ protected:
   //std::cerr << "usedCount():    " << usedCount() << std::endl;
   //std::cerr << "visibleCount(): " << visibleCount() << std::endl;
   }
-
-//#ifdef SYSTEMOC_ENABLE_VPC
-//  void commitRead(size_t n, smoc::smoc_vpc_event_p const &readConsumeEvent)
-//#else
-//  void commitRead(size_t n)
-//#endif
-//  {
-//    this->rpp(n);
-//    this->emmAvailable.decreasedCount(this->visibleCount());
-//#ifdef SYSTEMOC_ENABLE_VPC
-//    // Delayed call of readConsumeEventExpired(n);
-//    readConsumeQueue.addEntry(n, readConsumeEvent);
-//#else //!defined(SYSTEMOC_ENABLE_VPC)
-//    readConsumeEventExpired(n);
-//#endif //!defined(SYSTEMOC_ENABLE_VPC)
-//  }
 
   void readConsumeEventExpired(size_t n) {
   //std::cerr << "smoc_multiplex_fifo_chan_base::readConsumeEventExpired(" << n << ") [BEGIN]" << std::endl;
@@ -551,15 +475,6 @@ protected:
     commFinish(produce);
   }
 
-//  /// @brief See PortOutBaseIf
-//#ifdef SYSTEMOC_ENABLE_VPC
-//  void commitWrite(size_t n, smoc::Detail::VpcInterface vpcIf)
-//    { chan.commitWrite(n, vpcIf); }
-//#else
-//  void commitWrite(size_t n)
-//    { chan.commitWrite(n); }
-//#endif
-
   /// @brief See PortOutBaseIf
   smoc::smoc_event &spaceAvailableEvent(size_t n)
     { return chan.spaceAvailableEvent(n); }
@@ -612,15 +527,6 @@ protected:
     commFinish(consume);
   }
 
-//  /// @brief See PortInBaseIf
-//#ifdef SYSTEMOC_ENABLE_VPC
-//  void commitRead(size_t n, smoc::smoc_vpc_event_p const &readConsumeEvent)
-//    { chan.commitRead(n, readConsumeEvent); }
-//#else
-//  void commitRead(size_t n)
-//    { chan.commitRead(n); }
-//#endif
-
   /// @brief See PortInBaseIf
   smoc::smoc_event &dataAvailableEvent(size_t n)
     { return chan.dataAvailableEvent(n); }
@@ -644,9 +550,8 @@ protected:
 template<class T, class A>
 class smoc_multiplex_vfifo_outlet: public smoc_port_in_if<T> {
   typedef smoc_multiplex_vfifo_outlet<T,A> this_type;
-  // Ugh need this friend decl for the AccessImpl friend decl in
-  // smoc_multiplex_fifo_chan
-  //friend class smoc_multiplex_fifo_chan<T,A>;
+  // Friend required for calls to reset and moreData methods.
+  friend class smoc_multiplex_fifo_chan<T,A>;
 public:
   typedef smoc_multiplex_fifo_chan<T,A>       MultiplexChannel;
   //typedef boost::shared_ptr<MultiplexChannel> PMultiplexChannel;
@@ -746,23 +651,6 @@ protected:
     commStart(consume);
     commFinish(consume);
   }
-
-//  /// @brief See PortInBaseIf
-//#ifdef SYSTEMOC_ENABLE_VPC
-//  void commitRead(size_t n, smoc::smoc_vpc_event_p const &readConsumeEvent)
-//#else
-//  void commitRead(size_t n)
-//#endif
-//  {
-//    assert(countAvailable >= n);
-//    countAvailable -= n;
-//    emmAvailable.decreasedCount(countAvailable);
-//#ifdef SYSTEMOC_ENABLE_VPC
-//    chan->consume(fifoId, n, readConsumeEvent);
-//#else
-//    chan->consume(fifoId, n);
-//#endif
-//  }
 
   /// @brief See PortInBaseIf
   smoc::smoc_event &dataAvailableEvent(size_t n)
@@ -901,30 +789,6 @@ protected:
     commFinish(consume);
   }
 
-//  /// @brief See PortOutBaseIf
-//#ifdef SYSTEMOC_ENABLE_VPC
-//  void commitWrite(size_t n, smoc::Detail::VpcInterface vpcIf)
-//#else
-//  void commitWrite(size_t n)
-//#endif
-//  {
-//    size_t windex = chan->wIndex();
-//    size_t fsize  = chan->qfSize();//RRR
-//
-//    for (size_t i = 0; i < n; ++i) {
-//      A::put(chan->storage[windex].get(), fifoId);
-//      if (++windex >= fsize)
-//        windex -= fsize;
-//    }
-//
-//    // This will do a callback to latencyExpired(produce) at the appropriate time
-//#ifdef SYSTEMOC_ENABLE_VPC
-//    chan->commitWrite(n, vpcIf);
-//#else
-//    chan->commitWrite(n);
-//#endif
-//  }
-
   /// @brief See PortOutBaseIf
   smoc::smoc_event &spaceAvailableEvent(size_t n)
     { return chan->spaceAvailableEvent(n); }
@@ -980,11 +844,7 @@ public:
     typedef T                               data_type;
     typedef chan_init                       this_type;
     typedef smoc_multiplex_vfifo_chan<T,A>  chan_type;
-#ifdef _MSC_VER
     friend typename this_type::con_type;
-#else
-    friend class this_type::con_type;
-#endif // _MSC_VER
     friend class smoc_multiplex_vfifo_chan<T,A>;
     friend class smoc_multiplex_fifo<T,A>;
   private:
@@ -1007,10 +867,6 @@ public:
   
     this_type &operator <<(add_param_ty x)
       { add(x); return *this; }
-
-//  using smoc::Detail::ConnectProvider<
-//    smoc_multiplex_vfifo<T,A>,
-//    smoc_multiplex_vfifo_chan<T,A> >::operator<<;
 
     size_t getFifoId() const
       { return fifoId; }
@@ -1070,11 +926,7 @@ public:
   //typedef boost::shared_ptr<chan_type> PChannel;
   typedef chan_type* PChannel;
   
-#ifdef _MSC_VER
   friend typename this_type::con_type;
-#else
-  friend class this_type::con_type;
-#endif // _MSC_VER
   friend class smoc_reset_net;
 
 private:
@@ -1110,10 +962,6 @@ public:
     add(x);
     return *this;
   }
-
-//using smoc::Detail::ConnectProvider<
-//  smoc_multiplex_fifo<T,A>,
-//  smoc_multiplex_fifo_chan<T,A> >::operator<<;
 
 private:
   chan_type *getChan() {

@@ -168,14 +168,6 @@ public:
     assert(!"WTF?! Must never be called!");
   }
 
-//  /// @brief See PortInBaseIf
-//  void commitRead(size_t n
-//#ifdef SYSTEMOC_ENABLE_VPC
-//      , smoc::smoc_vpc_event_p const &readConsumeEvent
-//#endif //defined(SYSTEMOC_ENABLE_VPC)
-//    )
-//    { assert(0); }
- 
   /// @brief See PortInBaseIf
   smoc::smoc_event& dataAvailableEvent(size_t n) {
     assert(n == 1);
@@ -241,14 +233,6 @@ public:
     commStart(produce);
     commFinish(produce);
   }
-
-//  /// @brief See PortOutBaseIf
-//  void commitWrite(size_t n
-//#ifdef SYSTEMOC_ENABLE_VPC
-//      , smoc::Detail::VpcInterface vpcIf
-//#endif //defined(SYSTEMOC_ENABLE_VPC)
-//    )
-//    { assert(n == 1); chan.produce(this); }
 
   /// @brief See PortOutBaseIf
   smoc::smoc_event &spaceAvailableEvent(size_t n) {

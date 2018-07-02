@@ -36,52 +36,34 @@
 #ifndef _INCLUDED_SYSTEMOC_SMOC_MULTIREADER_FIFO_HPP
 #define _INCLUDED_SYSTEMOC_SMOC_MULTIREADER_FIFO_HPP
 
-#include <vector>
-#include <queue>
-#include <map>
+//#include "smoc_fifo.hpp"
+//#include "smoc_chan_adapter.hpp"
+#include "detail/smoc_chan_if.hpp"
+#include "detail/smoc_fifo_storage.hpp"
+#include "../smoc/detail/ChanBase.hpp"
+#include "../smoc/detail/ConnectProvider.hpp"
+#include "../smoc/detail/EventMapManager.hpp"
+#include "../smoc/detail/QueueFRVWPtr.hpp"
+#include "../smoc/detail/QueueRWPtr.hpp"
 
-#include <CoSupport/compatibility-glue/nullptr.h>
-
-#include <CoSupport/commondefs.h>
-
-#include <boost/noncopyable.hpp>
-
-#include <systemc>
+#include <smoc/detail/DumpingInterfaces.hpp>
 
 #include <systemoc/smoc_config.h>
 
-#ifdef SYSTEMOC_ENABLE_VPC
-# include <vpc.hpp>
-#endif //SYSTEMOC_ENABLE_VPC
+#include <CoSupport/commondefs.h>
 
-#include "detail/smoc_chan_if.hpp"
-#include <smoc/detail/ChanBase.hpp>
-//#include "../smoc/detail/Storage.hpp"
-#include "smoc_chan_adapter.hpp"
-#include "smoc_fifo.hpp"
-#include "detail/smoc_fifo_storage.hpp"
-#include <smoc/detail/ConnectProvider.hpp>
-#include <smoc/detail/EventMapManager.hpp>
-#ifdef SYSTEMOC_ENABLE_VPC
-# include <smoc/detail/LatencyQueue.hpp>
-# include <smoc/detail/EventQueue.hpp>
-# include <smoc/detail/QueueFRVWPtr.hpp>
-#else
-# include <smoc/detail/QueueRWPtr.hpp>
-#endif
-
-#include <smoc/detail/DumpingInterfaces.hpp>
+#include <systemc>
 
 /**
  * The base channel implementation
  */
 class smoc_multireader_fifo_chan_base
 : public smoc::Detail::ChanBase,
-#ifdef SYSTEMOC_ENABLE_VPC
+#ifdef SYSTEMOC_ENABLE_ROUTING
   public smoc::Detail::QueueFRVWPtr
-#else
+#else //!SYSTEMOC_ENABLE_ROUTING
   public smoc::Detail::QueueRWPtr
-#endif // SYSTEMOC_ENABLE_VPC
+#endif // !SYSTEMOC_ENABLE_ROUTING
 {
   typedef smoc_multireader_fifo_chan_base this_type;
 public:
@@ -108,19 +90,10 @@ protected:
   void doReset();
 
   /// @brief Called by outlet if it did consume tokens
-//#ifdef SYSTEMOC_ENABLE_VPC
-//  void consume(smoc::Detail::PortInBaseIf *who, size_t n, smoc::smoc_vpc_event_p const &readConsumeEvent);
-//#else
-//  void consume(smoc::Detail::PortInBaseIf *who, size_t n);
-//#endif
   void consume(size_t n);
   
   /// @brief Called by entry if it did produce tokens
-//#ifdef SYSTEMOC_ENABLE_VPC
-//  void produce(size_t n, smoc::Detail::VpcInterface vpcIf);
-//#else
   void produce(size_t n);
-//#endif
   
   /// @brief Calculate token id for next consumed token
   size_t inTokenId() const;
@@ -135,11 +108,6 @@ public:
   virtual void dumpInitialTokens(smoc::Detail::IfDumpingInitialTokens *it) = 0;
 #endif // SYSTEMOC_ENABLE_SGX
 private:
-#ifdef SYSTEMOC_ENABLE_VPC
-  smoc::Detail::LatencyQueue        latencyQueue;
-  smoc::Detail::EventQueue<size_t>  readConsumeQueue;
-#endif
-  
   smoc::Detail::EventMapManager emmData;
   smoc::Detail::EventMapManager emmSpace;
 
@@ -172,10 +140,6 @@ public:
               << this->qfSize() << "\t"
               << this->freeCount() << "\t"
               << this->usedCount() << std::endl;
-# ifdef SYSTEMOC_ENABLE_VPC
-    latencyQueue.dump();
-    readConsumeQueue.dump();
-# endif // SYSTEMOC_ENABLE_VPC
 #endif // SYSTEMOC_ENABLE_DEBUG
   }
 
@@ -218,15 +182,6 @@ protected:
     commStart(consume);
     commFinish(consume);
   }
-
-//  /// @brief See PortInBaseIf
-//#ifdef SYSTEMOC_ENABLE_VPC
-//  void commitRead(size_t n, smoc::smoc_vpc_event_p const &readConsumeEvent)
-//    { chan.consume(this, n, readConsumeEvent); }
-//#else
-//  void commitRead(size_t n)
-//    { chan.consume(this, n); }
-//#endif
 
   /// @brief See PortInBaseIf
   smoc::smoc_event &dataAvailableEvent(size_t n)
@@ -298,15 +253,6 @@ protected:
     commStart(produce);
     commFinish(produce);
   }
-
-//  /// @brief See PortOutBaseIf
-//#ifdef SYSTEMOC_ENABLE_VPC
-//  void commitWrite(size_t n, smoc::Detail::VpcInterface vpcIf)
-//    { chan.produce(n, vpcIf); }
-//#else
-//  void commitWrite(size_t n)
-//    { chan.produce(n); }
-//#endif
 
   /// @brief See PortOutBaseIf
   smoc::smoc_event &spaceAvailableEvent(size_t n)
@@ -393,11 +339,7 @@ public:
   typedef smoc_multireader_fifo<T>      this_type;
   typedef typename this_type::chan_type chan_type;
   typedef typename chan_type::chan_init base_type;
-#ifdef _MSC_VER
   friend typename this_type::con_type;
-#else
-  friend class this_type::con_type;
-#endif // _MSC_VER
   friend class smoc_reset_net;
 private:
   chan_type *chan;
@@ -427,10 +369,6 @@ public:
     this->add(x);
     return *this;
   }
-
-////using this_type::con_type::operator<<;
-//using smoc::Detail::ConnectProvider<smoc_multireader_fifo<T>, smoc_multireader_fifo_chan<T> >::operator<<;
-
 private:
   chan_type *getChan() {
     if (chan == nullptr)
