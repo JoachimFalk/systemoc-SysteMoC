@@ -69,7 +69,6 @@ libsystemoc_la_SOURCES = \
         src/systemoc/cpp/detail/FSM/XORStateImpl.cpp \
 	src/systemoc/cpp/detail/GraphBase.cpp \
 	src/systemoc/cpp/detail/IdPool.cpp \
-	src/systemoc/cpp/detail/LatencyQueue.cpp \
 	src/systemoc/cpp/detail/NodeBase.cpp \
 	src/systemoc/cpp/detail/NodeQueue.cpp \
 	src/systemoc/cpp/detail/PortBase.cpp \

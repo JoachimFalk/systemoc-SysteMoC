@@ -1,7 +1,7 @@
 // -*- tab-width:8; intent-tabs-mode:nil; c-basic-offset:2; -*-
 // vim: set sw=2 ts=8 et:
 /*
- * Copyright (c) 2004-2017 Hardware-Software-CoDesign, University of Erlangen-Nuremberg.
+ * Copyright (c) 2004-2018 Hardware-Software-CoDesign, University of Erlangen-Nuremberg.
  * 
  *   This library is free software; you can redistribute it and/or modify it under
  *   the terms of the GNU Lesser General Public License as published by the Free
@@ -36,52 +36,37 @@
 #ifndef _INCLUDED_SYSTEMOC_SMOC_FIFO_HPP
 #define _INCLUDED_SYSTEMOC_SMOC_FIFO_HPP
 
-#include <systemc>
-#include <vector>
-#include <queue>
-#include <map>
-
-#include <CoSupport/compatibility-glue/nullptr.h>
-
-#include <CoSupport/commondefs.h>
+//#include "smoc_chan_adapter.hpp"
+#include "detail/smoc_chan_if.hpp"
+#include "detail/smoc_fifo_storage.hpp"
+#include "../smoc/detail/TraceLog.hpp"
+#include "../smoc/detail/ChanBase.hpp"
+#include "../smoc/detail/ConnectProvider.hpp"
+#include "../smoc/detail/EventMapManager.hpp"
+#include "../smoc/detail/DumpingInterfaces.hpp"
+#include "../smoc/detail/QueueFRVWPtr.hpp"
+#include "../smoc/detail/QueueRWPtr.hpp"
 
 #include <systemoc/smoc_config.h>
 
-#ifdef SYSTEMOC_ENABLE_VPC
-# include <vpc.hpp>
-#endif //SYSTEMOC_ENABLE_VPC
-
-#include <smoc/detail/TraceLog.hpp>
-
-#include "detail/smoc_chan_if.hpp"
-#include "smoc_chan_adapter.hpp"
-#include "detail/smoc_fifo_storage.hpp"
-#include <smoc/detail/ChanBase.hpp>
-#include <smoc/detail/ConnectProvider.hpp>
-#include <smoc/detail/EventMapManager.hpp>
-#ifdef SYSTEMOC_ENABLE_VPC
-# include <smoc/detail/LatencyQueue.hpp>
-# include <smoc/detail/EventQueue.hpp>
-# include <smoc/detail/QueueFRVWPtr.hpp>
-#else
-# include <smoc/detail/QueueRWPtr.hpp>
-#endif
 #if defined(SYSTEMOC_ENABLE_MAESTRO) && defined(MAESTRO_ENABLE_BRUCKNER)
 # include <Maestro/Bruckner/Channel.hpp>
 #endif //defined(SYSTEMOC_ENABLE_MAESTRO) && defined(MAESTRO_ENABLE_BRUCKNER)
 
-#include <smoc/detail/DumpingInterfaces.hpp>
+#include <CoSupport/commondefs.h>
+
+#include <systemc>
 
 /**
  * The base channel implementation
  */
 class smoc_fifo_chan_base
 : public smoc::Detail::ChanBase,
-#ifdef SYSTEMOC_ENABLE_VPC
+#ifdef SYSTEMOC_ENABLE_ROUTING
   public smoc::Detail::QueueFRVWPtr
-#else
+#else //!SYSTEMOC_ENABLE_ROUTING
   public smoc::Detail::QueueRWPtr
-#endif // SYSTEMOC_ENABLE_VPC
+#endif // !SYSTEMOC_ENABLE_ROUTING
 {
   typedef smoc_fifo_chan_base this_type;
 
@@ -113,14 +98,14 @@ protected:
     emmData.increasedCount(visibleCount());
   }
 
-#ifdef SYSTEMOC_ENABLE_VPC
+#ifdef SYSTEMOC_ENABLE_ROUTING
   /// @brief Detail::LatencyQueue callback #2
   void latencyExpired_dropped(size_t n) {
     invalidateToken(n);
     //inform about new free space;
     emmSpace.increasedCount(freeCount());
   }
-#endif //defined(SYSTEMOC_ENABLE_VPC)
+#endif //defined(SYSTEMOC_ENABLE_ROUTING)
 
   /// @brief callback for readConsumeQueue
   void readConsumeEventExpired(size_t n) {
@@ -142,17 +127,13 @@ public:
 private:
   smoc::Detail::EventMapManager emmData;
   smoc::Detail::EventMapManager emmSpace;
-#ifdef SYSTEMOC_ENABLE_VPC
-  smoc::Detail::LatencyQueue        latencyQueue;
-  smoc::Detail::EventQueue<size_t>  readConsumeQueue;
-#endif // SYSTEMOC_ENABLE_VPC
 
   /// @brief The token id of the next commit token
   size_t tokenId;
 
-#ifdef SYSTEMOC_ENABLE_VPC
+#ifdef SYSTEMOC_ENABLE_ROUTING
  virtual void invalidateToken(size_t n) = 0;
-#endif //defined(SYSTEMOC_ENABLE_VPC)
+#endif //defined(SYSTEMOC_ENABLE_ROUTING)
 };
 
 template<class> class smoc_fifo_chan;
@@ -190,27 +171,6 @@ protected:
     commStart(consume);
     commFinish(consume);
   }
-
-//  /// @brief See PortInBaseIf
-//  void commitRead(size_t consume
-//#ifdef SYSTEMOC_ENABLE_VPC
-//      , smoc::smoc_vpc_event_p const &readConsumeEvent
-//#endif //SYSTEMOC_ENABLE_VPC
-//    )
-//  {
-//# ifdef SYSTEMOC_ENABLE_DATAFLOW_TRACE
-//    this->getSimCTX()->getDataflowTraceLog()->traceCommExecIn(&chan, consume);
-//# endif //SYSTEMOC_ENABLE_DATAFLOW_TRACE
-//    chan.rpp(consume);
-//    chan.emmData.decreasedCount(chan.visibleCount());
-//
-//#ifdef SYSTEMOC_ENABLE_VPC
-//    // Delayed call of readConsumeEventExpired(consume);
-//    chan.readConsumeQueue.addEntry(consume, readConsumeEvent);
-//#else //!defined(SYSTEMOC_ENABLE_VPC)
-//    chan.readConsumeEventExpired(consume);
-//#endif //!defined(SYSTEMOC_ENABLE_VPC)
-//  }
 
   /// @brief See PortInBaseIf
   smoc::smoc_event &dataAvailableEvent(size_t n)
@@ -266,8 +226,10 @@ protected:
   }
   /// @brief See PortBaseIf
   void commFinish(size_t produce, bool dropped = false) {
-    assert(!dropped);
-    chan.latencyExpired(produce);
+    if (!dropped)
+      chan.latencyExpired(produce);
+    else
+      chan.latencyExpired_dropped(produce);
   }
 
   /// @brief See PortBaseIf
@@ -275,31 +237,6 @@ protected:
     commStart(produce);
     commFinish(produce);
   }
-
-//  /// @brief See PortOutBaseIf
-//  void commitWrite(size_t produce
-//#ifdef SYSTEMOC_ENABLE_VPC
-//      , smoc::Detail::VpcInterface vpcIf
-//#endif //SYSTEMOC_ENABLE_VPC
-//    )
-//  {
-//# ifdef SYSTEMOC_ENABLE_DATAFLOW_TRACE
-//    this->getSimCTX()->getDataflowTraceLog()->traceCommExecOut(&chan, produce);
-//# endif // SYSTEMOC_ENABLE_DATAFLOW_TRACE
-//    chan.tokenId += produce;
-//    chan.wpp(produce);
-//    chan.emmSpace.decreasedCount(chan.freeCount());
-//
-//#ifdef SYSTEMOC_ENABLE_VPC
-//    if (vpcIf.isValid()) {
-//      // Delayed call of latencyExpired(produce);
-//      chan.latencyQueue.addEntry(produce,vpcIf.getTaskLatEvent(),vpcIf);
-//    } else
-//#endif // SYSTEMOC_ENABLE_DATAFLOW_TRACE
-//    {
-//      chan.latencyExpired(produce);
-//    }
-//  }
 
   /// @brief See PortOutBaseIf
   smoc::smoc_event &spaceAvailableEvent(size_t n)
@@ -371,11 +308,11 @@ protected:
     int count() const { return n; }
   };
 
-#ifdef SYSTEMOC_ENABLE_VPC
+#ifdef SYSTEMOC_ENABLE_ROUTING
   void invalidateToken(size_t x) {
     this->dropRInvisible(InvalidateTokenGenerator(x));
   }
-#endif //defined(SYSTEMOC_ENABLE_VPC)
+#endif //defined(SYSTEMOC_ENABLE_ROUTING)
 
 private:
 };
@@ -398,11 +335,7 @@ public:
   typedef smoc_fifo<T>                  this_type;
   typedef typename this_type::chan_type chan_type;
   typedef typename chan_type::chan_init base_type;
-#ifdef _MSC_VER
   friend typename this_type::con_type;
-#else
-  friend class this_type::con_type;
-#endif // _MSC_VER
   friend class smoc_reset_net;
 private:
   chan_type *chan;
@@ -432,9 +365,6 @@ public:
     return *this;
   }
   
-////using this_type::con_type::operator<<;
-//using smoc::Detail::ConnectProvider<smoc_fifo<T>, smoc_fifo_chan<T> >::operator<<;
-
 private:
   chan_type *getChan() {
     if (chan == nullptr)

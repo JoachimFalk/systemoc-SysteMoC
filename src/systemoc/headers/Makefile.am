@@ -61,7 +61,6 @@ nobase_include_HEADERS = \
 	smoc/detail/GraphBase.hpp \
 	smoc/detail/IdedObj.hpp \
 	smoc/detail/IdTAllocRequest.hpp \
-	smoc/detail/LatencyQueue.hpp \
 	smoc/detail/NamedIdedObj.hpp \
 	smoc/detail/NodeBase.hpp \
 	smoc/detail/NodeQueue.hpp \

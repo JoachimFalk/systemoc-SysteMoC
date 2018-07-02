@@ -33,8 +33,6 @@
  * ENHANCEMENTS, OR MODIFICATIONS.
  */
 
-#include <CoSupport/compatibility-glue/nullptr.h>
-
 #include <smoc/smoc_register.hpp>
 
 namespace smoc {
@@ -47,9 +45,9 @@ smoc_register_chan_base::chan_init::chan_init(
 smoc_register_chan_base::smoc_register_chan_base(
     const chan_init &i)
   : ChanBase(
-  #ifndef SYSTEMOC_ENABLE_MAESTROMM_SPEEDUP
+#ifndef SYSTEMOC_ENABLE_MAESTROMM_SPEEDUP
       i.name
-  #endif //!defined(SYSTEMOC_ENABLE_MAESTROMM_SPEEDUP)
+#endif //!defined(SYSTEMOC_ENABLE_MAESTROMM_SPEEDUP)
     )
   , tokenId(0) {}
 
@@ -57,32 +55,8 @@ smoc_register_outlet_base::smoc_register_outlet_base(
     smoc_register_chan_base *chan)
   : chan(chan), trueEvent(true) {}
 
-///// @brief See PortInBaseIf
-//void smoc_register_outlet_base::commitRead(size_t consume
-//#ifdef SYSTEMOC_ENABLE_VPC
-//      , smoc::smoc_vpc_event_p const &readConsumeEvent
-//#endif //SYSTEMOC_ENABLE_VPC
-//    )
-//{
-//#ifdef SYSTEMOC_ENABLE_DATAFLOW_TRACE
-//  this->getSimCTX()->getDataflowTraceLog()->traceCommExecIn(chan, consume);
-//#endif
-//}
-
 smoc_register_entry_base::smoc_register_entry_base(
     smoc_register_chan_base *chan)
   : chan(chan), trueEvent(true) {}
-
-///// @brief See PortOutBaseIf
-//#ifdef SYSTEMOC_ENABLE_VPC
-//void smoc_register_entry_base::commitWrite(size_t produce, smoc::Detail::VpcInterface vpcIf)
-//#else
-//void smoc_register_entry_base::commitWrite(size_t produce)
-//#endif
-//{
-//#ifdef SYSTEMOC_ENABLE_DATAFLOW_TRACE
-//  this->getSimCTX()->getDataflowTraceLog()->traceCommExecOut(chan, produce);
-//#endif
-//}
 
 } // namespace smoc

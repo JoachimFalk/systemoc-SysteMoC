@@ -38,21 +38,17 @@
 #include <systemoc/smoc_multiplex_fifo.hpp>
 #include <smoc/smoc_graph.hpp>
 
-#ifdef SYSTEMOC_ENABLE_VPC
-# include <vpc.hpp>
-#endif //SYSTEMOC_ENABLE_VPC
-
 smoc_multiplex_fifo_chan_base::smoc_multiplex_fifo_chan_base(const chan_init &i)
 #ifdef SYSTEMOC_ENABLE_MAESTROMM_SPEEDUP
   : ChanBase(),
 #else
   : ChanBase(i.name),
 #endif
-#ifdef SYSTEMOC_ENABLE_VPC
+#ifdef SYSTEMOC_ENABLE_ROUTING
     smoc::Detail::QueueFRVWPtr(i.n),
-#else
+#else //!SYSTEMOC_ENABLE_ROUTING
     smoc::Detail::QueueRWPtr(i.n),
-#endif
+#endif //!SYSTEMOC_ENABLE_ROUTING
     fifoOutOfOrder(i.m)
 {
   assert(fifoOutOfOrder + 1 <= depthCount());
