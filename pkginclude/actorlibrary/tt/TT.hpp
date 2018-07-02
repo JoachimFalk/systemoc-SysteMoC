@@ -5,6 +5,8 @@
 
 #include "Event.hpp"
 
+#include <queue>
+
 /*struct used to store an event with a certain release-time*/
 struct TimeEventPair{
   TimeEventPair(sc_core::sc_time time,  Event *event)
