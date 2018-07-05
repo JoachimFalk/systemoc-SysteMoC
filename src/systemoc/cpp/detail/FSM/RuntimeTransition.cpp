@@ -228,10 +228,8 @@ namespace smoc { namespace Detail { namespace FSM {
       getSimCTX()->getTraceFile() << "<t id=\"" << getId() << "\"/>\n";
 #endif // SYSTEMOC_ENABLE_TRANSITION_TRACE
 
-    getFiringRule()->commExec();
-#ifdef SYSTEMOC_ENABLE_VPC
-    SystemC_VPC::EventPair events = getFiringRule()->startCompute();
-# ifdef SYSTEMOC_ENABLE_DATAFLOW_TRACE
+    node->getScheduler()->executeFiringRule(node, getFiringRule());
+#ifdef SYSTEMOC_ENABLE_DATAFLOW_TRACE
     if(!*events.latency) {
       // latency event not signaled
       events.latency->addListener(new smoc::Detail::DeferedTraceLogDumper(node, "l"));
@@ -239,8 +237,7 @@ namespace smoc { namespace Detail { namespace FSM {
       this->getSimCTX()->getDataflowTraceLog()->traceStartActor(node, "l");
       this->getSimCTX()->getDataflowTraceLog()->traceEndActor(node);
     }
-# endif //SYSTEMOC_ENABLE_DATAFLOW_TRACE
-#endif // SYSTEMOC_ENABLE_VPC
+#endif //SYSTEMOC_ENABLE_DATAFLOW_TRACE
 
     getFiringRule()->commReset();
 

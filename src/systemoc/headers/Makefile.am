@@ -56,7 +56,6 @@ nobase_include_HEADERS = \
 	smoc/detail/DebugOStream.hpp \
 	smoc/detail/DumpingInterfaces.hpp \
 	smoc/detail/EventMapManager.hpp \
-	smoc/detail/EventQueue.hpp \
 	smoc/detail/export_config.h \
 	smoc/detail/GraphBase.hpp \
 	smoc/detail/IdedObj.hpp \
@@ -75,7 +74,6 @@ nobase_include_HEADERS = \
 	smoc/detail/SimCTXBase.hpp \
 	smoc/detail/Storage.hpp \
 	smoc/detail/TraceLog.hpp \
-	smoc/detail/VpcInterface.hpp \
 	\
 	systemoc/smoc_moc.hpp \
 	systemoc/smoc_actor.hpp \

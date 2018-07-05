@@ -41,10 +41,6 @@
 
 #include <systemoc/smoc_config.h>
 
-#ifdef SYSTEMOC_ENABLE_VPC
-# include "VpcInterface.hpp"
-#endif // SYSTEMOC_ENABLE_VPC
-
 #include <systemc>
 
 #include <boost/noncopyable.hpp>
@@ -62,9 +58,6 @@ class PortBase;
 class PortBaseIf
   : public virtual sc_core::sc_interface
   , public SimCTXBase
-#ifdef SYSTEMOC_ENABLE_VPC
-  , public VpcPortInterface
-#endif //SYSTEMOC_ENABLE_VPC
   , private boost::noncopyable
 {
   friend class FSM::RuntimeFiringRule;

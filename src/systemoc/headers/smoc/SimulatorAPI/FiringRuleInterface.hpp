@@ -36,6 +36,8 @@
 #ifndef _INCLUDED_SMOC_SIMULATORAPI_FIRINGRULEINTERFACE_HPP
 #define _INCLUDED_SMOC_SIMULATORAPI_FIRINGRULEINTERFACE_HPP
 
+#include "PortInterfaces.hpp"
+
 #include <systemc>
 
 #include <vector>
@@ -46,22 +48,38 @@ namespace smoc { namespace SimulatorAPI {
   typedef std::vector<std::string> FunctionNames;
 
   class FiringRuleInterface {
-  private:
-    // Opaque data pointer for the scheduler.
-    void               *schedulerInfo;
   public:
     FiringRuleInterface();
+
+    struct PortInInfo {
+      PortInInfo(PortInInterface &in, size_t c, size_t r)
+        : port(in), consumed(c), required(r) {}
+
+      PortInInterface  &port;
+      size_t const      consumed;
+      size_t const      required;
+    };
+    typedef std::vector<PortInInfo> PortInInfos;
+
+    PortInInfos const  &getPortInInfos() const
+      { return portInInfos; }
+
+    struct PortOutInfo {
+      PortOutInfo(PortOutInterface &out, size_t p)
+        : port(out), produced(p) {}
+
+      PortOutInterface &port;
+      size_t const      produced;
+    };
+    typedef std::vector<PortOutInfo> PortOutInfos;
+
+    PortOutInfos const &getPortOutInfos() const
+      { return portOutInfos; }
 
     void                  setSchedulerInfo(void *schedulerInfo)
       { this->schedulerInfo = schedulerInfo; }
     void                 *getSchedulerInfo() const
       { return this->schedulerInfo; }
-
-    virtual void          freeInputs() = 0;
-
-    virtual void          releaseOutputs() = 0;
-
-    virtual void          commExec() = 0;
 
     virtual FunctionNames getGuardNames() const = 0;
 
@@ -70,6 +88,12 @@ namespace smoc { namespace SimulatorAPI {
     virtual FunctionNames getActionNames() const = 0;
 
     virtual ~FiringRuleInterface();
+  protected:
+    PortInInfos  portInInfos;
+    PortOutInfos portOutInfos;
+  private:
+    // Opaque data pointer for the scheduler.
+    void *schedulerInfo;
   };
 
 } } // namespace smoc::SimulatorAPI

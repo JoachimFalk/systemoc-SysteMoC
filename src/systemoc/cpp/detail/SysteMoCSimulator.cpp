@@ -12,6 +12,8 @@
 #include <smoc/SimulatorAPI/FiringRuleInterface.hpp>
 #include <smoc/SimulatorAPI/SimulatorInterface.hpp>
 
+#include <smoc/detail/PortBase.hpp>
+
 #include <systemoc/smoc_config.h>
 
 namespace smoc { namespace Detail {
@@ -21,21 +23,26 @@ class SysteMoCScheduler
   , public SimulatorAPI::SchedulerInterface
 {
   SC_HAS_PROCESS(SysteMoCScheduler);
+
+  typedef SimulatorAPI::TaskInterface           TaskInterface;
+  typedef SimulatorAPI::FiringRuleInterface     FiringRuleInterface;
+  typedef FiringRuleInterface::PortInInfo       PortInInfo;
+  typedef FiringRuleInterface::PortOutInfo      PortOutInfo;
 public:
-  SysteMoCScheduler(sc_core::sc_module_name, SimulatorAPI::TaskInterface *task);
+  SysteMoCScheduler(sc_core::sc_module_name, TaskInterface *task);
 
   // This will be called by SysteMoC if useActivationCallback()
   // return true.
-  void notifyActivation(SimulatorAPI::TaskInterface *task, bool activation);
+  void notifyActivation(TaskInterface *task, bool activation);
 
-  void registerFiringRule(SimulatorAPI::TaskInterface *task, SimulatorAPI::FiringRuleInterface *fr);
+  void registerFiringRule(TaskInterface *task, FiringRuleInterface *fr);
 
-  void checkFiringRule(SimulatorAPI::TaskInterface *task, SimulatorAPI::FiringRuleInterface *fr);
+  void checkFiringRule(TaskInterface *task, FiringRuleInterface *fr);
 
-  void executeFiringRule(SimulatorAPI::TaskInterface *task, SimulatorAPI::FiringRuleInterface *fr);
+  void executeFiringRule(TaskInterface *task, FiringRuleInterface *fr);
 
 private:
-  SimulatorAPI::TaskInterface *task;
+  TaskInterface *task;
 
   /// This event will be notified by notifyActivation if
   /// no VPC or Maestro scheduling is activated to
@@ -46,7 +53,7 @@ private:
 };
 
 
-SysteMoCScheduler::SysteMoCScheduler(sc_core::sc_module_name name, SimulatorAPI::TaskInterface *task)
+SysteMoCScheduler::SysteMoCScheduler(sc_core::sc_module_name name, TaskInterface *task)
   : sc_core::sc_module(name), task(task)
 {
   SC_METHOD(scheduleRequestMethod);
@@ -59,7 +66,7 @@ void SysteMoCScheduler::scheduleRequestMethod() {
     task->schedule();
 }
 
-void SysteMoCScheduler::notifyActivation(SimulatorAPI::TaskInterface *task, bool activation) {
+void SysteMoCScheduler::notifyActivation(TaskInterface *task, bool activation) {
   assert(task == this->task);
   if (activation)
     scheduleRequest.notify(task->getNextReleaseTime()-sc_core::sc_time_stamp());
@@ -67,20 +74,21 @@ void SysteMoCScheduler::notifyActivation(SimulatorAPI::TaskInterface *task, bool
     scheduleRequest.cancel();
 }
 
-void SysteMoCScheduler::registerFiringRule(SimulatorAPI::TaskInterface *task, SimulatorAPI::FiringRuleInterface *fr) {
+void SysteMoCScheduler::registerFiringRule(TaskInterface *task, FiringRuleInterface *fr) {
 
 }
 
-void SysteMoCScheduler::checkFiringRule(SimulatorAPI::TaskInterface *task, SimulatorAPI::FiringRuleInterface *fr) {
+void SysteMoCScheduler::checkFiringRule(TaskInterface *task, FiringRuleInterface *fr) {
 
 }
 
-void SysteMoCScheduler::executeFiringRule(SimulatorAPI::TaskInterface *task, SimulatorAPI::FiringRuleInterface *fr) {
-  fr->commExec();
-#ifdef SYSTEMOC_ENABLE_ROUTING
-  fr->freeInputs();
-  fr->releaseOutputs();
-#endif //SYSTEMOC_ENABLE_ROUTING
+void SysteMoCScheduler::executeFiringRule(TaskInterface *task, FiringRuleInterface *fr) {
+  for (PortInInfo const &portInfo : fr->getPortInInfos()) {
+    portInfo.port.commExec(portInfo.consumed);
+  }
+  for (PortOutInfo const &portInfo : fr->getPortOutInfos()) {
+    portInfo.port.commExec(portInfo.produced);
+  }
 }
 
 class SysteMoCSimulator

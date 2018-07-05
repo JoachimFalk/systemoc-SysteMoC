@@ -373,12 +373,9 @@ bool NodeBase::searchActiveTransition(bool debug) {
   for (FSM::RuntimeTransitionList::iterator t = tl.begin();
        t != tl.end();
        ++t) {
-#if defined(SYSTEMOC_ENABLE_VPC)
     if (!debug) {
-      t->getFiringRule()->vpcTask.check();
-//    getScheduler()->checkFiringRule(t->getFiringRule());
+      getScheduler()->checkFiringRule(this, t->getFiringRule());
     }
-#endif //SYSTEMOC_ENABLE_VPC
     if (t->check()) {
       ct = &*t;
       break;
@@ -398,7 +395,6 @@ void NodeBase::schedule() {
   assert(ct);
   assert(ct->check());
   executing = true;
-//getScheduler()->executeFiringRule(ct->getFiringRule());
   setCurrentState(ct->execute(this));
   executing = false;
   assert(!ct);
