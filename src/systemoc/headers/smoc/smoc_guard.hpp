@@ -68,7 +68,6 @@ namespace smoc { namespace Detail {
 
   // Forward declarations
   class PortBase;
-  class PortBaseIf;
 
   struct DISABLED { operator bool() const { return false; } };
   struct BLOCKED  {};
