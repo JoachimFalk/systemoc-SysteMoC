@@ -77,7 +77,6 @@ libsystemoc_la_SOURCES = \
 	src/systemoc/cpp/detail/SMXImporter.cpp \
 	src/systemoc/cpp/detail/SysteMoCSimulator.cpp \
 	src/systemoc/cpp/detail/TraceLog.cpp \
-	src/systemoc/cpp/detail/VpcInterface.cpp \
 	src/systemoc/cpp/SimulatorAPI/ChannelInterfaces.cpp \
 	src/systemoc/cpp/SimulatorAPI/FiringRuleInterface.cpp \
 	src/systemoc/cpp/SimulatorAPI/PortInterfaces.cpp \

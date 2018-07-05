@@ -42,6 +42,10 @@
 
 #include "SimulationContext.hpp"
 
+#ifdef SYSTEMOC_ENABLE_VPC
+# include "vpc.hpp"
+#endif //SYSTEMOC_ENABLE_VPC
+
 namespace smoc { namespace Detail {
 
 using namespace CoSupport;
@@ -132,17 +136,10 @@ void PortInBase::end_of_elaboration() {
   assert(interface_count() >= 1);
 #ifdef SYSTEMOC_ENABLE_VPC
   if (getActorPort() == this) {
-    std::string actorName = get_parent_object()->name();
-
-    PortInBaseIf *channelSourceInterface = get_interface();
-    std::string channelName = channelSourceInterface->getChannelName();
-    channelSourceInterface->VpcPortInterface::vpcCommTask =
-        SystemC_VPC::Director::getInstance().registerRoute(channelName,
-            actorName, this);
-# ifdef SYSTEMOC_ENABLE_DEBUG
-    channelSourceInterface->VpcPortInterface::actor   = actorName;
-    channelSourceInterface->VpcPortInterface::channel = channelName;
-# endif // SYSTEMOC_ENABLE_DEBUG
+    std::string actorName   = get_parent_object()->name();
+    std::string channelName = get_interface()->getChannelName();
+    this->setSchedulerInfo(SystemC_VPC::Director::getInstance().registerRoute(channelName,
+        actorName, this));
   }
 #endif //SYSTEMOC_ENABLE_VPC
 }
@@ -192,13 +189,9 @@ void PortOutBase::end_of_elaboration() {
     std::string actorName = get_parent_object()->name();
     for (PortOutBaseIf *channelSinkInterface : get_interfaces()) {
       std::string channelName = channelSinkInterface->getChannelName();
-      channelSinkInterface->VpcPortInterface::vpcCommTask =
-          SystemC_VPC::Director::getInstance().registerRoute(actorName,
-              channelName, this);
-  # ifdef SYSTEMOC_ENABLE_DEBUG
-      channelSinkInterface->VpcPortInterface::actor   = actorName;
-      channelSinkInterface->VpcPortInterface::channel = channelName;
-  # endif // SYSTEMOC_ENABLE_DEBUG
+      // FIXME: Routes have to be changed to support multicast themselves.
+      this->setSchedulerInfo(SystemC_VPC::Director::getInstance().registerRoute(actorName,
+          channelName, this));
     }
   }
 #endif //SYSTEMOC_ENABLE_VPC

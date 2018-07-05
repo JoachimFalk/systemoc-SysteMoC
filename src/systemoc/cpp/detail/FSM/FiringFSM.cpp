@@ -386,16 +386,6 @@ void FiringFSM::end_of_elaboration(NodeBase *node, StateImpl *hsinit) {
 #endif // FSM_FINALIZE_BENCHMARK
   for (RuntimeFiringRule *fr : firingRules) {
     node->getScheduler()->registerFiringRule(node, fr);
-#ifdef SYSTEMOC_ENABLE_VPC
-    //calculate delay for guard
-    //initialize VpcTaskInterface
-    fr->vpcTask =
-      SystemC_VPC::Director::getInstance().registerActor(node,
-          node->name(), fr->getActionNames(), fr->getGuardNames(), fr->getGuardComplexity());
-# ifdef SYSTEMOC_DEBUG_VPC_IF
-    fr->actor = node->name();
-# endif // SYSTEMOC_DEBUG_VPC_IF
-#endif //SYSTEMOC_ENABLE_VPC
   }
 #ifdef SYSTEMOC_ENABLE_DEBUG
   if (smoc::Detail::outDbg.isVisible(smoc::Detail::Debug::High)) {

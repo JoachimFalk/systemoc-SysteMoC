@@ -66,7 +66,6 @@ namespace smoc { namespace Detail { namespace FSM {
 
 namespace smoc { namespace Detail {
 
-class NodeBase;
 class QSSCluster;
 
 /// Class representing the base class of all SysteMoC ports.
@@ -79,9 +78,6 @@ class PortBase
   private boost::noncopyable
 {
   typedef PortBase this_type;
-  
-  friend class NodeBase;
-  friend class FSM::RuntimeFiringRule; // for blockEvent
 public:
   PortBase const *getParentPort() const;
   PortBase const *getActorPort() const;
@@ -148,6 +144,8 @@ class PortInBase
 {
   typedef PortInBase  this_type;
   typedef PortBase    base_type;
+
+  friend class FSM::RuntimeFiringRule; // for blockEvent
 
   typedef Expr::D<Expr::DComm<Detail::PortBase> > IOGuard;
 public:
@@ -224,6 +222,8 @@ class PortOutBase
   typedef PortOutBase this_type;
   typedef PortBase    base_type;
 
+  friend class FSM::RuntimeFiringRule; // for blockEvent
+
   typedef Expr::D<Expr::DComm<Detail::PortBase> >  IOGuard;
 public:
   typedef std::vector<PortOutBaseIf *>       Interfaces;
@@ -242,11 +242,11 @@ public:
   const char *name() const
     { return this->sc_core::sc_port_base::name(); }
 
-  // operator(n,m) n: How many tokens to produce, m: How much space must be available
-  IOGuard operator ()(size_t n, size_t m) {
-    assert(m >= n);
-    return IOGuard(*this, n, m);
-  }
+//// operator(n,m) n: How many tokens to produce, m: How much space must be available
+//IOGuard operator ()(size_t n, size_t m) {
+//  assert(m >= n);
+//  return IOGuard(*this, n, m);
+//}
   // operator(n) n: How much space (in tokens) is available and tokens are produced on firing
   IOGuard operator ()(size_t n) {
     return IOGuard(*this, n, n);

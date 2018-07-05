@@ -42,18 +42,14 @@ namespace smoc { namespace SimulatorAPI {
 
   class ChannelSinkInterface {
   public:
-    virtual void commStart(size_t n) = 0;
     virtual void commFinish(size_t n, bool dropped = false) = 0;
-    virtual void commExec(size_t n) = 0;
   protected:
     virtual ~ChannelSinkInterface();
   };
 
   class ChannelSourceInterface {
   public:
-    virtual void commStart(size_t n) = 0;
     virtual void commFinish(size_t n, bool dropped = false) = 0;
-    virtual void commExec(size_t n) = 0;
   protected:
     virtual ~ChannelSourceInterface();
   };

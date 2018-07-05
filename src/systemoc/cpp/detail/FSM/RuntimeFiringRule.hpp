@@ -39,7 +39,6 @@
 #include <smoc/SimulatorAPI/FiringRuleInterface.hpp>
 #include <smoc/smoc_firing_rule.hpp>
 #include <smoc/smoc_event.hpp>
-#include <smoc/detail/VpcInterface.hpp>
 
 #include <smoc/smoc_guard.hpp>
 #include <systemoc/detail/smoc_func_call.hpp> // for smoc_action
@@ -59,9 +58,6 @@ namespace smoc { namespace Detail { namespace FSM {
     : public SimulatorAPI::FiringRuleInterface
     , public smoc_firing_rule
     , private boost::noncopyable
-#ifdef SYSTEMOC_ENABLE_VPC
-    , public VpcTaskInterface
-#endif // SYSTEMOC_ENABLE_VPC
   {
   public:
     typedef SimulatorAPI::FunctionNames FunctionNames;
@@ -73,11 +69,6 @@ namespace smoc { namespace Detail { namespace FSM {
       { assert(ioPatternWaiter); return ioPatternWaiter; }
 
     /// Implement SimulatorAPI::FiringRuleInterface
-    void          freeInputs();
-    /// Implement SimulatorAPI::FiringRuleInterface
-    void          releaseOutputs();
-
-    /// Implement SimulatorAPI::FiringRuleInterface
     FunctionNames getGuardNames() const;
     /// Implement SimulatorAPI::FiringRuleInterface
     size_t        getGuardComplexity() const;
@@ -86,12 +77,20 @@ namespace smoc { namespace Detail { namespace FSM {
 
     void          commSetup() {
 #if defined(SYSTEMOC_ENABLE_DEBUG) || defined(SYSTEMOC_ENABLE_DATAFLOW_TRACE)
-      for (PortInfo portInfo : portInfos) {
+      for (PortInInfo const &portInfo : getPortInInfos()) {
 # ifdef SYSTEMOC_ENABLE_DATAFLOW_TRACE
-        portInfo.port.traceCommSetup(portInfo.required);
+        static_cast<PortInBase &>(portInfo.port).traceCommSetup(portInfo.required);
 # endif // SYSTEMOC_ENABLE_DATAFLOW_TRACE
 # ifdef SYSTEMOC_ENABLE_DEBUG
-        portInfo.port.setLimit(portInfo.required);
+        static_cast<PortInBase &>(portInfo.port).setLimit(portInfo.required);
+# endif // SYSTEMOC_ENABLE_DEBUG
+      }
+      for (PortOutInfo const &portInfo : getPortOutInfos()) {
+# ifdef SYSTEMOC_ENABLE_DATAFLOW_TRACE
+        static_cast<PortOutBase &>(portInfo.port).traceCommSetup(portInfo.produced);
+# endif // SYSTEMOC_ENABLE_DATAFLOW_TRACE
+# ifdef SYSTEMOC_ENABLE_DEBUG
+        static_cast<PortOutBase &>(portInfo.port).setLimit(portInfo.produced);
 # endif // SYSTEMOC_ENABLE_DEBUG
       }
 #endif // defined(SYSTEMOC_ENABLE_DEBUG) || defined(SYSTEMOC_ENABLE_DATAFLOW_TRACE)
@@ -99,41 +98,17 @@ namespace smoc { namespace Detail { namespace FSM {
 
     void          commReset() {
 #if defined(SYSTEMOC_ENABLE_DEBUG)
-      for (PortInfo portInfo : portInfos)
-        portInfo.port.setLimit(0);
+      for (PortInInfo const &portInfo : getPortInInfos())
+        static_cast<PortInBase &>(portInfo.port).setLimit(0);
+      for (PortOutInfo const &portInfo : getPortOutInfos())
+        static_cast<PortOutBase &>(portInfo.port).setLimit(0);
 #endif //defined(SYSTEMOC_ENABLE_DEBUG)
     }
-
-    void          commExec();
 
     ~RuntimeFiringRule();
   private:
     class GuardVisitor;
 
-#ifdef SYSTEMOC_ENABLE_VPC
-    class DIIListener;
-
-    DIIListener *diiListener;
-
-    class LATListener;
-
-    LATListener *latListener;
-
-    std::list<smoc_vpc_event_p> latQueue;
-#endif //SYSTEMOC_ENABLE_VPC
-
-    struct PortInfo {
-      PortInfo(PortBase &p, size_t c, size_t r)
-        : port(p), commited(c), required(r) {}
-
-      PortBase     &port;
-      size_t const  commited;
-      size_t const  required;
-    };
-
-    typedef std::vector<PortInfo> PortInfos;
-
-    PortInfos     portInfos;
     FunctionNames guardNames;
     size_t        guardComplexity;
 
