@@ -33,31 +33,31 @@
  * ENHANCEMENTS, OR MODIFICATIONS.
  */
 
-#ifndef _INCLUDED_SMOC_SIMULATORAPI_SCHEDULERINTERFACE_HPP
-#define _INCLUDED_SMOC_SIMULATORAPI_SCHEDULERINTERFACE_HPP
+#ifndef _INCLUDED_SMOC_SIMULATORAPI_CHANNELINTERFACES_HPP
+#define _INCLUDED_SMOC_SIMULATORAPI_CHANNELINTERFACES_HPP
+
+#include <stddef.h>
 
 namespace smoc { namespace SimulatorAPI {
 
-  class TaskInterface;
-  class FiringRuleInterface;
-
-  class SchedulerInterface {
+  class ChannelSinkInterface {
   public:
-    // This must be implemented by the scheduler and will be called by
-    // SysteMoC for each firing rule of a SysteMoC actor (task).
-    virtual void registerFiringRule(TaskInterface *task, FiringRuleInterface *fr) = 0;
+    virtual void commStart(size_t n) = 0;
+    virtual void commFinish(size_t n, bool dropped = false) = 0;
+    virtual void commExec(size_t n) = 0;
+  protected:
+    virtual ~ChannelSinkInterface();
+  };
 
-    // This must be implemented by the scheduler and will be called by the
-    // SysteMoC task if task->getUseActivationCallback() returns true.
-    virtual void notifyActivation(TaskInterface *task, bool activation) = 0;
-
-    virtual void checkFiringRule(TaskInterface *task, FiringRuleInterface *fr) = 0;
-
-    virtual void executeFiringRule(TaskInterface *task, FiringRuleInterface *fr) = 0;
-
-    virtual ~SchedulerInterface() {}
+  class ChannelSourceInterface {
+  public:
+    virtual void commStart(size_t n) = 0;
+    virtual void commFinish(size_t n, bool dropped = false) = 0;
+    virtual void commExec(size_t n) = 0;
+  protected:
+    virtual ~ChannelSourceInterface();
   };
 
 } } // namespace smoc::SimulatorAPI
 
-#endif /* _INCLUDED_SMOC_SIMULATORAPI_SCHEDULERINTERFACE_HPP */
+#endif /* _INCLUDED_SMOC_SIMULATORAPI_CHANNELINTERFACES_HPP */

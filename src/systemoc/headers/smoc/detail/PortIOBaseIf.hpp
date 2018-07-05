@@ -37,8 +37,8 @@
 #define _INCLUDED_SMOC_DETAIL_PORTIOBASEIF_HPP
 
 #include "PortBaseIf.hpp"
-
 #include "../smoc_guard.hpp"
+#include "../SimulatorAPI/ChannelInterfaces.hpp"
 
 template<class, class> class smoc_chan_adapter;
 
@@ -47,11 +47,34 @@ namespace smoc { namespace Detail {
 template<class IFaceImpl>
 class ChanAdapterMid;
 
-class PortInBaseIf: public PortBaseIf {
+class PortInBaseIf
+  : public SimulatorAPI::ChannelSourceInterface
+  , public PortBaseIf
+{
   typedef PortInBaseIf this_type;
 
+  friend class PortInBase;
   template<class,class> friend class ::smoc_chan_adapter;
   template<class>       friend class ChanAdapterMid;
+public:
+  // FIXME: Why not merge this with PortInBaseIf?!
+  class access_type {
+  public:
+    typedef void return_type;
+
+  #if defined(SYSTEMOC_ENABLE_DEBUG)
+    virtual void setLimit(size_t) = 0;
+  #endif
+    virtual bool tokenIsValid(size_t) const = 0;
+
+    virtual ~access_type() {}
+  };
+
+//virtual size_t      inTokenId() const = 0;
+  virtual size_t      numAvailable() const = 0;
+  virtual std::string getChannelName() const = 0;
+
+  virtual ~PortInBaseIf() {}
 protected:
   // constructor
   PortInBaseIf() {}
@@ -63,21 +86,53 @@ protected:
   size_t availableCount() const
     { return this->numAvailable(); }
 
+#ifdef SYSTEMOC_ENABLE_ROUTING
+  virtual void commStart(size_t n) = 0;
+  virtual void commFinish(size_t n, bool dropped = false) = 0;
+  virtual void commExec(size_t n) {
+    commStart(n); commFinish(n);
+  }
+#else //!SYSTEMOC_ENABLE_ROUTING
+  virtual void commExec(size_t n) = 0;
+#endif //!SYSTEMOC_ENABLE_ROUTING
+
   /// @brief Reset
   virtual void reset() {}
-public:
-//virtual size_t      inTokenId() const = 0;
-  virtual size_t      numAvailable() const = 0;
-  virtual std::string getChannelName() const = 0;
 
-  virtual ~PortInBaseIf() {}
+  virtual access_type *getChannelAccess() = 0;
 };
 
-class PortOutBaseIf: public PortBaseIf {
+class PortOutBaseIf
+  // SimulatorAPI::ChannelSourceInterface must be first base class. Otherwise,
+  // the reinterpret_cast<std::vector<SimulatorAPI::ChannelSinkInterface *>
+  //   (std::vector<PortOutBaseIf *>()) in PortOutBase is invalid!!!
+  : public SimulatorAPI::ChannelSinkInterface
+  , public PortBaseIf
+{
   typedef PortOutBaseIf this_type;
 
+  friend class PortOutBase;
   template<class,class> friend class ::smoc_chan_adapter;
   template<class>       friend class ChanAdapterMid;
+public:
+  // FIXME: Why not merge this with PortOutBaseIf?!
+  class access_type {
+  public:
+    typedef void return_type;
+
+  #if defined(SYSTEMOC_ENABLE_DEBUG)
+    virtual void setLimit(size_t) = 0;
+  #endif
+    virtual bool tokenIsValid(size_t) const = 0;
+
+    virtual ~access_type() {}
+  };
+
+//virtual size_t      outTokenId() const = 0;
+  virtual size_t      numFree() const = 0;
+  virtual std::string getChannelName() const = 0;
+
+  virtual ~PortOutBaseIf() {}
 protected:
   // constructor
   PortOutBaseIf() {}
@@ -89,14 +144,20 @@ protected:
   size_t availableCount() const
     { return this->numFree(); }
 
+#ifdef SYSTEMOC_ENABLE_ROUTING
+  virtual void commStart(size_t n) = 0;
+  virtual void commFinish(size_t n, bool dropped = false) = 0;
+  virtual void commExec(size_t n) {
+    commStart(n); commFinish(n);
+  }
+#else //!SYSTEMOC_ENABLE_ROUTING
+  virtual void commExec(size_t n) = 0;
+#endif //!SYSTEMOC_ENABLE_ROUTING
+
   /// @brief Reset
   virtual void reset() {}
-public:
-//virtual size_t      outTokenId() const = 0;
-  virtual size_t      numFree() const = 0;
-  virtual std::string getChannelName() const = 0;
 
-  virtual ~PortOutBaseIf() {}
+  virtual access_type *getChannelAccess() = 0;
 };
 
 } } // namespace smoc::Detail

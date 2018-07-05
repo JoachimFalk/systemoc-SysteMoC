@@ -65,7 +65,7 @@ protected:
 //#endif //defined(SYSTEMOC_ENABLE_MAESTRO)
 //  );
 
-  void before_end_of_elaboration();
+//  void before_end_of_elaboration();
 
 #ifdef SYSTEMOC_ENABLE_MAESTRO
   void initMMactor();

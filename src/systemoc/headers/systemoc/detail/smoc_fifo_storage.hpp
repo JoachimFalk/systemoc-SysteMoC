@@ -57,9 +57,9 @@
  */
 template<class T, class BASE>
 class smoc_fifo_storage
-: public smoc::Detail::QueueWithStorage<T, BASE>
-, public smoc_ring_access<T, typename smoc_port_in_if<T>::access_type>
-, public smoc_ring_access<T, typename smoc_port_out_if<T>::access_type>
+  : public smoc::Detail::QueueWithStorage<T, BASE>
+  , public smoc_ring_access<T, typename smoc_port_in_if<T>::access_type>
+  , public smoc_ring_access<T, typename smoc_port_out_if<T>::access_type>
 {
   typedef smoc_fifo_storage<T, BASE>              this_type;
   typedef smoc::Detail::QueueWithStorage<T, BASE> base_type;
@@ -154,9 +154,9 @@ public:
  */
 template<class BASE>
 class smoc_fifo_storage<void, BASE>
-: public smoc::Detail::QueueWithStorage<void, BASE>
-, public smoc_ring_access<void, smoc_port_in_if<void>::access_type>
-//, public smoc_ring_access<void, smoc_port_out_if<void>::access_type>
+  : public smoc::Detail::QueueWithStorage<void, BASE>
+  , public smoc_ring_access<void, smoc_port_in_if<void>::access_type>
+  , public smoc_ring_access<void, smoc_port_out_if<void>::access_type>
 {
   typedef smoc_fifo_storage<void, BASE>               this_type;
   typedef smoc::Detail::QueueWithStorage<void, BASE>  base_type;

@@ -196,7 +196,7 @@ namespace smoc { namespace Detail { namespace FSM {
     do {
       for (PortInfo portInfo : portInfos) {
         if (portInfo.port.isOutput()) {
-          for (PortBaseIf *pbIf : portInfo.port.get_interfaces()) {
+          for (PortBaseIf *pbIf : static_cast<PortOutBase &>(portInfo.port).get_interfaces()) {
             WriteCompleteQueues::iterator iter = writeCompleteQueues.find(pbIf);
             if (iter == writeCompleteQueues.end()) {
               auto success = [pbIf](size_t n) {
@@ -245,7 +245,7 @@ namespace smoc { namespace Detail { namespace FSM {
 #endif //defined(SYSTEMOC_ENABLE_DEBUG)
       portInfo.port.commStart(portInfo.commited);
       if (portInfo.port.isInput()) {
-        VpcInterface(this, portInfo.port.get_interfaces().front()).
+        VpcInterface(this, static_cast<PortInBase &>(portInfo.port).get_interface()).
             startVpcRead(portInfo.commited);
       }
     }

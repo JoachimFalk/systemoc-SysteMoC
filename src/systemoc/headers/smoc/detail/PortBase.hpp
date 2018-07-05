@@ -36,6 +36,8 @@
 #ifndef _INCLUDED_SMOC_DETAIL_PORTBASE_HPP
 #define _INCLUDED_SMOC_DETAIL_PORTBASE_HPP
 
+#include <smoc/SimulatorAPI/PortInterfaces.hpp>
+
 #include "NamedIdedObj.hpp"
 #include "PortIOBaseIf.hpp"
 #include "SimCTXBase.hpp"
@@ -80,32 +82,21 @@ class PortBase
   
   friend class NodeBase;
   friend class FSM::RuntimeFiringRule; // for blockEvent
-
-//template <class PORT, class IFACE> friend class PortInBaseIf::PortMixin;
-//template <class PORT, class IFACE> friend class PortOutBaseIf::PortMixin;
 public:
-  typedef std::vector<PortBaseIf *>       Interfaces;
-  typedef std::vector<PortBaseIf const *> ConstInterfaces;
-
-  Interfaces      const &get_interfaces()
-    { return interfaces; }
-  ConstInterfaces const &get_interfaces() const
-    { return reinterpret_cast<ConstInterfaces const &>(interfaces); }
-
-#ifdef SYSTEMOC_NEED_IDS
-  // To reflect SystemC name back to NamedIdedObj base class.
-  const char *name() const
-    { return this->sc_core::sc_port_base::name(); }
-#endif // SYSTEMOC_NEED_IDS
-
   PortBase const *getParentPort() const;
   PortBase const *getActorPort() const;
 
   virtual bool isInput()  const = 0;
   bool         isOutput() const
     { return !isInput(); }
+
+#ifdef SYSTEMOC_NEED_IDS
+  // To reflect SystemC name back to NamedIdedObj base class.
+  const char *name() const
+    { return this->sc_core::sc_port_base::name(); }
+#endif // SYSTEMOC_NEED_IDS
 protected:
-  PortBase(const char* name_, sc_core::sc_port_policy policy);
+  PortBase(const char *name, int maxBinds = 1);
 
   using sc_core::sc_port_base::bind;
 
@@ -114,70 +105,220 @@ protected:
 
   virtual void before_end_of_elaboration();
 
-  virtual void end_of_elaboration();
+  void setId(NgId id);
+
+//virtual void end_of_elaboration();
 
 #ifdef SYSTEMOC_ENABLE_DATAFLOW_TRACE
   void        traceCommSetup(size_t req);
 #endif //SYSTEMOC_ENABLE_DATAFLOW_TRACE
-  smoc_event_waiter &blockEvent(size_t n);
-  size_t             availableCount() const;
-
-  virtual void duplicateOutput(size_t n) = 0;
+  virtual smoc_event_waiter &blockEvent(size_t n) = 0;
+  virtual size_t             availableCount() const = 0;
 
 #ifdef SYSTEMOC_ENABLE_ROUTING
-  void commStart(size_t n);
-  void commFinish(size_t n);
-#else //!SYSTEMOC_ENABLE_ROUTING
-  void commExec(size_t n);
+  virtual void commStart(size_t n) = 0;
+  virtual void commFinish(size_t n) = 0;
 #endif //!SYSTEMOC_ENABLE_ROUTING
+  virtual void commExec(size_t n) = 0;
 #ifdef SYSTEMOC_ENABLE_DEBUG
-  void setLimit(size_t req);
+  virtual void setLimit(size_t req) = 0;
 #endif //SYSTEMOC_ENABLE_DEBUG
 
 #ifdef SYSTEMOC_ENABLE_SGX
   friend class QSSCluster;  // for copyPort
 
-  PortBase         *copyPort(const char *name, NgId id);
-  /// Helper used by copyPort to create a new instance of the same port type.
-  virtual PortBase *allocatePort(const char *name) = 0;
+  virtual PortBase *copyPort(const char *name, NgId id) = 0;
 #endif //SYSTEMOC_ENABLE_SGX
 
   virtual ~PortBase();
-
-  typedef std::vector<PortBaseIf::access_type *> PortAccesses;
-
-  PortAccesses  portAccesses;
 private:
-  typedef std::map<size_t, smoc_event_and_list>   BlockEventMap;
-
   PortBase     *parent;
   // FIXME: In the future the FIFO may not be at the lca level of the connected actors.
   //        Hence, we may have multiple FIFOs at a lower level in the pg hierarchy.
   //        Therefore, we might need to support multiple child ports.
   PortBase     *child;
+};
 
-  Interfaces    interfaces;
+typedef std::list<PortBase *>             smoc_sysc_port_list;
 
-  BlockEventMap blockEventMap;
+/// Class representing the base class of all SysteMoC ports.
+class PortInBase
+  : public PortBase
+  , private SimulatorAPI::PortInInterface
+{
+  typedef PortInBase  this_type;
+  typedef PortBase    base_type;
+
+  typedef Expr::D<Expr::DComm<Detail::PortBase> > IOGuard;
+public:
+  /// Implements sc_port_base::get_interface.
+  PortInBaseIf       *get_interface()
+    { return interface; }
+  /// Implements sc_port_base::get_interface.
+  PortInBaseIf const *get_interface() const
+    { return interface; }
+
+  bool isInput() const
+    { return true; }
+
+  // To reflect SystemC name back to NamedIdedObj and
+  // SimulatorAPI::PortInInterface base classes.
+  const char *name() const
+    { return this->sc_core::sc_port_base::name(); }
+
+  // operator(n,m) n: How many tokens to consume, m: How many tokens must be available
+  IOGuard operator ()(size_t n, size_t m) {
+    assert(m >= n);
+    return IOGuard(*this, n, m);
+  }
+  // operator(n) n: How many tokens must be available and are consumed on firing.
+  IOGuard operator ()(size_t n) {
+    return IOGuard(*this, n, n);
+  }
+
+  size_t numAvailable() const
+    { return get_interface()->numAvailable(); }
+protected:
+  PortInBase(const char *name);
+
+  virtual void end_of_elaboration();
+
+  smoc_event_waiter &blockEvent(size_t n)
+    { return interface->blockEvent(n); }
+  size_t             availableCount() const
+    { return this->numAvailable(); }
+
+#ifdef SYSTEMOC_ENABLE_ROUTING
+  void commStart(size_t n)
+    { interface->commStart(n); }
+  void commFinish(size_t n)
+    { interface->commFinish(n); }
+#endif //!SYSTEMOC_ENABLE_ROUTING
+  void commExec(size_t n)
+    { interface->commExec(n); }
+#ifdef SYSTEMOC_ENABLE_DEBUG
+  void setLimit(size_t req)
+    { portAccess->setLimit(req); }
+#endif //SYSTEMOC_ENABLE_DEBUG
 
   // SystemC 2.2 requires this method
   // (must also return the correct number!!!)
   int  interface_count();
   void add_interface(sc_core::sc_interface *);
 
-#ifdef SYSTEMOC_ENABLE_VPC
-  friend class smoc::smoc_actor; // for finaliseVpcLink
+  virtual ~PortInBase();
 
-  void finaliseVpcLink(std::string actorName);
-#endif //SYSTEMOC_ENABLE_VPC
+  PortInBaseIf::access_type *portAccess;
+private:
+  PortInBaseIf *interface;
 
-  // disable get_interface() from sc_core::sc_port_base
+  /// Implements SimulatorAPI::PortInInterface::getSource.
+  SimulatorAPI::ChannelSourceInterface *getSource();
+};
+
+/// Class representing the base class of all SysteMoC ports.
+class PortOutBase
+  : public PortBase
+  , private SimulatorAPI::PortOutInterface
+{
+  typedef PortOutBase this_type;
+  typedef PortBase    base_type;
+
+  typedef Expr::D<Expr::DComm<Detail::PortBase> >  IOGuard;
+public:
+  typedef std::vector<PortOutBaseIf *>       Interfaces;
+  typedef std::vector<PortOutBaseIf const *> ConstInterfaces;
+
+  Interfaces      const &get_interfaces()
+    { return interfaces; }
+  ConstInterfaces const &get_interfaces() const
+    { return reinterpret_cast<ConstInterfaces const &>(interfaces); }
+
+  bool isInput() const
+    { return false; }
+
+  // To reflect SystemC name back to NamedIdedObj and
+  // SimulatorAPI::PortInInterface base classes.
+  const char *name() const
+    { return this->sc_core::sc_port_base::name(); }
+
+  // operator(n,m) n: How many tokens to produce, m: How much space must be available
+  IOGuard operator ()(size_t n, size_t m) {
+    assert(m >= n);
+    return IOGuard(*this, n, m);
+  }
+  // operator(n) n: How much space (in tokens) is available and tokens are produced on firing
+  IOGuard operator ()(size_t n) {
+    return IOGuard(*this, n, n);
+  }
+
+  size_t numFree() const {
+    size_t n = (std::numeric_limits<size_t>::max)();
+    for (PortOutBaseIf *iface : interfaces)
+      n = (std::min)(n, iface->numFree());
+    return n;
+  }
+protected:
+  PortOutBase(const char *name);
+
+  virtual void end_of_elaboration();
+
+  virtual void duplicateOutput(size_t n) = 0;
+
+  smoc_event_waiter &blockEvent(size_t n);
+  size_t             availableCount() const
+    { return this->numFree(); }
+
+#ifdef SYSTEMOC_ENABLE_ROUTING
+  void commStart(size_t n) {
+    duplicateOutput(n);
+    for (PortOutBaseIf *iface : interfaces)
+      iface->commStart(n);
+  }
+  void commFinish(size_t n) {
+    for (PortOutBaseIf *iface : interfaces)
+      iface->commFinish(n);
+  }
+#endif //!SYSTEMOC_ENABLE_ROUTING
+  void commExec(size_t n) {
+    duplicateOutput(n);
+    for (PortOutBaseIf *iface : interfaces)
+      iface->commExec(n);
+  }
+#ifdef SYSTEMOC_ENABLE_DEBUG
+  void setLimit(size_t req) {
+    for (PortOutBaseIf::access_type *iface : portAccesses)
+      iface->setLimit(req);
+  }
+#endif //SYSTEMOC_ENABLE_DEBUG
+
+  // SystemC 2.2 requires this method
+  // (must also return the correct number!!!)
+  int  interface_count();
+  void add_interface(sc_core::sc_interface *);
+
+  virtual ~PortOutBase();
+
+  typedef std::vector<PortOutBaseIf::access_type *> PortAccesses;
+
+  PortAccesses                portAccesses;
+  PortOutBaseIf::access_type *portAccess;
+
+private:
+  Interfaces    interfaces;
+
+  typedef std::map<size_t, smoc_event_and_list>   BlockEventMap;
+
+  BlockEventMap blockEventMap;
+
+  /// Implements SimulatorAPI::PortOutInterface::getSinks.
+  std::vector<SimulatorAPI::ChannelSinkInterface *> const &getSinks();
+
+  // Disable sc_core::sc_port_base::get_interface(). These
+  // methods must never be called!
   sc_core::sc_interface       *get_interface();
   sc_core::sc_interface const *get_interface() const;
 };
-
-typedef std::list<PortBase *>             smoc_sysc_port_list;
-typedef std::list<sc_core::sc_port_base*> sc_port_list;
 
 } } // namespace smoc::Detail
 

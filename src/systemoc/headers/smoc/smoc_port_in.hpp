@@ -47,39 +47,20 @@ namespace smoc {
 
   template <typename T>
   class smoc_port_in
-  : public Detail::PortCommon<smoc_port_in_if<T> >
+  : public Detail::PortCommon<Detail::PortInBase, smoc_port_in_if<T> >
   {
-    typedef smoc_port_in<T>                         this_type;
-    typedef Detail::PortCommon<smoc_port_in_if<T> > base_type;
-
-    typedef Expr::D<Expr::DComm<Detail::PortBase> > IOGuard;
+    typedef smoc_port_in<T> this_type;
+    typedef Detail::PortCommon<Detail::PortInBase, smoc_port_in_if<T> >
+                            base_type;
   public:
     smoc_port_in()
-      : base_type(sc_core::sc_gen_unique_name("i", false),
-          sc_core::SC_ONE_OR_MORE_BOUND)
-      , portAccess(nullptr)
-    {}
+      : base_type(sc_core::sc_gen_unique_name("i", false)) {}
     smoc_port_in(sc_core::sc_module_name name)
-      : base_type(name,
-          sc_core::SC_ONE_OR_MORE_BOUND)
-      , portAccess(nullptr)
-    {}
-
-    using base_type::operator ();
-
-    // operator(n,m) n: How many tokens to consume, m: How many tokens must be available
-    IOGuard operator ()(size_t n, size_t m) {
-      assert(m >= n);
-      return IOGuard(*this, n, m);
-    }
-    // operator(n) n: How many tokens must be available and are consumed on firing.
-    IOGuard operator ()(size_t n) {
-      return IOGuard(*this, n, n);
-    }
+      : base_type(name) {}
 
     // Provide [] access operator for port.
     typename this_type::return_type operator[](size_t n) const {
-      return (*portAccess)[n];
+      return (*static_cast<typename this_type::access_type *>(this->portAccess))[n];
     }
 
     // Provide getValueAt method for port. The methods returms an expression
@@ -88,30 +69,16 @@ namespace smoc {
     typename Expr::Token<this_type>::type getValueAt(size_t n)
       { return Expr::token<this_type>(*this,n); }
 
-    bool isInput() const { return true; }
-
   //size_t tokenId(size_t i=0) const
   //  { return (*this)->inTokenId() + i; }
-
-    size_t numAvailable() const
-      { return this->availableCount(); }
-  protected:
-    void end_of_elaboration() {
-      // This will populate the portAccesses list.
-      base_type::end_of_elaboration();
-      // This is an input port. Thus, we must have exactly one channel bound.
-      assert(this->portAccesses.size() == 1);
-      portAccess = static_cast<typename this_type::access_type *>(
-          this->portAccesses.front());
-    }
   private:
-    typename this_type::access_type *portAccess;
-
-    void duplicateOutput(size_t n) {}
-
 #ifdef SYSTEMOC_ENABLE_SGX
-    this_type *allocatePort(const char *name)
-      { return new this_type(name); }
+    this_type *copyPort(const char *name, Detail::NgId id) {
+      this_type *retval = new this_type(name);
+      retval->setId(id);
+      retval->add_interface(this->get_interface());
+      return retval;
+    }
 #endif //SYSTEMOC_ENABLE_SGX
   };
 

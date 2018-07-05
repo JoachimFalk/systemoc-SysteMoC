@@ -33,31 +33,12 @@
  * ENHANCEMENTS, OR MODIFICATIONS.
  */
 
-#ifndef _INCLUDED_SMOC_SIMULATORAPI_SCHEDULERINTERFACE_HPP
-#define _INCLUDED_SMOC_SIMULATORAPI_SCHEDULERINTERFACE_HPP
+#include <smoc/SimulatorAPI/ChannelInterfaces.hpp>
 
 namespace smoc { namespace SimulatorAPI {
 
-  class TaskInterface;
-  class FiringRuleInterface;
+  ChannelSinkInterface::~ChannelSinkInterface() {}
 
-  class SchedulerInterface {
-  public:
-    // This must be implemented by the scheduler and will be called by
-    // SysteMoC for each firing rule of a SysteMoC actor (task).
-    virtual void registerFiringRule(TaskInterface *task, FiringRuleInterface *fr) = 0;
-
-    // This must be implemented by the scheduler and will be called by the
-    // SysteMoC task if task->getUseActivationCallback() returns true.
-    virtual void notifyActivation(TaskInterface *task, bool activation) = 0;
-
-    virtual void checkFiringRule(TaskInterface *task, FiringRuleInterface *fr) = 0;
-
-    virtual void executeFiringRule(TaskInterface *task, FiringRuleInterface *fr) = 0;
-
-    virtual ~SchedulerInterface() {}
-  };
+  ChannelSourceInterface::~ChannelSourceInterface() {}
 
 } } // namespace smoc::SimulatorAPI
-
-#endif /* _INCLUDED_SMOC_SIMULATORAPI_SCHEDULERINTERFACE_HPP */

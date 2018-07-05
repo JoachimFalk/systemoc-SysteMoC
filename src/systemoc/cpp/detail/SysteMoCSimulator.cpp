@@ -12,6 +12,8 @@
 #include <smoc/SimulatorAPI/FiringRuleInterface.hpp>
 #include <smoc/SimulatorAPI/SimulatorInterface.hpp>
 
+#include <systemoc/smoc_config.h>
+
 namespace smoc { namespace Detail {
 
 class SysteMoCScheduler
@@ -28,9 +30,9 @@ public:
 
   void registerFiringRule(SimulatorAPI::TaskInterface *task, SimulatorAPI::FiringRuleInterface *fr);
 
-  void checkFiringRule(SimulatorAPI::FiringRuleInterface *fr);
+  void checkFiringRule(SimulatorAPI::TaskInterface *task, SimulatorAPI::FiringRuleInterface *fr);
 
-  void executeFiringRule(SimulatorAPI::FiringRuleInterface *fr);
+  void executeFiringRule(SimulatorAPI::TaskInterface *task, SimulatorAPI::FiringRuleInterface *fr);
 
 private:
   SimulatorAPI::TaskInterface *task;
@@ -69,13 +71,16 @@ void SysteMoCScheduler::registerFiringRule(SimulatorAPI::TaskInterface *task, Si
 
 }
 
-void SysteMoCScheduler::checkFiringRule(SimulatorAPI::FiringRuleInterface *fr) {
+void SysteMoCScheduler::checkFiringRule(SimulatorAPI::TaskInterface *task, SimulatorAPI::FiringRuleInterface *fr) {
 
 }
 
-void SysteMoCScheduler::executeFiringRule(SimulatorAPI::FiringRuleInterface *fr) {
-//fr->freeInputs();
-//fr->releaseOutputs();
+void SysteMoCScheduler::executeFiringRule(SimulatorAPI::TaskInterface *task, SimulatorAPI::FiringRuleInterface *fr) {
+  fr->commExec();
+#ifdef SYSTEMOC_ENABLE_ROUTING
+  fr->freeInputs();
+  fr->releaseOutputs();
+#endif //SYSTEMOC_ENABLE_ROUTING
 }
 
 class SysteMoCSimulator

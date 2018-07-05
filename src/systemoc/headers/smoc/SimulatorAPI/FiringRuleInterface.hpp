@@ -52,14 +52,16 @@ namespace smoc { namespace SimulatorAPI {
   public:
     FiringRuleInterface();
 
-    void                setSchedulerInfo(void *schedulerInfo)
+    void                  setSchedulerInfo(void *schedulerInfo)
       { this->schedulerInfo = schedulerInfo; }
-    void               *getSchedulerInfo() const
+    void                 *getSchedulerInfo() const
       { return this->schedulerInfo; }
 
     virtual void          freeInputs() = 0;
 
     virtual void          releaseOutputs() = 0;
+
+    virtual void          commExec() = 0;
 
     virtual FunctionNames getGuardNames() const = 0;
 
