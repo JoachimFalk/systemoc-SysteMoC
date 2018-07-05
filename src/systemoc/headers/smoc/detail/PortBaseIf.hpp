@@ -1,7 +1,7 @@
 // -*- tab-width:8; intent-tabs-mode:nil; c-basic-offset:2; -*-
 // vim: set sw=2 ts=8 et:
 /*
- * Copyright (c) 2004-2017 Hardware-Software-CoDesign, University of Erlangen-Nuremberg.
+ * Copyright (c) 2004-2018 Hardware-Software-CoDesign, University of Erlangen-Nuremberg.
  * 
  *   This library is free software; you can redistribute it and/or modify it under
  *   the terms of the GNU Lesser General Public License as published by the Free
@@ -42,7 +42,7 @@
 #include <systemoc/smoc_config.h>
 
 #ifdef SYSTEMOC_ENABLE_VPC
-#include "VpcInterface.hpp"
+# include "VpcInterface.hpp"
 #endif // SYSTEMOC_ENABLE_VPC
 
 #include <systemc>
@@ -60,28 +60,14 @@ namespace smoc { namespace Detail {
 class PortBase;
 
 class PortBaseIf
-: public virtual sc_core::sc_interface
+  : public virtual sc_core::sc_interface
   , public SimCTXBase
 #ifdef SYSTEMOC_ENABLE_VPC
   , public VpcPortInterface
 #endif //SYSTEMOC_ENABLE_VPC
   , private boost::noncopyable
 {
-  friend class PortBase;
   friend class FSM::RuntimeFiringRule;
-public:
-  // FIXME: Why not merge this with PortBaseIf?!
-  class access_type {
-  public:
-    typedef void return_type;
-
-  #if defined(SYSTEMOC_ENABLE_DEBUG)
-    virtual void setLimit(size_t) = 0;
-  #endif
-    virtual bool tokenIsValid(size_t) const = 0;
-
-    virtual ~access_type() {}
-  };
 protected:
 #ifdef SYSTEMOC_ENABLE_DATAFLOW_TRACE
   virtual void         traceCommSetup(size_t req) {}
@@ -92,14 +78,8 @@ protected:
 #ifdef SYSTEMOC_ENABLE_ROUTING
   virtual void commStart(size_t n) = 0;
   virtual void commFinish(size_t n, bool dropped = false) = 0;
-  virtual void commExec(size_t n) {
-    commStart(n); commFinish(n);
-  }
-#else //!SYSTEMOC_ENABLE_ROUTING
-  virtual void commExec(size_t n) = 0;
 #endif //!SYSTEMOC_ENABLE_ROUTING
-
-  virtual access_type *getChannelAccess() = 0;
+  virtual void commExec(size_t n) = 0;
 };
 
 } } // namespace smoc::Detail

@@ -49,28 +49,30 @@
 namespace smoc { namespace Detail {
 
   /// IFACE: interface type (this is basically sc_port_b<IFACE>)
-  template <typename IFACE>
+  template <typename BASE, typename IFACE>
   class PortCommon
-    : public PortBase
+    : public BASE
 #if defined(SYSTEMOC_ENABLE_MAESTRO) && defined(MAESTRO_ENABLE_BRUCKNER)
     , public Bruckner::Model::Port
 #endif //defined(SYSTEMOC_ENABLE_MAESTRO) && defined(MAESTRO_ENABLE_BRUCKNER)
   {
-    typedef PortCommon<IFACE>  this_type;
-    typedef PortBase           base_type;
+    typedef PortCommon<BASE, IFACE>  this_type;
+    typedef BASE                     base_type;
   public:
     typedef IFACE                             iface_type;
     typedef typename iface_type::access_type  access_type;
     typedef typename iface_type::data_type    data_type;
     typedef typename access_type::return_type return_type;
 
+    using BASE::operator();
+
     void operator () (iface_type &interface_)
       { base_type::bind(interface_); }
     void operator () (this_type &parent_)
       { base_type::bind(parent_); }
   protected:
-    PortCommon(const char *name_, sc_core::sc_port_policy policy)
-      : PortBase(name_, policy) {
+    PortCommon(const char *name)
+      : BASE(name) {
 #if defined(SYSTEMOC_ENABLE_MAESTRO) && defined(MAESTRO_ENABLE_BRUCKNER)
       this->memberName = name_;
       this->instanceName = name_;

@@ -46,28 +46,12 @@ namespace smoc { namespace Detail {
 
 using namespace CoSupport;
 
-PortBase::PortBase(const char* name_, sc_core::sc_port_policy policy)
+PortBase::PortBase(const char *name, int maxBinds)
   : sc_core::sc_port_base(
-      name_, 4096, sc_core::SC_ONE_OR_MORE_BOUND),
-    parent(nullptr), child(nullptr) {
-}
+      name, maxBinds, sc_core::SC_ONE_OR_MORE_BOUND)
+  , parent(nullptr), child(nullptr) {}
 
 PortBase::~PortBase() {
-}
-
-// SystemC 2.2 requires this method
-// (must also return the correct number!!!)
-int PortBase::interface_count() {
-  return interfaces.size();
-}
-
-void PortBase::add_interface(sc_core::sc_interface *i_) {
-  if (i_ == NULL)
-    throw std::runtime_error("Tried to add null channel interfact to port!");
-  PortBaseIf *i = dynamic_cast<PortBaseIf *>(i_);
-  if (i == NULL)
-    throw std::runtime_error("Tried to add wrong channel interfact to port!");
-  interfaces.push_back(i);
 }
 
 void PortBase::bind(this_type &parent_) {
@@ -93,19 +77,8 @@ void PortBase::before_end_of_elaboration() {
 #endif // SYSTEMOC_ENABLE_DEBUG
 }
 
-void PortBase::end_of_elaboration() {
-#ifdef SYSTEMOC_ENABLE_DEBUG
-  outDbg << "<smoc_sysc_port::end_of_elaboration name=\"" << this->name() << "\">"
-         << std::endl << Indent::Up;
-#endif // SYSTEMOC_ENABLE_DEBUG
-  sc_core::sc_port_base::end_of_elaboration();
-  for (Interfaces::iterator iter = interfaces.begin();
-       iter != interfaces.end();
-       ++iter)
-    portAccesses.push_back((*iter)->getChannelAccess());
-#ifdef SYSTEMOC_ENABLE_DEBUG
-  outDbg << Indent::Down << "</smoc_sysc_port::end_of_elaboration>" << std::endl;
-#endif // SYSTEMOC_ENABLE_DEBUG
+void PortBase::setId(NgId id) {
+  getSimCTX()->getIdPool().addIdedObj(id, this);
 }
 
 PortBase const *PortBase::getParentPort() const {
@@ -119,55 +92,6 @@ PortBase const *PortBase::getActorPort() const {
   return retval;
 }
 
-#ifdef SYSTEMOC_ENABLE_SGX
-PortBase       *PortBase::copyPort(const char *name, NgId id) {
-  this_type *retval = this->allocatePort(name);
-  getSimCTX()->getIdPool().addIdedObj(id, retval);
-  for (Interfaces::iterator iter = interfaces.begin();
-       iter != interfaces.end();
-       ++iter)
-    retval->add_interface(*iter);
-  return retval;
-}
-#endif //SYSTEMOC_ENABLE_SGX
-
-#ifdef SYSTEMOC_ENABLE_VPC
-void PortBase::finaliseVpcLink(std::string actorName){
-  assert(getActorPort() == this);
-  assert(get_parent_object()->name() == actorName);
-
-  for (Interfaces::iterator iter = interfaces.begin();
-       iter != interfaces.end();
-       ++iter) {
-    VpcPortInterface * vpi = dynamic_cast<VpcPortInterface*>(*iter);
-    std::string channelName = "";
-    if (this->isInput()) {
-      PortInBaseIf* port =
-          dynamic_cast<PortInBaseIf*>(*iter);
-      assert(port != nullptr);
-
-      channelName = port->getChannelName();
-      vpi->vpcCommTask =
-          SystemC_VPC::Director::getInstance().registerRoute(channelName,
-              actorName, this);
-    } else {
-      PortOutBaseIf* port =
-          dynamic_cast<PortOutBaseIf*>(*iter);
-      assert(port != nullptr);
-
-      channelName = port->getChannelName();
-      vpi->vpcCommTask =
-          SystemC_VPC::Director::getInstance().registerRoute(actorName,
-              channelName, this);
-    }
-#ifdef SYSTEMOC_ENABLE_DEBUG
-    vpi->actor   = actorName;
-    vpi->channel = channelName;
-#endif // SYSTEMOC_ENABLE_DEBUG
-  }
-}
-#endif //SYSTEMOC_ENABLE_VPC
-
 #ifdef SYSTEMOC_ENABLE_DATAFLOW_TRACE
 void        PortBase::traceCommSetup(size_t req) {
   for (Interfaces::iterator iter = interfaces.begin();
@@ -176,11 +100,115 @@ void        PortBase::traceCommSetup(size_t req) {
     (*iter)->traceCommSetup(req);
 }
 #endif //SYSTEMOC_ENABLE_DATAFLOW_TRACE
-smoc::smoc_event_waiter &PortBase::blockEvent(size_t n) {
+
+PortInBase::PortInBase(const char *name)
+  : PortBase(name, 1)
+  , portAccess(nullptr)
+  , interface(nullptr) {}
+
+PortInBase::~PortInBase() {
+}
+
+// SystemC 2.2 requires this method
+// (must also return the correct number!!!)
+int PortInBase::interface_count() {
+  return interface != nullptr ? 1 : 0;
+}
+
+void PortInBase::add_interface(sc_core::sc_interface *i_) {
+  if (i_ == nullptr)
+    throw std::runtime_error("Tried to add null channel interface to port!");
+  PortInBaseIf *i = dynamic_cast<PortInBaseIf *>(i_);
+  if (i == nullptr)
+    throw std::runtime_error("Tried to add wrong channel interface to port!");
+  if (interface != nullptr)
+    throw std::runtime_error("Tried to add multiple channel interfaces to port!");
+  interface = i;
+  portAccess = i->getChannelAccess();
+}
+
+void PortInBase::end_of_elaboration() {
+  base_type::end_of_elaboration();
+  assert(interface_count() >= 1);
+#ifdef SYSTEMOC_ENABLE_VPC
+  if (getActorPort() == this) {
+    std::string actorName = get_parent_object()->name();
+
+    PortInBaseIf *channelSourceInterface = get_interface();
+    std::string channelName = channelSourceInterface->getChannelName();
+    channelSourceInterface->VpcPortInterface::vpcCommTask =
+        SystemC_VPC::Director::getInstance().registerRoute(channelName,
+            actorName, this);
+# ifdef SYSTEMOC_ENABLE_DEBUG
+    channelSourceInterface->VpcPortInterface::actor   = actorName;
+    channelSourceInterface->VpcPortInterface::channel = channelName;
+# endif // SYSTEMOC_ENABLE_DEBUG
+  }
+#endif //SYSTEMOC_ENABLE_VPC
+}
+
+/// Implements SimulatorAPI::PortInInterface::getSource.
+SimulatorAPI::ChannelSourceInterface *PortInBase::getSource()
+  { return interface; }
+
+PortOutBase::PortOutBase(const char *name)
+  : PortBase(name, 0)
+  , portAccess(nullptr) {}
+
+PortOutBase::~PortOutBase() {
+}
+
+// SystemC 2.2 requires this method
+// (must also return the correct number!!!)
+int PortOutBase::interface_count() {
+  return interfaces.size();
+}
+
+void PortOutBase::add_interface(sc_core::sc_interface *i_) {
+  if (i_ == NULL)
+    throw std::runtime_error("Tried to add null channel interface to port!");
+  PortOutBaseIf *i = dynamic_cast<PortOutBaseIf *>(i_);
+  if (i == NULL)
+    throw std::runtime_error("Tried to add wrong channel interface to port!");
+  interfaces.push_back(i);
+  PortOutBaseIf::access_type *portAccess = i->getChannelAccess();
+  portAccesses.push_back(portAccess);
+  if (!this->portAccess)
+    this->portAccess = portAccess;
+}
+
+// disable get_interface() from sc_core::sc_port_base
+sc_core::sc_interface       *PortOutBase::get_interface()
+  { assert(!"WTF?! The method PortOutBase::get_interface() is disabled and should have never been called!"); return nullptr;}
+
+sc_core::sc_interface const *PortOutBase::get_interface() const
+  { assert(!"WTF?! The method PortOutBase::get_interface() const is disabled and should have never been called!");  return nullptr;}
+
+void PortOutBase::end_of_elaboration() {
+  base_type::end_of_elaboration();
+  assert(interface_count() >= 1);
+#ifdef SYSTEMOC_ENABLE_VPC
+  if (getActorPort() == this) {
+    std::string actorName = get_parent_object()->name();
+    for (PortOutBaseIf *channelSinkInterface : get_interfaces()) {
+      std::string channelName = channelSinkInterface->getChannelName();
+      channelSinkInterface->VpcPortInterface::vpcCommTask =
+          SystemC_VPC::Director::getInstance().registerRoute(actorName,
+              channelName, this);
+  # ifdef SYSTEMOC_ENABLE_DEBUG
+      channelSinkInterface->VpcPortInterface::actor   = actorName;
+      channelSinkInterface->VpcPortInterface::channel = channelName;
+  # endif // SYSTEMOC_ENABLE_DEBUG
+    }
+  }
+#endif //SYSTEMOC_ENABLE_VPC
+}
+
+smoc_event_waiter &PortOutBase::blockEvent(size_t n) {
   if (interfaces.size() > 1) {
     BlockEventMap::iterator iter = blockEventMap.find(n);
     if (iter == blockEventMap.end()) {
-      iter = blockEventMap.insert(std::make_pair(n, smoc::smoc_event_and_list())).first;
+      iter = blockEventMap.insert(std::make_pair(n, smoc_event_and_list())).first;
       for (Interfaces::iterator iIter = interfaces.begin();
            iIter != interfaces.end();
            ++iIter)
@@ -192,53 +220,10 @@ smoc::smoc_event_waiter &PortBase::blockEvent(size_t n) {
     return interfaces.front()->blockEvent(n);
   }
 }
-size_t      PortBase::availableCount() const {
-  size_t n = (std::numeric_limits<size_t>::max)();
-  for (Interfaces::const_iterator iter = interfaces.begin();
-       iter != interfaces.end();
-       ++iter)
-    n = (std::min)(n, (*iter)->availableCount());
-  return n;
+
+std::vector<SimulatorAPI::ChannelSinkInterface *> const &PortOutBase::getSinks() {
+  return reinterpret_cast<std::vector<SimulatorAPI::ChannelSinkInterface *> const &>(
+      static_cast<PortOutBase *>(this)->get_interfaces());
 }
-
-#ifdef SYSTEMOC_ENABLE_ROUTING
-  void PortBase::commStart(size_t n) {
-    duplicateOutput(n);
-    for (Interfaces::iterator iter = interfaces.begin();
-         iter != interfaces.end();
-         ++iter)
-      (*iter)->commStart(n);
-  }
-  void PortBase::commFinish(size_t n) {
-    for (Interfaces::iterator iter = interfaces.begin();
-         iter != interfaces.end();
-         ++iter)
-      (*iter)->commFinish(n);
-  }
-#else //!SYSTEMOC_ENABLE_ROUTING
-  void PortBase::commExec(size_t n) {
-    duplicateOutput(n);
-    for (Interfaces::iterator iter = interfaces.begin();
-         iter != interfaces.end();
-         ++iter)
-      (*iter)->commExec(n);
-  }
-#endif //!SYSTEMOC_ENABLE_ROUTING
-
-#ifdef SYSTEMOC_ENABLE_DEBUG
-void PortBase::setLimit(size_t req) {
-  for (PortAccesses::iterator iter = portAccesses.begin();
-       iter != portAccesses.end();
-       ++iter)
-    (*iter)->setLimit(req);
-}
-#endif //SYSTEMOC_ENABLE_DEBUG
-
-// disable get_interface() from sc_core::sc_port_base
-sc_core::sc_interface       *PortBase::get_interface()
-  { assert(!"WTF?! The method smoc_sysc_port::get_interface() is disabled and should have never been called!"); return nullptr;}
-
-sc_core::sc_interface const *PortBase::get_interface() const
-  { assert(!"WTF?! The method smoc_sysc_port::get_interface() const is disabled and should have never been called!");  return nullptr;}
 
 } } // namespace smoc::Detail

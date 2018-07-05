@@ -460,7 +460,10 @@ public:
     }
 #endif //defined(SYSTEMOC_ENABLE_DEBUG)
     SGX::Port port(getName(&p), getId(&p));
-    port.direction() = p.isInput() ? SGX::Port::In : SGX::Port::Out;
+    bool isInput = p.isInput();
+    port.direction() = isInput
+        ? SGX::Port::In
+        : SGX::Port::Out;
     sassert(psv.ports.insert(std::make_pair(&p, &port)).second);
     psv.proc.ports().push_back(port);
     if (p.getActorPort() == &p) {
@@ -469,16 +472,25 @@ public:
         outDbg << getName(&p) << " => expectedChannelConnections";
       }
 #endif //defined(SYSTEMOC_ENABLE_DEBUG)
-      for (PortBase::Interfaces::const_iterator iter = p.get_interfaces().begin();
-           iter != p.get_interfaces().end();
-           ++iter) {
+      if (isInput) {
 #ifdef SYSTEMOC_ENABLE_DEBUG
+        PortInBaseIf *iface = static_cast<PortInBase &>(p).get_interface();
         if (outDbg.isVisible(Debug::Low)) {
-          outDbg << " " << reinterpret_cast<void *>(*iter);
+          outDbg << " " << iface;
         }
 #endif //defined(SYSTEMOC_ENABLE_DEBUG)
         sassert(psv.epc.expectedChannelConnections.insert(
-          std::make_pair(*iter, &port)).second);
+          std::make_pair(iface, &port)).second);
+      } else {
+        for (PortOutBaseIf *iface : static_cast<PortOutBase &>(p).get_interfaces()) {
+#ifdef SYSTEMOC_ENABLE_DEBUG
+          if (outDbg.isVisible(Debug::Low)) {
+            outDbg << " " << iface;
+          }
+#endif //defined(SYSTEMOC_ENABLE_DEBUG)
+          sassert(psv.epc.expectedChannelConnections.insert(
+            std::make_pair(iface, &port)).second);
+        }
       }
 #ifdef SYSTEMOC_ENABLE_DEBUG
       if (outDbg.isVisible(Debug::Low)) {

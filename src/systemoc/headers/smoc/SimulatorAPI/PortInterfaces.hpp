@@ -33,31 +33,45 @@
  * ENHANCEMENTS, OR MODIFICATIONS.
  */
 
-#ifndef _INCLUDED_SMOC_SIMULATORAPI_SCHEDULERINTERFACE_HPP
-#define _INCLUDED_SMOC_SIMULATORAPI_SCHEDULERINTERFACE_HPP
+#ifndef _INCLUDED_SMOC_SIMULATORAPI_PORTINTERFACES_HPP
+#define _INCLUDED_SMOC_SIMULATORAPI_PORTINTERFACES_HPP
+
+#include "ChannelInterfaces.hpp"
+
+#include <vector>
 
 namespace smoc { namespace SimulatorAPI {
 
-  class TaskInterface;
-  class FiringRuleInterface;
-
-  class SchedulerInterface {
+  class PortInInterface {
+    typedef PortInInterface this_type;
   public:
-    // This must be implemented by the scheduler and will be called by
-    // SysteMoC for each firing rule of a SysteMoC actor (task).
-    virtual void registerFiringRule(TaskInterface *task, FiringRuleInterface *fr) = 0;
+    virtual
+    const char *name() const = 0;
 
-    // This must be implemented by the scheduler and will be called by the
-    // SysteMoC task if task->getUseActivationCallback() returns true.
-    virtual void notifyActivation(TaskInterface *task, bool activation) = 0;
+    virtual
+    ChannelSourceInterface       *getSource() = 0;
+    ChannelSourceInterface const *getSource() const
+      { return const_cast<this_type *>(this)->getSource(); }
+  protected:
+    virtual ~PortInInterface();
+  };
 
-    virtual void checkFiringRule(TaskInterface *task, FiringRuleInterface *fr) = 0;
+  class PortOutInterface {
+    typedef PortOutInterface this_type;
+  public:
+    virtual
+    const char *name() const = 0;
 
-    virtual void executeFiringRule(TaskInterface *task, FiringRuleInterface *fr) = 0;
-
-    virtual ~SchedulerInterface() {}
+    virtual
+    std::vector<ChannelSinkInterface       *> const &getSinks() = 0;
+    std::vector<ChannelSinkInterface const *> const &getSinks() const {
+      return reinterpret_cast<std::vector<ChannelSinkInterface const *> const &>(
+          const_cast<this_type *>(this)->getSinks());
+    }
+  protected:
+    virtual ~PortOutInterface();
   };
 
 } } // namespace smoc::SimulatorAPI
 
-#endif /* _INCLUDED_SMOC_SIMULATORAPI_SCHEDULERINTERFACE_HPP */
+#endif /* _INCLUDED_SMOC_SIMULATORAPI_PORTINTERFACES_HPP */
