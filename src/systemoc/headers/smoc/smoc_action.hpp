@@ -38,8 +38,6 @@
 
 #include "detail/MemFuncCallIf.hpp"
 
-#include <CoSupport/SmartPtr/RefCountObject.hpp>
-
 #include <boost/intrusive_ptr.hpp>
 
 #include <list>
