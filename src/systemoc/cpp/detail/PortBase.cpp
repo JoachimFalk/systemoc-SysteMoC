@@ -33,7 +33,6 @@
  * ENHANCEMENTS, OR MODIFICATIONS.
  */
 
-#include <CoSupport/compatibility-glue/nullptr.h>
 #include <systemoc/smoc_config.h>
 
 #include <smoc/detail/NodeBase.hpp>

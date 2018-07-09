@@ -45,7 +45,6 @@
 #endif //MAESTRO_ENABLE_POLYPHONIC
 
 #include <CoSupport/SmartPtr/RefCountObject.hpp>
-#include <CoSupport/compatibility-glue/nullptr.h>
 #include <CoSupport/Lambda/functor.hpp>
 
 #include <boost/intrusive_ptr.hpp>

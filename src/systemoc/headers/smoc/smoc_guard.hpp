@@ -46,8 +46,6 @@
 #include <list>
 #include <map>
 
-#include <CoSupport/compatibility-glue/nullptr.h>
-
 #include <CoSupport/commondefs.h>
 #include <CoSupport/SmartPtr/RefCountObject.hpp>
 #include <CoSupport/DataTypes/oneof.hpp>

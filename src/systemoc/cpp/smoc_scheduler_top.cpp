@@ -35,8 +35,6 @@
 
 #include <smoc/smoc_scheduler_top.hpp>
 
-#include <CoSupport/compatibility-glue/nullptr.h>
-
 #include <systemoc/smoc_config.h>
 
 #ifdef SYSTEMOC_ENABLE_VPC

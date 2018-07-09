@@ -33,8 +33,6 @@
  * ENHANCEMENTS, OR MODIFICATIONS.
  */
 
-#include <CoSupport/compatibility-glue/nullptr.h>
-
 #include <CoSupport/String/Concat.hpp>
 
 #include <systemoc/smoc_config.h>

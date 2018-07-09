@@ -41,8 +41,6 @@
 #include <map>
 #include <sstream>
 
-#include <CoSupport/compatibility-glue/nullptr.h>
-
 #include <CoSupport/String/Concat.hpp>
 
 #include <smoc/detail/NodeBase.hpp>

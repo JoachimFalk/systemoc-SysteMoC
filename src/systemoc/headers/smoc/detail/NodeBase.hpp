@@ -45,8 +45,6 @@
 
 #include <systemc>
 
-#include <CoSupport/compatibility-glue/nullptr.h>
-
 #include <CoSupport/Lambda/functor.hpp>
 
 #include <systemoc/smoc_config.h>

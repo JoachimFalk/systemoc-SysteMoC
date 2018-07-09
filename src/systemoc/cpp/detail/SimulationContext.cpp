@@ -46,7 +46,6 @@
 #include <boost/program_options/parsers.hpp>
 #include <boost/program_options/positional_options.hpp>
 
-#include <CoSupport/compatibility-glue/nullptr.h>
 #include <CoSupport/Streams/AlternateStream.hpp>
 
 #include <cstring>
