@@ -35,15 +35,12 @@
 
 #include <systemoc/smoc_config.h>
 
+#include <smoc/smoc_actor.hpp>
 #include <smoc/detail/NodeBase.hpp>
 #include <smoc/detail/ChanBase.hpp>
 #include <smoc/detail/PortBase.hpp>
 
 #include "SimulationContext.hpp"
-
-#ifdef SYSTEMOC_ENABLE_VPC
-# include "vpc.hpp"
-#endif //SYSTEMOC_ENABLE_VPC
 
 namespace smoc { namespace Detail {
 
@@ -133,14 +130,11 @@ void PortInBase::add_interface(sc_core::sc_interface *i_) {
 void PortInBase::end_of_elaboration() {
   base_type::end_of_elaboration();
   assert(interface_count() >= 1);
-#ifdef SYSTEMOC_ENABLE_VPC
   if (getActorPort() == this) {
-    std::string actorName   = get_parent_object()->name();
-    std::string channelName = get_interface()->getChannelName();
-    this->setSchedulerInfo(SystemC_VPC::Director::getInstance().registerRoute(channelName,
-        actorName, this));
+    getSimCTX()->getSimulatorInterface()->registerPort(
+        static_cast<smoc_actor *>(get_parent_object()),
+        this);
   }
-#endif //SYSTEMOC_ENABLE_VPC
 }
 
 /// Implements SimulatorAPI::PortInInterface::getSource.
@@ -183,17 +177,11 @@ sc_core::sc_interface const *PortOutBase::get_interface() const
 void PortOutBase::end_of_elaboration() {
   base_type::end_of_elaboration();
   assert(interface_count() >= 1);
-#ifdef SYSTEMOC_ENABLE_VPC
   if (getActorPort() == this) {
-    std::string actorName = get_parent_object()->name();
-    for (PortOutBaseIf *channelSinkInterface : get_interfaces()) {
-      std::string channelName = channelSinkInterface->getChannelName();
-      // FIXME: Routes have to be changed to support multicast themselves.
-      this->setSchedulerInfo(SystemC_VPC::Director::getInstance().registerRoute(actorName,
-          channelName, this));
-    }
+    getSimCTX()->getSimulatorInterface()->registerPort(
+        static_cast<smoc_actor *>(get_parent_object()),
+        this);
   }
-#endif //SYSTEMOC_ENABLE_VPC
 }
 
 smoc_event_waiter &PortOutBase::blockEvent(size_t n) {

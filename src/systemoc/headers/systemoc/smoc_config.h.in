@@ -37,7 +37,7 @@
 #endif //defined(SYSTEMOC_ENABLE_DATAFLOW_TRACE) || defined(SYSTEMOC_ENABLE_TRANSITION_TRACE) || defined(SYSTEMOC_ENABLE_SGX)
 
 #if defined(SYSTEMOC_ENABLE_VPC) || defined(SYSTEMOC_ENABLE_MAESTRO)
-// Define if SysteMoC should support routing, i.e., simulator like VPC
+// Define if SysteMoC should support routing, i.e., simulators like VPC
 // can delay the visibility of communication to other actors due to routing
 // delays.
 # define SYSTEMOC_ENABLE_ROUTING
@@ -46,12 +46,6 @@
 #if defined(SYSTEMOC_ENABLE_DATAFLOW_TRACE)
 # define SYSTEMOC_ENABLE_DEBUG
 #endif //defined(SYSTEMOC_ENABLE_DATAFLOW_TRACE)
-
-#ifdef SYSTEMOC_ENABLE_DEBUG
-# ifdef SYSTEMOC_ENABLE_VPC 
-#   define SYSTEMOC_DEBUG_VPC_IF
-# endif //defined(SYSTEMOC_ENABLE_DEBUG) && defined(SYSTEMOC_ENABLE_VPC)
-#endif //defined(SYSTEMOC_ENABLE_DEBUG)
 
 // Pull config of Maestro libraries
 #ifdef SYSTEMOC_ENABLE_MAESTRO

@@ -95,6 +95,10 @@ class SysteMoCSimulator
   : public SimulatorAPI::SimulatorInterface
 {
 public:
+  typedef SimulatorAPI::TaskInterface    TaskInterface;
+  typedef SimulatorAPI::PortInInterface  PortInInterface;
+  typedef SimulatorAPI::PortOutInterface PortOutInterface;
+
   SysteMoCSimulator();
 
   void populateOptionsDescription(
@@ -105,7 +109,10 @@ public:
   EnablementStatus evaluateOptionsMap(
       boost::program_options::variables_map &vm);
 
-  void registerTask(SimulatorAPI::TaskInterface *task);
+  void registerTask(TaskInterface *task);
+
+  void registerPort(TaskInterface *task, PortInInterface *port);
+  void registerPort(TaskInterface *task, PortOutInterface *port);
 
   void simulationEnded();
 };
@@ -127,11 +134,22 @@ SysteMoCSimulator::EnablementStatus SysteMoCSimulator::evaluateOptionsMap(
   return SysteMoCSimulator::MAYBE_ACTIVE;
 }
 
-void SysteMoCSimulator::registerTask(
-    SimulatorAPI::TaskInterface *task)
+void SysteMoCSimulator::registerTask(TaskInterface *task)
 {
   // Prefix all SysteMoC internal modules with __smoc_ to enable filtering out the module on smx dump!
   task->setScheduler(new SysteMoCScheduler("__smoc_scheduler", task));
+}
+
+void SysteMoCSimulator::registerPort(
+    TaskInterface    *task,
+    PortInInterface  *port)
+{
+}
+
+void SysteMoCSimulator::registerPort(
+    TaskInterface    *task,
+    PortOutInterface *port)
+{
 }
 
 void SysteMoCSimulator::simulationEnded() {

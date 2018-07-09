@@ -176,7 +176,7 @@ public:
   size_t numAvailable() const
     { return 1; }
 
-  std::string getChannelName() const
+  const char *name() const
     { return chan.name();}
 
   /// @brief See PortInBaseIf
@@ -242,7 +242,7 @@ public:
   size_t numFree() const
     { return 1; }
 
-  std::string getChannelName() const
+  const char *name() const
     { return chan.name();}
 
   /// @brief See PortOutBaseIf

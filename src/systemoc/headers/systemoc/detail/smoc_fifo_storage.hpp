@@ -122,7 +122,6 @@ protected:
   access_out_type_impl *getWritePortAccess() { return this; }
 
   void invalidateTokenInStorage(size_t x){
-#ifdef SYSTEMOC_ENABLE_VPC
     for(size_t i=0; i<x ; i++){
       size_t toRemove = this->vIndex();
       size_t rindex = this->rIndex();
@@ -133,7 +132,6 @@ protected:
         toRemove--;
       }
     }
-#endif
   }
 
 public:
@@ -210,9 +208,7 @@ protected:
   access_out_type_impl *getWritePortAccess() { return this; }
 
   void invalidateTokenInStorage(size_t x){
-#ifdef SYSTEMOC_ENABLE_VPC
     initialTokens += x;
-#endif
   }
 
 public:
