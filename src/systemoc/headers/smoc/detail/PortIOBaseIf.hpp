@@ -72,7 +72,7 @@ public:
 
 //virtual size_t      inTokenId() const = 0;
   virtual size_t      numAvailable() const = 0;
-  virtual std::string getChannelName() const = 0;
+  virtual const char *name() const = 0;
 
   virtual ~PortInBaseIf() {}
 protected:
@@ -130,7 +130,7 @@ public:
 
 //virtual size_t      outTokenId() const = 0;
   virtual size_t      numFree() const = 0;
-  virtual std::string getChannelName() const = 0;
+  virtual const char *name() const = 0;
 
   virtual ~PortOutBaseIf() {}
 protected:

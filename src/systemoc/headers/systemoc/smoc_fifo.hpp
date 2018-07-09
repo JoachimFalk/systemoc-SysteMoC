@@ -180,7 +180,7 @@ protected:
   size_t numAvailable() const
     { return chan.visibleCount(); }
 
-  std::string getChannelName() const
+  const char *name() const
     { return chan.name();}
 
   /// @brief See PortInBaseIf
@@ -246,7 +246,7 @@ protected:
   size_t numFree() const
     { return chan.freeCount(); }
 
-  std::string getChannelName() const
+  const char *name() const
     { return chan.name();}
   
   /// @brief See PortOutBaseIf

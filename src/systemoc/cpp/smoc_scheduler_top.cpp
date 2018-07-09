@@ -38,7 +38,7 @@
 #include <systemoc/smoc_config.h>
 
 #ifdef SYSTEMOC_ENABLE_VPC
-# include <systemcvpc/Director.hpp>
+# include <vpc.hpp>
 #endif //SYSTEMOC_ENABLE_VPC
 
 #include <smoc/detail/DebugOStream.hpp>

@@ -109,7 +109,7 @@ public:
   // Interfaces independent of T.
 
   /// @brief See PortInBaseIf
-  std::string getChannelName() const
+  const char *name() const
     { return chan->name();}
 
   /// @brief See PortInBaseIf
@@ -201,7 +201,7 @@ public:
   // Interfaces independent of T.
 
   /// @brief See PortOutBaseIf
-  std::string getChannelName() const
+  const char *name() const
     { return chan->name();}
 
   /// @brief See PortOutBaseIf

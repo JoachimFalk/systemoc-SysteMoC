@@ -38,7 +38,7 @@
 
 #include "TaskInterface.hpp"
 #include "SchedulerInterface.hpp"
-
+#include "PortInterfaces.hpp"
 
 #include <boost/program_options/options_description.hpp>
 #include <boost/program_options/variables_map.hpp>
@@ -75,6 +75,11 @@ namespace smoc { namespace SimulatorAPI {
         boost::program_options::variables_map &vm) = 0;
 
     virtual void registerTask(TaskInterface *task) = 0;
+
+    /// Ports correspond to messages. Here, we tell the simulator
+    /// which messages must be routed.
+    virtual void registerPort(TaskInterface *task, PortInInterface *port) = 0;
+    virtual void registerPort(TaskInterface *task, PortOutInterface *port) = 0;
 
     virtual void simulationEnded() = 0;
 

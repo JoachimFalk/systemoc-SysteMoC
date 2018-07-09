@@ -41,12 +41,6 @@
 
 #include <boost/intrusive_ptr.hpp>
 
-#include <systemoc/smoc_config.h>
-
-#ifdef SYSTEMOC_ENABLE_VPC
-# include <systemcvpc/coupling/VPCEvent.hpp>
-#endif
-
 namespace smoc {
 
 typedef CoSupport::SystemC::Event         smoc_event;
@@ -71,11 +65,6 @@ void smoc_wait(smoc_event_waiter &e)
 
 typedef CoSupport::SystemC::RefCountEvent    smoc_ref_event;
 typedef CoSupport::SystemC::RefCountEventPtr smoc_ref_event_p;
-
-#ifdef SYSTEMOC_ENABLE_VPC
-typedef SystemC_VPC::Coupling::VPCEvent      smoc_vpc_event;
-typedef SystemC_VPC::Coupling::VPCEvent::Ptr smoc_vpc_event_p;
-#endif // SYSTEMOC_ENABLE_VPC
 
 } // namespace smoc
 

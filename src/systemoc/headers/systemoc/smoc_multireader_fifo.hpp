@@ -191,8 +191,8 @@ protected:
   size_t numAvailable() const
     { return chan.visibleCount(); }
 
-  std::string getChannelName() const
-    { return chan.name();}
+  const char *name() const
+    { return chan.name(); }
   
   /// @brief See PortInBaseIf
   size_t inTokenId() const
@@ -262,8 +262,8 @@ protected:
   size_t numFree() const
     { return chan.freeCount(); }
 
-  std::string getChannelName() const
-    { return chan.name();}
+  const char *name() const
+    { return chan.name(); }
 
   /// @brief See PortOutBaseIf
   size_t outTokenId() const

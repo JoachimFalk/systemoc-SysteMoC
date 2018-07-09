@@ -42,6 +42,9 @@ namespace smoc { namespace SimulatorAPI {
 
   class ChannelSinkInterface {
   public:
+    // This will return the name of the channel.
+    virtual const char *name() const = 0;
+    // This will make the produced tokens visible for the connected sink actor.
     virtual void commFinish(size_t n, bool dropped = false) = 0;
   protected:
     virtual ~ChannelSinkInterface();
@@ -49,6 +52,9 @@ namespace smoc { namespace SimulatorAPI {
 
   class ChannelSourceInterface {
   public:
+    // This will return the name of the channel.
+    virtual const char *name() const = 0;
+    // This will make the freed space visible for the connected source actor.
     virtual void commFinish(size_t n, bool dropped = false) = 0;
   protected:
     virtual ~ChannelSourceInterface();

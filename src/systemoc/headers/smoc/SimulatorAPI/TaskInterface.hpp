@@ -51,6 +51,8 @@ namespace smoc {
 namespace smoc { namespace Detail {
 
   class NodeBase;
+  class PortInBase;
+  class PortOutBase;
 
 } } // namespace smoc::Detail
 
@@ -145,6 +147,8 @@ namespace smoc { namespace SimulatorAPI {
   {
     friend class smoc::smoc_periodic_actor;
     friend class smoc::Detail::NodeBase;
+    friend class smoc::Detail::PortInBase;
+    friend class smoc::Detail::PortOutBase;
     friend class smoc::Detail::FSM::FiringFSM; // for getScheduler()
     friend class smoc::Detail::FSM::RuntimeTransition; // for getScheduler()
   public:
