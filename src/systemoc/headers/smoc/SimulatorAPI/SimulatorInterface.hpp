@@ -76,6 +76,8 @@ namespace smoc { namespace SimulatorAPI {
 
     virtual void registerTask(TaskInterface *task) = 0;
 
+    virtual void simulationEnded() = 0;
+
     virtual ~SimulatorInterface();
   private:
     // Global CTOR initialization order is undefined between translation units.

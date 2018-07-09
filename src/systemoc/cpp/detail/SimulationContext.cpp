@@ -33,33 +33,26 @@
  * ENHANCEMENTS, OR MODIFICATIONS.
  */
 
-#include <cstring>
-#include <iostream>
-#include <sstream>
-#include <stdlib.h>
+#include <smoc/detail/DebugOStream.hpp>
+#include <smoc/detail/TraceLog.hpp>
+#include <smoc/SimulatorAPI/SimulatorInterface.hpp>
+
+#include "SimulationContext.hpp"
+#include "SMXImporter.hpp"
+
+#include <systemoc/smoc_config.h>
 
 #include <boost/program_options/options_description.hpp>
 #include <boost/program_options/parsers.hpp>
 #include <boost/program_options/positional_options.hpp>
 
 #include <CoSupport/compatibility-glue/nullptr.h>
-
 #include <CoSupport/Streams/AlternateStream.hpp>
 
-#include <systemoc/smoc_config.h>
-
-#include <smoc/detail/DebugOStream.hpp>
-
-#ifdef SYSTEMOC_ENABLE_VPC
-# include <vpc.hpp>
-#endif //SYSTEMOC_ENABLE_VPC
-
-#include <smoc/detail/TraceLog.hpp>
-
-#include "SimulationContext.hpp"
-#include "SMXImporter.hpp"
-
-#include <smoc/SimulatorAPI/SimulatorInterface.hpp>
+#include <cstring>
+#include <iostream>
+#include <sstream>
+#include <stdlib.h>
 
 namespace smoc { namespace Detail {
 
@@ -394,9 +387,8 @@ void SimulationContext::endOfSystemcSimulation(){
   static bool called = 0;
   if (!called) {
     called = true;
-#ifdef SYSTEMOC_ENABLE_VPC
-  SystemC_VPC::Director::endOfSystemcSimulation();
-#endif
+    if (getSimulatorInterface())
+      getSimulatorInterface()->simulationEnded();
   }
 }
 
