@@ -36,8 +36,6 @@
 #ifndef _INCLUDED_SMOC_DETAIL_SIMULATIONCONTEXT_HPP
 #define _INCLUDED_SMOC_DETAIL_SIMULATIONCONTEXT_HPP
 
-#include <CoSupport/compatibility-glue/nullptr.h>
-
 #include <ostream>
 #include <vector>
 

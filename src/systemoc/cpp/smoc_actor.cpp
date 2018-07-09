@@ -33,8 +33,6 @@
  * ENHANCEMENTS, OR MODIFICATIONS.
  */
 
-#include <CoSupport/compatibility-glue/nullptr.h>
-
 #include <smoc/smoc_actor.hpp>
 #include <smoc/smoc_graph.hpp>
 #ifdef SYSTEMOC_ENABLE_MAESTRO

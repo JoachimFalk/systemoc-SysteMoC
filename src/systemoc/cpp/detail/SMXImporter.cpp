@@ -40,7 +40,6 @@
 
 #ifdef SYSTEMOC_ENABLE_SGX
 
-#include <CoSupport/compatibility-glue/nullptr.h>
 #include <CoSupport/String/Concat.hpp>
 
 #include <smoc/detail/DebugOStream.hpp>

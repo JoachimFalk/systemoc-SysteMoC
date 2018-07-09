@@ -42,8 +42,6 @@
 
 #include <systemc>
 
-#include <CoSupport/compatibility-glue/nullptr.h>
-
 #include <CoSupport/commondefs.h>
 
 #include <systemoc/smoc_config.h>

@@ -33,8 +33,6 @@
  * ENHANCEMENTS, OR MODIFICATIONS.
  */
 
-#include <CoSupport/compatibility-glue/nullptr.h>
-
 #include <list>
 #include <typeinfo>
 

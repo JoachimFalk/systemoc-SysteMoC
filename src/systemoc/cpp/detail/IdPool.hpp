@@ -43,8 +43,6 @@
 #include <map>
 #include <limits>
 
-#include <CoSupport/compatibility-glue/nullptr.h>
-
 #include <CoSupport/Allocators/IdPool.hpp>
 
 #include <smoc/detail/NamedIdedObj.hpp>

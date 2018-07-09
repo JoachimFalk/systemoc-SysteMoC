@@ -33,8 +33,6 @@
  * ENHANCEMENTS, OR MODIFICATIONS.
  */
 
-#include <CoSupport/compatibility-glue/nullptr.h>
-
 #include <systemoc/smoc_config.h>
 
 #ifdef SYSTEMOC_NEED_IDS

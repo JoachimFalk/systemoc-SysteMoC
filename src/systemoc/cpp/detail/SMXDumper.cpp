@@ -47,7 +47,6 @@
 
 #include <sgx.hpp>
 
-#include <CoSupport/compatibility-glue/nullptr.h>
 #include <CoSupport/String/Concat.hpp>
 #include <CoSupport/String/convert.hpp>
 

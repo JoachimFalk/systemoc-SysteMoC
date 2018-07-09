@@ -33,7 +33,6 @@
  * ENHANCEMENTS, OR MODIFICATIONS.
  */
 
-#include <CoSupport/compatibility-glue/nullptr.h>
 #include <smoc/detail/NodeBase.hpp>
 #include <time.h>
 #include <sstream>
