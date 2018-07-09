@@ -142,24 +142,6 @@ void NodeBase::start_of_simulation() {
 #endif //defined(SYSTEMOC_ENABLE_DEBUG)
 }
 
-smoc_sysc_port_list NodeBase::getPorts() const {
-  smoc_sysc_port_list ret;
-  
-  for(
-#if SYSTEMC_VERSION < 20050714
-    sc_core::sc_pvector<sc_core::sc_object*>::const_iterator iter =
-#else
-    std::vector<sc_core::sc_object*>::const_iterator iter =
-#endif
-      get_child_objects().begin();
-    iter != get_child_objects().end(); ++iter)
-  {
-    if(PortBase* p = dynamic_cast<PortBase*>(*iter))
-      ret.push_back(p);
-  }
-  return ret;
-}
-
 NodeBase::~NodeBase() {
 }
 

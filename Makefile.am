@@ -83,6 +83,7 @@ libsystemoc_la_SOURCES = \
 	src/systemoc/cpp/SimulatorAPI/SchedulerInterface.cpp \
 	src/systemoc/cpp/SimulatorAPI/SimulatorInterface.cpp \
 	src/systemoc/cpp/SimulatorAPI/TaskInterface.cpp \
+	src/systemoc/cpp/smoc_action.cpp \
 	src/systemoc/cpp/smoc_actor.cpp \
 	src/systemoc/cpp/smoc_and_state.cpp \
 	src/systemoc/cpp/smoc_base_state.cpp \
@@ -91,7 +92,6 @@ libsystemoc_la_SOURCES = \
 	src/systemoc/cpp/smoc_expr.cpp \
 	src/systemoc/cpp/smoc_fifo.cpp \
 	src/systemoc/cpp/smoc_firing_state.cpp \
-	src/systemoc/cpp/smoc_func_call.cpp \
 	src/systemoc/cpp/smoc_graph.cpp \
 	src/systemoc/cpp/smoc_junction_state.cpp \
 	src/systemoc/cpp/smoc_main.cpp \

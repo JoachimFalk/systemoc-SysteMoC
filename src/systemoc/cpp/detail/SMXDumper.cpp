@@ -1,7 +1,7 @@
 // -*- tab-width:8; intent-tabs-mode:nil; c-basic-offset:2; -*-
 // vim: set sw=2 ts=8 et:
 /*
- * Copyright (c) 2004-2017 Hardware-Software-CoDesign, University of Erlangen-Nuremberg.
+ * Copyright (c) 2004-2018 Hardware-Software-CoDesign, University of Erlangen-Nuremberg.
  * 
  *   This library is free software; you can redistribute it and/or modify it under
  *   the terms of the GNU Lesser General Public License as published by the Free
@@ -104,11 +104,12 @@ SGX::Action::Ptr ActionNGXVisitor::operator()(smoc_action &f) const {
   
   for (smoc_action::iterator i = f.begin(); i != f.end(); ++i) {
     SGX::Function func;
-    func.name() = i->getFuncName();
-    func.cxxType() = i->getCxxType();
+    func.name() = (*i)->getFuncName();
+    func.cxxType() = (*i)->getCxxType();
     
-    for (ParamInfoList::const_iterator pIter = i->getParams().begin();
-         pIter != i->getParams().end();
+    ParamInfoList pil = (*i)->getParams();
+    for (ParamInfoList::const_iterator pIter = pil.begin();
+         pIter != pil.end();
          ++pIter) {
       SGX::Parameter p(pIter->type, pIter->value);
       //p.name() = pIter->name;
@@ -908,7 +909,7 @@ public:
         std::pair<FiringRuleInfoMap::iterator, bool> inserted =
           firingRuleInfoMap.insert(std::make_pair(tIter->getFiringRule(), FiringRuleInfo()));
         if (inserted.second) {
-          inserted.first->second.actionPtr = boost::apply_visitor(actionVisitor,
+          inserted.first->second.actionPtr = actionVisitor(
             const_cast<smoc_action &>(tIter->getAction()));
           if (sv.ctx.simCTX->isSMXDumpingASTEnabled()) {
             boost::scoped_ptr<SGX::ASTNode> astNode(

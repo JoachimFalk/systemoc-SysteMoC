@@ -41,7 +41,7 @@
 #include <smoc/smoc_event.hpp>
 
 #include <smoc/smoc_guard.hpp>
-#include <systemoc/detail/smoc_func_call.hpp> // for smoc_action
+#include <smoc/smoc_action.hpp>
 #include <smoc/smoc_event.hpp>
 #include <smoc/detail/PortBase.hpp>
 

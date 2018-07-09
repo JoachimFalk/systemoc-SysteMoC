@@ -103,8 +103,6 @@ protected:
 
   void setId(NgId id);
 
-//virtual void end_of_elaboration();
-
 #ifdef SYSTEMOC_ENABLE_DATAFLOW_TRACE
   void        traceCommSetup(size_t req);
 #endif //SYSTEMOC_ENABLE_DATAFLOW_TRACE
@@ -134,8 +132,6 @@ private:
   //        Therefore, we might need to support multiple child ports.
   PortBase     *child;
 };
-
-typedef std::list<PortBase *>             smoc_sysc_port_list;
 
 /// Class representing the base class of all SysteMoC ports.
 class PortInBase

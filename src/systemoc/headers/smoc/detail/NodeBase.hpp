@@ -1,7 +1,7 @@
 // -*- tab-width:8; intent-tabs-mode:nil; c-basic-offset:2; -*-
 // vim: set sw=2 ts=8 et:
 /*
- * Copyright (c) 2004-2017 Hardware-Software-CoDesign, University of Erlangen-Nuremberg.
+ * Copyright (c) 2004-2018 Hardware-Software-CoDesign, University of Erlangen-Nuremberg.
  * 
  *   This library is free software; you can redistribute it and/or modify it under
  *   the terms of the GNU Lesser General Public License as published by the Free
@@ -51,8 +51,8 @@
 
 #include "NamedIdedObj.hpp"
 #include "../smoc_guard.hpp"
+#include "../smoc_action.hpp"
 #include "../smoc_state.hpp"
-#include "../../systemoc/detail/smoc_func_call.hpp"
 #include "PortBase.hpp"
 
 #include <smoc/smoc_hooking.hpp>
@@ -112,14 +112,13 @@ class NodeBase
 #ifdef SYSTEMOC_NEED_IDS
   , public NamedIdedObj
 #endif // SYSTEMOC_NEED_IDS
-#if !defined(SYSTEMOC_ENABLE_MAESTRO)
   , public SimulatorAPI::TaskHandle
-#else //defined(SYSTEMOC_ENABLE_MAESTRO)
+#ifdef SYSTEMOC_ENABLE_MAESTRO
   , public MetaMap::SMoCActor
 # ifdef MAESTRO_ENABLE_POLYPHONIC
   , public MAESTRO::PolyphoniC::psmoc_root_node
-# endif
-#endif // defined(SYSTEMOC_ENABLE_MAESTRO)
+# endif //MAESTRO_ENABLE_POLYPHONIC
+#endif //SYSTEMOC_ENABLE_MAESTRO
 {
   typedef NodeBase this_type;
 
@@ -132,20 +131,45 @@ class NodeBase
   friend class DumpActor; // To access constrArgs by SMXDumper
   friend class ProcessVisitor; // To disable actors by SMXImporter.
   friend class QSSActionVisitor; // To schedule contained actors
-//#ifdef SYSTEMOC_ENABLE_HOOKING
-//  // To manipulate transitionHooks
-//  friend void ::smoc::smoc_add_transition_hook(smoc_actor *node,
-//      const std::string &srcState, const std::string &action, const std::string &dstState,
-//      const smoc_pre_hook_callback &pre, const smoc_post_hook_callback &post);
-//#endif //SYSTEMOC_ENABLE_HOOKING
+
+  template<class F, class PL>
+  struct ActionBuilder {
+    typedef smoc_action result_type;
+
+    static
+    result_type build(const F &f, const PL &pl)
+      { return result_type(f, pl); }
+  };
+public:
+  /// Function to determine if the current node is an actor or a graph
+  /// to avoid expensive RTTI dynamic_cast calls
+  bool isActor() const
+    { return nodeType == NODE_TYPE_ACTOR; }
+
+  // To reflect SystemC name back to NamedIdedObj -- if present -- and
+  // TaskInterface base classes
+  const char *name() const
+    { return this->sc_core::sc_module::name(); }
+
+  /// FIXME: Why is this public
+  FSM::FiringFSM *getFiringFSM() const;
+
+  /// FIXME: Why is this public
+  FSM::RuntimeState *getCurrentState() const
+    { return currentState; }
 protected:
   // This is used by smoc_actor and smoc_graph.
   enum NodeType {
     NODE_TYPE_ACTOR   = 1,
     NODE_TYPE_GRAPH   = 2
   };
-protected:
+
   NodeBase(sc_core::sc_module_name, NodeType nodeType, smoc_state *s, unsigned int thread_stack_size);
+
+  template<class T>
+  void registerParam(const std::string& name, const T& t) {
+    constrArgs(name, t);
+  }
 
   // This method will be implemented by SysteMoC and can be used
   // to enable (true) or disable (false) the scheduling of the
@@ -160,16 +184,16 @@ protected:
   virtual void reset() {};
 
   template<typename F, typename X>
-  typename CoSupport::Lambda::ParamAccumulator<Detail::ActionBuilder, CoSupport::Lambda::Functor<void, F>, true>::accumulated_type
   static
+  typename CoSupport::Lambda::ParamAccumulator<ActionBuilder, CoSupport::Lambda::Functor<void, F>, true>::accumulated_type
   call(X* ins, const F &f, const char *name = "") {
-    return CoSupport::Lambda::ParamAccumulator<Detail::ActionBuilder, CoSupport::Lambda::Functor<void, F>, true>::build
+    return CoSupport::Lambda::ParamAccumulator<ActionBuilder, CoSupport::Lambda::Functor<void, F>, true>::build
       (CoSupport::Lambda::Functor<void, F>(ins, f, name));
   }
 
   template<typename F, typename X>
-  typename smoc::Expr::MemGuard<F>::type
   static
+  typename smoc::Expr::MemGuard<F>::type
   guard(const X* ins, const F &f, const char *name = "") {
     return smoc::Expr::guard(ins, f, name);
   }
@@ -198,11 +222,6 @@ protected:
   token(P &p, size_t pos)
     { return typename Expr::Token<P>::type(p,pos); }
 
-  template<class T>
-  void registerParam(const std::string& name, const T& t) {
-    constrArgs(name, t);
-  }
-
   void setInitialState(smoc_state &s);
 
   virtual void before_end_of_elaboration();
@@ -210,27 +229,14 @@ protected:
   virtual void start_of_simulation();
 
   virtual ~NodeBase();
-public:
-  /// Function to determine if the current node is an actor or a graph
-  /// to avoid expensive RTTI dynamic_cast calls
-  bool isActor() const
-    { return nodeType == NODE_TYPE_ACTOR; }
+protected:
+  void schedule();
 
-  FSM::FiringFSM *getFiringFSM() const;
+  bool canFire();
 
-  FSM::RuntimeState *getCurrentState() const
-    { return currentState; }
-
-  /// @brief Collect ports from child objects
-  smoc_sysc_port_list getPorts() const;
-
-  // To reflect SystemC name back to NamedIdedObj -- if present -- and
-  // TaskInterface base classes
-  const char *name() const
-    { return this->sc_core::sc_module::name(); }
+  sc_core::sc_time const &getNextReleaseTime() const;
 
 private:
-
   /// @brief Initial firing state
   smoc_state      *initialState;
   /// @brief Initial firing state as a smart pointer. This
@@ -288,13 +294,6 @@ private:
 
   void addMySelfAsListener(FSM::RuntimeState *state);
   void delMySelfAsListener(FSM::RuntimeState *state);
-
-protected:
-  void schedule();
-
-  bool canFire();
-
-  sc_core::sc_time const &getNextReleaseTime() const;
 };
 
 typedef std::list<NodeBase *> NodeList;

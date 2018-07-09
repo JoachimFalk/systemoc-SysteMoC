@@ -33,22 +33,22 @@
  * ENHANCEMENTS, OR MODIFICATIONS.
  */
 
+#include <smoc/detail/MemFuncCallIf.hpp>
 #include <smoc/detail/NodeBase.hpp>
-#include <time.h>
-#include <sstream>
-#include <cassert>
-#include <cmath>
-#include <systemc>
-
-#include <systemoc/smoc_config.h>
-
 #include <smoc/detail/TraceLog.hpp>
 #include <smoc/detail/ChanBase.hpp>
 #include <smoc/detail/PortBase.hpp>
 
 #include <systemoc/detail/smoc_chan_if.hpp>
 #include <systemoc/detail/smoc_port_registry.hpp>
-#include <systemoc/detail/smoc_func_call.hpp>
+
+#include <systemoc/smoc_config.h>
+
+#include <time.h>
+#include <sstream>
+#include <cassert>
+#include <cmath>
+#include <systemc>
 
 #ifdef SYSTEMOC_ENABLE_DATAFLOW_TRACE
 
@@ -169,7 +169,7 @@ void TraceLogStream::traceEndActor(const smoc::Detail::NamedIdedObj *actor){
   stream << "</a>" << std::endl;
 }
 
-void TraceLogStream::traceStartFunction(const smoc_func_call *func){
+void TraceLogStream::traceStartFunction(MemFuncCallIf<void> const *func) {
 
   if( !getSimCTX()->isDataflowTracingEnabled() )
     return;
@@ -186,7 +186,7 @@ void TraceLogStream::traceStartFunction(const smoc_func_call *func){
   stream << CoSupport::Streams::Indent::Up;
 }
 
-void TraceLogStream::traceEndFunction(const smoc_func_call *func){
+void TraceLogStream::traceEndFunction(MemFuncCallIf<void> const *func) {
 
   if( !getSimCTX()->isDataflowTracingEnabled() )
     return;
