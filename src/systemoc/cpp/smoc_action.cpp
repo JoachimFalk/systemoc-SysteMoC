@@ -1,7 +1,7 @@
 // -*- tab-width:8; intent-tabs-mode:nil; c-basic-offset:2; -*-
 // vim: set sw=2 ts=8 et:
 /*
- * Copyright (c) 2018 Hardware-Software-CoDesign, University of Erlangen-Nuremberg.
+ * Copyright (c) 2004-2017 Hardware-Software-CoDesign, University of Erlangen-Nuremberg.
  * 
  *   This library is free software; you can redistribute it and/or modify it under
  *   the terms of the GNU Lesser General Public License as published by the Free
@@ -33,57 +33,51 @@
  * ENHANCEMENTS, OR MODIFICATIONS.
  */
 
-#ifndef _INCLUDED_SMOC_SMOC_FIRING_RULE_HPP
-#define _INCLUDED_SMOC_SMOC_FIRING_RULE_HPP
+#include <smoc/smoc_action.hpp>
+#include <smoc/detail/DebugOStream.hpp>
 
-#include "smoc_guard.hpp"
-#include "smoc_action.hpp"
+#include <systemoc/smoc_config.h>
 
 namespace smoc {
 
-class smoc_firing_rule {
-public:
-  typedef smoc_firing_rule this_type;
+void smoc_action::operator()() const {
+  // Function call
+  for (value_type const &f : *this) {
+#ifdef SYSTEMOC_ENABLE_DATAFLOW_TRACE
+    this->getSimCTX()->getDataflowTraceLog()->traceStartFunction(&f);
+#endif // SYSTEMOC_ENABLE_DATAFLOW_TRACE
+#ifdef SYSTEMOC_ENABLE_DEBUG
+    if (smoc::Detail::outDbg.isVisible(smoc::Detail::Debug::Medium)) {
+      smoc::Detail::outDbg << "<action type=\"smoc_func_call\" func=\""
+           << f->getFuncName() << "\">" << std::endl;
+    }
+#endif // SYSTEMOC_ENABLE_DEBUG
+    f->call();
+#ifdef SYSTEMOC_ENABLE_DEBUG
+    if (smoc::Detail::outDbg.isVisible(smoc::Detail::Debug::Medium)) {
+      smoc::Detail::outDbg << "</action>" << std::endl;
+    }
+#endif // SYSTEMOC_ENABLE_DEBUG
+#ifdef SYSTEMOC_ENABLE_DATAFLOW_TRACE
+    getSimCTX()->getDataflowTraceLog()->traceEndFunction(&*i);
+#endif // SYSTEMOC_ENABLE_DATAFLOW_TRACE
+  }
+}
 
-private:
-  /// @brief guard (AST assembled from smoc_guard.hpp nodes)
-  smoc_guard const guard;
-  /// @brief Action
-  smoc_action const action;
-public:
-  /// @brief Constructor
-  explicit smoc_firing_rule(smoc_guard const &g)
-    : guard(g) {}
+smoc_action Detail::merge(const smoc_action &a, const smoc_action &b) {
+  if(a.empty())
+    return b;
+  if(b.empty())
+    return a;
 
-  /// @brief Constructor
-  explicit smoc_firing_rule(smoc_guard const &g, smoc_action const &a)
-    : guard(g), action(a) {}
-
-  /// @brief Returns the guard
-  smoc_guard const &getGuard() const
-    { return guard; }
-
-  /// @brief Returns the action
-  smoc_action const &getAction() const
-    { return action; }
-};
-
-inline
-smoc_firing_rule operator >> (
-    smoc_firing_rule const &tp,
-    smoc_action      const &a)
-  { return smoc_firing_rule(tp.getGuard(), Detail::merge(tp.getAction(), a)); }
-
-namespace Expr {
-
-  template <class E>
-  smoc_firing_rule operator >> (
-      Expr::D<E>  const &g,
-      smoc_action const &a)
-    { return smoc_firing_rule(smoc_guard(g), a); }
-
-} // namespace Expr
+  smoc_action ret = a;
+  for(smoc_action::const_iterator i = b.begin();
+      i != b.end();
+      ++i)
+  {
+    ret.push_back(*i);
+  }
+  return ret;
+}
 
 } // namespace smoc
-
-#endif /* _INCLUDED_SMOC_SMOC_FIRING_RULE_HPP */

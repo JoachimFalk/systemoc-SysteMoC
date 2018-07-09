@@ -1,7 +1,7 @@
 // -*- tab-width:8; intent-tabs-mode:nil; c-basic-offset:2; -*-
 // vim: set sw=2 ts=8 et:
 /*
- * Copyright (c) 2018 Hardware-Software-CoDesign, University of Erlangen-Nuremberg.
+ * Copyright (c) 2004-2018 Hardware-Software-CoDesign, University of Erlangen-Nuremberg.
  * 
  *   This library is free software; you can redistribute it and/or modify it under
  *   the terms of the GNU Lesser General Public License as published by the Free
@@ -33,57 +33,74 @@
  * ENHANCEMENTS, OR MODIFICATIONS.
  */
 
-#ifndef _INCLUDED_SMOC_SMOC_FIRING_RULE_HPP
-#define _INCLUDED_SMOC_SMOC_FIRING_RULE_HPP
+#ifndef _INCLUDED_SMOC_SMOC_ACTION_HPP
+#define _INCLUDED_SMOC_SMOC_ACTION_HPP
 
-#include "smoc_guard.hpp"
-#include "smoc_action.hpp"
+#include "detail/MemFuncCallIf.hpp"
+
+#include <CoSupport/SmartPtr/RefCountObject.hpp>
+
+#include <boost/intrusive_ptr.hpp>
+
+#include <list>
 
 namespace smoc {
 
-class smoc_firing_rule {
+class smoc_action : public std::list<
+  boost::intrusive_ptr<
+    Detail::MemFuncCallIf<void> > >
+{
+  typedef smoc_action this_type;
 public:
-  typedef smoc_firing_rule this_type;
+  smoc_action()
+    {}
 
+  template<class F, class PL>
+  explicit
+  smoc_action(F const &f, PL const &pl)
+    { push_back(new MemFuncCallImpl<F, PL>(f,pl)); }
+
+  void operator()() const;
 private:
-  /// @brief guard (AST assembled from smoc_guard.hpp nodes)
-  smoc_guard const guard;
-  /// @brief Action
-  smoc_action const action;
-public:
-  /// @brief Constructor
-  explicit smoc_firing_rule(smoc_guard const &g)
-    : guard(g) {}
+  template<class F, class PL>
+  class MemFuncCallImpl
+  : public Detail::MemFuncCallIf<void> {
+  private:
+    F  f;
+    PL pl;
+#ifdef MAESTRO_ENABLE_POLYPHONIC
+    bool canRunInParallel;
+#endif
+  public:
+    MemFuncCallImpl(const F &_f, const PL &_pl = PL())
+      : f(_f), pl(_pl)
+#ifdef MAESTRO_ENABLE_POLYPHONIC
+      , canRunInParallel(_f.canRunInParallel)
+#endif
+    {}
 
-  /// @brief Constructor
-  explicit smoc_firing_rule(smoc_guard const &g, smoc_action const &a)
-    : guard(g), action(a) {}
+    void call() const
+      { f.call(pl); }
+    const char *getFuncName() const
+      { return f.name; }
+    const char *getCxxType() const
+      { return typeid(f.func).name(); }
 
-  /// @brief Returns the guard
-  smoc_guard const &getGuard() const
-    { return guard; }
+    Detail::ParamInfoList getParams() const {
+      Detail::ParamInfoVisitor piv;
+      f.paramListVisit(pl, piv);
+      return piv.pil;
+    }
+  };
 
-  /// @brief Returns the action
-  smoc_action const &getAction() const
-    { return action; }
 };
-
-inline
-smoc_firing_rule operator >> (
-    smoc_firing_rule const &tp,
-    smoc_action      const &a)
-  { return smoc_firing_rule(tp.getGuard(), Detail::merge(tp.getAction(), a)); }
-
-namespace Expr {
-
-  template <class E>
-  smoc_firing_rule operator >> (
-      Expr::D<E>  const &g,
-      smoc_action const &a)
-    { return smoc_firing_rule(smoc_guard(g), a); }
-
-} // namespace Expr
 
 } // namespace smoc
 
-#endif /* _INCLUDED_SMOC_SMOC_FIRING_RULE_HPP */
+namespace smoc { namespace Detail {
+
+  smoc_action merge(smoc_action const &a, smoc_action const &b);
+
+} } // namespace smoc::Detail
+
+#endif /* _INCLUDED_SMOC_SMOC_ACTION_HPP */

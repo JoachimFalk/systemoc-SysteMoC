@@ -139,8 +139,8 @@ namespace smoc { namespace Detail { namespace FSM {
   FunctionNames RuntimeFiringRule::getActionNames() const {
     FunctionNames actionNames;
 
-    for (smoc_func_call const &f : getAction()) {
-      actionNames.push_back(f.getFuncName());
+    for (smoc_action::value_type const &f : getAction()) {
+      actionNames.push_back(f->getFuncName());
     }
     return actionNames;
   }

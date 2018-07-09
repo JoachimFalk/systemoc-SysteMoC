@@ -51,7 +51,6 @@
 #include <CoSupport/DataTypes/oneof.hpp>
 #include <CoSupport/Lambda/functor.hpp>
 #include <CoSupport/String/convert.hpp>
-#include <CoSupport/String/DoubleQuotedString.hpp>
 
 #include <boost/typeof/typeof.hpp>
 #include <boost/function.hpp>
@@ -60,6 +59,7 @@
 #include <systemoc/smoc_config.h>
 
 #include "smoc_event.hpp"
+#include "detail/MemFuncCallIf.hpp"
 #include "detail/DebugOStream.hpp"
 
 namespace smoc { namespace Detail {
@@ -70,82 +70,6 @@ namespace smoc { namespace Detail {
   struct DISABLED { operator bool() const { return false; } };
   struct BLOCKED  {};
   struct ENABLED  { operator bool() const { return true; } };
-
-  struct ParamInfo {
-    std::string name;
-    std::string type;
-    std::string value;
-  };
-  typedef std::vector<ParamInfo> ParamInfoList;
-
-  struct ParamInfoVisitor {
-    ParamInfoList pil;
-
-    template<class P>
-    void operator()(const P& p) {
-      ParamInfo pi;
-      //pi.name = FIXME;
-      pi.type = typeid(P).name();
-      pi.value = CoSupport::String::asStr(p);
-      pil.push_back(pi);
-    }
-
-    template<class P>
-    void operator()(const std::string &name, const P &p) {
-      ParamInfo pi;
-      pi.name = name;
-      pi.type = typeid(P).name();
-      pi.value = CoSupport::String::asStr(p);
-      pil.push_back(pi);
-    }
-
-    void operator()(const std::string &p) {
-      std::stringstream sstr;
-      sstr << "std::string(" << CoSupport::String::DoubleQuotedString(p) << ")";
-      ParamInfo pi;
-      //pi.name = FIXME;
-      pi.type = typeid(std::string).name();
-      pi.value = sstr.str();
-      pil.push_back(pi);
-    }
-
-    void operator()(const std::string &name, const std::string &p) {
-      std::stringstream sstr;
-      sstr << "std::string(" << CoSupport::String::DoubleQuotedString(p) << ")";
-      ParamInfo pi;
-      pi.name  = name;
-      pi.type  = typeid(std::string).name();
-      pi.value = sstr.str();
-      pil.push_back(pi);
-    }
-
-    void operator()(const char *p) {
-      std::stringstream sstr;
-      sstr << CoSupport::String::DoubleQuotedString(p);
-      ParamInfo pi;
-      //pi.name = FIXME;
-      pi.type = typeid(std::string).name();
-      pi.value = sstr.str();
-      pil.push_back(pi);
-    }
-
-    void operator()(const std::string &name, const char *p) {
-      std::stringstream sstr;
-      sstr << CoSupport::String::DoubleQuotedString(p);
-      ParamInfo pi;
-      pi.name = name;
-      pi.type = typeid(std::string).name();
-      pi.value = sstr.str();
-      pil.push_back(pi);
-    }
-
-    void operator()(char *p)
-      { (*this)(static_cast<const char *>(p)); }
-
-    void operator()(const std::string &name, char *p)
-      { (*this)(name, static_cast<const char *>(p)); }
-
-  };
 
   // WARNING: Always sync this with SystemCoDesigner::SGX::OpUnT in LibSGX!!!
   class OpUnT {

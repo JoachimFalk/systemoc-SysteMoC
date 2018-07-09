@@ -26,6 +26,7 @@ SUBDIRS=
 
 nobase_include_HEADERS = \
 	smoc.hpp \
+	smoc/smoc_action.hpp \
 	smoc/smoc_actor.hpp \
 	smoc/smoc_and_state.hpp \
 	smoc/smoc_base_state.hpp \
@@ -60,6 +61,7 @@ nobase_include_HEADERS = \
 	smoc/detail/GraphBase.hpp \
 	smoc/detail/IdedObj.hpp \
 	smoc/detail/IdTAllocRequest.hpp \
+	smoc/detail/MemFuncCallIf.hpp \
 	smoc/detail/NamedIdedObj.hpp \
 	smoc/detail/NodeBase.hpp \
 	smoc/detail/NodeQueue.hpp \
@@ -99,6 +101,5 @@ nobase_include_HEADERS = \
 	systemoc/smoc_tt.hpp \
 	systemoc/detail/smoc_chan_if.hpp \
 	systemoc/detail/smoc_fifo_storage.hpp \
-	systemoc/detail/smoc_func_call.hpp \
 	systemoc/detail/smoc_port_registry.hpp \
 	systemoc/detail/smoc_ring_access.hpp

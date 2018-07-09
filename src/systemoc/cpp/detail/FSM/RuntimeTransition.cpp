@@ -42,6 +42,193 @@
 
 #include <systemoc/smoc_config.h>
 
+#ifdef MAESTRO_ENABLE_POLYPHONIC
+# include <Maestro/PolyphoniC/polyphonic_smoc_func_call.h>
+#endif //MAESTRO_ENABLE_POLYPHONIC
+
+#ifdef SYSTEMOC_ENABLE_MAESTRO
+//////////////TODO: REVIEW THIS SECTION CODE (Visitor's)
+
+using namespace std;
+
+using namespace smoc::Detail;
+
+namespace MetaMap {
+  class Transition;
+}
+
+
+namespace smoc { namespace dMM {
+
+class ActionOnThreadVisitor : public smoc::Detail::SimCTXBase {
+public:
+  typedef smoc::Detail::FSM::RuntimeState *result_type;
+
+public:
+  ActionOnThreadVisitor(result_type dest, MetaMap::Transition* transition);
+
+  result_type operator()(const smoc_action& f) const;
+
+private:
+  result_type dest;
+
+  MetaMap::Transition* transition;
+
+  void executeTransition(const smoc_action& f) const;
+
+};
+
+class MMActionNameVisitor {
+public:
+  typedef void result_type;
+
+public:
+  MMActionNameVisitor(list<string> & names):
+  functionNames(names) {}
+
+  result_type operator()(const smoc_action& f) const {
+    for (smoc_action::const_iterator i = f.begin(); i != f.end(); ++i) {
+      functionNames.push_back(i->getFuncName());
+    }
+  }
+
+private:
+  list<string> &functionNames;
+};
+
+class MMGuardNameVisitor: public ExprVisitor<list<string> > {
+public:
+  typedef ExprVisitor<list<string> >            base_type;
+  typedef MMGuardNameVisitor                    this_type;
+
+public:
+  MMGuardNameVisitor(list<string> & names) :
+    functionNames(names){}
+
+  result_type visitVar(const std::string &name, const std::string &type){
+    return nullptr;
+  }
+  result_type visitLiteral(const std::string &type,
+      const std::string &value){
+    return nullptr;
+  }
+  result_type visitMemGuard(
+      const std::string &name, const std::string& cxxType,
+      const std::string &reType, const ParamInfoList &params){
+    functionNames.push_back(name);
+    return nullptr;
+  }
+  result_type visitEvent(const std::string &name){
+    return nullptr;
+  }
+  result_type visitPortTokens(PortBase &p){
+    return nullptr;
+  }
+  result_type visitToken(PortBase &p, size_t n){
+    return nullptr;
+  }
+  result_type visitComm(PortBase &p,
+      boost::function<result_type (base_type &)> e){
+    return nullptr;
+  }
+  result_type visitUnOp(OpUnT op,
+      boost::function<result_type (base_type &)> e){
+    e(*this);
+    return nullptr;
+  }
+  result_type visitBinOp(OpBinT op,
+      boost::function<result_type (base_type &)> a,
+      boost::function<result_type (base_type &)> b){
+    a(*this);
+    b(*this);
+
+    return nullptr;
+  }
+private:
+  list<string> &functionNames;
+};
+} } // namespace smoc::Detail
+
+smoc::dMM::TransitionOnThreadVisitor::TransitionOnThreadVisitor(result_type dest, MetaMap::Transition* tr)
+  : dest(dest), transition(tr)
+{}
+
+smoc::dMM::TransitionOnThreadVisitor::result_type smoc::dMM::TransitionOnThreadVisitor::operator()(const smoc_action& f) const
+{
+  boost::thread privateThread;
+
+  bool hasWaitTime = false;
+
+  for (smoc_action::const_iterator i = f.begin(); i != f.end(); ++i) {
+    string name = i->getFuncName();
+
+    if (i->isWaitCall()) {
+      hasWaitTime = true;
+    }
+  }
+
+  if (!hasWaitTime) {
+    privateThread = boost::thread(&TransitionOnThreadVisitor::executeTransition, this, f);
+    transition->waitThreadDone();
+    //privateThread.join();
+  } else {
+    // Function call
+    for (smoc_action::const_iterator i = f.begin(); i != f.end(); ++i) {
+# ifdef SYSTEMOC_ENABLE_DATAFLOW_TRACE
+      this->getSimCTX()->getDataflowTraceLog()->traceStartFunction(&*i);
+# endif // SYSTEMOC_ENABLE_DATAFLOW_TRACE
+# ifdef SYSTEMOC_ENABLE_DEBUG
+      if (smoc::Detail::outDbg.isVisible(smoc::Detail::Debug::Medium)) {
+        smoc::Detail::outDbg << "<action type=\"smoc_func_call\" func=\""
+          << i->getFuncName() << "\">" << std::endl;
+      }
+# endif // SYSTEMOC_ENABLE_DEBUG
+      (*i)();
+# ifdef SYSTEMOC_ENABLE_DEBUG
+      if (smoc::Detail::outDbg.isVisible(smoc::Detail::Debug::Medium)) {
+        smoc::Detail::outDbg << "</action>" << std::endl;
+      }
+# endif // SYSTEMOC_ENABLE_DEBUG
+# ifdef SYSTEMOC_ENABLE_DATAFLOW_TRACE
+      getSimCTX()->getDataflowTraceLog()->traceEndFunction(&*i);
+# endif // SYSTEMOC_ENABLE_DATAFLOW_TRACE
+    }
+  }
+
+  return dest;
+}
+
+void smoc::dMM::TransitionOnThreadVisitor::executeTransition(const smoc_action& f) const
+{
+  // Function call
+  for (smoc_action::const_iterator i = f.begin(); i != f.end(); ++i) {
+# ifdef SYSTEMOC_ENABLE_DATAFLOW_TRACE
+    this->getSimCTX()->getDataflowTraceLog()->traceStartFunction(&*i);
+# endif // SYSTEMOC_ENABLE_DATAFLOW_TRACE
+# ifdef SYSTEMOC_ENABLE_DEBUG
+    if (smoc::Detail::outDbg.isVisible(smoc::Detail::Debug::Medium)) {
+      smoc::Detail::outDbg << "<action type=\"smoc_func_call\" func=\""
+        << i->getFuncName() << "\">" << std::endl;
+    }
+# endif // SYSTEMOC_ENABLE_DEBUG
+
+    (*i)();
+
+# ifdef SYSTEMOC_ENABLE_DEBUG
+    if (smoc::Detail::outDbg.isVisible(smoc::Detail::Debug::Medium)) {
+      smoc::Detail::outDbg << "</action>" << std::endl;
+    }
+# endif // SYSTEMOC_ENABLE_DEBUG
+# ifdef SYSTEMOC_ENABLE_DATAFLOW_TRACE
+    getSimCTX()->getDataflowTraceLog()->traceEndFunction(&*i);
+# endif // SYSTEMOC_ENABLE_DATAFLOW_TRACE
+  }
+
+  transition->notifyThreadDone();
+}
+
+#endif // SYSTEMOC_ENABLE_MAESTRO
+
 namespace smoc { namespace Detail { namespace FSM {
 
   class TransitionActionNameVisitor {
@@ -54,11 +241,12 @@ namespace smoc { namespace Detail { namespace FSM {
       for (smoc_action::const_iterator i = f.begin(); i != f.end(); ++i) {
         if (i != f.begin())
           str << ";";
-        str << i->getFuncName() << "(";
-        for (ParamInfoList::const_iterator pIter = i->getParams().begin();
-             pIter != i->getParams().end();
+        str << (*i)->getFuncName() << "(";
+        ParamInfoList pil = (*i)->getParams();
+        for (ParamInfoList::const_iterator pIter = pil.begin();
+             pIter != pil.end();
              ++pIter) {
-          if (pIter != i->getParams().begin())
+          if (pIter != pil.begin())
             str << ",";
           str << pIter->value;
         }
@@ -85,7 +273,7 @@ namespace smoc { namespace Detail { namespace FSM {
 #endif //SYSTEMOC_ENABLE_MAESTRO
     , destState(destState)
 #ifdef SYSTEMOC_ENABLE_HOOKING
-    , actionStr(boost::apply_visitor(TransitionActionNameVisitor(), getAction()))
+    , actionStr(TransitionActionNameVisitor()(getAction()))
 #endif //SYSTEMOC_ENABLE_HOOKING
   {
     assert(firingRule);
@@ -191,14 +379,11 @@ namespace smoc { namespace Detail { namespace FSM {
     }
 #endif // SYSTEMOC_ENABLE_HOOKING
 
-    // FIXME: Set nextState directly to dest as ActionOnThreadVisitor/ActionVisitor can no longer overwrite this!
 #ifdef MAESTRO_ENABLE_POLYPHONIC
-    // If parallel execution of actors enable, use ActionOnThreadVisitor.
-    RuntimeState *nextState =
+      // If parallel execution of actors enable, use ActionOnThreadVisitor.
       boost::apply_visitor(ActionOnThreadVisitor(dest, MM::MMAPI::getInstance()->runtimeManager), getAction());
 #else // !MAESTRO_ENABLE_POLYPHONIC
-    RuntimeState *nextState =
-      boost::apply_visitor(ActionVisitor(getDestState()), getAction());
+      getAction()(); // Call the action
 #endif // !MAESTRO_ENABLE_POLYPHONIC
 
 #if defined(SYSTEMOC_ENABLE_MAESTRO) && defined(MAESTRO_ENABLE_BRUCKNER)
@@ -250,7 +435,7 @@ namespace smoc { namespace Detail { namespace FSM {
       smoc::Detail::outDbg << smoc::Detail::Indent::Down << "</transition>"<< std::endl;
     }
 #endif // SYSTEMOC_ENABLE_DEBUG
-    return nextState;
+    return getDestState();
   }
 
 } } } // namespace smoc::Detail::FSM
