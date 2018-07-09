@@ -36,27 +36,21 @@
 #ifndef _INCLUDED_SYSTEMOC_DETAIL_SMOC_FUNC_CALL_HPP
 #define _INCLUDED_SYSTEMOC_DETAIL_SMOC_FUNC_CALL_HPP
 
+#include <smoc/smoc_guard.hpp>
+#include <smoc/detail/SimCTXBase.hpp>
+
+#include <systemoc/smoc_config.h>
+#ifdef MAESTRO_ENABLE_POLYPHONIC
+# include <Maestro/PolyphoniC/polyphonic_smoc_func_call.h>
+#endif //MAESTRO_ENABLE_POLYPHONIC
+
 #include <CoSupport/SmartPtr/RefCountObject.hpp>
 #include <CoSupport/compatibility-glue/nullptr.h>
 #include <CoSupport/Lambda/functor.hpp>
 
+#include <boost/intrusive_ptr.hpp>
 #include <boost/variant.hpp>
 #include <boost/blank.hpp>
-
-#include <systemoc/smoc_config.h>
-
-#include <smoc/smoc_guard.hpp>
-#include <smoc/detail/SimCTXBase.hpp>
-
-#ifdef SYSTEMOC_ENABLE_VPC
-# include <vpc.hpp>
-#endif //SYSTEMOC_ENABLE_VPC
-
-#include <boost/intrusive_ptr.hpp>
-
-#ifdef MAESTRO_ENABLE_POLYPHONIC
-# include <Maestro/PolyphoniC/polyphonic_smoc_func_call.h>
-#endif //MAESTRO_ENABLE_POLYPHONIC
 
 #include <list>
 #include <vector>
