@@ -52,14 +52,29 @@ dnl AM_CPPFLAGS="$AM_CPPFLAGS $BOOST_INCLUDE"
 dnl AM_LDFLAGS="$AM_LDFLAGS   $BOOST_LDFLAGS"
 ACJF_CHECK_LIB_COSUPPORT
 ACJF_CHECK_LIB_SYSTEMOC
-AM_CONDITIONAL(VPC, test x"$SYSTEMOC_ENABLE_VPC" = x"yes")
-if test x"$SYSTEMOC_ENABLE_VPC" = x"yes"; then
+ACJF_CHECK_LIB_SYSTEMC_VPC([], [false])
+
+SYSTEMOC_PLUGINPATH=""
+
+AM_CONDITIONAL(VPC, test x"$SYSTEMC_VPC_FOUND" = x"yes")
+if test x"$SYSTEMC_VPC_FOUND" = x"yes"; then
   AC_CONFIG_SUBDIRS([vpc])
+  for dir in ${SYSTEMC_VPC_LIBPATH}; do
+    if test -d $dir/.libs; then
+      dir=$dir/.libs
+    fi
+    if test x"$SYSTEMOC_PLUGINPATH" = x""; then
+      SYSTEMOC_PLUGINPATH="$dir";
+    else
+      SYSTEMOC_PLUGINPATH="$SYSTEMOC_PLUGINPATH:$dir";
+    fi
+  done
 fi
-AM_CONDITIONAL(MAESTRO, test x"$SYSTEMOC_ENABLE_VPC" = x"yes")
+AM_CONDITIONAL(MAESTRO, test x"$SYSTEMOC_ENABLE_MAESTRO" = x"yes")
 if test x"$SYSTEMOC_ENABLE_MAESTRO" = x"yes"; then
   AC_CONFIG_SUBDIRS([maestro])
 fi
+AC_SUBST([SYSTEMOC_PLUGINPATH])
 
 # Checks for typedefs, structures, and compiler characteristics.
 
