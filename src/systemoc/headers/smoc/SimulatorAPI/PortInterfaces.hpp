@@ -59,7 +59,10 @@ namespace smoc { namespace SimulatorAPI {
     ChannelSourceInterface const *getSource() const
       { return const_cast<this_type *>(this)->getSource(); }
   protected:
-    virtual ~PortInInterface();
+    PortInInterface()
+      : schedulerInfo(nullptr) {}
+
+    virtual ~PortInInterface() {}
   private:
     // Opaque data pointer for the scheduler.
     void *schedulerInfo;
@@ -84,7 +87,10 @@ namespace smoc { namespace SimulatorAPI {
           const_cast<this_type *>(this)->getSinks());
     }
   protected:
-    virtual ~PortOutInterface();
+    PortOutInterface()
+      : schedulerInfo(nullptr) {}
+
+    virtual ~PortOutInterface() {}
   private:
     // Opaque data pointer for the scheduler.
     void *schedulerInfo;

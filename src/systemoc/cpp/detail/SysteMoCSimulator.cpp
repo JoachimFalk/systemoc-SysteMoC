@@ -7,6 +7,8 @@
  *      Author: muellersi
  */
 
+#include "SysteMoCSimulator.hpp"
+
 #include <smoc/SimulatorAPI/SchedulerInterface.hpp>
 #include <smoc/SimulatorAPI/TaskInterface.hpp>
 #include <smoc/SimulatorAPI/FiringRuleInterface.hpp>
@@ -91,32 +93,6 @@ void SysteMoCScheduler::executeFiringRule(TaskInterface *task, FiringRuleInterfa
   }
 }
 
-class SysteMoCSimulator
-  : public SimulatorAPI::SimulatorInterface
-{
-public:
-  typedef SimulatorAPI::TaskInterface    TaskInterface;
-  typedef SimulatorAPI::PortInInterface  PortInInterface;
-  typedef SimulatorAPI::PortOutInterface PortOutInterface;
-
-  SysteMoCSimulator();
-
-  void populateOptionsDescription(
-      int &argc, char ** &argv,
-      boost::program_options::options_description &pub,
-      boost::program_options::options_description &priv);
-
-  EnablementStatus evaluateOptionsMap(
-      boost::program_options::variables_map &vm);
-
-  void registerTask(TaskInterface *task);
-
-  void registerPort(TaskInterface *task, PortInInterface *port);
-  void registerPort(TaskInterface *task, PortOutInterface *port);
-
-  void simulationEnded();
-};
-
 SysteMoCSimulator::SysteMoCSimulator() {
 }
 
@@ -155,6 +131,8 @@ void SysteMoCSimulator::registerPort(
 void SysteMoCSimulator::simulationEnded() {
 }
 
-SysteMoCSimulator systeMoCSimulator;
+SysteMoCSimulator::~SysteMoCSimulator() {
+
+}
 
 } } // namespace smoc::Detail

@@ -45,26 +45,19 @@
 
 #include <vector>
 
-namespace smoc { namespace Detail {
-
-class SimulationContext;
-
-} } // namespace smoc::Detail
-
 namespace smoc { namespace SimulatorAPI {
 
   class SimulatorInterface {
-    // This is needed for SimulationContext
-    // to access getRegisteredSimulators().
-    friend class Detail::SimulationContext;
   public:
+    typedef SimulatorAPI::TaskInterface    TaskInterface;
+    typedef SimulatorAPI::PortInInterface  PortInInterface;
+    typedef SimulatorAPI::PortOutInterface PortOutInterface;
+
     enum EnablementStatus {
       IS_DISABLED,
       MAYBE_ACTIVE,
       MUSTBE_ACTIVE
     };
-
-    SimulatorInterface();
 
     virtual void populateOptionsDescription(
         int &argc, char ** &argv,
@@ -83,16 +76,7 @@ namespace smoc { namespace SimulatorAPI {
 
     virtual void simulationEnded() = 0;
 
-    virtual ~SimulatorInterface();
-  private:
-    // Global CTOR initialization order is undefined between translation units.
-    // Hence, using std::vector<SimulatorInterface *> registeredSimulator as a
-    // global variable or static member variable does not insure that this variable
-    // will already have been initialized during the CTOR call used for other
-    // global variables. Hence, we use the below given helper function to guarantee
-    // this property.
-    static
-    std::vector<SimulatorInterface *> &getRegisteredSimulators();
+    virtual ~SimulatorInterface() {}
   };
 
 } } // namespace smoc::SimulatorAPI

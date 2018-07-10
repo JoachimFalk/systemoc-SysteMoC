@@ -26,8 +26,8 @@
 /* Defined if hooking infrastructure is provided */
 #undef SYSTEMOC_ENABLE_HOOKING
 
-/* Defined if SystemC-VPC support is enabled */
-#undef SYSTEMOC_ENABLE_VPC
+/* Defined if routing support is enabled */
+#undef SYSTEMOC_ENABLE_ROUTING
 
 /* Defined if Maestro library support is enabled */
 #undef SYSTEMOC_ENABLE_MAESTRO
@@ -35,13 +35,6 @@
 #if defined(SYSTEMOC_ENABLE_DATAFLOW_TRACE) || defined(SYSTEMOC_ENABLE_TRANSITION_TRACE) || defined(SYSTEMOC_ENABLE_SGX)
 # define SYSTEMOC_NEED_IDS
 #endif //defined(SYSTEMOC_ENABLE_DATAFLOW_TRACE) || defined(SYSTEMOC_ENABLE_TRANSITION_TRACE) || defined(SYSTEMOC_ENABLE_SGX)
-
-#if defined(SYSTEMOC_ENABLE_VPC) || defined(SYSTEMOC_ENABLE_MAESTRO)
-// Define if SysteMoC should support routing, i.e., simulators like VPC
-// can delay the visibility of communication to other actors due to routing
-// delays.
-# define SYSTEMOC_ENABLE_ROUTING
-#endif //defined(SYSTEMOC_ENABLE_VPC) || defined(SYSTEMOC_ENABLE_MAESTRO)
 
 #if defined(SYSTEMOC_ENABLE_DATAFLOW_TRACE)
 # define SYSTEMOC_ENABLE_DEBUG
