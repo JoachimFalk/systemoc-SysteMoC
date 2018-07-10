@@ -74,8 +74,6 @@ namespace smoc { namespace SimulatorAPI {
     // Opaque data pointer for the scheduler.
     void               *schedulerInfo;
   public:
-    TaskInterface();
-
     // These methods are called by the scheduler
     void                setScheduler(SchedulerInterface *scheduler)
       { this->scheduler = scheduler; }
@@ -130,12 +128,16 @@ namespace smoc { namespace SimulatorAPI {
     // corresponding getter for the setActive method.
     virtual bool getActive() const = 0;
 
-    virtual ~TaskInterface();
-
 #ifdef SYSTEMOC_SIMULATOR_COUPLING_COMPILATION
     operator TaskHandle       &();
     operator TaskHandle const &() const;
 #endif //defined(SYSTEMOC_SIMULATOR_COUPLING_COMPILATION)
+  protected:
+    TaskInterface()
+      : scheduler(nullptr)
+      , schedulerInfo(nullptr) {}
+
+    virtual ~TaskInterface() {}
   };
 
   class TaskHandle
@@ -151,8 +153,8 @@ namespace smoc { namespace SimulatorAPI {
     friend class smoc::Detail::PortOutBase;
     friend class smoc::Detail::FSM::FiringFSM; // for getScheduler()
     friend class smoc::Detail::FSM::RuntimeTransition; // for getScheduler()
-  public:
-    virtual ~TaskHandle();
+  protected:
+    virtual ~TaskHandle() {}
   };
 
 #ifdef SYSTEMOC_SIMULATOR_COUPLING_COMPILATION

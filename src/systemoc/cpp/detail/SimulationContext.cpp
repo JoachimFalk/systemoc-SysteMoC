@@ -38,6 +38,7 @@
 #include <smoc/SimulatorAPI/SimulatorInterface.hpp>
 
 #include "SimulationContext.hpp"
+#include "SysteMoCSimulator.hpp"
 #include "SMXImporter.hpp"
 
 #include <systemoc/smoc_config.h>
@@ -47,6 +48,8 @@
 #include <boost/program_options/positional_options.hpp>
 
 #include <CoSupport/Streams/AlternateStream.hpp>
+
+#include <ltdl.h>
 
 #include <cstring>
 #include <iostream>
@@ -62,6 +65,12 @@ using SimulatorAPI::SimulatorInterface;
 // This global variable will also be used in <smoc/detail/SimCTXBase.hpp>
 SimulationContext *currentSimCTX = nullptr;
 
+static
+std::vector<SimulatorInterface *> registeredSimulators;
+
+static
+SysteMoCSimulator systeMoCSimulator;
+
 SimulationContext::SimulationContext(int _argc, char *_argv[])
   : simulatorInterface(nullptr)
 #ifdef SYSTEMOC_ENABLE_TRANSITION_TRACE
@@ -76,6 +85,22 @@ SimulationContext::SimulationContext(int _argc, char *_argv[])
   sc_core::sc_get_curr_simcontext();
   sc_core::sc_curr_simcontext->event_mutex = event_mutex;
 #endif
+
+  registeredSimulators.push_back(&systeMoCSimulator);
+
+  lt_dlinit();
+  {
+    if (const char *path = getenv("SYSTEMOC_PLUGINPATH"))
+      lt_dlsetsearchpath(path);
+    lt_dlhandle pluginVPC = lt_dlopen("libsystemcvpc.so");
+    if (pluginVPC) {
+      SimulatorInterface *vpcSimulator =
+          reinterpret_cast<SimulatorInterface *>
+            (lt_dlsym(pluginVPC, "systemCVPCSimulator"));
+      assert(vpcSimulator && "WTF?! Can't find systemCVPCSimulator symbol in libsystemcvpc!");
+      registeredSimulators.push_back(vpcSimulator);
+    }
+  }
 
   po::options_description systemocOptions("SysteMoC options");
   po::options_description backwardCompatibilityCruftOptions;
@@ -143,7 +168,7 @@ SimulationContext::SimulationContext(int _argc, char *_argv[])
      po::value<std::string>())
     ;
 
-  for (SimulatorInterface *simulator : SimulatorInterface::getRegisteredSimulators())
+  for (SimulatorInterface *simulator : registeredSimulators)
     simulator->populateOptionsDescription(_argc, _argv,
         systemocOptions, backwardCompatibilityCruftOptions);
   // All options
@@ -182,7 +207,7 @@ SimulationContext::SimulationContext(int _argc, char *_argv[])
       SimulatorEnablementStatus;
 
     std::vector<SimulatorEnablementStatus> simulatorStates;
-    for (SimulatorInterface *simulator : SimulatorInterface::getRegisteredSimulators())
+    for (SimulatorInterface *simulator : registeredSimulators)
       simulatorStates.push_back(std::make_pair(simulator->evaluateOptionsMap(vm), simulator));
     for (SimulatorEnablementStatus simState : simulatorStates) {
       if (simState.first == SimulatorInterface::MUSTBE_ACTIVE) {
@@ -390,11 +415,5 @@ void SimulationContext::endOfSystemcSimulation(){
       getSimulatorInterface()->simulationEnded();
   }
 }
-
-/// This stuff is here to pull SysteMoCSimulator.cpp into the link.
-class SysteMoCSimulator;
-extern SysteMoCSimulator systeMoCSimulator;
-static __attribute__ ((unused))
-SysteMoCSimulator *pSimulator = &systeMoCSimulator;
 
 } } // namespace smoc::Detail

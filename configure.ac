@@ -106,6 +106,10 @@ ACJF_CHECK_LIB_COSUPPORT_MATH([[version:>= 1.0]])
 ACJF_CHECK_LIB_COSUPPORT_ALLOCATORS([[version:>= 1.0]])
 ACJF_CHECK_LIB_COSUPPORT_STRING([[version:>= 1.0]])
 
+AC_CHECK_LIB([ltdl], [lt_dlinit],
+  [],
+  [AC_MSG_ERROR([Cannot find libltdl library, bailing out!])])
+
 ### TRACING ###
 # --enable-transition-trace option
 AC_ARG_ENABLE(
@@ -145,6 +149,26 @@ if test x"$enable_dataflow_trace" = x"yes"; then
   AC_DEFINE([SYSTEMOC_ENABLE_DATAFLOW_TRACE], [yes], [Defined if tracing support is enabled])
 fi
 
+### ROUTING SUPPORT ###
+# --enable-routing option
+AC_ARG_ENABLE(
+ [routing],
+ [[  --enable-routing Turn on support for simulator back ends to delay communication due to routing delays [default=yes]]],
+ [case "${enableval}" in
+    yes)  enable_routing=yes  ;;
+    no)   enable_routing=no   ;;
+    *)    AC_MSG_ERROR(bad value ${enableval} for --enable-routing) ;;
+  esac],
+ [enable_routing=yes #default]
+)
+
+AM_CONDITIONAL([SYSTEMOC_ENABLE_ROUTING], [test x"$enable_routing" = x"yes"])
+# This is a define for src/systemoc/headers/systemoc/smoc_config.h to guarantee
+# consistency for Examples and Testcases
+if test x"$enable_routing" = x"yes"; then
+  AC_DEFINE([SYSTEMOC_ENABLE_ROUTING], [yes], [Defined if routing support is enabled])
+fi
+
 ### HOOKING ###
 # --enable-hooking option
 AC_ARG_ENABLE(
@@ -180,14 +204,14 @@ if test x"$enable_sgx" = x"yes"; then
   SYSTEMOC_OPTIONAL_REQUIRES="${SYSTEMOC_OPTIONAL_REQUIRES_PRIVATE} libsgx libsgxutils"
 fi
 
-ACJF_CHECK_LIB_SYSTEMC_VPC([enable_vpc=yes], [enable_vpc=no])
-dnl AM_CONDITIONAL([SYSTEMOC_ENABLE_VPC], [test x"$enable_vpc" = x"yes"])
-# This is a define for src/systemoc/headers/systemoc/smoc_config.h to guarantee
-# consistency for Examples and Testcases
-if test x"$enable_vpc" = x"yes"; then
-  AC_DEFINE([SYSTEMOC_ENABLE_VPC], [yes], [Defined if SystemC-VPC support is enabled])
-  SYSTEMOC_OPTIONAL_REQUIRES="${SYSTEMOC_OPTIONAL_REQUIRES} libsystemcvpc"
-fi
+dnl ACJF_CHECK_LIB_SYSTEMC_VPC([enable_vpc=yes], [enable_vpc=no])
+dnl dnl AM_CONDITIONAL([SYSTEMOC_ENABLE_VPC], [test x"$enable_vpc" = x"yes"])
+dnl # This is a define for src/systemoc/headers/systemoc/smoc_config.h to guarantee
+dnl # consistency for Examples and Testcases
+dnl if test x"$enable_vpc" = x"yes"; then
+dnl   AC_DEFINE([SYSTEMOC_ENABLE_VPC], [yes], [Defined if SystemC-VPC support is enabled])
+dnl   SYSTEMOC_OPTIONAL_REQUIRES="${SYSTEMOC_OPTIONAL_REQUIRES} libsystemcvpc"
+dnl fi
 
 ACJF_CHECK_LIB_MAESTRO_METAMAP([enable_maestro_metamap=yes], [enable_maestro_metamap=no])
 AM_CONDITIONAL([SYSTEMOC_ENABLE_MAESTRO], [test x"$enable_maestro_metamap" = x"yes"])

@@ -49,8 +49,6 @@ namespace smoc { namespace SimulatorAPI {
 
   class FiringRuleInterface {
   public:
-    FiringRuleInterface();
-
     struct PortInInfo {
       PortInInfo(PortInInterface &in, size_t c, size_t r)
         : port(in), consumed(c), required(r) {}
@@ -87,8 +85,11 @@ namespace smoc { namespace SimulatorAPI {
 
     virtual FunctionNames getActionNames() const = 0;
 
-    virtual ~FiringRuleInterface();
+    virtual ~FiringRuleInterface() {}
   protected:
+    FiringRuleInterface()
+      : schedulerInfo(nullptr) {}
+
     PortInInfos  portInInfos;
     PortOutInfos portOutInfos;
   private:

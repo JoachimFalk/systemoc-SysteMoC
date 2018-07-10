@@ -47,7 +47,7 @@ namespace smoc { namespace SimulatorAPI {
     // This will make the produced tokens visible for the connected sink actor.
     virtual void commFinish(size_t n, bool dropped = false) = 0;
   protected:
-    virtual ~ChannelSinkInterface();
+    virtual ~ChannelSinkInterface() {}
   };
 
   class ChannelSourceInterface {
@@ -57,7 +57,7 @@ namespace smoc { namespace SimulatorAPI {
     // This will make the freed space visible for the connected source actor.
     virtual void commFinish(size_t n, bool dropped = false) = 0;
   protected:
-    virtual ~ChannelSourceInterface();
+    virtual ~ChannelSourceInterface() {}
   };
 
 } } // namespace smoc::SimulatorAPI

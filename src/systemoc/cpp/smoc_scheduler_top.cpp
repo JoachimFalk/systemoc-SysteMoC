@@ -37,9 +37,9 @@
 
 #include <systemoc/smoc_config.h>
 
-#ifdef SYSTEMOC_ENABLE_VPC
-# include <vpc.hpp>
-#endif //SYSTEMOC_ENABLE_VPC
+//#ifdef SYSTEMOC_ENABLE_VPC
+//# include <vpc.hpp>
+//#endif //SYSTEMOC_ENABLE_VPC
 
 #include <smoc/detail/DebugOStream.hpp>
 #include <smoc/detail/GraphBase.hpp>
@@ -108,9 +108,9 @@ void smoc_scheduler_top::_before_end_of_elaboration() {
 #ifdef SYSTEMOC_ENABLE_SGX
     Detail::importSMX(getSimCTX());
 #endif // SYSTEMOC_ENABLE_SGX
-#ifdef SYSTEMOC_ENABLE_VPC
-    SystemC_VPC::Director::getInstance().beforeVpcFinalize();
-#endif //SYSTEMOC_ENABLE_VPC
+//#ifdef SYSTEMOC_ENABLE_VPC
+//    SystemC_VPC::Director::getInstance().beforeVpcFinalize();
+//#endif //SYSTEMOC_ENABLE_VPC
 #ifdef SYSTEMOC_ENABLE_MAESTRO
     MM::MMAPI* api = MM::MMAPI::getInstance();
     api->beforeEndOfElaboration();
@@ -136,9 +136,9 @@ void smoc_scheduler_top::_end_of_elaboration() {
   }
 #endif //defined(SYSTEMOC_ENABLE_DEBUG)
   try {
-#ifdef SYSTEMOC_ENABLE_VPC
-    SystemC_VPC::Director::getInstance().endOfVpcFinalize();
-#endif //SYSTEMOC_ENABLE_VPC
+//#ifdef SYSTEMOC_ENABLE_VPC
+//    SystemC_VPC::Director::getInstance().endOfVpcFinalize();
+//#endif //SYSTEMOC_ENABLE_VPC
 #ifdef SYSTEMOC_ENABLE_MAESTRO
     MM::MMAPI* api = MM::MMAPI::getInstance();
     api->endOfElaboration();
