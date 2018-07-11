@@ -67,6 +67,9 @@ if SGXUTILS
 endif
 
 export SYSTEMOC_PLUGINPATH = @SYSTEMOC_PLUGINPATH@
+SYSTEMOC_PLUGINVPC = libsystemcvpc.so
+
+vpath $(SYSTEMOC_PLUGINVPC) $(SYSTEMOC_PLUGINPATH)
 
 AM_CPPFLAGS= @AM_CPPFLAGS@ $(SYSTEMOC_INCLUDE) $(BOOST_INCLUDE)
 AM_LDFLAGS = @AM_LDFLAGS@  $(SYSTEMOC_LDFLAGS) $(BOOST_LDFLAGS)
@@ -517,7 +520,7 @@ test-src-snk-plain.log: test-src-snk-plain
 test-src-snk-plain-%.log: test-src-snk-plain.log
 	grep '$*:' '$<' > '$@' || { rm -f "$@"; exit 1; }
 if VPC
-test-src-snk-plain-%.log test-src-snk-plain-%-CPU.vcd test-src-snk-plain-%-BUS.vcd test-src-snk-plain-%-MEM.vcd: test-src-snk-plain src/test-src-snk-plain/vpc/%.vpc.xml
+test-src-snk-plain-%.log test-src-snk-plain-%-CPU.vcd test-src-snk-plain-%-BUS.vcd test-src-snk-plain-%-MEM.vcd: test-src-snk-plain src/test-src-snk-plain/vpc/%.vpc.xml $(SYSTEMOC_PLUGINVPC)
 	set -- $^; VPCTRACEFILEPREFIX=test-src-snk-plain-$*- VPCCONFIGURATION=$$2 ./'$<' 100 > 'test-src-snk-plain-$*.log'
 endif
 
