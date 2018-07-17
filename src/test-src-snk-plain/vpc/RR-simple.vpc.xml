@@ -20,8 +20,5 @@
   </mapping>
  </mappings>
 
- <topology>
-  <route source="top.src" destination="queue"/>
-  <route source="queue" destination="top.snk"/>
- </topology>
+ <topology default="ignore"/>
 </vpcconfiguration>

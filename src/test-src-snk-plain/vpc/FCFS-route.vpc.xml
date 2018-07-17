@@ -29,12 +29,12 @@
  </mappings>
 
  <topology>
-  <route source="top.src" destination="queue">
+  <route name="top.src.o_0" type="static_route">
     <hop name="CPU"/>
     <hop name="BUS"/>
     <hop name="MEM"/>
   </route>
-  <route source="queue" destination="top.snk">
+  <route name="top.snk.i_0" type="static_route">
     <hop name="MEM"/>
     <hop name="BUS"/>
     <hop name="CPU"/>

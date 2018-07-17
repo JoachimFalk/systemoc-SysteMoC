@@ -1,5 +1,5 @@
 $date
-     Jul 05, 2018       15:42:27
+     Jul 17, 2018       20:27:50
 $end
 
 $version
@@ -11,8 +11,8 @@ $timescale
 $end
 
 $scope module SystemC $end
-$var wire    8  aaaaa  msg_queue_2_top.snk [7:0]  $end
-$var wire    8  aaaab  msg_top.src_2_queue [7:0]  $end
+$var wire    8  aaaaa  top.snk.i_0 [7:0]  $end
+$var wire    8  aaaab  top.src.o_0 [7:0]  $end
 $upscope $end
 $enddefinitions  $end
 
