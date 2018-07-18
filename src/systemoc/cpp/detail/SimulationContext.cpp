@@ -192,7 +192,15 @@ SimulationContext::SimulationContext(int _argc, char *_argv[])
     argv.push_back(strdup(_argc >= 1 ? _argv[0] : "???"));
     for (po::basic_option<char> const &option : parsed.options)
       if (option.unregistered || option.position_key != -1) {
-        vpc |= option.string_key.find("systemoc-vpc") == 0;
+        if (option.string_key.find("systemoc-vpc") == 0) {
+          vpc = true;
+        } else if (option.string_key.find("systemoc") == 0) {
+          std::ostringstream str;
+          str << "Unknown SysteMoC option";
+          for(std::string const &arg : option.original_tokens)
+            str << " " << arg;
+          throw std::runtime_error(str.str().c_str());
+        }
         for(std::string const &arg : option.original_tokens)
           argv.push_back(strdup(arg.c_str()));
       }
