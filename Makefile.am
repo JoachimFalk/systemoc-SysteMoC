@@ -463,7 +463,12 @@ test-src-snk-multicast-%.log: test-src-snk-multicast.log
 	grep '$*:' '$<' > '$@' || { rm -f "$@"; exit 1; }
 if VPC
 test-src-snk-multicast-%.log test-src-snk-multicast-%-CPU.vcd test-src-snk-multicast-%-BUS.vcd test-src-snk-multicast-%-MEM.vcd: test-src-snk-multicast src/test-src-snk-multicast/vpc/%.vpc.xml $(SYSTEMOC_PLUGINVPC)
-	set -- $^; VPCTRACEFILEPREFIX=test-src-snk-multicast-$*- VPCCONFIGURATION=$$2 ./'$<' 100 > 'test-src-snk-multicast-$*.log'
+	set -- $^; \
+	VPCTRACEFILEPREFIX=test-src-snk-multicast-$*- \
+	$(srcdir)/scripts/runtest.py \
+		--log 'test-src-snk-multicast-$*.log' \
+		--clean 'test-src-snk-multicast-$*-*' \
+		-- ./'$<' --systemoc-vpc-config "$$2" 100
 endif
 
 # More integration required! check
@@ -525,7 +530,13 @@ test-src-snk-plain-%.log: test-src-snk-plain.log
 	grep '$*:' '$<' > '$@' || { rm -f "$@"; exit 1; }
 if VPC
 test-src-snk-plain-%.log test-src-snk-plain-%-CPU.vcd test-src-snk-plain-%-BUS.vcd test-src-snk-plain-%-MEM.vcd: test-src-snk-plain src/test-src-snk-plain/vpc/%.vpc.xml $(SYSTEMOC_PLUGINVPC)
-	set -- $^; VPCTRACEFILEPREFIX=test-src-snk-plain-$*- VPCCONFIGURATION=$$2 ./'$<' 100 > 'test-src-snk-plain-$*.log'
+	set -- $^; \
+	VPCTRACEFILEPREFIX=test-src-snk-plain-$*- \
+	VPCCONFIGURATION="$$2" \
+	$(srcdir)/scripts/runtest.py \
+		--log 'test-src-snk-plain-$*.log' \
+		--clean 'test-src-snk-plain-$*-*' \
+		-- ./'$<' 100
 endif
 
 # More integration required! Maybe check for VPC?
