@@ -461,6 +461,10 @@ test-src-snk-multicast.log: test-src-snk-multicast
 	./'$<' 100 > "$@" || { rm -f "$@"; exit 1; }
 test-src-snk-multicast-%.log: test-src-snk-multicast.log
 	grep '$*:' '$<' > '$@' || { rm -f "$@"; exit 1; }
+if VPC
+test-src-snk-multicast-%.log test-src-snk-multicast-%-CPU.vcd test-src-snk-multicast-%-BUS.vcd test-src-snk-multicast-%-MEM.vcd: test-src-snk-multicast src/test-src-snk-multicast/vpc/%.vpc.xml $(SYSTEMOC_PLUGINVPC)
+	set -- $^; VPCTRACEFILEPREFIX=test-src-snk-multicast-$*- VPCCONFIGURATION=$$2 ./'$<' 100 > 'test-src-snk-multicast-$*.log'
+endif
 
 # More integration required! check
 test_src_snk_multiplex_LDADD			= $(SYSTEMOC_LIBS) -lboost_random
