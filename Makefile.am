@@ -131,7 +131,7 @@ libsystemoc_la_LDFLAGS = $(AM_LDFLAGS) \
 	$(SYSTEMC_VPC_LDFLAGS) \
 	$(MAESTRO_METAMAP_LDFLAGS) \
 	-version-info 0:0:0 \
-	-no-undefined
+	-Wl,--no-undefined
 libsystemoc_la_LIBADD = \
 	-lboost_program_options$(BOOST_LIBPOSTFIX) \
 	-lsystemc \
