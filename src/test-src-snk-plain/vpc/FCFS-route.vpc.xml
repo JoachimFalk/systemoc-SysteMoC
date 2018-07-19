@@ -29,15 +29,23 @@
  </mappings>
 
  <topology>
-  <route name="top.src.o_0" type="static_route">
-    <hop name="CPU"/>
-    <hop name="BUS"/>
-    <hop name="MEM"/>
+  <route name="top.src.o_0" type="StaticRoute">
+    <hop component="CPU">
+      <hop component="BUS">
+        <hop component="MEM">
+          <desthop/>
+        </hop>
+      </hop>
+    </hop>
   </route>
-  <route name="top.snk.i_0" type="static_route">
-    <hop name="MEM"/>
-    <hop name="BUS"/>
-    <hop name="CPU"/>
+  <route name="top.snk.i_0" type="StaticRoute">
+    <hop component="MEM">
+      <hop component="BUS">
+        <hop component="CPU">
+          <desthop/>
+        </hop>
+      </hop>
+    </hop>
   </route>
  </topology>
 </vpcconfiguration>
