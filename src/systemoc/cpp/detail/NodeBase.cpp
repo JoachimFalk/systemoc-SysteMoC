@@ -33,20 +33,12 @@
  * ENHANCEMENTS, OR MODIFICATIONS.
  */
 
-#include <list>
-#include <typeinfo>
-
-#include <systemoc/smoc_config.h>
-
 #include <smoc/detail/DebugOStream.hpp>
 #include <smoc/detail/NodeBase.hpp>
 #include <smoc/detail/PortBase.hpp>
 #include <smoc/smoc_event.hpp>
-
+#include <smoc/SimulatorAPI/SchedulerInterface.hpp>
 #include <smoc/smoc_graph.hpp>
-#ifdef SYSTEMOC_ENABLE_MAESTRO
-# include <Maestro/MetaMap/MAESTRORuntimeException.hpp>
-#endif //SYSTEMOC_ENABLE_MAESTRO
 
 #include "SimulationContext.hpp"
 
@@ -55,6 +47,14 @@
 #include "FSM/RuntimeTransition.hpp"
 #include "FSM/RuntimeFiringRule.hpp"
 #include "FSM/StateImpl.hpp"
+
+#include <systemoc/smoc_config.h>
+#ifdef SYSTEMOC_ENABLE_MAESTRO
+# include <Maestro/MetaMap/MAESTRORuntimeException.hpp>
+#endif //SYSTEMOC_ENABLE_MAESTRO
+
+#include <list>
+#include <typeinfo>
 
 namespace smoc { namespace Detail {
 
@@ -94,7 +94,8 @@ void NodeBase::before_end_of_elaboration() {
 #endif //defined(SYSTEMOC_ENABLE_DEBUG)
   sc_core::sc_module::before_end_of_elaboration();
   if (getFiringFSM()) {
-    getSimCTX()->getSimulatorInterface()->registerTask(this);
+    getFiringFSM()->before_end_of_elaboration(this,
+      CoSupport::DataTypes::FacadeCoreAccess::getImpl(*initialState));
   }
 #ifdef SYSTEMOC_ENABLE_DEBUG
   if (smoc::Detail::outDbg.isVisible(smoc::Detail::Debug::High)) {

@@ -110,8 +110,9 @@ namespace smoc { namespace Detail { namespace FSM {
   RuntimeFiringRule::RuntimeFiringRule(smoc_guard const &g, smoc_action const &f)
     : smoc_firing_rule(g,f)
     , guardComplexity(0)
-    , ioPatternWaiter(nullptr)
-  {
+    , ioPatternWaiter(nullptr) {}
+
+  void RuntimeFiringRule::end_of_elaboration() {
     smoc_event_and_list tmp;
     ioPatternWaiter = &tmp;
     GuardVisitor visitor(*this);

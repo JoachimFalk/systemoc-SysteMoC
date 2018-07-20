@@ -41,6 +41,7 @@
 #include "RuntimeFiringRule.hpp"
 #include "XORStateImpl.hpp"
 #include "FiringStateImpl.hpp"
+#include "../SimulationContext.hpp"
 
 #include <systemoc/smoc_config.h>
 
@@ -166,7 +167,7 @@ void FiringFSM::addTransitionHook(
 }
 #endif //SYSTEMOC_ENABLE_HOOKING
 
-void FiringFSM::end_of_elaboration(NodeBase *node, StateImpl *hsinit) {
+void FiringFSM::before_end_of_elaboration(NodeBase *node, StateImpl *hsinit) {
 #ifdef SYSTEMOC_ENABLE_DEBUG
   if (smoc::Detail::outDbg.isVisible(smoc::Detail::Debug::High)) {
     smoc::Detail::outDbg << "<FiringFSM::end_of_elaboration name=\"" << node->name() << "\">"
@@ -384,15 +385,22 @@ void FiringFSM::end_of_elaboration(NodeBase *node, StateImpl *hsinit) {
             << "; #states: " << nRunStates << "; #trans: " << nRunTrans
             << std::endl;
 #endif // FSM_FINALIZE_BENCHMARK
-  for (RuntimeFiringRule *fr : firingRules) {
-    node->getScheduler()->registerFiringRule(node, fr);
-  }
+
+  getSimCTX()->getSimulatorInterface()->registerTask(node,
+      reinterpret_cast<std::list<SimulatorAPI::FiringRuleInterface *> const &>(firingRules));
 #ifdef SYSTEMOC_ENABLE_DEBUG
   if (smoc::Detail::outDbg.isVisible(smoc::Detail::Debug::High)) {
     smoc::Detail::outDbg << smoc::Detail::Indent::Down << "</FiringFSM::end_of_elaboration>"
          << std::endl;
   }
 #endif //defined(SYSTEMOC_ENABLE_DEBUG)
+}
+
+void FiringFSM::end_of_elaboration(NodeBase *node, StateImpl *hsinit) {
+  for (RuntimeFiringRule *fr : firingRules)
+    fr->end_of_elaboration();
+  for (RuntimeState *s : rts)
+    s->end_of_elaboration();
 }
 
 void FiringFSM::addState(BaseStateImpl *state) {

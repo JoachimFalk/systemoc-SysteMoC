@@ -110,29 +110,23 @@ SysteMoCSimulator::EnablementStatus SysteMoCSimulator::evaluateOptionsMap(
   return SysteMoCSimulator::MAYBE_ACTIVE;
 }
 
-void SysteMoCSimulator::registerTask(TaskInterface *task)
+void SysteMoCSimulator::registerTask(
+    TaskInterface                          *task,
+    std::list<FiringRuleInterface *> const &firingRules)
 {
   // Prefix all SysteMoC internal modules with __smoc_ to enable filtering out the module on smx dump!
   task->setScheduler(new SysteMoCScheduler("__smoc_scheduler", task));
 }
 
-void SysteMoCSimulator::registerPort(
-    TaskInterface    *task,
-    PortInInterface  *port)
+void SysteMoCSimulator::registerPort(PortInInterface  *port)
 {
 }
 
-void SysteMoCSimulator::registerPort(
-    TaskInterface    *task,
-    PortOutInterface *port)
+void SysteMoCSimulator::registerPort(PortOutInterface *port)
 {
-}
-
-void SysteMoCSimulator::simulationEnded() {
 }
 
 SysteMoCSimulator::~SysteMoCSimulator() {
-
 }
 
 } } // namespace smoc::Detail

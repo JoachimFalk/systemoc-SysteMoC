@@ -131,9 +131,7 @@ void PortInBase::end_of_elaboration() {
   base_type::end_of_elaboration();
   assert(interface_count() >= 1);
   if (getActorPort() == this) {
-    getSimCTX()->getSimulatorInterface()->registerPort(
-        static_cast<smoc_actor *>(get_parent_object()),
-        this);
+    getSimCTX()->getSimulatorInterface()->registerPort(this);
   }
 }
 
@@ -178,9 +176,7 @@ void PortOutBase::end_of_elaboration() {
   base_type::end_of_elaboration();
   assert(interface_count() >= 1);
   if (getActorPort() == this) {
-    getSimCTX()->getSimulatorInterface()->registerPort(
-        static_cast<smoc_actor *>(get_parent_object()),
-        this);
+    getSimCTX()->getSimulatorInterface()->registerPort(this);
   }
 }
 
