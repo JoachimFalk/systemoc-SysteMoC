@@ -34,6 +34,7 @@
  */
 
 #include <smoc/smoc_actor.hpp>
+#include <smoc/SimulatorAPI/SchedulerInterface.hpp>
 
 #include "RuntimeTransition.hpp"
 #include "RuntimeState.hpp"

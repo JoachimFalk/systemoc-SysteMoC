@@ -59,10 +59,9 @@ namespace smoc { namespace Detail { namespace FSM {
   }
 
   RuntimeState::~RuntimeState() {
-  //idPool.unregObj(this);
   }
 
-  const RuntimeTransitionList& RuntimeState::getTransitions() const
+  const RuntimeTransitionList &RuntimeState::getTransitions() const
     { return tl; }
 
   RuntimeTransitionList& RuntimeState::getTransitions()
@@ -70,7 +69,11 @@ namespace smoc { namespace Detail { namespace FSM {
 
   void RuntimeState::addTransition(RuntimeTransition const &t) {
     tl.push_back(t);
-    am.insert(t.getIOPatternWaiter());
+  }
+
+  void RuntimeState::end_of_elaboration() {
+    for (RuntimeTransition &t : tl)
+      am.insert(t.getIOPatternWaiter());
   }
 
 } } } // namespace smoc::Detail::FSM

@@ -94,7 +94,6 @@ void smoc_scheduler_top::end_of_simulation() {
     Detail::dumpSMX(getSimCTX()->getSMXPostSimFile(), getSimCTX(), *g);
   }
 #endif // SYSTEMOC_ENABLE_SGX
-  getSimCTX()->endOfSystemcSimulation();
 }
 
 void smoc_scheduler_top::_before_end_of_elaboration() {

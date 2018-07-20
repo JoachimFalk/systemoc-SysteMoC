@@ -414,14 +414,4 @@ char **SimulationContext::getArgv() {
   return &argv[0];
 }
 
-// end of simulation call back: clean SystemC related objects here
-void SimulationContext::endOfSystemcSimulation(){
-  static bool called = 0;
-  if (!called) {
-    called = true;
-    if (getSimulatorInterface())
-      getSimulatorInterface()->simulationEnded();
-  }
-}
-
 } } // namespace smoc::Detail

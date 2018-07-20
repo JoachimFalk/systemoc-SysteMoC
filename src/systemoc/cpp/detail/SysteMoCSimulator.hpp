@@ -25,12 +25,14 @@ public:
   EnablementStatus evaluateOptionsMap(
       boost::program_options::variables_map &vm);
 
-  void registerTask(TaskInterface *task);
+  void registerTask(
+      TaskInterface                          *task,
+      std::list<FiringRuleInterface *> const &firingRules);
 
-  void registerPort(TaskInterface *task, PortInInterface *port);
-  void registerPort(TaskInterface *task, PortOutInterface *port);
-
-  void simulationEnded();
+  /// Ports correspond to messages. Here, we tell the simulator
+  /// which messages must be routed.
+  void registerPort(PortInInterface *port);
+  void registerPort(PortOutInterface *port);
 
   ~SysteMoCSimulator();
 };

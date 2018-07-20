@@ -113,9 +113,6 @@ public:
   void defCurrentCTX();
   void undefCurrentCTX();
 
-  // end of simulation call back: clean SystemC related objects here
-  void endOfSystemcSimulation();
-
   ~SimulationContext();
 };
 

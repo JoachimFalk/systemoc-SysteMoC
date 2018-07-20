@@ -74,6 +74,10 @@ namespace smoc { namespace Detail { namespace FSM {
 
     void addTransition(RuntimeTransition const &t);
 
+    /// @brief Initialize am with ioPatternWaiters of outgoing transitions
+    /// after channels have been bound.
+    void end_of_elaboration();
+
     EventWaiterSet am;
 
     const char *name()

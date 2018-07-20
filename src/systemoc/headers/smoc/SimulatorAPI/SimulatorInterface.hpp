@@ -37,21 +37,22 @@
 #define _INCLUDED_SMOC_SIMULATORAPI_SIMULATORINTERFACE_HPP
 
 #include "TaskInterface.hpp"
-#include "SchedulerInterface.hpp"
+#include "FiringRuleInterface.hpp"
 #include "PortInterfaces.hpp"
 
 #include <boost/program_options/options_description.hpp>
 #include <boost/program_options/variables_map.hpp>
 
-#include <vector>
+#include <list>
 
 namespace smoc { namespace SimulatorAPI {
 
   class SimulatorInterface {
   public:
-    typedef SimulatorAPI::TaskInterface    TaskInterface;
-    typedef SimulatorAPI::PortInInterface  PortInInterface;
-    typedef SimulatorAPI::PortOutInterface PortOutInterface;
+    typedef SimulatorAPI::TaskInterface         TaskInterface;
+    typedef SimulatorAPI::FiringRuleInterface   FiringRuleInterface;
+    typedef SimulatorAPI::PortInInterface       PortInInterface;
+    typedef SimulatorAPI::PortOutInterface      PortOutInterface;
 
     enum EnablementStatus {
       IS_DISABLED,
@@ -67,14 +68,14 @@ namespace smoc { namespace SimulatorAPI {
     virtual EnablementStatus evaluateOptionsMap(
         boost::program_options::variables_map &vm) = 0;
 
-    virtual void registerTask(TaskInterface *task) = 0;
+    virtual void registerTask(
+        TaskInterface                          *task,
+        std::list<FiringRuleInterface *> const &firingRules) = 0;
 
     /// Ports correspond to messages. Here, we tell the simulator
     /// which messages must be routed.
-    virtual void registerPort(TaskInterface *task, PortInInterface *port) = 0;
-    virtual void registerPort(TaskInterface *task, PortOutInterface *port) = 0;
-
-    virtual void simulationEnded() = 0;
+    virtual void registerPort(PortInInterface *port) = 0;
+    virtual void registerPort(PortOutInterface *port) = 0;
 
     virtual ~SimulatorInterface() {}
   };

@@ -75,6 +75,9 @@ namespace smoc { namespace Detail { namespace FSM {
     /// Implement SimulatorAPI::FiringRuleInterface
     FunctionNames getActionNames() const;
 
+    /// @brief Initialize ioPatternWaiter after channels have been bound.
+    void end_of_elaboration();
+
     void          commSetup() {
 #if defined(SYSTEMOC_ENABLE_DEBUG) || defined(SYSTEMOC_ENABLE_DATAFLOW_TRACE)
       for (PortInInfo const &portInfo : getPortInInfos()) {

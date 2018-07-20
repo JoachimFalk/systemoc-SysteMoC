@@ -78,6 +78,10 @@ public:
   /// @brief Destructor
   ~FiringFSM();
 
+  void before_end_of_elaboration(
+      NodeBase  *node,
+      StateImpl *init);
+
   /// @brief Hierarchical end-of-elaboration callback
   void end_of_elaboration(
       NodeBase  *node,
