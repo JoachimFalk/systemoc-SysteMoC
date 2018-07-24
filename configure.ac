@@ -201,7 +201,7 @@ if test x"$enable_sgx" = x"yes"; then
     AC_MSG_ERROR([If libsgx is enable, we also require libsgxutils. However libsgxutils is missing, bailing out!])
   fi
   AC_DEFINE([SYSTEMOC_ENABLE_SGX], [yes], [Defined if SGX support is enabled])
-  SYSTEMOC_OPTIONAL_REQUIRES="${SYSTEMOC_OPTIONAL_REQUIRES_PRIVATE} libsgx libsgxutils"
+  SYSTEMOC_OPTIONAL_REQUIRES_PRIVATE="${SYSTEMOC_OPTIONAL_REQUIRES_PRIVATE} libsgx libsgxutils"
 fi
 
 dnl ACJF_CHECK_LIB_SYSTEMC_VPC([enable_vpc=yes], [enable_vpc=no])
