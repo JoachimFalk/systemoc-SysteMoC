@@ -101,7 +101,9 @@ protected:
 
   virtual void before_end_of_elaboration();
 
+#ifdef SYSTEMOC_NEED_IDS
   void setId(NgId id);
+#endif // SYSTEMOC_NEED_IDS
 
 #ifdef SYSTEMOC_ENABLE_DATAFLOW_TRACE
   void        traceCommSetup(size_t req);

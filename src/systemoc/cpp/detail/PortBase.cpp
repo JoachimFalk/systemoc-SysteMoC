@@ -67,7 +67,7 @@ void PortBase::before_end_of_elaboration() {
          << std::endl << Indent::Up;
 #endif // SYSTEMOC_ENABLE_DEBUG
   sc_core::sc_port_base::before_end_of_elaboration();
-#ifdef SYSTEMOC_NEED_IDS  
+#ifdef SYSTEMOC_NEED_IDS
   // Allocate Id for myself if not already present.
   if (IdedObjAccess::getId(this) == std::numeric_limits<NgId>::max())
     getSimCTX()->getIdPool().addIdedObj(this);
@@ -77,9 +77,11 @@ void PortBase::before_end_of_elaboration() {
 #endif // SYSTEMOC_ENABLE_DEBUG
 }
 
+#ifdef SYSTEMOC_NEED_IDS
 void PortBase::setId(NgId id) {
   getSimCTX()->getIdPool().addIdedObj(id, this);
 }
+#endif // SYSTEMOC_NEED_IDS
 
 PortBase const *PortBase::getParentPort() const {
   return parent;
