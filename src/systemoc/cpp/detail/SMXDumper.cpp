@@ -473,8 +473,8 @@ public:
       }
 #endif //defined(SYSTEMOC_ENABLE_DEBUG)
       if (isInput) {
-#ifdef SYSTEMOC_ENABLE_DEBUG
         PortInBaseIf *iface = static_cast<PortInBase &>(p).get_interface();
+#ifdef SYSTEMOC_ENABLE_DEBUG
         if (outDbg.isVisible(Debug::Low)) {
           outDbg << " " << iface;
         }
