@@ -47,7 +47,7 @@ private:
   void process() {
     int retval = in1[0] + in1[1] + in2[0];
     out[0] = retval;
-    std::cout << name() << " adding "
+    std::cout << name() << ": adding "
         << in1[0] << " + "
         << in1[1] << " + "
         << in2[0] << " = " << retval << std::endl;
@@ -74,7 +74,7 @@ private:
     
     out1[0] = retval;
     out2[0] = retval;
-    std::cout << name() << " multiplying "
+    std::cout << name() << ": multiplying "
         << in1[0] << " * "
         << in2[0] << " = " << retval << std::endl;
   }
@@ -116,7 +116,7 @@ private:
   size_t i;
 
   void process() {
-    std::cout << name() << " generating " << i << std::endl;
+    std::cout << name() << ": generating " << i << std::endl;
     out[0] = i++;
   }
 
@@ -133,7 +133,7 @@ class m_sink: public smoc_actor {
     smoc_port_in<int> in;
   private:
     void process() {
-      std::cout << name() << " receiving " << in[0] << std::endl;
+      std::cout << name() << ": receiving " << in[0] << std::endl;
     }
     
     smoc_firing_state start;
