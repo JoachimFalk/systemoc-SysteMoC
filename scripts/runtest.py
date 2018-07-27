@@ -54,14 +54,24 @@ In this case, {prog} will also die.'''.format(prog=PROG)
     eprint("Can't open log file '{}':".format(args.log), e)
     return -1
 
+  out = dict()
+
   for line in PUT.stdout:
     if line == "Info: /OSCI/SystemC: Simulation stopped by user.\n":
       continue 
     m = filter.match(line)
     if m:
       if filter.groups >= 1:
-        print(m.group(1))
+        if m.group(1) not in out:
+          out[m.group(1)] = []
+        out[m.group(1)].append(line)
+      else:
+        LOG.write(line)
+
+  for key in sorted(out.keys()):
+    for line in out[key]:
       LOG.write(line)
+
   PUT.wait()
   if PUT.returncode != 0:
     eprint("The PUT '{}' has died: {}".format(args.PUT, PUT.returncode))

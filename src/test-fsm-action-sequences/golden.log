@@ -144,4 +144,3 @@ Src::src1() 3
 Src::src2() 2, 5
 Snk::snk()
 
-Info: /OSCI/SystemC: Simulation stopped by user.

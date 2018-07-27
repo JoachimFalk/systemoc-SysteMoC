@@ -199,4 +199,3 @@ Snk::snk() 4713
 Src::src() 4712
 Snk::snk() 4713
 
-Info: /OSCI/SystemC: Simulation stopped by user.

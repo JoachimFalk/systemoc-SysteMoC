@@ -12,7 +12,7 @@ private:
   size_t i;
 
   void process() {
-    std::cout << name() << " generating " << i << std::endl;
+    std::cout << name() << ": generating " << i << std::endl;
     out[0] = i++;
   }
 
@@ -32,7 +32,7 @@ public:
   smoc_port_in<int> in;
 private:
   void process() {
-    std::cout << name() << " receiving " << in[0] << std::endl;
+    std::cout << name() << ": receiving " << in[0] << std::endl;
   }
 
   smoc_firing_state start;
