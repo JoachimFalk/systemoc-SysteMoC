@@ -7,14 +7,17 @@
  <resources>
   <component name="CPU" scheduler="FCFS">
     <attribute type="tracing" value="VCD"/>
+    <attribute type="tracing" value="PAJE"/>
     <attribute type="transaction_delay" value="200 us" />
   </component>
   <component name="BUS" scheduler="FCFS">
     <attribute type="tracing" value="VCD"/>
+    <attribute type="tracing" value="PAJE"/>
     <attribute type="transaction_delay" value="300 us" />
   </component>
   <component name="MEM" scheduler="FCFS">
     <attribute type="tracing" value="VCD"/>
+    <attribute type="tracing" value="PAJE"/>
     <attribute type="transaction_delay" value="400 us" />
   </component>
  </resources>
