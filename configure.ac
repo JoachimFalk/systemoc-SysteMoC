@@ -27,7 +27,7 @@ AC_INIT(
 AC_PREREQ(2.57)
 ACJF_INIT
 
-AC_CONFIG_SRCDIR([pkginclude/actorlibrary/sources/generic/PeriodicTask.hpp])
+AC_CONFIG_SRCDIR([src/actorlibrary/headers/actorlibrary/sources/generic/PeriodicTask.hpp])
 AC_CONFIG_AUX_DIR([../BuildSystem])
 AC_CONFIG_MACRO_DIR([../BuildSystem/m4])
 
@@ -50,7 +50,7 @@ AC_PROG_CPP
 AC_DISABLE_SHARED
 AC_PROG_LIBTOOL
 
-AC_CONFIG_HEADER([config.h])
+AC_CONFIG_HEADER([src/actorlibrary/cpp/config.h])
 
 ACJF_ARG_DEBUG([yes], [], [-DNDEBUG])
 
@@ -58,9 +58,6 @@ dnl check for exe extension
 AC_EXEEXT
 
 dnl Checks for libraries.
-ACJF_CHECK_LIB_BOOST
-ACJF_CHECK_LIB_COSUPPORT
-ACJF_CHECK_LIB_SYSTEMC
 ACJF_CHECK_LIB_SYSTEMOC
 
 dnl Checks for header files.
@@ -77,18 +74,12 @@ dnl which subdirs do I have
 SUBDIRS="$subdirs"
 AC_SUBST(SUBDIRS)
 
-DX_HTML_FEATURE(ON)
-DX_CHM_FEATURE(OFF)
-DX_CHI_FEATURE(OFF)
-DX_MAN_FEATURE(ON)
-DX_RTF_FEATURE(OFF)
-DX_XML_FEATURE(OFF)
-DX_PDF_FEATURE(ON)
-DX_PS_FEATURE(OFF)
-DX_INIT_DOXYGEN([ActorLibrary], [doxygen.cfg], [doxygen-doc])
-
-AC_CONFIG_FILES([Makefile])
+AC_CONFIG_FILES([
+  Makefile
+  src/actorlibrary/headers/Makefile
+  pkgconfig/libactorlibrary.pc
+])
 
 ACJF_DONE
 
-AC_OUTPUT([autovars.sh])
+AC_OUTPUT

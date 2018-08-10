@@ -1,0 +1,27 @@
+# Common information
+PACKAGE=@PACKAGE@
+PACKAGE_VERSION=@PACKAGE_VERSION@
+
+# Installation information
+prefix=@prefix@
+exec_prefix=@exec_prefix@
+libdir=@libdir@
+includedir=@includedir@
+
+# Information for source tree mode (this is deleted if this pkg-config file was installed)
+srctreemode_srcdir=@abs_top_srcdir@
+srctreemode_builddir=@abs_top_builddir@
+srctreemode_libdir=${srctreemode_builddir}
+srctreemode_includedir=${srctreemode_builddir}/src/libactorlibrary/headers -I${srctreemode_srcdir}/src/libactorlibrary/headers
+
+# pkg-config fields
+# human-readable name
+Name: LibActorLibrary
+# human-readable description
+Description: Library with predefined SysteMoC actors
+Version: ${PACKAGE_VERSION}
+URL: http://www12.informatik.uni-erlangen.de/research/systemoc
+#Conflicts: foobar <= 4.5
+Requires: libsystemoc
+Libs: -L${srctreemode_libdir} ${srctreemode_libdir}/libactorlibrary.la
+Cflags: @AM_CPPFLAGS@ @AM_CXXFLAGS@ -I${srctreemode_includedir}
