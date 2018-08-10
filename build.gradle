@@ -36,11 +36,11 @@ model {
   flavors {
     create('default')
     create('Sgx')
-    create('Vpc')
-    create('Maestro')
-    create('SgxVpc')
-    create('SgxMaestro')
-    create('SgxMaestroCrescendo')
+//  create('Vpc')
+//  create('Maestro')
+//  create('SgxVpc')
+//  create('SgxMaestro')
+//  create('SgxMaestroCrescendo')
   }
   components {
     "test-cluster-example"(JFNativeExecutableSpec) {
