@@ -12,7 +12,7 @@ includedir=@includedir@
 srctreemode_srcdir=@abs_top_srcdir@
 srctreemode_builddir=@abs_top_builddir@
 srctreemode_libdir=${srctreemode_builddir}
-srctreemode_includedir=${srctreemode_builddir}/src/libactorlibrary/headers -I${srctreemode_srcdir}/src/libactorlibrary/headers
+srctreemode_includedir=${srctreemode_builddir}/src/actorlibrary/headers -I${srctreemode_srcdir}/src/actorlibrary/headers
 
 # pkg-config fields
 # human-readable name
