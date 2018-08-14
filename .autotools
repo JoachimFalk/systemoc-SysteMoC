@@ -37,7 +37,7 @@
 <flagvalue id="cflags-gcov" value="false"/>
 </flag>
 <option id="user" value=""/>
-<option id="autogen" value="${workspace_loc}/autoreconf.sh"/>
+<option id="autogen" value="../../autoreconf.sh"/>
 <option id="autogenOpts" value="--no-cleanup ${ProjDirPath}"/>
 </configuration>
 </configurations>
