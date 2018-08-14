@@ -3,9 +3,9 @@
 	<name>Examples-SysteMoC-Tutorial</name>
 	<comment></comment>
 	<projects>
-		<project>BuildSystem</project>
 		<project>Support</project>
 		<project>SysteMoC</project>
+		<project>SystemC-VPC</project>
 	</projects>
 	<buildSpec>
 		<buildCommand>
