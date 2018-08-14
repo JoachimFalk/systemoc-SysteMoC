@@ -3,8 +3,6 @@
 	<name>Testcases</name>
 	<comment></comment>
 	<projects>
-		<project>ActorLibrary</project>
-		<project>BuildSystem</project>
 		<project>Support</project>
 		<project>SysteMoC</project>
 	</projects>
@@ -38,7 +36,7 @@
 		<link>
 			<name>obj</name>
 			<type>2</type>
-			<locationURI>WORKSPACE_LOC/obj/Testcases</locationURI>
+			<locationURI>$%7BWORKSPACE_LOC%7D/obj/Testcases</locationURI>
 		</link>
 	</linkedResources>
 </projectDescription>
