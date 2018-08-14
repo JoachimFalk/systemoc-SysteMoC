@@ -23,7 +23,7 @@
 <stringAttribute key="org.eclipse.cdt.launch.PROGRAM_NAME" value="obj/test-src-snk-plain"/>
 <stringAttribute key="org.eclipse.cdt.launch.PROJECT_ATTR" value="Testcases"/>
 <booleanAttribute key="org.eclipse.cdt.launch.PROJECT_BUILD_CONFIG_AUTO_ATTR" value="true"/>
-<stringAttribute key="org.eclipse.cdt.launch.PROJECT_BUILD_CONFIG_ID_ATTR" value="org.eclipse.linuxtools.cdt.autotools.core.configuration.build.1556708050"/>
+<stringAttribute key="org.eclipse.cdt.launch.PROJECT_BUILD_CONFIG_ID_ATTR" value="org.eclipse.linuxtools.cdt.autotools.core.configuration.build.1077764130"/>
 <stringAttribute key="org.eclipse.cdt.launch.WORKING_DIRECTORY" value="${workspace_loc}/obj/Testcases"/>
 <listAttribute key="org.eclipse.debug.core.MAPPED_RESOURCE_PATHS">
 <listEntry value="/Testcases"/>
@@ -32,6 +32,7 @@
 <listEntry value="4"/>
 </listAttribute>
 <mapAttribute key="org.eclipse.debug.core.environmentVariables">
+<mapEntry key="SYSTEMOC_PLUGINPATH" value="${workspace_loc}/obj/SystemC-VPC/.libs"/>
 <mapEntry key="VPCCONFIGURATION" value="${workspace_loc:Testcases}/src/test-src-snk-plain/vpc/RR-simple.vpc.xml"/>
 <mapEntry key="VPCTRACEFILEPREFIX" value="test-src-snk-plain-RR-simple-"/>
 </mapAttribute>
