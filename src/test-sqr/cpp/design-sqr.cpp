@@ -43,6 +43,7 @@ public:
   smoc_port_out<double> out;
 private:
   int i;
+  int iter;
   
   void src() {
 #ifdef SQR_LOGGING
@@ -53,17 +54,17 @@ private:
   
   smoc_firing_state start;
 public:
-  Src(sc_core::sc_module_name name, int iter)
-    : smoc_actor(name, start), i(10)
+  Src(sc_core::sc_module_name name, int iter_)
+    : smoc_actor(name, start), i(10), iter(iter_+10)
   {
     SMOC_REGISTER_CPARAM(iter);
     char *init = getenv("SRC_ITERS");
     if (init)
       iter = atoll(init);
     start =
-       (SMOC_VAR(i) <= iter+10)            >>
+       (SMOC_VAR(i) < SMOC_VAR(iter)) >>
        out(1)                         >>
-       SMOC_CALL(Src::src)                 >> start
+       SMOC_CALL(Src::src)            >> start
      ;
   }
 };
