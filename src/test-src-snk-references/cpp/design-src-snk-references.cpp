@@ -61,7 +61,7 @@ public:
     char *init = getenv("SRC_ITERS");
     if (init)
       iter = atoll(init);
-    start = out(1) >> (SMOC_VAR(iter) > 0) >> SMOC_CALL(m_h_src::src) >> start;
+    start = out(1) >> (SMOC_VAR(iter) > 0U) >> SMOC_CALL(m_h_src::src) >> start;
   }
 };
 

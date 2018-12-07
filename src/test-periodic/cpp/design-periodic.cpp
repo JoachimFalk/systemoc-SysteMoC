@@ -41,7 +41,7 @@
 #include <systemoc/smoc_fifo.hpp>
 #include <systemoc/smoc_periodic_actor.hpp>
 #include <systemoc/smoc_actor.hpp>
-#include <systemoc/smoc_graph_tt.hpp>
+#include <systemoc/smoc_graph.hpp>
 
 template <typename T>
 class m_h_src: public smoc_periodic_actor {
@@ -88,13 +88,13 @@ public:
   }
 };
 
-class m_h_top: public smoc_graph_tt {
+class m_h_top: public smoc_graph {
 protected:
   m_h_src<int>     src;
   m_h_sink<int>    snk;
 public:
   m_h_top(sc_core::sc_module_name name, size_t iter)
-    : smoc_graph_tt(name),
+    : smoc_graph(name),
       src("src", iter), snk("snk") {
 
     smoc_fifo<int> q("queue", 10);
