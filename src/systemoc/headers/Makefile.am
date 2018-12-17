@@ -47,7 +47,9 @@ nobase_include_HEADERS = \
 	smoc/smoc_state.hpp \
 	smoc/smoc_transition.hpp \
 	smoc/smoc_xor_state.hpp \
+	smoc/SimulatorAPI/ChannelInterfaces.hpp \
 	smoc/SimulatorAPI/FiringRuleInterface.hpp \
+	smoc/SimulatorAPI/PortInterfaces.hpp \
 	smoc/SimulatorAPI/SchedulerInterface.hpp \
 	smoc/SimulatorAPI/SimulatorInterface.hpp \
 	smoc/SimulatorAPI/TaskInterface.hpp \
