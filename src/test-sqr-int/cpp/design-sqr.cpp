@@ -62,9 +62,9 @@ public:
     if (init)
       iter = atoll(init);
     start =
-       (SMOC_VAR(i) < SMOC_VAR(iter)) >>
-       out(1)                         >>
-       SMOC_CALL(Src::src)            >> start
+       (SMOC_VAR(i) <= SMOC_VAR(iter)) >>
+       out(1)                          >>
+       SMOC_CALL(Src::src)             >> start
      ;
   }
 };
