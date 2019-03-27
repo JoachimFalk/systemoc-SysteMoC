@@ -31,9 +31,35 @@ ACLOCAL_AMFLAGS=-I ../BuildSystem/m4
 
 AM_CPPFLAGS= @AM_CPPFLAGS@ \
 	-Isrc/systemoc/headers \
-	-I$(srcdir)/src/systemoc/headers
+	-I$(srcdir)/src/systemoc/headers \
+	$(BOOST_CPPFLAGS) \
+	$(SYSTEMC_CPPFLAGS) \
+	$(TLM1_CPPFLAGS) \
+	$(COSUPPORT_SYSTEMC_CPPFLAGS) \
+	$(COSUPPORT_TRACING_CPPFLAGS) \
+	$(COSUPPORT_STREAMS_CPPFLAGS) \
+	$(COSUPPORT_SMARTPTR_CPPFLAGS) \
+	$(COSUPPORT_ALLOCATORS_CPPFLAGS) \
+	$(COSUPPORT_MATH_CPPFLAGS) \
+	$(COSUPPORT_STRING_CPPFLAGS) \
+	$(LIBSGX_CPPFLAGS) \
+	$(LIBSGXUTILS_CPPFLAGS) \
+	$(MAESTRO_METAMAP_CPPFLAGS)
 
-AM_LDFLAGS = @AM_LDFLAGS@
+AM_LDFLAGS = @AM_LDFLAGS@ \
+	$(BOOST_LDFLAGS) \
+	$(SYSTEMC_LDFLAGS) \
+	$(TLM1_LDFLAGS) \
+	$(COSUPPORT_SYSTEMC_LDFLAGS) \
+	$(COSUPPORT_TRACING_LDFLAGS) \
+	$(COSUPPORT_STREAMS_LDFLAGS) \
+	$(COSUPPORT_SMARTPTR_LDFLAGS) \
+	$(COSUPPORT_ALLOCATORS_LDFLAGS) \
+	$(COSUPPORT_MATH_LDFLAGS) \
+	$(COSUPPORT_STRING_LDFLAGS) \
+	$(LIBSGX_LDFLAGS) \
+	$(LIBSGXUTILS_LDFLAGS) \
+	$(MAESTRO_METAMAP_LDFLAGS)
 
 pkgconfigdir = $(libdir)/pkgconfig
 
@@ -100,41 +126,14 @@ libsystemoc_la_SOURCES = \
 	src/systemoc/cpp/smoc_state.cpp \
 	src/systemoc/cpp/smoc_xor_state.cpp
 
-libsystemoc_la_CPPFLAGS = $(AM_CPPFLAGS) \
-	$(BOOST_CPPFLAGS) \
-	$(SYSTEMC_CPPFLAGS) \
-	$(TLM1_CPPFLAGS) \
-	$(COSUPPORT_SYSTEMC_CPPFLAGS) \
-	$(COSUPPORT_TRACING_CPPFLAGS) \
-	$(COSUPPORT_STREAMS_CPPFLAGS) \
-	$(COSUPPORT_SMARTPTR_CPPFLAGS) \
-	$(COSUPPORT_ALLOCATORS_CPPFLAGS) \
-	$(COSUPPORT_MATH_CPPFLAGS) \
-	$(COSUPPORT_STRING_CPPFLAGS) \
-	$(LIBSGX_CPPFLAGS) \
-	$(LIBSGXUTILS_CPPFLAGS) \
-	$(SYSTEMC_VPC_CPPFLAGS) \
-	$(MAESTRO_METAMAP_CPPFLAGS)
+libsystemoc_la_CPPFLAGS = $(AM_CPPFLAGS)
 libsystemoc_la_LDFLAGS = $(AM_LDFLAGS) \
-	$(BOOST_LDFLAGS) \
-	$(SYSTEMC_LDFLAGS) \
-	$(TLM1_LDFLAGS) \
-	$(COSUPPORT_SYSTEMC_LDFLAGS) \
-	$(COSUPPORT_TRACING_LDFLAGS) \
-	$(COSUPPORT_STREAMS_LDFLAGS) \
-	$(COSUPPORT_SMARTPTR_LDFLAGS) \
-	$(COSUPPORT_ALLOCATORS_LDFLAGS) \
-	$(COSUPPORT_MATH_LDFLAGS) \
-	$(COSUPPORT_STRING_LDFLAGS) \
-	$(LIBSGX_LDFLAGS) \
-	$(LIBSGXUTILS_LDFLAGS) \
-	$(SYSTEMC_VPC_LDFLAGS) \
-	$(MAESTRO_METAMAP_LDFLAGS) \
 	-version-info 0:0:0 \
 	-Wl,--no-undefined
 libsystemoc_la_LIBADD = \
 	-lboost_program_options$(BOOST_LIBPOSTFIX) \
 	-lsystemc \
+	-lltdl \
 	$(COSUPPORT_SYSTEMC_LIBS) \
 	$(COSUPPORT_TRACING_LIBS) \
 	$(COSUPPORT_STREAMS_LIBS) \
@@ -144,7 +143,6 @@ libsystemoc_la_LIBADD = \
 	$(COSUPPORT_STRING_LIBS) \
 	$(LIBSGX_LIBS) \
 	$(LIBSGXUTILS_LIBS) \
-	$(SYSTEMC_VPC_LIBS) \
 	$(MAESTRO_METAMAP_LIBS)
 libsystemoc_la_DEPENDENCIES = \
 	$(COSUPPORT_SYSTEMC_DEPENDENCIES) \
@@ -156,5 +154,61 @@ libsystemoc_la_DEPENDENCIES = \
 	$(COSUPPORT_STRING_DEPENDENCIES) \
 	$(LIBSGX_DEPENDENCIES) \
 	$(LIBSGXUTILS_DEPENDENCIES) \
-	$(SYSTEMC_VPC_DEPENDENCIES) \
 	$(MAESTRO_METAMAP_DEPENDENCIES)
+
+noinst_PROGRAMS=		\
+	hello			\
+	src-sink		\
+	guards			\
+	rates			\
+	data-flow		\
+	ping			\
+	mini-filter		\
+	vpc-src-sink		\
+	vpc-src-sink-config-api
+
+hello_LDADD  		= libsystemoc.la
+hello_SOURCES		= src/tutorial/cpp/hello-systemoc.cpp
+
+src_sink_LDADD		= libsystemoc.la
+src_sink_SOURCES	= src/tutorial/cpp/source-sink.cpp
+
+guards_LDADD		= libsystemoc.la
+guards_SOURCES		= src/tutorial/cpp/guards.cpp
+
+rates_LDADD		= libsystemoc.la
+rates_SOURCES		= src/tutorial/cpp/rates.cpp
+
+data_flow_LDADD		= libsystemoc.la
+data_flow_SOURCES	= src/tutorial/cpp/data-flow.cpp
+
+ping_LDADD		= libsystemoc.la
+ping_SOURCES		= src/tutorial/cpp/ping.cpp
+
+mini_filter_LDADD	= libsystemoc.la
+mini_filter_SOURCES	= src/tutorial/cpp/mini-filter.cpp
+
+vpc_src_sink_LDADD	= libsystemoc.la
+vpc_src_sink_SOURCES	= src/tutorial/cpp/vpc-source-sink.cpp
+
+vpc_src_sink_config_api_LDADD		= libsystemoc.la
+vpc_src_sink_config_api_SOURCES		= src/tutorial/cpp/vpc-source-sink-config-api.cpp
+
+docdir = ${datarootdir}/doc/SysteMoC
+
+doc_DATA = \
+	src/tutorial/Makefile \
+	src/tutorial/CMakeLists.txt
+
+exampledir = $(docdir)/cpp
+
+example_DATA = \
+	$(hello_SOURCES) \
+	$(src_sink_SOURCES) \
+	$(guards_SOURCES) \
+	$(rates_SOURCES) \
+	$(data_flow_SOURCES) \
+	$(ping_SOURCES) \
+	$(mini_filter_SOURCES) \
+	$(vpc_src_sink_SOURCES) \
+	$(vpc_src_sink_config_api_SOURCES)

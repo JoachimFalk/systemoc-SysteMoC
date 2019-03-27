@@ -1,0 +1,53 @@
+CMAKE_MINIMUM_REQUIRED(VERSION 3.10)
+
+FIND_PACKAGE(PkgConfig REQUIRED)
+
+PROJECT(main CXX)
+
+PKG_CHECK_MODULES(SYSTEMOC REQUIRED libsystemoc>=1.0)
+
+ADD_LIBRARY(SysteMoC INTERFACE IMPORTED)
+SET_TARGET_PROPERTIES(SysteMoC PROPERTIES
+  INTERFACE_INCLUDE_DIRECTORIES "${SYSTEMOC_INCLUDE_DIRS}"
+  INTERFACE_COMPILE_OPTIONS     "${SYSTEMOC_CFLAGS_OTHER}"
+  INTERFACE_LINK_LIBRARIES      "${SYSTEMOC_STATIC_LIBRARIES}"
+# INTERFACE_LINK_DIRECTORIES    "${SYSTEMOC_LIBRARY_DIRS}" requires cmake >= 3.13
+)
+
+LINK_DIRECTORIES(${SYSTEMOC_LIBRARY_DIRS})
+
+ADD_EXECUTABLE(data-flow
+  cpp/data-flow.cpp)
+TARGET_LINK_LIBRARIES(data-flow SysteMoC)
+
+ADD_EXECUTABLE(guards
+  cpp/guards.cpp)
+TARGET_LINK_LIBRARIES(guards SysteMoC)
+
+ADD_EXECUTABLE(hello-systemoc
+  cpp/hello-systemoc.cpp)
+TARGET_LINK_LIBRARIES(hello-systemoc SysteMoC)
+
+ADD_EXECUTABLE(mini-filter
+  cpp/mini-filter.cpp)
+TARGET_LINK_LIBRARIES(mini-filter SysteMoC)
+
+ADD_EXECUTABLE(ping
+  cpp/ping.cpp)
+TARGET_LINK_LIBRARIES(ping SysteMoC)
+
+ADD_EXECUTABLE(rates
+  cpp/rates.cpp)
+TARGET_LINK_LIBRARIES(rates SysteMoC)
+
+ADD_EXECUTABLE(source-sink
+  cpp/source-sink.cpp)
+TARGET_LINK_LIBRARIES(source-sink SysteMoC)
+
+ADD_EXECUTABLE(vpc-source-sink-config-api
+  cpp/vpc-source-sink-config-api.cpp)
+TARGET_LINK_LIBRARIES(vpc-source-sink-config-api SysteMoC)
+
+ADD_EXECUTABLE(vpc-source-sink
+  cpp/vpc-source-sink.cpp)
+TARGET_LINK_LIBRARIES(vpc-source-sink SysteMoC)
