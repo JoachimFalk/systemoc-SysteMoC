@@ -1,0 +1,29 @@
+# vim: set noet sw=2 sts=0 ts=8:
+
+SHELL=/bin/sh
+
+prefix      = @prefix@
+exec_prefix = @exec_prefix@
+libdir      = @libdir@
+
+ifeq ($(PKG_CONFIG_PATH),)
+PKG_CONFIG_PATH := $(libdir)/pkgconfig
+else
+PKG_CONFIG_PATH := $(libdir)/pkgconfig:$(PKG_CONFIG_PATH)
+endif
+
+CMAKE_FLAGS = \
+	-DCMAKE_VERBOSE_MAKEFILE:BOOL=ON \
+	-DCMAKE_BUILD_TYPE:STRING=Debug
+
+.PHONY: all
+all: obj/.created
+	make -C obj all
+
+obj/.created:
+	test -d obj || mkdir obj
+	cd obj && PKG_CONFIG_PATH=$(PKG_CONFIG_PATH) cmake $(CMAKE_FLAGS) .. && touch .created
+
+.PHONY: clean
+clean:
+	rm -rf obj
