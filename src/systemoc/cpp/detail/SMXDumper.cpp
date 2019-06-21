@@ -411,9 +411,9 @@ public:
   typedef void result_type;
 public:
 #ifndef _SYSTEMOC_LIBSGX_NO_PG
-  SGX::ProblemGraph   &pg;
+  SGX::ProblemGraph::Ref pg;
 #else //defined(_SYSTEMOC_LIBSGX_NO_PG)
-  SGX::RefinedProcess &pg;
+  SGX::RefinedProcess   &pg;
 #endif //defined(_SYSTEMOC_LIBSGX_NO_PG)
 public:
   SGX::RefinedProcess &getRefinedProcess()
