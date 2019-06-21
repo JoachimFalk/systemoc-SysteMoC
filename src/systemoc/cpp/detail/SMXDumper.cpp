@@ -70,6 +70,12 @@
 #include "FSM/RuntimeTransition.hpp"
 #include "FSM/FiringFSM.hpp"
 
+#if defined(LIBSGX_MAJOR_VERSION) && ( \
+    LIBSGX_MAJOR_VERSION > 0 || \
+    LIBSGX_MAJOR_VERSION == 0 && LIBSGX_MINOR_VERSION >= 5)
+# define _SYSTEMOC_LIBSGX_NO_PG
+#endif
+
 //#define SYSTEMOC_ENABLE_DEBUG
 
 namespace smoc { namespace Detail {
@@ -404,13 +410,23 @@ class GraphSubVisitor: public ProcessSubVisitor {
 public:
   typedef void result_type;
 public:
-  SGX::ProblemGraph &pg;
+#ifndef _SYSTEMOC_LIBSGX_NO_PG
+  SGX::ProblemGraph   &pg;
+#else //defined(_SYSTEMOC_LIBSGX_NO_PG)
+  SGX::RefinedProcess &pg;
+#endif //defined(_SYSTEMOC_LIBSGX_NO_PG)
 public:
   SGX::RefinedProcess &getRefinedProcess()
     { return static_cast<SGX::RefinedProcess &>(proc); }
 public:
-  GraphSubVisitor(SMXDumpCTX &ctx, ExpectedPortConnections &epc, SGX::RefinedProcess &proc, SGX::ProblemGraph &pg)
-    : ProcessSubVisitor(ctx, epc, proc), pg(pg) {}
+  GraphSubVisitor(SMXDumpCTX &ctx, ExpectedPortConnections &epc, SGX::RefinedProcess &proc)
+    : ProcessSubVisitor(ctx, epc, proc)
+#ifndef _SYSTEMOC_LIBSGX_NO_PG
+    , pg(*proc.refinements().begin())
+#else //defined(_SYSTEMOC_LIBSGX_NO_PG)
+    , pg(proc)
+#endif //defined(_SYSTEMOC_LIBSGX_NO_PG)
+    {}
 
   void operator ()(GraphBase &obj);
 
@@ -1017,12 +1033,18 @@ public:
       outDbg << "DumpGraph::operator ()(...) [BEGIN] for " << getName(&g) << std::endl;
     }
 #endif //defined(SYSTEMOC_ENABLE_DEBUG)
-    SGX::RefinedProcess rp(Concat(getName(&g))("_rp"));
+#ifndef _SYSTEMOC_LIBSGX_NO_PG
+    SGX::RefinedProcess  rp(Concat(getName(&g))("_rp"));
     gsv.pg.processes().push_back(rp);
-    SGX::ProblemGraph   pg(getName(&g), getId(&g));
-    pg.cxxClass() = typeid(g).name();
-    GraphSubVisitor sv(gsv.ctx, gsv, rp, pg);
+    SGX::ProblemGraph    pg(getName(&g), getId(&g));
     rp.refinements().push_back(pg);
+#else //defined(_SYSTEMOC_LIBSGX_NO_PG)
+    SGX::RefinedProcess  rp(getName(&g), getId(&g));
+    gsv.pg.processes().push_back(rp);
+    SGX::RefinedProcess &pg = rp;
+#endif //defined(_SYSTEMOC_LIBSGX_NO_PG)
+    pg.cxxClass() = typeid(g).name();
+    GraphSubVisitor sv(gsv.ctx, gsv, rp);
     recurse(sv, g);
     pg.firingFSM() = DumpFiringFSM(sv)(g.getFiringFSM());
 #ifdef SYSTEMOC_ENABLE_DEBUG
@@ -1081,11 +1103,17 @@ void dumpSMX(std::ostream &file, SimulationContextSMXDumping *simCTX, GraphBase 
   SGX::NetworkGraphAccess ngx;
   SMXDumpCTX              ctx(simCTX);
   ExpectedPortConnections epc;
+#ifndef _SYSTEMOC_LIBSGX_NO_PG
   SGX::RefinedProcess     rp;
   SGX::ProblemGraph       pg(g.name(), IdedObjAccess::getId(&g));
   
   rp.refinements().push_back(pg);
-  GraphSubVisitor sv(ctx,epc,rp,pg);
+#else //defined(_SYSTEMOC_LIBSGX_NO_PG)
+  SGX::RefinedProcess     rp(g.name(), IdedObjAccess::getId(&g));
+  SGX::RefinedProcess    &pg = rp;
+#endif //defined(_SYSTEMOC_LIBSGX_NO_PG)
+
+  GraphSubVisitor sv(ctx,epc,rp);
   recurse(sv, g);
   ngx.problemGraphPtr() = &pg;
   ngx.architectureGraphPtr() = SGX::ArchitectureGraph("dummy architecture graph").toPtr(); 
