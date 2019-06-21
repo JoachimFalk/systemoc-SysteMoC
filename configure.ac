@@ -23,13 +23,13 @@ AC_DEFINE_UNQUOTED([SYSTEMOC_VERSION],
   "$SYSTEMOC_VERSION",
   [Defined to SysteMoC version])
 AC_DEFINE_UNQUOTED([SYSTEMOC_MAJOR_VERSION],
-  "$SYSTEMOC_MAJOR_VERSION",
+  $SYSTEMOC_MAJOR_VERSION,
   [For SysteMoC version x.y.z defined to major version, e.g., x])
 AC_DEFINE_UNQUOTED([SYSTEMOC_MINOR_VERSION],
-  "$SYSTEMOC_MINOR_VERSION",
+  $SYSTEMOC_MINOR_VERSION,
   [For SysteMoC version x.y.z defined to minor version, e.g., y])
 AC_DEFINE_UNQUOTED([SYSTEMOC_MICRO_VERSION],
-  "$SYSTEMOC_MICRO_VERSION",
+  $SYSTEMOC_MICRO_VERSION,
   [For SysteMoC version x.y.z defined to micro version, e.g., z])
 
 AC_CONFIG_SRCDIR([src/systemoc/cpp/smoc_actor.cpp])
