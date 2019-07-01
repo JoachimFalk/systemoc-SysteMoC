@@ -2,13 +2,13 @@
 <launchConfiguration type="org.eclipse.cdt.launch.applicationLaunchType">
 <intAttribute key="org.eclipse.cdt.launch.ATTR_BUILD_BEFORE_LAUNCH_ATTR" value="2"/>
 <stringAttribute key="org.eclipse.cdt.launch.COREFILE_PATH" value=""/>
-<stringAttribute key="org.eclipse.cdt.launch.PROGRAM_NAME" value="obj/src-sink"/>
-<stringAttribute key="org.eclipse.cdt.launch.PROJECT_ATTR" value="Examples-SysteMoC-Tutorial"/>
+<stringAttribute key="org.eclipse.cdt.launch.PROGRAM_NAME" value="obj/rates"/>
+<stringAttribute key="org.eclipse.cdt.launch.PROJECT_ATTR" value="SysteMoC"/>
 <booleanAttribute key="org.eclipse.cdt.launch.PROJECT_BUILD_CONFIG_AUTO_ATTR" value="true"/>
 <stringAttribute key="org.eclipse.cdt.launch.PROJECT_BUILD_CONFIG_ID_ATTR" value="org.eclipse.linuxtools.cdt.autotools.core.configuration.build.55389389"/>
 <booleanAttribute key="org.eclipse.cdt.launch.use_terminal" value="true"/>
 <listAttribute key="org.eclipse.debug.core.MAPPED_RESOURCE_PATHS">
-<listEntry value="/Examples-SysteMoC-Tutorial"/>
+<listEntry value="/SysteMoC"/>
 </listAttribute>
 <listAttribute key="org.eclipse.debug.core.MAPPED_RESOURCE_TYPES">
 <listEntry value="4"/>
@@ -17,4 +17,5 @@
 <listEntry value="org.eclipse.debug.ui.launchGroup.debug"/>
 <listEntry value="org.eclipse.debug.ui.launchGroup.run"/>
 </listAttribute>
+<stringAttribute key="process_factory_id" value="org.eclipse.cdt.dsf.gdb.GdbProcessFactory"/>
 </launchConfiguration>
