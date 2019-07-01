@@ -43,11 +43,3 @@ TARGET_LINK_LIBRARIES(rates SysteMoC)
 ADD_EXECUTABLE(source-sink
   cpp/source-sink.cpp)
 TARGET_LINK_LIBRARIES(source-sink SysteMoC)
-
-ADD_EXECUTABLE(vpc-source-sink-config-api
-  cpp/vpc-source-sink-config-api.cpp)
-TARGET_LINK_LIBRARIES(vpc-source-sink-config-api SysteMoC)
-
-ADD_EXECUTABLE(vpc-source-sink
-  cpp/vpc-source-sink.cpp)
-TARGET_LINK_LIBRARIES(vpc-source-sink SysteMoC)
