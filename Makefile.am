@@ -163,9 +163,7 @@ noinst_PROGRAMS=		\
 	rates			\
 	data-flow		\
 	ping			\
-	mini-filter		\
-	vpc-src-sink		\
-	vpc-src-sink-config-api
+	mini-filter
 
 hello_LDADD  		= libsystemoc.la
 hello_SOURCES		= src/tutorial/cpp/hello-systemoc.cpp
@@ -188,12 +186,6 @@ ping_SOURCES		= src/tutorial/cpp/ping.cpp
 mini_filter_LDADD	= libsystemoc.la
 mini_filter_SOURCES	= src/tutorial/cpp/mini-filter.cpp
 
-vpc_src_sink_LDADD	= libsystemoc.la
-vpc_src_sink_SOURCES	= src/tutorial/cpp/vpc-source-sink.cpp
-
-vpc_src_sink_config_api_LDADD		= libsystemoc.la
-vpc_src_sink_config_api_SOURCES		= src/tutorial/cpp/vpc-source-sink-config-api.cpp
-
 docdir = ${datarootdir}/doc/SysteMoC
 
 doc_DATA = \
@@ -209,6 +201,4 @@ example_DATA = \
 	$(rates_SOURCES) \
 	$(data_flow_SOURCES) \
 	$(ping_SOURCES) \
-	$(mini_filter_SOURCES) \
-	$(vpc_src_sink_SOURCES) \
-	$(vpc_src_sink_config_api_SOURCES)
+	$(mini_filter_SOURCES)
