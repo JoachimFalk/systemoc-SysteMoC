@@ -1,0 +1,108 @@
+\chapter{Mathdefs}
+% Before we can review the tagged signal model some mathematical notations are needed.
+
+We use the `$.$'-operator, e.g., $u.x$, for member access, e.g., $x$, of tuples whose members have been explicitly named in their definition, e.g., $u = (x, y) \in U \subseteq \mathbf{N}^2$.
+Furthermore this member access operator has a trivial pointwise extenstion to sets of tuples, e.g., $U.x = \bigcup{}_{u \in U} u.x$.
+
+Let $\{x_1,x_2\}$ denote a set and $[y_1,y_2,y_3,\ldots]$ denote a set
+with total order $y_1 \le y_2 \le y_3 \le \ldots$, e.g., $\{x_1,x_2\} = \{x_2,x_1\}$ but
+$[y_1,y_2] \ne [y_2,y_1]$ and $\{x_1,x_1\} = \{x_1\}$ but $[ y_1, y_2, y_1, y_3]$
+is a \emph{illformed totally ordered set} because it does not define a total order,
+as $y_1 \le y_2 \wedge y_2 \le y_1$ but $y_1 \ne y_2$.
+
+Let $\mathbb{N} = [1,2,3,\ldots]$ denote the set of natural numbers,
+$\mathbb{N}_\infty = [1,2,3,\ldots\infty]$ the set of natural numbers including infinity,
+$\mathbb{N}_n = [1,2,3,\ldots,n] \subseteq \mathbb{N}_\infty$ the counting set from one to $n$ (Note that $\mathbb{N}_0 = \emptyset$),
+$\mathbb{Z} = [\ldots,-2,-1,0,1,2,\ldots]$ denote the set of integers,
+%$\mathbb{Z}^-_0 = [\ldots,-3,-2,-1,0]$ the set of nonpositive integers,
+$\mathbb{Z}^+_0 = [0,1,2,3,\ldots]$ the set of nonnegative integers,
+$\mathbb{Z}^{+\infty}_0 = [0,1,2,3,\ldots\infty]$ the set of nonnegative integers including infinity.
+%$\mathbb{Z}^- = [\ldots,-3,-2,-1]$ the set of negative integers.
+
+A totally ordered set $X$ is called \emph{two-sided discrete}
+if it is \emph{order isomorphic} to a subset of the integers $Z_X \subseteq \mathbb{Z}$,
+%and let $\Sigma(X): Z_X \to X$ denote this order isomorphism,
+i.e., $\exists{\Sigma(X): Z_X \to X, \Sigma(X)\textrm{ is a \emph{bijection}}}:
+ \forall{i,j \in Z_X}: i \le j \iff \Sigma(X)(i) \le \Sigma(X)(j)$.
+Intuitively this means, any two elements
+$x_1, x_2 \in X$ have only a finite number of other elements between them.
+
+A totally ordered set $X$ is called \emph{one-sided discrete} or \emph{discrete}
+if it is \emph{order isomorphic} to a subset of the natural numbers $\mathbb{N}_{|X|}$
+and let $\Sigma(X): \mathbb{N}_{|X|} \to X$ denote this order isomorphism,
+i.e., $\exists{\Sigma(X): \mathbb{N}_{|X|} \to X, \Sigma(X)\textrm{ is a \emph{bijection}}}:
+ \forall{i,j \in \mathbb{N}_{|X|}}: i \le j \iff \Sigma(X)(i) \le \Sigma(X)(j)$.
+Intuitively this means,
+any two elements $x_1, x_2 \in X$ have only a finite number of other elements
+between them and there exists a least element $x_{least}, \forall{x \in X}: x_{least} \le x$.
+For example, given the discrete set $X = [$`A', `B', `C'$]$ then
+$\Sigma(X)(1) =$ `A',  $\Sigma(X)(2) =$ `B', and $\Sigma(X)(3) =$ `C'.
+
+Let $X^* = \bigcup_{n \in \mathbb{Z}^+_0} X^n$ denote the set of all
+\emph{tuples} of $X$ also called \emph{finite sequences} of $X$ and
+$X^{**} = \bigcup_{n \in \mathbb{Z}^{+\infty}_0} X^n$ denote the set of all
+finite and infinite \emph{sequences} of $X$. A sequence
+$\mathbf{x} = (x_1,x_2,\ldots,x_n) \in X^n, n \in \mathbb{Z}^{+\infty}_0$
+can also be thought of as a function $\mathbf{x} : \mathbb{N}_n \to X$.
+For example, given the sequence $X = ($`A', `B', `A', `C'$)$ then
+$X(1) =$ `A',  $X(2) =$ `B', $X(3) =$ `A', and $X(4) =$ `C'.
+Note that a function is also a relation and a relation is also a set, e.g
+$\mathbf{x} : \mathbb{N}_n \to X \equiv \{ (i,x_i) \mid x_i = \mathbf{x}(i), i \in \mathbb{N}_n \}$.
+Note also that the $\Sigma$ function converts a discrete set to a sequence,
+e.g., $\Sigma([1,2,3]) = (1,2,3)$.
+
+A set with an associated partial order is called a
+\emph{poset}. Let $\sqsubseteq$ called \emph{prefix order} denote the
+associated partial order on the set $V^{**}$ of all finite and infinite sequences of $V$.
+And let $\mathbf{v}_1 \sqsubseteq \mathbf{v}_2$ denote that
+$\mathbf{v}_1$ is a prefix of the sequence $\mathbf{v}_2$, i.e.,
+$\mathbf{v}_1 \sqsubseteq \mathbf{v}_2 \iff \forall{n \in T(\mathbf{v}_1)}: \mathbf{v}_1(n) = \mathbf{v}_2(n)$.
+
+An \emph{upper bound} of a subset $X \subseteq V^{**}$ is an element
+$\mathbf{v} \in V^{**}$ where every sequence $\mathbf{x}$ in $X$ is a
+prefix of $\mathbf{v}$, i.e., $\forall{\mathbf{x} \in X}: \mathbf{x} \sqsubseteq \mathbf{v}$.
+A \emph{least upper bound} of a subset $X \subseteq V^{**}$, written $\sqcup X$,
+is an upper bound which is a prefix of every other upper bound of $X$.
+A \emph{lower bound} and \emph{greatest lower bound} of $X \subseteq V^{**}$,
+written $\sqcap X$, are defined respectively.
+
+A \emph{chain} in a poset $X$ is a totally ordered subset of $X$. A
+\emph{bottom element} of a poset $X$, if it exists, is an element of the
+poset which is also a greatest lower bound of the whole poset $\sqcap X \in X$.
+A \emph{complete partial order} is a poset $X$ with a bottom element
+in which every chain $Y \subseteq X$ has a least upper bound
+$\sqcup Y$. The set $V^{**}$ of all finite and infinite sequences of $V$
+is a complete partial order with bottom element $\lambda$, the
+empty sequence.
+
+This definitions can be trivially generalized to tupples of sequences
+$\upsilon \in (V^{**})^N$, i.e., $\upsilon_1 \sqsubseteq \upsilon_2 \iff
+\forall{n \in \mathbb{N}_N}: \upsilon_1(n) \sqsubseteq \upsilon_2(n)$.
+With this generalization the set $(V^{**})^N$ of all $N$-tupples of finite and
+infinite sequences of $V$ is also a complete partial order with
+bottom element $\Lambda = (\lambda, \lambda, \ldots, \lambda)$, the $N$-tupple
+of empty sequences $\lambda$.
+
+A function $F: (V^{**})^N \to (V^{**})^M$ is \emph{monotonic} if
+adding additional elements to the input sequence tupple $\upsilon_{in} \in (V^{**})^N$
+results in additional elements on the output sequence tupple
+$\upsilon_{out} = F(\upsilon_{in}) \in (V^{**})^M$,i.e.,
+$\forall{\upsilon_{in_1}, \upsilon_{in_2} \in (V^{**})^N}:
+\upsilon_{in_1} \sqsubseteq \upsilon_{in_2} \implies F(\upsilon_{in_1}) \sqsubseteq F(\upsilon_{in_2})$.
+This can be considered as a untimed notion of causality
+where the additional elements to the input sequence correspond
+to input tokens and the additional elements on the output sequence
+are the tokens produced from the consumption of these input tokens.
+
+A function $F: (V^{**})^N \to (V^{**})^M$ is \emph{continuous} if
+for every chain $Y$ in $(V^{**})^N$, $F(Y)$ has a least upper bound
+$\sqcup F(Y)$ which is equal to the function $F$ applied to the
+upper bound $\sqcup Y$ of the chain $Y$,
+i.e., $\forall{Y \subseteq (V^{**})^N, Y\textrm{ is a chain}}: F(\sqcup Y) = \sqcup F(Y)$.
+Where $F : 2^{\left( (V^{**})^N \right)} \to 2^{\left( (V^{**})^M \right)}$
+is the pointwise extension of $F : (V^{**})^N \to (V^{**})^M$, i.e.,
+$F(Y) = \{ F(\upsilon) \mid \upsilon \in Y\}$. Note that
+every continuous function is also monotonic but the reverse
+is not necessarily true.
+
+

@@ -1,0 +1,132 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}[t]
+\mode<presentation>{\frametitle{\insertsection\ -- Overview}}
+\begin{itemize}
+\item \SystemCoDesigner{} is a system level synthesis tool
+\item \SystemCoDesigner{} automatically maps a SystemC (\SysteMoC\ ) behavioral model onto a heterogeneous MPSoC
+\item this is done by automatic design space exploration (DSE) for optimization purposes
+\item the DSE engine
+\begin{itemize}
+\item uses a specification graph as input 
+\item creates several implementation graphs as output
+\end{itemize}
+\item graphs are represented in corresponding XML files
+\begin{itemize}
+\item specification graph (file extension .sgx)
+\item implementation graph (file extension .igx)
+\end{itemize}
+\end{itemize}
+\end{frame}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}[t]
+\mode<presentation>{\frametitle{Specification vs. Implementation Graph}}
+\begin{itemize}
+\item specification graph and implementation graph are similar ...
+\begin{itemize}
+\item both use same file format (specgraph.dtd)
+\end{itemize}
+\item ... but interpretation differs
+\begin{itemize}
+\item a specification graph represents the entire design space,
+\\ i.e., a variety of possible mappings of an application to a super set of the architecture
+\item an implementation graph represents an implementation,
+\\ i.e., a concrete mapping to a concrete architecture
+\end{itemize}
+\end{itemize}
+\end{frame}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}[t]
+\mode<presentation>{\frametitle{Specification Graph}}
+\begin{figure}
+\vspace{-5mm}
+\centering
+\resizebox{0.5\columnwidth}{!}{\input{mini-sgx-fig.tex}}
+\end{figure}
+\begin{itemize}
+\item a specification graph consists of 
+\begin{itemize}
+\item a problem graph representing the application (SystemC model)
+\item an architecture graph (superset of MPSoC platform)
+\item mappings of problem graph nodes to architecture graph nodes
+\end{itemize}
+\end{itemize}
+\end{frame}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}[t]
+\mode<presentation>{\frametitle{Design Space Exploration}}
+\begin{itemize}
+\item the DSE gets a specification graph as input
+\item allocation and binding are performed during exploration 
+\begin{itemize}
+\item allocation ... select a concrete set of resources
+\item binding ... map each task to one resources
+\end{itemize}
+\item a concrete allocation and binding is named ``implementation''
+\item several different implementations may be created from a specification
+\end{itemize}
+\end{frame}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}[t]
+\mode<presentation>{\frametitle{Design Space Exploration cont'd}}
+\begin{itemize}
+\item implementations are represented by implementation graphs
+\begin{itemize}
+\item an implementation graph is a copy of the specification graph ...
+\item ... having all not allocated resources removed
+\item ... and having all unused mappings removed
+\end{itemize}
+\item implementation graphs are used for evaluation of implementations
+\begin{itemize}
+\item e.g., scheduling, performance evaluation, cost estimation
+\end{itemize}
+\item evaluated performance numbers are fed back to the DSE
+\end{itemize}
+\end{frame}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}[t]
+\mode<presentation>{\frametitle{Implementation Graph}}
+\begin{figure}
+\vspace{-5mm}
+\centering
+\resizebox{0.5\columnwidth}{!}{\input{mini-igx-fig.tex}}
+\end{figure}
+\begin{itemize}
+\item an implementation graph consists of 
+\begin{itemize}
+\item a problem graph representing the application (SystemC model)
+\item an architecture graph (a concrete MPSoC platform)
+\item each problem graph node is mapped to exactly one architecture graph node
+\end{itemize}
+\end{itemize}
+\end{frame}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}[t]
+\mode<presentation>{\frametitle{\insertsection\ }}
+\begin{itemize}
+\item discussion in the next section is limited to the common file format of specification and implementation graphs
+\item but differences are pointed out and are marked by tags
+\begin{itemize}
+\item  \SGX\ for specification graph related issues 
+\item  \IGX\ for implementation graph related issues 
+\end{itemize}
+\end{itemize}
+\end{frame}

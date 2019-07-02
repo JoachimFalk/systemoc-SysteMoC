@@ -1,0 +1,115 @@
+\chapter{Introduction}\label{sec:intro}
+
+%\vspace{-8mm}
+%\begin{center}\parbox{12cm}
+%{\itshape
+Actor-based design is based on composing a system of communicating processes called \emph{actors}, which can only communicate with each other via channels.
+However, \emph{actor-based design} does not constrain the communication behavior of its actors therefore making analyses of the system in general impossible.
+In a \emph{model-based design} methodology the underlying \emph{Model of Computation} (MoC) is known additionally which is given by a predefined type of communication behavior and a scheduling strategy for the actors.
+% Thus, it constraints the communication infrastructure of concurrent system to message passing over a predefined network graph of channels enabling XXX.
+%They are comparable to design patterns as used in software engineering and the basis for model-based design. %, which is a methodology for creating executable specifications which only use predefined patterns for communication which correspond to different MoCs.
+%Moreover, MoCs represent well known trade-offs between expressiveness and analyzability.
+We present a library based on the design language SystemC called \SysteMoC{} which provides a simulation environment for model-based designs.
+The library-based approach unites the advantage of executability with analyzability of many expressive MoCs.
+%The base MoC of our library is a generalization of \emph{FunState} (Functions driven by State machines).
+%We will introduce the syntax and semantics supported by \SysteMoC{} as well as discuss the simulation environment and present first results of using \SysteMoC{} for modeling and simulation of signal processing applications.
+% \SysteMoC{} defines a coding style for specifying the communication behavior of actors as finite state machines and the communication infrastructure as a network graph of communicating actors, as well as functionality to extract this information from the executable specification.
+% Therefore we provide the basis for model-based design in SystemC enabling automatic extraction and classification of the communication behavior of actors.
+% Thus later enabling us to use analysis for optimized code generation as well as efficient system property checks by automatic verification tools.
+%Finally, we compare the simulative performance of \SysteMoC{} with other executable languages such as C++, regular SystemC, and modelling environments such as Ptolemy II.
+%}
+%\end{center}
+
+% The basic tenet of this
+% methodology is to move away from manual coding from informal
+% specifications by capturing embedded software functional
+% and non-functional requirements from abstract mathematical
+% models. Clearly, a mathematical model offers a
+% common ground for a systematic and coherent integration
+% of diverse efforts in system specification, design, synthesis
+% (code generation), analysis (validation), execution (runtime
+% support), and maintenance (design evolution).
+
+Due to rising design complexity, it is necessary to increase the level of abstraction at which systems are designed.
+This can be achieved by model-based design which makes extensive use of so-called \emph{Models of Computation} \cite{embsft:2002} (MoCs).
+MoCs are comparable to design patterns known from the area of software design \cite{gamma:1995}.
+On the other hand, industrial embedded system design is still based on design languages like C, C++, Java, VHDL, SystemC, and SystemVerilog which allow unstructured communication.
+Even worse, nearly all design languages are Turing complete making analyses in general impossible.
+This precludes the automatic identification of communication patterns out of the many forms of interactions, e.g., shared variables and various ways of message passing between processes.
+%To make industry benefit from the best of both worlds, engineers must restrict themselves to use certain coding styles and subsets of a design language.
+%This results in a model-based design methodology that permits automatic analysis, identification, and extraction of MoCs at the source code level.
+
+%\begin{figure}[t]
+%\centering
+%\resizebox{\columnwidth}{!}{\input{SysteMoC-Goals-fig.tex}}
+%\caption{\label{fig:SysteMoC-Goals}The Goal of the \SysteMoC{}-framework
+%  is the identification and extraction of models of computation
+%  from a subset of SystemC. Later the extracted MoC can be used
+%  in a model-based design methodology, e.g., in design space exploration
+%  and for code generation.
+%}
+%\end{figure}
+
+% The overall methodology is depicted in Figure~\ref{fig:SysteMoC-Goals}.
+
+%In this paper, we propose the \SysteMoC{} approach.
+%The basic MoC of the \SysteMoC{}-library is \emph{FunState} (Functions driven by State machines) \cite{stgzet:2001}.
+%FunState models express their communication behavior by \emph{Finite State Machines} (FSM).
+%Analyzing these FSMs together with the topology of a given SystemC design permits the extraction and analysis of the underlying MoC to the given design.
+%This is a prerequisite for later optimization or even for design automation approaches.
+%In this paper, we will focus on the \SysteMoC{} syntax and semantics as well as the simulation environment for \SysteMoC{} designs.
+%
+%The rest of this paper is structured as follows:
+%In Section~\ref{sec:related-work}, we discuss related work.
+%In Section~\ref{sec:systemoc-syntax}, we present \SysteMoC{} syntax and semantics.
+%In Section~\ref{sec:systemoc-implementation}, details pertaining to our implementation of the \SysteMoC{} simulation environment are presented.
+%In Section~\ref{sec:systemoc-casestudy}, we compare the \SysteMoC{} simulation performance with other approaches,
+%and we conclude the present paper in Section~\ref{sec:conclusions}.
+%We will use the example of an approximating square root algorithm throughout the paper to illustrate our approach.
+
+%\section{Basic concepts}
+ 
+Instead of a monolithic approach for representing an executable specification of an embedded system as done using many design languages, we will use a refinement of \emph{actor-oriented} design.
+In actor-oriented design, \emph{actors} only communicate with each other via \emph{channels} instead of method calls as known
+in object-oriented design.
+\SysteMoC{}~\cite{fht:2006} is a library based on SystemC that allows to describe and simulate communicating actors, which are divided into their \emph{actor functionality} and their \emph{communication behavior} encoded as an explicit finite state machine.
+In the following, the syntax and semantics of \SysteMoC{} designs is discussed.
+
+Using \SysteMoC, many important models of computation may be described such as 
+SDF \cite{Lee87b:1987}, CSDF \cite{belp:1996, eblp:1994}, Boolean Dataflow, 
+Kahn Process Networks \cite{Kahn:1974}, 
+and many process networks, also communicating sequential processes (CSP)
+\cite{csphoare:1985}, and many others \cite{tszet:1999, LeeDenotialDF:1997,
+embsft:2002, Lee98, Eker, Tei97}.
+
+A \SysteMoC{} actor contains 3 basic elements:
+
+\begin{itemize}
+\item {\em Network graph}: Each application is modeled 
+by a network graph of communicating actors.
+\item {\em Actor classes}: Each actor is defined 
+by a class that contains several 
+so-called {\em actions} that are basic functional blocks implemented as 
+C++ methods that do computations on tokens on inputs and output ports 
+and the internal state of an actor. The actor itself thus possesses an 
+implementation in the form of a C++ class, and
+each actor communicates with other actors through a certain number 
+of input ports and a certain number of output ports. 
+The basic entity of data transfer is regulated by the notion of 
+{\em tokens}. Apart from the existence or absence of tokens, an actor 
+may check and do computations also on values of these tokens. 
+In this paper, we do not make any assumptions on the types 
+of tokens exchanged between actors. 
+\item {\em Firing finite state machine (FSM)}: The behavior of each actor is ruled 
+by an explicit finite state machine that checks conditions on the input ports, 
+output ports and internal state. If a certain firing rule is satisfied, 
+a state transition will be taken. During the state transition, an {\em action}
+is called. Once this action has finished execution, the new state is 
+taken. The complete state of an actor is described by this explicit 
+state of the actor and the state as given by its (local) member variables.
+Depending on the model of computation, 
+the actor ports may be connected to different types of so-called {\em channels} such 
+as channels with FIFO semantics, or rendez-vous channels.
+\end{itemize}
+
+% LocalWords: SysteMoC

@@ -1,0 +1,92 @@
+\input{format-industry.tex}
+%\documentclass[a4paper, 12pt, BCOR2cm, headsepline, pointlessnumbers, bibtotoc, idxtotoc, german]{scrbook}
+
+\usepackage{theorem}
+\usepackage{hyperref}
+
+\newcommand{\code}[1]{\texttt{#1}}
+\newcommand{\msg}[1]{\texttt{#1}}
+\newcommand{\env}[1]{\textbf{#1}}
+\newcommand{\file}[1]{\emph{#1}}
+\newcommand{\module}[1]{\textit{#1}}
+\newcommand{\shellprompt}[1]{\textit{#1}}
+\newcommand{\shellcommand}[1]{\texttt{\textbf{#1}}}
+\newcommand{\shellresult}[1]{\texttt{#1}}
+\newcommand{\shell}[2]{
+  \shellprompt{[falk@codesign14]\$ }\shellcommand{#1}\\
+  \shellresult{#2}
+}
+
+\newcommand{\SysteMoC}{\emph{SysteMoC}}
+\newcommand{\concat}{{}^{\smallfrown}}
+\newcommand{\length}{\#}
+
+\theoremheaderfont{\normalfont\sffamily\bfseries}
+{\theorembodyfont{\normalfont\itshape}
+  \newtheorem{definition}{Definition}[chapter]
+% \newtheorem{cdefinition}{Definition}[chapter]
+% \newtheorem{sdefinition}{Definition}[chapter]
+% \newtheorem{ssdefinition}{Definition}[section]
+  \newtheorem{proof}{Proof}[chapter]
+% \newtheorem{cproof}{Proof}[chapter]
+% \newtheorem{sproof}{Proof}[chapter]
+% \newtheorem{ssproof}{Proof}[section]
+}
+
+{\theorembodyfont{\normalfont}
+  \newtheorem{example}{Example}[chapter]
+% \newtheorem{cexample}{Example}[chapter]
+% \newtheorem{sexample}{Example}[chapter]
+% \newtheorem{ssexample}{Example}[section]
+  \newtheorem{syntax}{Syntax}[chapter]
+% \newtheorem{csyntax}{Syntax}[chapter]
+% \newtheorem{ssyntax}{Syntax}[chapter]
+% \newtheorem{sssyntax}{Syntax}[section]
+}
+
+%\def\hyph{\penalty0\hskip0pt\relax}
+
+%\hyphenation{fortran er-go-no-mic}
+%\hyphenation{funk-tio-na-li-täts-zu-stand}
+
+\hypersetup{
+  pdftitle   = {\@title},
+  pdfsubject = {Co-Design-Report},
+  pdfauthor  = {\textcopyright\ \@author},
+  colorlinks = true,
+  linkcolor  = black,
+  anchorcolor= black,
+  citecolor  = black,
+  filecolor  = black,
+  menucolor  = black,
+  pagecolor  = black,
+  urlcolor   = black
+}
+
+\begin{document}
+\selectlanguage{english}
+\hscdtitle{SysteMoC 2.0 Documentation}{Joachim Falk}{3-2006}
+\newpage
+\tableofcontents
+\clearpage
+	
+\input{systemoc-intro}
+
+\input{systemoc-syntax}
+
+\input{systemoc-ngx}
+
+\input{systemoc-implementation}
+
+\appendix
+
+\input{mathdefs}
+
+\input{glossary}
+
+\input{systemoc-semantics}
+
+\bibliographystyle{alpha}
+\bibliography{literature}
+
+\end{document}

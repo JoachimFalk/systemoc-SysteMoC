@@ -1,0 +1,215 @@
+\chapter{\SysteMoC{} semantic}
+
+\section{Actor behavior}
+
+As known from Kahn \cite{Kahn:1974} and Lee \cite{Lee98,LeeDenotialDF:1997} we use the sequence of tokens $\mathbf{v} \in V^{**}$ transmitted during the lifetime of a system via a FIFO to mathematical describe the FIFO.
+In order to simplify the description of a bounded FIFO, we will replace it by two unbounded FIFOs.
+Therefore each actor port $p \in \mathcal{P} = I \cup O$ is connected to a pair of unbounded FIFOs $(\mathbf{v}, \mathbf{f}) \in Z$ instead of simply being connected to a bounded FIFO, where $Z$ is the set of all pairs of unbounded FIFOs used to represent the bounded FIFO channels $C$ of a network graph.
+The pair of unbounded FIFOs $(\mathbf{v}, \mathbf{f})$ consists of
+a \emph{value FIFO} $\mathbf{v} \in V^{**}$ and
+a \emph{free space FIFO} $\mathbf{f} \in \{\circ\}^{**}$, where each \emph{free space symbol} $\circ$ represents an available slot in the value FIFO to store a token. % as known from PETRI-nets \cite{XXXX}.
+Accordingly an actor not only consumes tokens $v \in V$ on its input ports $I$ and produces them on its output ports $O$ but also produces free space symbols $\circ$ on its input ports and consume them on its output ports, respectively.
+%For notational simplicity we will assume that the free space symbol is contained in the set of all values, i.e., $\circ \in V$.
+To reduce the mathematical clutter, we will not distinguish between \emph{value sequences} and \emph{free space symbol sequences} and simply use $S$ to denote the set of all finite or infinite sequences of values or free space symbols, i.e., $S = V^{**} \cup \{\circ\}^{**}$.
+
+Before we can continue to define the behavior of an actor, some mathematical notations for manipulating tuples are needed:
+
+A tuple, e.g., $\mathbf{s} = (\mathbf{v}_{i_1}, \mathbf{v}_{i_2}, \mathbf{v}_{o_1})$, can be viewed as a function, e.g., $\mathbf{s}: \mathbb{N}_3 \to S$, over the counting set $\mathbb{N}_n = \{1,2,\ldots,n\}$ from one to the tuple size $n$.
+Additionally we can associate which each tuple an ordered set, e.g., $\{i_1, i_2, o_1\} \subseteq \mathcal{P}$, and view the tuple as a function over this set, e.g., $\mathbf{s}: \{i_1, i_2, o_1\} \to S$.
+This allows us to access a tuple member either by its position inside the tuple, e.g., $\mathbf{s}(3) = \mathbf{v}_{o_1}$, or by an indexing element, e.g., the actor port $o_1$ and its associated tuple element $\mathbf{s}(o_1) = \mathbf{v}_{o_1}$.
+Moreover, we use the pointwise extension of the tuple member access operator to extract from a tuple its associated ordered sets, e.g., $\mathbf{s}.\mathbb{N} = \{1, 2, 3\}$ or $\mathbf{s}.\mathcal{P} = \{i_1, i_2, o_1\}$.
+
+The position of a sequence in its tuple is equivalent to its name.
+To achieve the equivalent of renaming or hiding sequences, the position of a sequence in a tuple must be changed or the sequence must be dropped from the tuple.
+This is done by applying the \emph{projection} function to a tuple.
+
+\begin{definition}[Projection]\label{def:tsm-projection}
+A \emph{projection} $\pi{}_I: X^n \to X^m$ is a function which discards and reorders members $x \in X$ of a $n$-tuple according to an ordered set of indexes $I$ to form a new $m$-tuple, where $|I| = m \le n$.
+In other words, given $\mathbf{x} \in X^n$ and $I = \{i_1,\ldots,i_m\}$ then $\pi{}_I(\mathbf{x}) = (\mathbf{x}(i_1), \mathbf{x}(i_2), \ldots, \mathbf{x}({i_m}))$.
+Furthermore a projection $\pi{}_I$ can be generalized to sets of tuples $\mathbf{X} \subset X^n$, i.e., $\pi{}_I(\mathbf{X}) = \{\pi{}_I(\mathbf{x}) \mid \mathbf{x} \in \mathbf{X}\}$.
+\end{definition}
+
+As an example consider the tuple of sequences $\mathbf{s} = (\mathbf{v}_{i_1}, \mathbf{v}_{i_2}, \mathbf{v}_{o_1})$, and the ordered set of actor ports $P = \{o_1, i_1\}$ then the projection is given as $\pi{}_P(\mathbf{s}) = (\mathbf{v}_{o_1}, \mathbf{v}_{i_1})$.
+
+With the mathematical notation defined above it is now possible to formally describe the behavior of an actor.
+\begin{definition}[Actor behavior]\label{def:actor-behavior}
+The behavior of an actor $a$ can be thought of as a relation $\mathbf{P} \subseteq Z^{|\mathcal{P}|}$ which maps a tuple of input sequences $\mathbf{s}_\mathrm{in} \in \pi{}_{I}(\mathbf{P}).\mathbf{v} \times \pi{}_{O}(\mathbf{P}).\mathbf{f}$ into possible multiple tuples of output sequences $\mathbf{s}_\mathrm{out} \in \{ \pi{}_{I}(\mathbf{p}).\mathbf{f} \times \pi{}_{O}(\mathbf{p}).\mathbf{v} \mid \mathbf{p} \in \mathbf{P} \wedge \pi{}_{I}(\mathbf{p}).\mathbf{v} \times \pi{}_{O}(\mathbf{p}).\mathbf{f} = \mathbf{s}_\mathrm{in} \}$.
+%Where $\mathbf{s}_\mathrm{in} \in \mathbf{S}_\mathrm{in} \subset S^{|\mathcal{P}|}$ and
+%$\mathrm{s}_\mathrm{out} \in \mathbf{S}_\mathrm{out} \subset S^{|\mathcal{P}|}$.
+\end{definition}
+
+Where the tuple of input sequences $\mathbf{s}_\mathrm{in} \in \mathbf{S}_\mathrm{in} \subset S^{|\mathcal{P}|}$ is constraint to be divided into value sequences $\pi{}_{I}(\mathbf{s}_\mathrm{in}) \in (V^{**})^{|I|}$ and free space symbol sequences $\pi{}_{O}(\mathbf{s}_\mathrm{in}) \in (\{\circ\}^{**})^{|O|}$.
+% , each sequence associated with an actor input port, , each sequence associated with an actor output port.
+Furthermore the tuple of output sequences $\mathbf{s}_\mathrm{out} \in \mathbf{S}_\mathrm{out} \subset S^{|\mathcal{P}|}$ is similarly divided into value sequences $\pi{}_{O}(\mathbf{s}_\mathrm{out}) \in (V^{**})^{|O|}$ and free space symbol sequences $\pi{}_{I}(\mathbf{s}_\mathrm{out}) \in (\{\circ\}^{**})^{|I|}$.
+% , each sequence associated with an actor output port, , each sequence associated with an actor input port.
+
+The execution of an actor is divided into atomic \emph{firing steps}.
+The possible firing steps an actor can take are dependent on the tuple $\mathbf{s}_\mathrm{in}$ of still unconsumed input sequences and the actor state $q = (q_\mathrm{func}, q_\mathrm{firing}) \in Q = \mathcal{F}.Q_\mathrm{func} \times \mathcal{R}.Q_\mathrm{firing}$.
+The $\mathrm{Fire}$-function deduces these possible steps and returns the set of possible produced output sequences $\mathbf{s}_\mathrm{prod}$ and the resulting actor state $q'$, i.e., $\mathrm{Fire}: \mathbf{S}_\mathrm{in} \times Q \to 2^{\mathbf{S}_\mathrm{out} \times Q}$.
+\footnote{We use $2^X$ to denote the power set of $X$, the set of all subsets of $X$, i.e., $2^X = \bigcup_{X_\mathrm{subset} \subseteq X} \{X_\mathrm{subset}\}$.}
+To decide if a transition can be taken, its associated \emph{activation pattern} must be evaluated.
+
+\begin{definition}[Activation pattern]\label{def:activation-pattern}
+  An \emph{activation pattern} $k$ of an actor $a \in A$ is a boolean function depending on the available input sequences $\mathbf{S}_\mathrm{in}$ and the \emph{functionality state} $\mathcal{F}.S_\mathrm{func}$ of the actor, i.e., $k: \mathbf{S}_\mathrm{in} \times \mathcal{F}.S_\mathrm{func} \to \{\mathrm{true}, \mathrm{false}\}$.
+  The activation pattern is used to decide if its associated transition can be taken $(\mathrm{true})$ or not $(\mathrm{false})$.
+\end{definition}
+
+To further express the behavior of a firing step, we need to define the prefix order $\sqsubseteq$ on the set of sequences $S$, i.e., given $\mathbf{u}, \mathbf{v} \in S$ then $\mathbf{u} \sqsubseteq \mathbf{v} \equiv \mathbf{u}.\mathbb{N} \subseteq \mathbf{v}.\mathbb{N} \wedge \forall{n \in \mathbf{u}.\mathbb{N}}: \mathbf{u}(n) = \mathbf{v}(n)$.
+As an example consider the two sequences $\mathbf{u} = (v_1, v_2, v_3) \in S$ and $\mathbf{v} = (v_1, v_2, v_3, v_4, v_5) \in S$ then $\mathbf{u}$ is a prefix of $\mathbf{v}$, i.e., $\mathbf{u} \sqsubseteq \mathbf{v}$.
+This prefix order has a trivial pointwise extension to tuples of sequences, i.e., given $\mathbf{s}_1, \mathbf{s}_2 \in S^n$ then $\mathbf{s}_1 \sqsubseteq \mathbf{s}_2 \equiv \mathbf{s}_1.\mathbb{N} = \mathbf{s}_2.\mathbb{N} \wedge \forall{n \in \mathbf{s}_1.\mathbb{N}}: \mathbf{s}_1(n) \sqsubseteq \mathbf{s}_2(n)$.
+Additionally we will use the $\length: S \to \mathbb{N}_\infty$ operator to denote the length of a sequence, e.g., given $\mathbf{u} = (v_1, v_2, v_3)$ then $\length\mathbf{u} = |\mathbf{u}.\mathbb{N}| = 3$,
+and its pointwise extension to tuples of sequences $\length: S^n \to \mathbb{N}^n_\infty$, e.g., given $\mathbf{s} = (\mathbf{u}, \mathbf{v})$ then $\length\mathbf{s} = (3, 5)$.
+
+With the notation given above we can now derive the following formal definition:
+
+\begin{definition}[Firing step]\label{def:firing-step}
+The execution of an actor is divided into atomic \emph{firing steps}.
+
+\begin{eqnarray}
+\mathrm{Fire}(\mathbf{s}_\mathrm{in}, q) = \{ & & \label{eqn:fire-dependence} \\
+ &        & (\mathbf{s}_\mathrm{prod}, q') \label{eqn:production} \\
+ & \mid   & (q.q_\mathrm{firing}, k, f_\mathrm{action}, q'.q_\mathrm{firing}) \in \mathcal{R}.T \label{eqn:needtransition} \\
+ & \wedge & \mathbf{s}_\mathrm{cons} \sqsubseteq \mathbf{s}_\mathrm{in} \label{eqn:consumeprefix} \\
+ & \wedge & k(\mathbf{s}_\mathrm{cons}, q.q_\mathrm{func}) \label{eqn:transitionenabled} \\
+ & \wedge & \forall{\mathbf{s}_\mathrm{prefix} \sqsubset \mathbf{s}_\mathrm{cons}}: \neg k(\mathbf{s}_\mathrm{prefix}, q.q_\mathrm{func}) \label{eqn:consume-glb}\\
+ & \wedge & (\pi{}_{O}(\mathbf{s}_\mathrm{prod}), q'.q_\mathrm{func}) = f_\mathrm{action}(\pi{}_{I}(\mathbf{s}_\mathrm{cons}), q.q_\mathrm{func}) \label{eqn:action}\\
+ & \wedge & \#\pi{}_{I}(\mathbf{s}_\mathrm{prod}) = \#\pi{}_{I}(\mathbf{s}_\mathrm{cons}) \label{eqn:freespacesymbols} \}
+\end{eqnarray}
+
+The possible firing steps an actor can take are dependent on \emph{the tuple of still unconsumed input sequences} $\mathbf{s}_\mathrm{in} \in \mathbf{S}_\mathrm{in}$ and the \emph{actor state} $q \in Q$ (\ref{eqn:fire-dependence})
+The $\mathrm{Fire}$-function deduces these steps and returns a set containing \emph{tuples of produced output sequences} $\mathbf{s}_\mathrm{prod}$ and the \emph{resulting actor state} $q'$ (\ref{eqn:production}).
+The firing steps corresponds to the \emph{execution of a transition} $t \in \mathcal{R}.T$ of the \emph{firing FSM} $\mathcal{R}$ (\ref{eqn:needtransition}).
+Each firing step of an actor consumes a tuple of finite sequences $\mathbf{s}_\mathrm{cons}$, which must be a prefix of the tuple of input sequences (\ref{eqn:consumeprefix}).
+To decide if a transition can be taken its associated activation pattern must be evaluated (\ref{eqn:transitionenabled}).
+The tuple of input sequences consumed by a firing step is the shortest possible prefix tuple still satisfying the activation pattern (\ref{eqn:consume-glb}).
+The associated action of the transition taken by the firing step is executed resulting in a new functionality state and a tuple of output sequences (\ref{eqn:action}).
+Finally the number of free space symbols generated on the input ports equals the number of tokens consumed on them (\ref{eqn:freespacesymbols}).
+\end{definition}
+
+Furthermore we can define the set of reachable output sequences obtained by multiple actor firings depending on an actor state and the available input sequence.
+
+\begin{definition}[Reachable output sequences]\label{def:reachable-output-sequences}
+The set of reachable output sequences is a set containing \emph{tuples of produced output sequences}.
+
+\begin{eqnarray}
+\mathrm{Reachable}(\mathbf{s}_\mathrm{in}, q) = \{
+ &        & \mathbf{s}_\mathrm{out} \label{eqn:reachable-dependence}\\
+ & \mid   & (\mathbf{s}_\mathrm{prod}, q') \in \mathrm{Fire}(\mathbf{s}_\mathrm{in}, q) \label{eqn:firing-step}\\
+ & \wedge & \#\pi{}_{I}(\mathbf{s}_\mathrm{cons}) = \#\pi{}_{I}(\mathbf{s}_\mathrm{prod}) \label{eqn:freespace}\\
+ & \wedge & \mathbf{s}_\mathrm{in}  = \mathbf{s}_\mathrm{cons}\concat\mathbf{s}'_\mathrm{in} \label{eqn:cons-prefix}\\
+ & \wedge & \mathbf{s}_\mathrm{out} = \mathbf{s}_\mathrm{prod}\concat\mathbf{s}'_\mathrm{out} \label{eqn:prod-prefix}\\
+ & \wedge & \mathbf{s}'_\mathrm{out} \in \mathrm{Reachable}(\mathbf{s}'_\mathrm{in}, q') \label{eqn:tail-reachable}
+\end{eqnarray}
+
+This output sequences $\mathbf{s}_\mathrm{out} \in \mathrm{Reachable}(\mathbf{s}_\mathrm{in}, q)$ can be derived from an initial actor state $q$ and the available input sequence $\mathbf{s}_\mathrm{in}$ (\ref{eqn:reachable-dependence}) by recursively applying firing steps (\ref{eqn:firing-step}).
+Whereas the consumed input sequence of a single firing step $\mathbf{s}_\mathrm{cons}$ is constraint to be of the same length as the corresponding sequence of generated free space symbols (\ref{eqn:freespace}) and furthermore must be a prefix $\mathbf{s}_\mathrm{cons} \sqsubseteq \mathbf{s}_\mathrm{in}$ of the available input sequence $\mathbf{s}_\mathrm{in}$ leaving a tail $\mathbf{s}'_\mathrm{in}$ (\ref{eqn:cons-prefix}) of the input sequence to be consumed by the successive firing steps (\ref{eqn:tail-reachable}).
+Furthermore each reachable output sequence has at its prefix $\mathbf{s}_\mathrm{prod}$ (\ref{eqn:prod-prefix}) the produced output sequence from a single firing step and at its tail a output sequence produced by successive firing steps (\ref{eqn:tail-reachable}).
+\end{definition}
+
+With the above definitions we can now describe the behavior of an actor derived from its actor functionality and its firing FSM to be defined as follows:
+
+\begin{definition}[Derived actor behavior]\label{def:actor-behavior-from-fsm}
+The behavior of an actor $a$ can be thought of as a relation $\mathbf{P} \subseteq Z^{|\mathcal{P}|}$ (\ref{eqn:behavior-relation}) which can be derived from its actor functionality $a.\mathcal{F}$ and its firing FSM $a.\mathcal{R}$ as follows:
+
+\begin{eqnarray}
+\mathbf{P} = \{
+ &        & \mathbf{p} \label{eqn:behavior-relation}\\
+ & \mid   & \pi{}_{I}(\mathbf{p}).\mathbf{v} \times \pi{}_{O}(\mathbf{p}).\mathbf{f} = \mathbf{s}_\mathrm{in} \label{eqn:behavior-input} \\
+ & \wedge & \pi{}_{I}(\mathbf{p}).\mathbf{f} \times \pi{}_{O}(\mathbf{p}).\mathbf{v} = \mathbf{s}_\mathrm{out} \label{eqn:behavior-output} \\
+ & \wedge & \mathbf{s}_\mathrm{in}  \in \mathbf{S}_\mathrm{in} \label{eqn:behavior-someinput} \\
+ & \wedge & \mathbf{s}_\mathrm{out} \in \mathrm{Reachable}(\mathbf{s}_\mathrm{in}, (\mathcal{F}.q_{_0\mathrm{func}}, \mathcal{R}.q_{_0\mathrm{firing}})) \label{eqn:behavior-reachable} \}
+\end{eqnarray}
+
+This relation maps a tuple of input sequences $\mathbf{s}_\mathrm{in}$ (\ref{eqn:behavior-input}) into possible multiple tuples of output sequences $\mathbf{s}_\mathrm{out}$ (\ref{eqn:behavior-output}).
+Whereas the tuple of output sequences $\mathbf{s}_\mathrm{out}$ must be reachable (\ref{eqn:behavior-reachable}) from the initial actor state and some tuple of input sequences $\mathbf{s}_\mathrm{in}$ (\ref{eqn:behavior-someinput}).
+\end{definition}
+
+
+%Furthermore each firing step transforms the \emph{actor state} $q = (q_\mathrm{func}, q_\mathrm{firing}) \in Q = \mathcal{F}.Q_\mathrm{func} \times \mathcal{R}.Q_\mathrm{firing}$.
+% sequence of tokens $\mathbf{v} \in V^{**}$ for each actor input port $i \in I$ and sequences of free space tokens $\mathbf{f} \in \{\circ\}^{**}$ for each actor output port $o \in O$,
+
+%$z = (\mathbf{v}, \mathbf{f}) \in Z$, the data FIFO $z.\mathbf{v} \in V^{**}$ and the free space FIFO $z.\mathbf{s} \in \{\circ\}^{**}$.
+
+
+%$a.\mathcal{P}' = [i_1, i'_1, i_2, i'_2, \ldots, i_{|a.I|}, i'_{|a.I|}, o_1, o'_1, o_2, o'_2, \ldots, o_{|a.O|}, o'_{|a.O|}]$
+%$a.I' = \{i_1, i_2, \ldots, i_{|a.I|}, o'_1, o'_2, \ldots, o'_{|a.O|}\}$
+%$a.O' = \{i'_1, i'_2, \ldots, i'_{|a.I|}, o_1, o_2, \ldots, o_{|a.O|}\}$
+%$\mathbf{z} \in Z^{|\mathcal{P}|}$ actor ports $\mathcal{P}$
+%$\mathrm{IN}(\mathbf{z}) = \pi{}_{I}(\mathbf{z}).\mathbf{v} \times \pi{}_{O}(\mathbf{z}).\mathbf{f}$
+%$\mathrm{OUT}(\mathbf{z}) = \pi{}_{I}(\mathbf{z}).\mathbf{v} \times \pi{}_{O}(\mathbf{z}).\mathbf{f}$
+
+%\begin{eqnarray}
+%\mathrm{Fire}(\mathbf{z}, s_\mathrm{firing}, s_\mathrm{func}) = \{ (\mathbf{z}', s'_\mathrm{firing}, s'_\mathrm{func}) %
+% & |      & (s_\mathrm{firing}, k, f_\mathrm{action}, s'_\mathrm{firing}) \in T \\
+% & \wedge & k(\mathbf{v}_\mathrm{cons}) \\
+% & \wedge & \forall{\mathbf{v}_\mathrm{prefix} \sqsubset \mathbf{v}_\mathrm{cons}}: \neg k(\mathbf{v}_\mathrm{prefix}) \\
+% & \wedge & (\mathbf{w}_\mathrm{prod}, s'_\mathrm{func}) = f_\mathrm{action}(\mathbf{v}_\mathrm{cons},s_\mathrm{func}) \\
+%\end{eqnarray}
+
+%\begin{eqnarray}
+%\mathrm{Fire}(\mathbf{v}, s_\mathrm{firing}, s_\mathrm{func}) = \{ \mathbf{w}_\mathrm{prod}\concat\mathbf{w}_\mathrm{tail} %
+% & |      & (s_\mathrm{firing}, k, f_\mathrm{action}, s'_\mathrm{firing}) \in T \\
+% & \wedge & k(\mathbf{v}_\mathrm{cons}) \\
+% & \wedge & \forall{\mathbf{v}_\mathrm{prefix} \sqsubset \mathbf{v}_\mathrm{cons}}: \neg k(\mathbf{v}_\mathrm{prefix}) \\
+% & \wedge & (\mathbf{w}_\mathrm{prod}, s'_\mathrm{func}) = f_\mathrm{action}(\mathbf{v}_\mathrm{cons},s_\mathrm{func}) \\
+% & \wedge & \mathbf{v} = \mathbf{v}_\mathrm{cons}\concat\mathbf{v}_\mathrm{tail} \\
+% & \wedge & \mathbf{w}_\mathrm{tail} = \mathrm{Fire}(\mathbf{v}_\mathrm{tail}, s'_\mathrm{firing}, s'_\mathrm{func}) \}
+%\end{eqnarray}
+
+%$\mathbb{A} = \{ (\mathbf{v},\mathbf{w}) | \mathbf{w} \in \mathrm{Fire}(\mathbf{v}, s_{_0\mathrm{firing}}, s_{_0\mathrm{func}}), \mathbf{v} \in (V^{**})^{|A.I|} \times (\{\circ\}^{**})^{|a.O|} \}$
+
+% \section{Kopplung zwischen \SysteMoC{} und VPC}
+% \label{sec:smoc-vpc}
+% Die \SysteMoC{}-Bibliothek ermöglicht es, einzelne Aktoren in Form von Zustandsmaschinen, die Funktionen aufrufen, zu beschreiben.
+% Eine Anwendung, z.B. der InfiniBand-HCA besteht in der Regel aus einem Netzwerk solcher Aktoren.
+% Ein solches Netzwerk kann durch Simulation bezüglich der Funktionalität untersucht werden.
+% Das \emph{Virtual Processing Components} Framework~\cite{streubuehr:2005} ermöglicht die zusätzliche Simulation des Zeitverhaltens unter Ressourcenbeschränkung.
+% Hierfür wird für jede Aktivierung eines Aktors eine dynamisch ermittelte Ausführungszeit abgewartet.
+% Diese Ausführungszeit wird durch die Bindung an eine Ressource, sowie durch eine Schedulingstrategie bestimmt.
+% Einzig notwendig hierfür sind zwei Funktionsaufrufe (\code{getResource}, \code{compute}) aus der Anwendung heraus (vgl.~\cite{streubuehr:2005, fghsst:2005}).
+% \par
+% Zusammen mit einer Aktorbibliothek, wie der \SysteMoC{}, können diese Aufrufe vollständig transparent für den Nutzer eingefügt werden.
+% %Zusammen mit der \SysteMoC{}-Bibliothek gestaltet sich die Kopplung wie folgt:
+% Jedes mal wenn in einem Aktor eine Transition ausgeführt wird, entspricht dieses einer Aktivität.
+% Bevor diese Funktionalität ausgeführt wird, werden die Funktionsaufrufe \code{getResource} und \code{compute} ausgeführt und somit die simulierte Zeit verbraucht.
+% %\textbf{TODO: globales scheduling bzw. dessen Effekte erwähnen??}
+% \par
+% Weiterhin zeichnen sich die \SysteMoC{} Aktoren durch ihre funktionsakkurate Aus\-führ\-ungs\-sem\-an\-tik aus:
+% Ein Aktor besitzt ausdrücklich modellierte Zustände und Transitionen, wobei Transitionen die Aktivitäten darstellen und Zustandswechsel verursachen.
+% Das VPC wurde dahingehend erweitert, dass die Ausführungszeit auch in Abhängigkeit zur ausgeführten Transition steht.
+% Dementsprechend wurde die \code{compute}-Funktion um einen weiteren Parameter für die auszuführende Transition ergänzt.
+% Während die Bindung an Ressourcen weiterhin aktorakkurat stattfindet, wird die Ausführungszeit funktionsakkurat modelliert.
+% Wie schon bei der vorangegangenen Studie wird das VPC durch eine Konfiguration parametrisiert, und ermöglicht somit flexible Tests der Architektur.
+% Durch die funktionsgetreue Zeitmodellierung, ist die Zahl der Konfigurationsparameter gewachsen.
+% Dementsprechend wurde ein neues Konfigurationsformat auf XML Basis eingeführt, dargestellt und beschrieben in
+% Abbildung \ref{resource-config}.
+% 
+% \begin{figure}
+% \centering
+% {\footnotesize
+% \verbatiminput{mapping-demo.xml}}
+% \caption{\label{resource-config}%
+% Beispiel des neuen XML Konfigurationsformates, welches wie
+% folgend aufgebaut ist:
+% Innerhalb des \code{configuration}-Top-Level-Elements befinden sich die zwei Elemente
+% (i) \code{resources}, innerhalb dessen die \code{component}-Elemente die virtuellen Komponenten spezifizieren,
+% und (ii) \code{mappings}, welches \code{mapping}-Elemente enthält zur Abbildung aller Prozesse
+% auf genau eine Komponente.
+% Sowohl die \code{component}- als auch die \code{mapping}-Elemente werden mittels eingeschachtelter
+% \code{attribute}-Elemente weiter Parametrisiert. Diese Parametrisierung bestimmt bei den
+% \code{component}-Elementen den zu verwendenden Scheduler und bei den \code{mapping}-Elementen
+% die Ausführungszeiten der Aktionen auf der ausgewählten Komponente.
+% %Beispielhaft definiert \code{<attribute type="ib\_m\_atu::forward\_mfetch" value="2"/>}
+% %eine Ausführungszeit von 2 $\mathrm{ns}$ für die \code{ib\_m\_atu::forward\_mfetch}
+% %Aktion auf der gewählten Komponente.
+% %Eine Standardausführungszeit kann ebenfalls mittels \code{<attribute type="delay" value="2"/>} angegeben werden,
+% %diese wird verwendet falls die ausgeführte Aktion nicht im \code{mapping}-Element
+% %parametrisiert ist.
+% }
+% \end{figure}
+
+\section{Network graph behavior}
+
+
+
+% LocalWords:  \SysteMoC{}

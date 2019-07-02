@@ -1,0 +1,98 @@
+\documentclass[a4paper, 12pt, BCOR2cm, headsepline, bibtotoc, idxtotoc]{scrbook}
+
+\pagestyle{headings}
+
+\usepackage[utf8]{inputenc}
+\usepackage{times}
+\usepackage[slantedGreek]{mathptmx}
+\usepackage{amssymb}
+\usepackage{color}
+\usepackage{graphicx}
+\usepackage{amsmath}
+\usepackage{theorem}
+\usepackage{makeidx}
+
+\renewcommand*\chaptermarkformat{\thechapter. \quad}
+\renewcommand*\chapterformat{\thechapter. \ }
+\newcommand{\remark}{\tiny® \normalsize}
+\newcommand{\trademark}{\tiny\texttrademark \normalsize}
+
+\renewcommand{\caplabelfont}{\sffamily\bfseries}
+{\theoremheaderfont{\normalfont\sffamily\bfseries}
+\newtheorem{definition}{Definition}[chapter]
+\newtheorem{theorem}{Theorem}[chapter]
+\newtheorem{proof}{Proof}[chapter]
+{\theorembodyfont{\normalfont}
+\newtheorem{example}{Example}[chapter]}}
+
+
+% legacy
+\newcommand{\code}[1]{\texttt{#1}}
+\newcommand{\msg}[1]{\texttt{#1}}
+\newcommand{\env}[1]{\textbf{#1}}
+\newcommand{\file}[1]{\emph{#1}}
+\newcommand{\module}[1]{\textit{#1}}
+\newcommand{\shellprompt}[1]{\textit{#1}}
+\newcommand{\shellcommand}[1]{\texttt{\textbf{#1}}}
+\newcommand{\shellresult}[1]{\texttt{#1}}
+\newcommand{\shell}[2]{
+  \shellprompt{[falk@codesign14]\$ }\shellcommand{#1}\\
+  \shellresult{#2}
+}
+
+\newcommand{\SysteMoC}{\emph{SysteMoC}}
+\newcommand{\SystemCoDesigner}{\emph{SystemCoDesigner}}
+\newcommand{\concat}{{}^{\smallfrown}}
+\newcommand{\length}{\#}
+
+
+  \begin{titlepage}
+         \title{{\Huge SystemCoDesigner\\Functional Modeling Reference}\\ {\Large SysteMoC Version 2.8 (Non-Hierarchical)}}
+               
+  \author{\\[5cm]\parbox{6cm}{\centering\large\sf Joachim Falk\\ Christian Zebelein\\ Martin Streub{\"u}hr\\ Jens Gladigau\\ Christian Haubelt\\ J{\"u}rgen Teich}\\[4cm]
+          \parbox{10cm}{\centering\normalsize\sf
+          Department of Computer Science 12\\
+          Hardware-Software-Co-Design\\
+          University of Erlangen-Nuremberg, Germany\\
+          http://www12.cs.fau.de/research/scd}}
+  \date{}
+  \thispagestyle{empty}
+  \end{titlepage}   
+
+  \uppertitleback{{\sf SystemCoDesigner Functional Modeling Reference -- SysteMoC Version 2.8 (Non-Hierarchical)}\\
+  by J.\ Falk, Ch.\ Zebelein, M.\ Streub{\"u}hr, J.\ Gladigau, Ch.\ Haubelt, and J.\ Teich\\[1cm]
+  {\sf
+     Department of Computer Science 12\\
+     Hardware-Software-Co-Design\\
+     University of Erlangen-Nuremberg, Germany\\
+     http://www12.cs.fau.de/research/scd}\\
+     \textcopyright 2008 University of Erlangen-Nuremberg}
+
+\makeindex
+
+\begin{document}
+
+\maketitle
+
+\tableofcontents
+
+\input{introduction}
+
+\input{syntax}
+
+\input{semantics}
+
+\appendix
+
+\chapter{Backus-Naur Form}
+
+\input{glossary}
+
+\bibliographystyle{alpha}
+\bibliography{literature}
+\cleardoublepage
+%\printindex
+
+
+\end{document}
+

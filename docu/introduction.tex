@@ -1,0 +1,50 @@
+\chapter{Introduction}
+
+Due to rising design complexity, it is necessary to increase the level of abstraction at which systems are designed.
+This can be achieved by \emph{model-based design} which makes extensive use of so-called \emph{Models of Computation} \cite{embsft:2002} (MoCs).
+MoCs are comparable to design patterns known from the area of software design \cite{gamma:1995}.
+On the other hand, industrial embedded system design is still based on design languages like C, C++, Java, VHDL, SystemC, and SystemVerilog which allow unstructured communication.
+Even worse, nearly all design languages are Turing-complete making analyses in general impossible.
+
+Actor-based design is based on composing a system of communicating processes called \emph{actors}, which can only communicate with each other via channels.
+However, \emph{actor-based design} does not constrain the communication behavior of its actors therefore making analyses of the system in general impossible.
+In a \emph{model-based design} methodology the underlying \emph{Model of Computation} (MoC) is known additionally which is given by a predefined type of communication behavior and a scheduling strategy for the actors.
+In this report, the \SysteMoC{} library \cite{fht:2006} is presented.
+\SysteMoC{} is based on the design language SystemC and provides a simulation environment for model-based designs.
+The library-based approach unites the advantage of executability with analyzability of many expressive MoCs.
+
+Using \SysteMoC, many important MoCs can be expressed such as Synchronous Dataflow \cite{Lee87b:1987}, Cyclo-Static Dataflow \cite{belp:1996, eblp:1994}, Boolean Dataflow, Kahn Process Networks \cite{Kahn:1974}, communicating sequential processes \cite{csphoare:1985}, and many others \cite{tszet:1999, LeeDenotialDF:1997, embsft:2002, Lee98, Eker, gb:2004}.
+
+\begin{figure}
+\centering
+\input{actor-scheme-fig.tex}
+\caption{A \SysteMoC{} actor is composed of a Finite State Machine (FSM), functions, and variables. The FSM controls the function invocation. Functions are executed atomically and may change variables at the end of their execution.}
+\label{fig:actor-scheme}
+\end{figure}
+
+In order to express different MoCs, the \SysteMoC{} library provides different communication channels, e.g., queues with FIFO semantics. 
+Additionally, \SysteMoC{} actors are composed of three basic elements, see Figure~\ref{fig:actor-scheme}:
+\begin{itemize}
+\item {\em Variables}: Variables are used to store data values locally to an actor.
+\item {\em Functions}: Functions describe the transformative part of an actor, i.e., transforming data values.  
+Functions can be either \emph{action functions} or \emph{guard functions}. 
+Guard functions always evaluate either to true or to false and must not change any variable values.
+\item {\em Finite State Machine (FSM)}:
+The behavior of each actor is ruled by an explicit Finite State Machine, called \emph{actor FSM}.
+State transitions are guarded by conditions checking for, e.g., available input data, input values, and internal values of variables of the actor. 
+These conditions also encode the number of consumed input token and produced output token from input and output channels, respectively.
+If a state transition is enabled (i.e., the conditions evaluate to true), an associated action function can be performed and, successively, input token are consumed, output token are produced, the the next state is set. 
+\end{itemize}
+
+The consumption and production of tokens is locally triggered by transitions of an explicit \emph{actor FSM} required in each actor.
+The purpose and advantages of this clear separation of data transformation and communication behavior in model-based designs written in \SysteMoC{} are:
+\begin{itemize}
+\item {\em recognizability}: Important Model of Computation can be recognized by analyzing the actor FSM and the channel type \cite{ZFHT08Class}.
+\item {\em analyzability}: As a consequence of being able to detect important well-known MoCs within \SysteMoC{} models, many important and well-known analysis algorithms such as checking for boundedness of memory, liveness, and periodicity properties may be applied immediately.
+\item {\em optimizability}: As an immediate consequence, buffer minimization and scheduling algorithms may be applied on individual or subgraphs of actors \cite{FKHTB08}.
+\item {\em simulatability}: Finally, even most complex \SysteMoC{} models for which no formal analysis techniques are known can be handled by simply simulating the model. 
+As \SysteMoC{} is built on top of SystemC, an event-driven simulation of the exact timing and concurrency among actors is immediately possible \cite{sfhtds:2006}.
+\item {\em refinement}: Important refinement transformations can be applied to a \SysteMoC{} model resulting in a hardware/software target implementation, including automatic platform-based code synthesis.
+This is part of the \SystemCoDesigner{} design methodology \cite{hfkssdht:2007, HMSK08} that is based on the \SysteMoC{} functional modeling approach. 
+\end{itemize} 
+
