@@ -17,29 +17,29 @@ SET_TARGET_PROPERTIES(SysteMoC PROPERTIES
 LINK_DIRECTORIES(${SYSTEMOC_LIBRARY_DIRS})
 
 ADD_EXECUTABLE(data-flow
-  cpp/data-flow.cpp)
+  data-flow/cpp/data-flow.cpp)
 TARGET_LINK_LIBRARIES(data-flow SysteMoC)
 
 ADD_EXECUTABLE(guards
-  cpp/guards.cpp)
+  guards/cpp/guards.cpp)
 TARGET_LINK_LIBRARIES(guards SysteMoC)
 
 ADD_EXECUTABLE(hello-systemoc
-  cpp/hello-systemoc.cpp)
+  hello-systemoc/cpp/hello-systemoc.cpp)
 TARGET_LINK_LIBRARIES(hello-systemoc SysteMoC)
 
 ADD_EXECUTABLE(mini-filter
-  cpp/mini-filter.cpp)
+  mini-filter/cpp/mini-filter.cpp)
 TARGET_LINK_LIBRARIES(mini-filter SysteMoC)
 
 ADD_EXECUTABLE(ping
-  cpp/ping.cpp)
+  ping/cpp/ping.cpp)
 TARGET_LINK_LIBRARIES(ping SysteMoC)
 
 ADD_EXECUTABLE(rates
-  cpp/rates.cpp)
+  rates/cpp/rates.cpp)
 TARGET_LINK_LIBRARIES(rates SysteMoC)
 
 ADD_EXECUTABLE(source-sink
-  cpp/source-sink.cpp)
+  source-sink/cpp/source-sink.cpp)
 TARGET_LINK_LIBRARIES(source-sink SysteMoC)

@@ -226,8 +226,8 @@ AC_SUBST([SYSTEMOC_OPTIONAL_REQUIRES_PRIVATE])
 
 AC_CONFIG_FILES([
   Makefile
+  tutorial/Makefile
   src/systemoc/headers/Makefile
-  src/tutorial/Makefile
   pkgconfig/libsystemoc.pc
 ])
 

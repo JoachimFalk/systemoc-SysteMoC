@@ -23,7 +23,7 @@
 include $(auxdir)/jfrules.mk
 include ../BuildSystem/doxygen.am
 
-SUBDIRS = src/systemoc/headers
+SUBDIRS = . src/systemoc/headers tutorial
 
 AUTOMAKE_OPTIONS = nostdinc
 # This is only needed if there is a configure.ac in this directory
@@ -155,50 +155,3 @@ libsystemoc_la_DEPENDENCIES = \
 	$(LIBSGX_DEPENDENCIES) \
 	$(LIBSGXUTILS_DEPENDENCIES) \
 	$(MAESTRO_METAMAP_DEPENDENCIES)
-
-noinst_PROGRAMS=		\
-	hello			\
-	src-sink		\
-	guards			\
-	rates			\
-	data-flow		\
-	ping			\
-	mini-filter
-
-hello_LDADD  		= libsystemoc.la
-hello_SOURCES		= src/tutorial/cpp/hello-systemoc.cpp
-
-src_sink_LDADD		= libsystemoc.la
-src_sink_SOURCES	= src/tutorial/cpp/source-sink.cpp
-
-guards_LDADD		= libsystemoc.la
-guards_SOURCES		= src/tutorial/cpp/guards.cpp
-
-rates_LDADD		= libsystemoc.la
-rates_SOURCES		= src/tutorial/cpp/rates.cpp
-
-data_flow_LDADD		= libsystemoc.la
-data_flow_SOURCES	= src/tutorial/cpp/data-flow.cpp
-
-ping_LDADD		= libsystemoc.la
-ping_SOURCES		= src/tutorial/cpp/ping.cpp
-
-mini_filter_LDADD	= libsystemoc.la
-mini_filter_SOURCES	= src/tutorial/cpp/mini-filter.cpp
-
-docdir = ${datarootdir}/doc/SysteMoC
-
-doc_DATA = \
-	src/tutorial/Makefile \
-	src/tutorial/CMakeLists.txt
-
-exampledir = $(docdir)/cpp
-
-example_DATA = \
-	$(hello_SOURCES) \
-	$(src_sink_SOURCES) \
-	$(guards_SOURCES) \
-	$(rates_SOURCES) \
-	$(data_flow_SOURCES) \
-	$(ping_SOURCES) \
-	$(mini_filter_SOURCES)

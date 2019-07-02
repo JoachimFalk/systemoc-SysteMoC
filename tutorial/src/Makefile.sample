@@ -20,9 +20,9 @@ CMAKE_FLAGS = \
 all: obj/.created
 	make -C obj all
 
-obj/.created:
+obj/.created: CMakeLists.txt
 	test -d obj || mkdir obj
-	cd obj && PKG_CONFIG_PATH=$(PKG_CONFIG_PATH) cmake $(CMAKE_FLAGS) .. && touch .created
+	cd obj && PKG_CONFIG_PATH=$(PKG_CONFIG_PATH) cmake $(CMAKE_FLAGS) $(dir $^) && touch .created
 
 .PHONY: clean
 clean:
