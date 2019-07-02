@@ -18,7 +18,7 @@ CMAKE_FLAGS = \
 
 .PHONY: all
 all: obj/.created
-	make -C obj all
+	$(MAKE) -C obj all
 
 obj/.created: CMakeLists.txt
 	test -d obj || mkdir obj

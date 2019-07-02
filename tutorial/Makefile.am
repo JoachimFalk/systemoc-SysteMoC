@@ -20,9 +20,18 @@
 #
 # $Log$
 
+RESDIR := $(shell cd $(srcdir) && while [ ! -d HscdTeXRes -a x`pwd` != x'/' ]; do cd ..; done; cd HscdTeXRes; pwd)
+
 include $(auxdir)/jfrules.mk
+include $(RESDIR)/Rules-TeX-PDF.mk
 
 SUBDIRS =
+
+TEXINPUTS    := figs:$(srcdir)/figs:tex:$(srcdir)/tex:$(RESDIR):$(RESDIR)/beamer_fau_logo/4-3:$(TEXINPUTS)
+TEXCLEANDIRS := figs .
+TEX_SOURCES  := \
+	tex/SysteMoC-Tutorial-slides.tex \
+	tex/SysteMoC-Tutorial-report.tex
 
 export PKG_CONFIG_PATH
 
@@ -33,14 +42,14 @@ src/Makefile: src/Makefile.sample
 	    -e 's|[@]libdir[@]|$(libdir)|g' \
 	  < $^ > $@ || { rm -f $@ && false; }
 
-all-local: src/Makefile
+all-local: src/Makefile tex-all
 	@$(MAKE) -C src VPATH=$(abs_srcdir)/src all
 clean-local:
 	@if test -f src/Makefile; then \
 	  $(MAKE) -C src VPATH=$(abs_srcdir)/src clean; \
+	  rm -f src/Makefile; \
 	fi
-	-@rm -f src/Makefile
-	-@rmdir src 2>/dev/null
+	@rmdir src 2>/dev/null || :
 
 #CLEANFILES=src/Makefile
 
@@ -57,3 +66,7 @@ nobase_doc_DATA = \
 	src/data-flow/cpp/data-flow.cpp \
 	src/hello-systemoc/cpp/hello-systemoc.cpp \
 	src/mini-filter/cpp/mini-filter.cpp
+
+doc_DATA = \
+	tex/SysteMoC-Tutorial-slides.pdf \
+	tex/SysteMoC-Tutorial-report.pdf
