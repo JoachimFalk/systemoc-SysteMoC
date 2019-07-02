@@ -1,0 +1,84 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}
+\mode<presentation>{\frametitle{\insertsubsection\ -- Objectives}}
+\begin{itemize}
+\item You will learn how to dynamically construct the FSM of an actor...
+\item ... by dynamically adding transitions to states and
+\item ... by passing and returning states to and from functions
+\end{itemize}
+\end{frame}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}[fragile=singleslide]
+\mode<presentation>{\frametitle{\insertsubsection}}
+\begin{itemize}
+\item Transitions can be added to states after some transitions have already been added:
+\begin{lstlisting}
+  smoc_firing_state a, b, c, d;
+  
+  // overwrite any transitions already added to a
+  a =
+      GUARD(Actor::guardA) >> CALL(Actor::actionA) >> a
+    | GUARD(Actor::guardB) >> CALL(Actor::actionB) >> b;
+  
+  // append some more transitions to a
+  a |= 
+      GUARD(Actor::guardC) >> CALL(Actor::actionC) >> c
+    | GUARD(Actor::guardD) >> CALL(Actor::actionD) >> d;  
+\end{lstlisting}
+\item Note that whereas \texttt{a = <transition list>} first removes all transitions from a and then
+      adds \texttt{<transition list>} to a, \texttt{a |= <transition list>} simply appends \texttt{<transition list>}
+      to a
+\end{itemize}
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}[fragile=singleslide]
+\mode<presentation>{\frametitle{\insertsubsection}}
+\begin{itemize}
+\item States can be passed to functions via pointers or references:
+\begin{lstlisting}
+  void a(smoc_firing_state& s);
+  void b(smoc_firing_state::Ref s); // equivalent to a
+  
+  void c(const smoc_firing_state& s);
+  void d(smoc_firing_state::ConstRef s); // equivalent to c
+
+  void e(smoc_firing_state* a);
+  void f(smoc_firing_state::Ptr a); // equivalent to e
+
+  void g(const smoc_firing_state* a);
+  void h(smoc_firing_state::ConstPtr a); // equivalent to g
+\end{lstlisting}
+\item Due to states being reference counted, using \texttt{::Ref}, \texttt{::ConstRef}, \texttt{::Ptr} and \texttt{::ConstPtr} is the preferred way
+      of passing around references or pointers to states
+\end{itemize}
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}[fragile=singleslide]
+\mode<presentation>{\frametitle{\insertsubsection}}
+\begin{itemize}
+\item States can be returned from functions via pointers or references:
+\begin{lstlisting}
+  smoc_firing_state::Ptr a() {
+    smoc_firing_state s;
+    ...
+    return &s;
+  }
+  
+  smoc_firing_state::Ref b() {
+    smoc_firing_state s;
+    ...
+    return s;
+  }
+\end{lstlisting}
+\item Note that when using \texttt{::Ref}, \texttt{::ConstRef}, \texttt{::Ptr} or \texttt{::ConstPtr} as the return type of a function,
+      returning a pointer or reference to a state declared locally inside the function is perfectly legal
+\end{itemize}
+\end{frame}

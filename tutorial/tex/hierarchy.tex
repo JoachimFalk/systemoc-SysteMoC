@@ -1,0 +1,305 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}
+\mode<presentation>{\frametitle{\insertsubsection\ -- Objectives}}
+\begin{itemize}
+\item You will learn how to refine states of an FSM into hierarchical states by means of ...
+\item ... XOR decomposition,
+\item ... AND decomposition, and
+\item ... Junction states
+\end{itemize}
+\end{frame}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}[fragile=singleslide]
+\mode<presentation>{\frametitle{Non-Hierarchical Example}}
+\begin{lstlisting}
+#include <iostream>
+#include <systemoc/smoc_moc.hpp>
+
+class Actor : public smoc_actor {
+public:
+  enum CmdType { CMD_GO, CMD_STOP };
+  smoc_port_in<CmdType> inCtl;
+
+  Actor(sc_module_name name)
+    : smoc_actor(name, stopped) {
+    smoc_firing_state run; // states can be declared locally
+
+    stopped =
+         inCtl(1) && GUARD(Actor::isCmd)(CMD_GO) >>
+         CALL(Actor::go) >> run;
+    run =
+        inCtl(1) && GUARD(Actor::isCmd)(CMD_STOP) >>
+        CALL(Actor::stop) >> stopped;
+  }
+  ...
+\end{lstlisting}
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}[fragile=singleslide]
+\mode<presentation>{\frametitle{Non-Hierarchical Example}}
+\begin{lstlisting}
+  ...
+private:
+  smoc_firing_state stopped;
+
+  bool isCmd(CmdType cmd) const
+    { return inCtl[0] == cmd; }
+  void go()
+    { std::cout << this->name() << ": Go" << std::endl; }
+  void stop()
+    { std::cout << this->name() << ": Stop" << std::endl; }
+};
+\end{lstlisting}
+\begin{itemize}
+\item This initial example contains two non-hierarchical states \texttt{stopped} and \texttt{run} as known from previous examples
+\item Note that states (except the initial state) can be declared locally inside the constructor
+\item In the following, we will refine the \texttt{run} state into a nested FSM by means of hierarchical states
+\end{itemize}
+\end{frame}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}[fragile=singleslide]
+\mode<presentation>{\frametitle{\insertsubsection\ -- XOR decomposition}}
+\begin{itemize}
+\item First step: Replace the type of a state by the desired hierarchical state type, namely \texttt{smoc\_xor\_state} or \texttt{smoc\_and\_state}.  In this example, we will refine the \texttt{run} state into an XOR state:
+\begin{lstlisting}
+  Actor(...) : smoc_actor(..., stopped) {
+    smoc_xor_state run;
+    ...
+  }
+\end{lstlisting}
+\item Second step: Instantiate the child states of the XOR state. Note that these can consist of hierarchical and non-hierarchical states:
+\begin{lstlisting}
+    ...    
+    smoc_xor_state    run;
+    smoc_firing_state waitMsg;
+    smoc_and_state    storeData; // will be refined later
+    smoc_firing_state sendAck;
+    ...
+\end{lstlisting}
+\end{itemize}
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}[fragile=singleslide]
+\mode<presentation>{\frametitle{\insertsubsection\ -- XOR decomposition}}
+\begin{itemize}
+\item Third step: Add the child states to the XOR state. Note that the initial child state, i.e., the state which should be active when the XOR state is entered, must be added via \texttt{parent.init(child)}. All other states are added via \texttt{parent.add(child)}:
+\begin{lstlisting}
+  smoc_xor_state    run;
+  smoc_firing_state waitMsg; // initial child state
+  smoc_and_state    storeData;
+  smoc_firing_state sendAck;
+
+  run.init(waitMsg);
+  run.add(storeData);
+  run.add(sendAck);
+\end{lstlisting}
+\item Last step: Add transitions to the child states:
+\begin{lstlisting}
+  waitMsg = inLink(1) >> CALL(Actor::processMsg)
+    >> storeData;
+  sendAck = outLink(1) >> CALL(Actor::sendAckMsg)
+    >> waitMsg;
+\end{lstlisting}
+\end{itemize}
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}[fragile=singleslide]
+\mode<presentation>{\frametitle{\insertsubsection\ -- XOR decomposition}}
+\begin{itemize}
+\item XOR states must have exactly one initial state
+\item States which are not added to any hierarchical state are automatically added to the FSM (like \texttt{stopped} and \texttt{run} in this example), which can also be seen as an XOR state (with \texttt{stopped} being the initial state in this example)
+\item Transitions added to the XOR state itself are added (recursively) to all child states. In this case, the only outgoing transition of the \texttt{run} state allows for leaving the receive/send loop at any time: 
+\begin{lstlisting}
+  run =
+      inCtl(1) && GUARD(Actor::isCmd)(CMD_STOP) >>
+      CALL(Actor::stop) >> stopped;
+\end{lstlisting}
+\item History connectors are not supported at this time
+\end{itemize}
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}[fragile=singleslide]
+\mode<presentation>{\frametitle{\insertsubsection\ -- AND decomposition}}
+\begin{itemize}
+\item An XOR state has exactly one active child state at any one time
+\item In an AND state, all child states are active at any one time. In the following, the child states of an AND state will be called \emph{partitions}
+\item A \emph{partition} can be a hierarchical or non-hierarchical state
+\item The state of an AND state with $N$ partitions $P_1,\ldots,P_N$ is given by the tuple $(s_1,s_2,\ldots,s_N)$, such that $\forall i, 1 \leq i \leq N: s_i $ is a valid state from partition $P_i$. This is also called a \emph{product state}
+\item The initial state of an AND state is the product state whose components are in turn the initial states of the corresponding partitions
+\item In \SysteMoC, an AND state can be declared as follows: 
+\begin{lstlisting}
+  smoc_and_state storeData;
+\end{lstlisting}
+\end{itemize}
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}[fragile=singleslide]
+\mode<presentation>{\frametitle{\insertsubsection\ -- AND decomposition}}
+\begin{itemize}
+\item Partitions are added to AND states in the same manner as child states are added to XOR states:
+\begin{lstlisting}
+  smoc_and_state storeData;
+  smoc_xor_state sendDmaWriteReqs;
+  smoc_xor_state recvDmaWriteAcks;
+  // add two partitions to storeData:
+  storeData.add(sendDmaWriteReqs)
+           .add(recvDmaWriteAcks);
+
+  // add child states to the first partition:
+  smoc_firing_state sendDmaWriteReq; 
+  smoc_firing_state sentAllDmaWriteReqs; 
+  sendDmaWriteReqs.init(sendDmaWriteReq)
+                  .add(sentAllDmaWriteReqs);
+
+  // add child states to the second partition:
+  smoc_firing_state recvDmaWriteAck; 
+  smoc_firing_state recvdAllDmaWriteAcks; 
+  recvDmaWriteAcks.init(recvDmaWriteAck)
+                  .add(recvdAllDmaWriteAcks);
+\end{lstlisting}
+\end{itemize}
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}[fragile=singleslide]
+\mode<presentation>{\frametitle{\insertsubsection\ -- AND decomposition}}
+\begin{itemize}
+\item Transitions can be added to partitions as usual. Note that transitions between partitions are not allowed:
+\begin{lstlisting}
+  sendDmaWriteReq =
+       outMem(1) && GUARD(Actor::sendMoreDmaWriteReqs)
+    >> CALL(Actor::sendDmaWriteReq)
+    >> sendDmaWriteReq
+  |    !GUARD(Actor::sendMoreDmaWriteReqs)
+    >> sentAllDmaWriteReqs;
+  
+  recvDmaWriteAck =
+       inMem(1) && GUARD(Actor::isDmaWriteAck)
+    >> CALL(Actor::processDmaWriteAck)
+    >> recvDmaWriteAck
+  |    !GUARD(Actor::pendingDmaWriteAcks)
+    >> recvdAllDmaWriteAcks;
+
+  // not allowed (will throw a ModelingException):
+  // sendDmaWriteReq = ... >> recvDmaWriteAck;
+\end{lstlisting}
+\end{itemize}
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}[fragile=singleslide]
+\mode<presentation>{\frametitle{\insertsubsection\ -- AND decomposition}}
+\begin{itemize}
+\item A transition whose target state is an AND state may specify for each partition which state should be active when entering the AND state:
+\begin{lstlisting}
+  waitMsg = inLink(1) >> CALL(Actor::processMsg)
+    >> (sendDmaWriteReq, recvDmaWriteAck);
+\end{lstlisting}
+\item If no specific state is given for a partition, the default initial state will be the active state:
+\begin{lstlisting}
+  waitMsg = inLink(1) >> CALL(Actor::processMsg)
+    >> storeData;
+\end{lstlisting}
+\item Both transitions are equivalent, as both \texttt{sendDmaWriteReq} and \texttt{recvDmaWriteAck} are the initial states
+      of their corresponding partitions
+\item In fact, the target state can be any valid (partial) product state
+\end{itemize}
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}[fragile=singleslide]
+\mode<presentation>{\frametitle{\insertsubsection\ -- AND decomposition}}
+\begin{itemize}
+\item It is also possible for the source state to be a (partial) product state. However, some restrictions apply
+\item A transition must be appended to exactly one state. All other states in the (partial) product state
+      must be marked with the \texttt{IN} keyword:
+\begin{lstlisting}
+  (s1, IN(s2), IN(s3), ...) = ...;
+\end{lstlisting}
+\item In this case, the transition from \texttt{s1}  will be enabled if the FSM is also in states \texttt{s2} and \texttt{s3}.
+\item The \texttt{IN} keyword can also be negated:
+\begin{lstlisting}
+  (s1, IN(s2), !IN(s3), ...) = ...;
+\end{lstlisting}
+\item In this case, the transition from \texttt{s1}  will be enabled if the FSM is in state \texttt{s2} but \emph{not} in \texttt{s3}.
+\end{itemize}
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}[fragile=singleslide]
+\mode<presentation>{\frametitle{\insertsubsection\ -- AND decomposition}}
+\begin{itemize}
+\item Like an XOR state, an AND state will be left if the target state of a transition is no child state of the AND state...
+\begin{lstlisting}
+  (sentAllDmaWriteReqs, IN(recvdAllDmaWriteAcks)) = ... >> sendAck
+\end{lstlisting}
+\item ...or if the source state of a transition is the AND state itself:
+\begin{lstlisting}
+  (storeData, IN(sentAllDmaWriteReqs), IN(recvdAllDmaWriteAcks)) = ... >> sendAck
+\end{lstlisting}
+\end{itemize}
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}[fragile=singleslide]
+\mode<presentation>{\frametitle{\insertsubsection\ -- Junction states}}
+\begin{itemize}
+\item Junction states as known from UML can be used to chain together multiple transitions
+\item They are not part of the state hierarchy and need not be added to any states
+\begin{lstlisting}
+  smoc_firing_state a, b, c;
+  smoc_junction_state j;
+    
+  a = CALL(Actor::actionA) >> j;
+  b = CALL(Actor::actionB) >> j;
+  j = CALL(Actor::actionC) >> c; 
+\end{lstlisting}
+\item This example is equivalent to the following FSM fragment without junction states:
+\begin{lstlisting}
+  smoc_firing_state a, b, c;
+    
+  a = CALL(Actor::actionA) >> CALL(Actor::actionC) >> c;
+  b = CALL(Actor::actionB) >> CALL(Actor::actionC) >> c;
+\end{lstlisting}
+\end{itemize}
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}[fragile=singleslide]
+\mode<presentation>{\frametitle{\insertsubsection\ -- Junction states}}
+\begin{itemize}
+\item Note that a transition can have multiple actions. In this case, the order of
+      execution is equal to the order of appearance
+\item All pairs $(t_{in},t_{out})$ of transitions where $t_{in}$ is a transition entering the junction state
+      and $t_{out}$ is a transition leaving the junction state will be transformed into a single compound transition
+\item Actions of transition $t_{in}$ will be executed prior to the actions of transition $t_{out}$
+\item All guards of a compound transition are executed prior to any action of a compound transition
+\item For example, if variables are modified by transition $t_{in}$, guards of transition $t_{out}$ 
+      will see the \emph{old} values of these variables, and not the modified values
+\item The port requirements of $t_{in}$ and $t_{out}$ should be disjoint at this time. However,
+      the actions of $t_{out}$ can access tokens required by $t_{in}$ and vice versa
+\end{itemize}
+\end{frame}

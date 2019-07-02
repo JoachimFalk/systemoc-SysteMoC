@@ -1,0 +1,209 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}
+\mode<presentation>{\frametitle{\insertsubsection\ -- Objectives}}
+\begin{itemize}
+\item You will learn to ...
+\item ... write and use guards.
+\item ... write and use actions.
+\end{itemize}
+\end{frame}
+
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}[fragile=singleslide]
+\mode<presentation>{\frametitle{\insertsubsection\ -- SourceActor}}
+\begin{lstlisting}
+static const std::string MESSAGE = "0123456789";
+
+class Source: public smoc_actor {
+public:
+  smoc_port_out<char> out;
+  Source(sc_module_name name) : smoc_actor(name, start),
+    count(0), size(MESSAGE.size()), message(MESSAGE) {
+    start = 
+      GUARD(Source::hasToken)  >>
+      out(1)                   >>
+      CALL(Source::src)        >> start;
+  }
+private:
+  smoc_firing_state start;
+
+  unsigned int count, size;  // variables (functional state)
+  const std::string message; //
+
+  bool hasToken() const{ return count<size; } // guard
+  void src() { out[0] = message[count++]; }   // action
+};
+
+\end{lstlisting}
+\end{frame}
+
+
+
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}[fragile=singleslide]
+\mode<presentation>{\frametitle{\insertsubsection\ -- Guards}}
+\index{guard}
+\index{GUARD@\lstinline{GUARD}}
+\begin{itemize}
+\item a guard is a \lstinline!const! member function returning a boolean value
+\begin{lstlisting}
+  bool hasToken() const{
+    return count<size;
+  } // guard
+\end{lstlisting}
+\item guards enable/disable transitions (true/false)
+\item guards must (can) not change variable values or token in channels
+\item refer to guards via \lstinline!GUARD(..)! macro 
+\begin{lstlisting}
+    start = 
+      GUARD(Source::hasToken)  >>
+      out(1)                   >>
+      CALL(Source::src)        >> start;
+\end{lstlisting}
+\item use guards for control flow (see below)
+\end{itemize}
+\end{frame}
+
+
+
+
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}[fragile=singleslide]
+\mode<presentation>{\frametitle{\insertsubsection\ -- Variables}}
+\index{variables}
+\begin{itemize}
+\item variables ...
+\item ... are \lstinline!private! class member of an actor
+\item ... can be used to store data
+\item ... represent a functional state of an actor (in contrast to FSM state)
+\begin{lstlisting}
+  unsigned int count, size;
+  const std::string message;
+\end{lstlisting}
+\end{itemize}
+\end{frame}
+
+
+
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}[fragile=singleslide]
+\mode<presentation>{\frametitle{\insertsubsection\ -- Actions}}
+\index{actions}
+\begin{itemize}
+\item actions ...
+\item ... are used to read/write data on input/output ports
+\item ... modify variables
+\begin{lstlisting}
+  void src() {
+    out[0] = message[count++];
+  }
+\end{lstlisting}
+\item guards access variables read-only (mandatory \lstinline!const! modifier)
+\item actions are allowed to modify variables
+\end{itemize}
+\end{frame}
+
+
+
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}[fragile=singleslide]
+\mode<presentation>{\frametitle{\insertsubsection\ -- Multiple Access}}
+\index{port}
+\begin{itemize}
+\item you can write/read data more than once (overwrite/re-read)
+\item e.g. read input twice
+\begin{lstlisting}
+  void sink() {
+    char squareInput = in[0] * in[0];
+
+    char x = in[0];
+    char y = in[0]; // re-read
+    assert(x == y);
+  }
+\end{lstlisting}
+\item e.g. write a default value first
+\begin{lstlisting}
+  void src() {
+    out[0] = 'X';    // default
+    if(count<size){
+      out[0] = message[count++]; //overwrite
+    }
+  }
+\end{lstlisting}
+\end{itemize}
+\end{frame}
+
+
+
+
+
+
+
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}[fragile=singleslide]
+\mode<presentation>{\frametitle{\insertsubsection}}
+\begin{itemize}
+\item simulation output (using Sink actor from previous example)
+\begin{lstlisting}
+top.Sink recv: "0"
+top.Sink recv: "1"
+top.Sink recv: "2"
+top.Sink recv: "3"
+top.Sink recv: "4"
+top.Sink recv: "5"
+top.Sink recv: "6"
+top.Sink recv: "7"
+top.Sink recv: "8"
+top.Sink recv: "9"
+SystemC: simulation stopped by user.
+\end{lstlisting}
+\item Source actor sends a finite number of characters only
+\item simulation terminates when no actor can be activated
+\end{itemize}
+\end{frame}
+
+
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%\begin{frame}[fragile=singleslide=singleslide]
+%\mode<presentation>{\frametitle{\insertsubsection}}
+%\begin{itemize}
+%\item ...
+%\end{itemize}
+%\begin{lstlisting}
+%
+%\end{lstlisting}
+%\end{frame}
+
+
+
+
+

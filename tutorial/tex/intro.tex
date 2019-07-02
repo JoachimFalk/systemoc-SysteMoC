@@ -1,0 +1,165 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}[t]
+\mode<presentation>{\frametitle{\insertsection\ -- SysteMoC Concepts}}
+\begin{itemize}
+\item \SystemCoDesigner{} uses \SysteMoC{} as input language
+\end{itemize}
+\begin{itemize}
+\item \SysteMoC{} ... 
+\item ... is implemented on top of SystemC
+\item ... uses actor-oriented design for modeling 
+\item ... supports data flow models of computation (MoC)
+\end{itemize}
+\end{frame}
+
+
+
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}[t]
+\mode<presentation>{\frametitle{\insertsection\ -- SysteMoC Concepts}}
+\begin{itemize}
+\item the \SysteMoC{} library defines ...
+\item ... channels for data flow
+\item ... syntax for modeling actor communication behavior as FSMs
+\end{itemize}
+\begin{figure}
+\centering
+\resizebox{0.7\columnwidth}{!}{\input{systemc-integration-fig.tex}}
+\end{figure}
+\end{frame}
+
+
+
+
+
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}[t]
+\mode<presentation>{\frametitle{\insertsection\ -- SysteMoC Concepts}}
+\begin{overlayarea}{\textwidth}{3cm}
+%
+\only<1>{
+\begin{figure}
+\centering
+\resizebox{0.8\columnwidth}{!}{\input{systemoc-fig.tex}}
+\end{figure}
+\begin{itemize}
+\item graphical representation of a complete \SysteMoC{} design
+\item Newton's iterative algorithm square root calculation
+
+\end{itemize}
+}
+%
+\only<2>{
+\begin{figure}
+\centering
+\resizebox{0.8\columnwidth}{!}{\input{systemoc-ports-fig.tex}}
+\end{figure}
+\begin{itemize}
+\item actors have ports
+%\item TODO: animate concepts; visualize variables
+%\item A \SysteMoC{} actor is composed of a Finite State Machine (FSM), functions, and variables.
+\end{itemize}
+}
+%
+\only<3>{
+\begin{figure}
+\centering
+\resizebox{0.8\columnwidth}{!}{\input{systemoc-channels-fig.tex}}
+\end{figure}
+\begin{itemize}
+\item ports are connected to channels
+\item actors communication via channels only
+\end{itemize}
+}
+%
+\only<4>{
+\begin{figure}
+\centering
+\resizebox{0.8\columnwidth}{!}{\input{systemoc-actions-fig.tex}}
+\end{figure}
+\begin{itemize}
+\item actions implement functionality of actors
+\item actions are written in C++
+\end{itemize}
+}
+%
+\only<5>{
+\begin{figure}
+\centering
+\resizebox{0.8\columnwidth}{!}{\input{systemoc-fsm-fig.tex}}
+\end{figure}
+\begin{itemize}
+\item a finite state machine controls an actor
+\item the FSM defines communication behavior and triggers execution of actions 
+\end{itemize}
+}
+
+\end{overlayarea}
+
+%\begin{itemize}
+%\item A \SysteMoC{} actor is composed of a Finite State Machine (FSM), functions, and variables.
+%\end{itemize}
+\end{frame}
+
+
+
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}
+\mode<presentation>{\frametitle{\insertsection\ -- Actor Interaction}}
+\begin{figure}
+\centering
+\resizebox{0.7\columnwidth}{!}{\input{actor-scheme-fig.tex}}
+\end{figure}
+\begin{itemize}
+\item actors are composed of a Finite State Machine (FSM), functions, and variables
+\item the FSM controls the function invocation
+\item functions are executed atomically
+\item data consumption and production is performed at the end of an action execution
+\end{itemize}
+\end{frame}
+
+
+
+
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}[t]
+\mode<presentation>{\frametitle{\insertsection\ -- Simulation Semantics}}
+\index{simulation}
+\begin{itemize}
+\item a transition is active if 
+\begin{itemize}
+\item all referred input queues have enough tokens,
+\item all referred output queues have enough free space (places),
+\item and all guards are evaluated to true
+\end{itemize}
+\item an active transition may be fired
+\begin{itemize}
+\item the associated action is executed
+\item consumption and production of data tokens take place
+\item data flow between actors may activate or deactivate actions
+\end{itemize}
+\item if several transitions of one actor are active
+\begin{itemize}
+\item one transition is selected non-deterministically
+\end{itemize}
+\end{itemize}
+\end{frame}
+
+

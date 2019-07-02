@@ -1,0 +1,129 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}
+\mode<presentation>{\frametitle{\insertsubsection\ -- Objectives}}
+\begin{itemize}
+\item You will learn to ...
+\item ... write actors.
+\item ... instantiate actors in a network graph.
+\item ... run functional simulation.
+\end{itemize}
+\end{frame}
+
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}[fragile=singleslide]
+\mode<presentation>{\frametitle{\insertsubsection\ -- Actors}}
+\index{actor|(}
+\index{smoc_actor@\lstinline{smoc_actor}}
+\begin{itemize}
+\item include SysteMoC library header
+\begin{lstlisting}
+#include <systemoc/smoc_moc.hpp>
+\end{lstlisting}
+\item an actor is a C++ class derived from base class \lstinline!smoc_actor!
+\begin{lstlisting}
+class HelloActor: public smoc_actor {
+\end{lstlisting}
+\item an action is a member function of the actors class
+\item actions shall be \lstinline!private! $\rightarrow$ prohibit execution by others
+\begin{lstlisting}
+private:
+  void src() {   // action
+    std::cout << "Actor " << this->name() << " says:\n"
+              << "Hello World" << std::endl;
+  }
+\end{lstlisting}
+\end{itemize}
+\end{frame}
+
+
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}[fragile=singleslide]
+\mode<presentation>{\frametitle{\insertsubsection\ -- Actors}}
+\index{state}
+\index{smoc_firing_state@\lstinline{smoc_firing_state}}
+\index{smoc_actor@\lstinline{smoc_actor}}
+\begin{itemize}
+\item an actor has a finite set of states
+\begin{lstlisting}
+  smoc_firing_state state_a, state_b;   // FSM states
+\end{lstlisting}
+\item like objects of a class in C++, we create instances of an actor
+\item constructors are responsible for creating a certain actor instance
+\item provide actor name and start state to base class \lstinline!smoc_actor!
+\begin{lstlisting}
+  HelloActor(sc_module_name name)  // actor constructor
+    : smoc_actor(name, state_a) {
+\end{lstlisting}
+\end{itemize}
+\end{frame}
+
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}[fragile=singleslide]
+\mode<presentation>{\frametitle{\insertsubsection\ -- Actors}}
+\index{FSM}
+\index{CALL@\lstinline{CALL}}
+\begin{itemize}
+\item a finite state machine (FSM) defines transitions between states
+\item e.g. a transition from \lstinline!state_a! to \lstinline!state_b!
+\item if this transition is taken, the action \lstinline!HelloActor::src! is executed
+\begin{lstlisting}
+  HelloActor(sc_module_name name)  // actor constructor
+    : smoc_actor(name, state_a) {
+
+  // FSM definition:
+  //  transition from state_a to state_b calling action src
+  state_a = CALL(HelloActor::src) >> state_b;
+
+}
+\end{lstlisting}
+\end{itemize}
+\index{actor|)}
+\end{frame}
+
+
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}[fragile=singleslide]
+\mode<presentation>{\frametitle{\insertsubsection\ -- Graphs}}
+\index{network graph}
+\index{smoc_graph@\lstinline{smoc_graph}}
+\begin{itemize}
+\item a network graph is derived from base class \lstinline!smoc_graph!
+\begin{lstlisting}
+class HelloNetworkGraph: public smoc_graph {
+\end{lstlisting}
+\item our network graph has an instance of the \lstinline!HelloActor!
+\begin{lstlisting}
+private:
+  // actors
+  HelloActor     helloActor;
+\end{lstlisting}
+\item a name for the graph has to be passed to base class \lstinline!smoc_graph!
+\item we need to call \lstinline!HelloActor's! constructor
+\begin{lstlisting}
+  // network graph constructor
+  HelloNetworkGraph(sc_module_name name)
+    : smoc_graph(name),
+      helloActor("HelloActor") // create actor HelloWorld
+  { }
+};
+\end{lstlisting}
+\end{itemize}
+\end{frame}
+
