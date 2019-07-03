@@ -33,7 +33,9 @@ TEX_SOURCES  := \
 	tex/SysteMoC-Tutorial-slides.tex \
 	tex/SysteMoC-Tutorial-report.tex
 
-export PKG_CONFIG_PATH
+export SCRTREEMODE_PKG_CONFIG_PATH
+
+SCRTREEMODE_PKG_CONFIG_PATH := $(subst MAGICUNLIKELYPREFIX:,,$(subst :$(top_builddir)/,:$(abs_top_builddir)/,MAGICUNLIKELYPREFIX:$(PKG_CONFIG_PATH)))
 
 src/Makefile: src/Makefile.sample
 	@$(MKDIR_P) src && $(SED) \
