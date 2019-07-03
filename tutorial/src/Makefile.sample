@@ -6,10 +6,14 @@ prefix      = @prefix@
 exec_prefix = @exec_prefix@
 libdir      = @libdir@
 
+ifeq ($(SCRTREEMODE_PKG_CONFIG_PATH),)
 ifeq ($(PKG_CONFIG_PATH),)
 PKG_CONFIG_PATH := $(libdir)/pkgconfig
 else
 PKG_CONFIG_PATH := $(libdir)/pkgconfig:$(PKG_CONFIG_PATH)
+endif
+else
+PKG_CONFIG_PATH := $(SCRTREEMODE_PKG_CONFIG_PATH)
 endif
 
 CMAKE_FLAGS = \
