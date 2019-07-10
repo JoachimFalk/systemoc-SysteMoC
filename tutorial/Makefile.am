@@ -44,7 +44,7 @@ src/Makefile: src/Makefile.sample
 	    -e 's|[@]libdir[@]|$(libdir)|g' \
 	  < $^ > $@ || { rm -f $@ && false; }
 
-all-local: src/Makefile tex-all
+all-local: src/Makefile
 	@$(MAKE) -C src VPATH=$(abs_srcdir)/src all
 clean-local:
 	@if test -f src/Makefile; then \
