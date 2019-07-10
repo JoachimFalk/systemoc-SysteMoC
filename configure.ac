@@ -65,8 +65,6 @@ if test x"$enable_debug" = x"yes"; then
   AC_DEFINE([SYSTEMOC_ENABLE_DEBUG], [yes], [Defined if debug support is enabled])
 fi
 
-AC_CONFIG_HEADER([config.h src/systemoc/headers/systemoc/smoc_config.h])
-
 DX_HTML_FEATURE(ON)
 DX_CHM_FEATURE(OFF)
 DX_CHI_FEATURE(OFF)
@@ -224,11 +222,21 @@ fi
 AC_SUBST([SYSTEMOC_OPTIONAL_REQUIRES])
 AC_SUBST([SYSTEMOC_OPTIONAL_REQUIRES_PRIVATE])
 
+if test x"$enable_sgx" = x"yes"; then
+  ACJF_PROG_SGXUTILS([sgxutils=true], [sgxutils=false])
+else
+  sgxutils=false
+fi
+AM_CONDITIONAL(SGXUTILS, test x"$sgxutils" = x"true")
+
+AC_CONFIG_HEADER([config.h])
+AC_CONFIG_HEADER([src/systemoc/headers/systemoc/smoc_config.h])
 AC_CONFIG_FILES([
   Makefile
-  tutorial/Makefile
   src/systemoc/headers/Makefile
   pkgconfig/libsystemoc.pc
+  testcases/Makefile
+  tutorial/Makefile
 ])
 
 ACJF_DONE
