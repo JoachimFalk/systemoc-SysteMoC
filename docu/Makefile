@@ -8,7 +8,7 @@ docu: smoc-docu.pdf
 
 TEX_SOURCES=smoc-docu.tex
 
-TEXINPUTS:=../figs:$(TEXINPUTS)
-TEXCLEANDIRS:=../figs .
+TEXINPUTS:=figs:$(TEXINPUTS)
+TEXCLEANDIRS:= figs .
 
 include $(RESDIR)/Rules-TeX-PDF.mk
