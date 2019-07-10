@@ -1,0 +1,9 @@
+Res Cpu1
+Res Cpu2
+
+Map sqrroot.a1 Cpu1
+Map sqrroot.a5 Cpu1
+Map sqrroot.a2 Cpu2
+Map sqrroot.a3 Cpu2
+Map sqrroot.a4 Cpu2
+

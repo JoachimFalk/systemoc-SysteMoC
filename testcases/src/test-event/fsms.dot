@@ -1,0 +1,22 @@
+digraph G {
+graph [label="FSM of graph.src1"]
+0[color="red" label="q_0" style="filled"];
+0->0 [label="#o_0≥1&&ev"];
+}
+digraph G {
+graph [label="FSM of graph.src2"]
+0[color="red" label="q_0" style="filled"];
+0->0 [label="#o_0≥1&&ev"];
+}
+digraph G {
+graph [label="FSM of graph.src3"]
+0[color="red" label="q_0" style="filled"];
+0->0 [label="#o_0≥1&&ev"];
+}
+digraph G {
+graph [label="FSM of graph.snk"]
+0[color="red" label="q_0" style="filled"];
+1[label="q_1"];
+0->0 [label="#i_0≥1⋀#i_1≥1⋀#i_2≥1&&(iter>0)"];
+0->1 [label="(iter==0)"];
+}

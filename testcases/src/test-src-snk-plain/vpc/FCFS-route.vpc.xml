@@ -1,0 +1,54 @@
+<?xml version="1.0"?>
+<!DOCTYPE vpcconfiguration SYSTEM "vpc.dtd">
+<vpcconfiguration>
+ <resultfile name=""/>
+ <measurefile name=""/>
+
+ <resources>
+  <component name="CPU" scheduler="FCFS">
+    <attribute type="tracing" value="VCD"/>
+    <attribute type="tracing" value="PAJE"/>
+    <attribute type="transaction_delay" value="200 us" />
+  </component>
+  <component name="BUS" scheduler="FCFS">
+    <attribute type="tracing" value="VCD"/>
+    <attribute type="tracing" value="PAJE"/>
+    <attribute type="transaction_delay" value="300 us" />
+  </component>
+  <component name="MEM" scheduler="FCFS">
+    <attribute type="tracing" value="VCD"/>
+    <attribute type="tracing" value="PAJE"/>
+    <attribute type="transaction_delay" value="400 us" />
+  </component>
+ </resources>
+
+ <mappings>
+  <mapping source="top.src" target="CPU">
+    <timing fname="m_h_src::src"   delay="7.5 ms"/>
+  </mapping>
+  <mapping source="top.snk" target="CPU">
+    <timing fname="m_h_sink::sink" delay="10.0 ms"/>
+  </mapping>
+ </mappings>
+
+ <topology>
+  <route name="top.src.o_0" type="StaticRoute">
+    <hop component="CPU">
+      <hop component="BUS">
+        <hop component="MEM">
+          <desthop/>
+        </hop>
+      </hop>
+    </hop>
+  </route>
+  <route name="top.snk.i_0" type="StaticRoute">
+    <hop component="MEM">
+      <hop component="BUS">
+        <hop component="CPU">
+          <desthop/>
+        </hop>
+      </hop>
+    </hop>
+  </route>
+ </topology>
+</vpcconfiguration>

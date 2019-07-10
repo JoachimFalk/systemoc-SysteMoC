@@ -1,0 +1,7 @@
+Res Cpu1
+Res Cpu2
+Res Cpu3
+
+Map top.src Cpu1
+Map top.fir Cpu2
+Map top.sink Cpu3

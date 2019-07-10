@@ -1,0 +1,439 @@
+﻿<?xml version="1.0" encoding="UTF-8" standalone="no" ?>
+<specificationgraph xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="networkgraph.xsd">
+
+  <problemgraph id="id2154613835" name="top">
+    <process cxxClass="7m_h_src" id="id2679475569" name="top.src" type="actor">
+      <actor>
+        <fsm startstate="id2523110324">
+          <state id="id2523110324" name="smoc_firing_state_0">
+            <transition id="id0" nextstate="id2523110325">
+              <action>
+                <function cxxType="M7m_h_srcFvvE" name="m_h_src::src_1"/>
+              </action>
+              <ASTNodeBinOp opType="DOpBinLAnd">
+                <lhs>
+                  <Comm portid="id2937170670">
+                    <ChildNode>
+                      <Literal value="1" valueType="m"/>
+                    </ChildNode>
+                  </Comm>
+                </lhs>
+                <rhs>
+                  <ASTNodeBinOp opType="DOpBinGe">
+                    <lhs>
+                      <PortTokens portid="id2937170670" valueType="m"/>
+                    </lhs>
+                    <rhs>
+                      <Literal value="1" valueType="m"/>
+                    </rhs>
+                  </ASTNodeBinOp>
+                </rhs>
+              </ASTNodeBinOp>
+            </transition>
+          </state>
+          <state id="id2523110326" name="smoc_firing_state_2">
+            <transition id="id2" nextstate="id2523110324">
+              <action>
+                <function cxxType="M7m_h_srcFvvE" name="m_h_src::src_5"/>
+              </action>
+              <ASTNodeBinOp opType="DOpBinLAnd">
+                <lhs>
+                  <Comm portid="id2937170670">
+                    <ChildNode>
+                      <Literal value="5" valueType="m"/>
+                    </ChildNode>
+                  </Comm>
+                </lhs>
+                <rhs>
+                  <ASTNodeBinOp opType="DOpBinGe">
+                    <lhs>
+                      <PortTokens portid="id2937170670" valueType="m"/>
+                    </lhs>
+                    <rhs>
+                      <Literal value="5" valueType="m"/>
+                    </rhs>
+                  </ASTNodeBinOp>
+                </rhs>
+              </ASTNodeBinOp>
+            </transition>
+          </state>
+          <state id="id2523110325" name="smoc_firing_state_1">
+            <transition id="id1" nextstate="id2523110326">
+              <action>
+                <function cxxType="M7m_h_srcFvvE" name="m_h_src::src_3"/>
+              </action>
+              <ASTNodeBinOp opType="DOpBinLAnd">
+                <lhs>
+                  <Comm portid="id2937170670">
+                    <ChildNode>
+                      <Literal value="3" valueType="m"/>
+                    </ChildNode>
+                  </Comm>
+                </lhs>
+                <rhs>
+                  <ASTNodeBinOp opType="DOpBinGe">
+                    <lhs>
+                      <PortTokens portid="id2937170670" valueType="m"/>
+                    </lhs>
+                    <rhs>
+                      <Literal value="3" valueType="m"/>
+                    </rhs>
+                  </ASTNodeBinOp>
+                </rhs>
+              </ASTNodeBinOp>
+            </transition>
+          </state>
+        </fsm>
+      </actor>
+      <port id="id2937170670" name="top.src.smoc_port_out_0" type="out"/>
+    </process>
+    <process cxxClass="11m_h_process" id="id3005802494" name="top.process" type="actor">
+      <actor>
+        <fsm startstate="id2198836244">
+          <state id="id2198836244" name="smoc_firing_state_3">
+            <transition id="id3" nextstate="id2198836243">
+              <action>
+                <function cxxType="M11m_h_processFvvE" name="m_h_process::doprocess_1"/>
+              </action>
+              <ASTNodeBinOp opType="DOpBinLAnd">
+                <lhs>
+                  <ASTNodeBinOp opType="DOpBinLAnd">
+                    <lhs>
+                      <Comm portid="id2376441522">
+                        <ChildNode>
+                          <Literal value="1" valueType="m"/>
+                        </ChildNode>
+                      </Comm>
+                    </lhs>
+                    <rhs>
+                      <ASTNodeBinOp opType="DOpBinGe">
+                        <lhs>
+                          <PortTokens portid="id2376441522" valueType="m"/>
+                        </lhs>
+                        <rhs>
+                          <Literal value="1" valueType="m"/>
+                        </rhs>
+                      </ASTNodeBinOp>
+                    </rhs>
+                  </ASTNodeBinOp>
+                </lhs>
+                <rhs>
+                  <ASTNodeBinOp opType="DOpBinLAnd">
+                    <lhs>
+                      <Comm portid="id2412369744">
+                        <ChildNode>
+                          <Literal value="1" valueType="m"/>
+                        </ChildNode>
+                      </Comm>
+                    </lhs>
+                    <rhs>
+                      <ASTNodeBinOp opType="DOpBinGe">
+                        <lhs>
+                          <PortTokens portid="id2412369744" valueType="m"/>
+                        </lhs>
+                        <rhs>
+                          <Literal value="1" valueType="m"/>
+                        </rhs>
+                      </ASTNodeBinOp>
+                    </rhs>
+                  </ASTNodeBinOp>
+                </rhs>
+              </ASTNodeBinOp>
+            </transition>
+          </state>
+          <state id="id2198836243" name="smoc_firing_state_4">
+            <transition id="id4" nextstate="id2198836242">
+              <action>
+                <function cxxType="M11m_h_processFvvE" name="m_h_process::doprocess_5"/>
+              </action>
+              <ASTNodeBinOp opType="DOpBinLAnd">
+                <lhs>
+                  <ASTNodeBinOp opType="DOpBinLAnd">
+                    <lhs>
+                      <Comm portid="id2376441522">
+                        <ChildNode>
+                          <Literal value="5" valueType="m"/>
+                        </ChildNode>
+                      </Comm>
+                    </lhs>
+                    <rhs>
+                      <ASTNodeBinOp opType="DOpBinGe">
+                        <lhs>
+                          <PortTokens portid="id2376441522" valueType="m"/>
+                        </lhs>
+                        <rhs>
+                          <Literal value="5" valueType="m"/>
+                        </rhs>
+                      </ASTNodeBinOp>
+                    </rhs>
+                  </ASTNodeBinOp>
+                </lhs>
+                <rhs>
+                  <ASTNodeBinOp opType="DOpBinLAnd">
+                    <lhs>
+                      <Comm portid="id2412369744">
+                        <ChildNode>
+                          <Literal value="5" valueType="m"/>
+                        </ChildNode>
+                      </Comm>
+                    </lhs>
+                    <rhs>
+                      <ASTNodeBinOp opType="DOpBinGe">
+                        <lhs>
+                          <PortTokens portid="id2412369744" valueType="m"/>
+                        </lhs>
+                        <rhs>
+                          <Literal value="5" valueType="m"/>
+                        </rhs>
+                      </ASTNodeBinOp>
+                    </rhs>
+                  </ASTNodeBinOp>
+                </rhs>
+              </ASTNodeBinOp>
+            </transition>
+          </state>
+          <state id="id2198836242" name="smoc_firing_state_5">
+            <transition id="id5" nextstate="id2198836244">
+              <action>
+                <function cxxType="M11m_h_processFvvE" name="m_h_process::doprocess_3"/>
+              </action>
+              <ASTNodeBinOp opType="DOpBinLAnd">
+                <lhs>
+                  <ASTNodeBinOp opType="DOpBinLAnd">
+                    <lhs>
+                      <Comm portid="id2376441522">
+                        <ChildNode>
+                          <Literal value="3" valueType="m"/>
+                        </ChildNode>
+                      </Comm>
+                    </lhs>
+                    <rhs>
+                      <ASTNodeBinOp opType="DOpBinGe">
+                        <lhs>
+                          <PortTokens portid="id2376441522" valueType="m"/>
+                        </lhs>
+                        <rhs>
+                          <Literal value="3" valueType="m"/>
+                        </rhs>
+                      </ASTNodeBinOp>
+                    </rhs>
+                  </ASTNodeBinOp>
+                </lhs>
+                <rhs>
+                  <ASTNodeBinOp opType="DOpBinLAnd">
+                    <lhs>
+                      <Comm portid="id2412369744">
+                        <ChildNode>
+                          <Literal value="3" valueType="m"/>
+                        </ChildNode>
+                      </Comm>
+                    </lhs>
+                    <rhs>
+                      <ASTNodeBinOp opType="DOpBinGe">
+                        <lhs>
+                          <PortTokens portid="id2412369744" valueType="m"/>
+                        </lhs>
+                        <rhs>
+                          <Literal value="3" valueType="m"/>
+                        </rhs>
+                      </ASTNodeBinOp>
+                    </rhs>
+                  </ASTNodeBinOp>
+                </rhs>
+              </ASTNodeBinOp>
+            </transition>
+          </state>
+        </fsm>
+      </actor>
+      <port id="id2376441522" name="top.process.smoc_port_in_0" type="in"/>
+      <port id="id2412369744" name="top.process.smoc_port_out_0" type="out"/>
+    </process>
+    <process cxxClass="8m_h_sink" id="id2816013523" name="top.sink" type="actor">
+      <actor>
+        <fsm startstate="id2762547637">
+          <state id="id2762547637" name="smoc_firing_state_6">
+            <transition id="id6" nextstate="id2762547636">
+              <action>
+                <function cxxType="M8m_h_sinkFvvE" name="m_h_sink::sink_5"/>
+              </action>
+              <ASTNodeBinOp opType="DOpBinLAnd">
+                <lhs>
+                  <Comm portid="id3118754996">
+                    <ChildNode>
+                      <Literal value="5" valueType="m"/>
+                    </ChildNode>
+                  </Comm>
+                </lhs>
+                <rhs>
+                  <ASTNodeBinOp opType="DOpBinGe">
+                    <lhs>
+                      <PortTokens portid="id3118754996" valueType="m"/>
+                    </lhs>
+                    <rhs>
+                      <Literal value="5" valueType="m"/>
+                    </rhs>
+                  </ASTNodeBinOp>
+                </rhs>
+              </ASTNodeBinOp>
+            </transition>
+          </state>
+          <state id="id2762547636" name="smoc_firing_state_7">
+            <transition id="id7" nextstate="id2762547643">
+              <action>
+                <function cxxType="M8m_h_sinkFvvE" name="m_h_sink::sink_3"/>
+              </action>
+              <ASTNodeBinOp opType="DOpBinLAnd">
+                <lhs>
+                  <Comm portid="id3118754996">
+                    <ChildNode>
+                      <Literal value="3" valueType="m"/>
+                    </ChildNode>
+                  </Comm>
+                </lhs>
+                <rhs>
+                  <ASTNodeBinOp opType="DOpBinGe">
+                    <lhs>
+                      <PortTokens portid="id3118754996" valueType="m"/>
+                    </lhs>
+                    <rhs>
+                      <Literal value="3" valueType="m"/>
+                    </rhs>
+                  </ASTNodeBinOp>
+                </rhs>
+              </ASTNodeBinOp>
+            </transition>
+          </state>
+          <state id="id2762547643" name="smoc_firing_state_8">
+            <transition id="id8" nextstate="id2762547637">
+              <action>
+                <function cxxType="M8m_h_sinkFvvE" name="m_h_sink::sink_1"/>
+              </action>
+              <ASTNodeBinOp opType="DOpBinLAnd">
+                <lhs>
+                  <Comm portid="id3118754996">
+                    <ChildNode>
+                      <Literal value="1" valueType="m"/>
+                    </ChildNode>
+                  </Comm>
+                </lhs>
+                <rhs>
+                  <ASTNodeBinOp opType="DOpBinGe">
+                    <lhs>
+                      <PortTokens portid="id3118754996" valueType="m"/>
+                    </lhs>
+                    <rhs>
+                      <Literal value="1" valueType="m"/>
+                    </rhs>
+                  </ASTNodeBinOp>
+                </rhs>
+              </ASTNodeBinOp>
+            </transition>
+          </state>
+        </fsm>
+      </actor>
+      <port id="id3118754996" name="top.sink.smoc_port_in_0" type="in"/>
+    </process>
+    <process id="id3184786943" name="cf_top.src_top.process_1" type="fifo">
+      <fifo tokenType="d"/>
+      <attribute type="size" value="10"/>
+      <port id="id3882220636" name="cf_top.src_top.process_1.in" type="in"/>
+      <port id="id3466277122" name="cf_top.src_top.process_1.out" type="out"/>
+    </process>
+    <edge id="id1073741825" source="id2937170670" target="id3882220636"/>
+    <edge id="id1073741826" source="id3466277122" target="id2376441522"/>
+    <process id="id2177828665" name="cf_top.process_top.sink_1" type="fifo">
+      <fifo tokenType="d"/>
+      <attribute type="size" value="10"/>
+      <port id="id3908929414" name="cf_top.process_top.sink_1.in" type="in"/>
+      <port id="id3777724813" name="cf_top.process_top.sink_1.out" type="out"/>
+    </process>
+    <edge id="id1073741827" source="id2412369744" target="id3908929414"/>
+    <edge id="id1073741828" source="id3777724813" target="id3118754996"/>
+  </problemgraph>
+
+  <architecturegraph id="id4033050436" name="network">
+    <resource id="id3900246230" name="HW_top.sink" type="leaf">
+      <attribute type="category" value="HW"/>
+      <attribute type="FF" value="0"/>
+      <attribute type="LUT" value="0"/>
+      <attribute type="BRAM" value="0"/>
+      <attribute type="DSP" value="0"/>
+    </resource>
+    <resource id="id3414179518" name="HW_top.src" type="leaf">
+      <attribute type="category" value="HW"/>
+      <attribute type="FF" value="0"/>
+      <attribute type="LUT" value="0"/>
+      <attribute type="BRAM" value="0"/>
+      <attribute type="DSP" value="0"/>
+    </resource>
+    <resource id="id3873094016" name="HW_top.process" type="leaf">
+      <attribute type="category" value="HW"/>
+      <attribute type="FF" value="0"/>
+      <attribute type="LUT" value="0"/>
+      <attribute type="BRAM" value="0"/>
+      <attribute type="DSP" value="0"/>
+    </resource>
+    <resource id="id3633468229" name="LUTRAM_FIFO" type="leaf">
+      <attribute type="category" value="LUTRAM"/>
+      <attribute type="impl_type" value="LUTRAM"/>
+      <attribute type="FF" value="0"/>
+      <attribute type="LUT" value="0"/>
+      <attribute type="BRAM" value="0"/>
+      <attribute type="DSP" value="0"/>
+    </resource>
+    <resource id="id3550804463" name="Shared_Memory" type="leaf">
+      <attribute type="category" value="MEM"/>
+      <attribute type="FF" value="0"/>
+      <attribute type="LUT" value="0"/>
+      <attribute type="BRAM" value="0"/>
+      <attribute type="DSP" value="0"/>
+    </resource>
+    <resource id="id3550804464" name="BRAM_FIFO" type="leaf">
+      <attribute type="category" value="FIFO"/>
+      <attribute type="impl_type" value="BRAM"/>
+      <attribute type="FF" value="0"/>
+      <attribute type="LUT" value="0"/>
+      <attribute type="BRAM" value="0"/>
+      <attribute type="DSP" value="0"/>
+    </resource>
+    <resource id="id3550804465" name="CUSTOM_FIFO" type="leaf">
+      <attribute type="category" value="CUSTOMFIFO"/>
+      <attribute type="FF" value="0"/>
+      <attribute type="LUT" value="0"/>
+      <attribute type="BRAM" value="0"/>
+      <attribute type="DSP" value="0"/>
+    </resource>
+
+  </architecturegraph>
+
+  <mappings>
+    <mapping id="id1073742537" name="top.src->HW_top.src" source="id2679475569" target="id3414179518">
+      <attribute type="delay" value="0"/>
+      <attribute type="dii" value="0"/>
+    </mapping>
+    <mapping id="id1073742760" name="top.process->HW_top.process" source="id3005802494" target="id3873094016">
+      <attribute type="delay" value="0"/>
+      <attribute type="dii" value="0"/>
+    </mapping>
+    <mapping id="id1073742563" name="top.sink->HW_top.sink" source="id2816013523" target="id3900246230">
+      <attribute type="delay" value="0"/>
+      <attribute type="dii" value="0"/>
+    </mapping>
+    <mapping id="id1073742927" name="cf_top.src_top.process_1->CUSTOM_FIFO" source="id3184786943" target="id3550804465"/>
+    <mapping id="id1073742928" name="cf_top.process_top.sink_1->BRAM_FIFO" source="id2177828665" target="id3550804464"/>
+    <mapping id="id1073742929" name="cf_top.process_top.sink_1->LUTRAM_FIFO" source="id2177828665" target="id3633468229"/>
+    <!--mapping id="id1073742930" name="cf_top.process_top.sink_1->Shared_Memory" source="id2177828665" target="id3550804463"/-->
+  </mappings>
+
+  <typedef name="dii" type="STRING"/>
+  <typedef name="delay" type="STRING"/>
+  <typedef name="FF" type="INTEGER"/>
+  <typedef name="LUT" type="INTEGER"/>
+  <typedef name="BRAM" type="INTEGER"/>
+  <typedef name="DSP" type="INTEGER"/>
+  <typedef name="category" type="STRING"/>
+  <typedef name="family" type="STRING"/>
+  <typedef name="size" type="INTEGER"/>
+  <typedef name="impl_type" type="STRING"/>
+
+</specificationgraph>
