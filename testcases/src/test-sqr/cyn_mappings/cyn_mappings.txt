@@ -1,0 +1,8 @@
+Res TB  type SysC
+Res DUT type SysC_HW
+
+Map sqrroot.a1 TB
+Map sqrroot.a5 TB
+Map sqrroot.a2 DUT 
+Map sqrroot.a3 DUT
+Map sqrroot.a4 DUT

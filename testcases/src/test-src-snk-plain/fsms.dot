@@ -1,0 +1,10 @@
+digraph G {
+graph [label="FSM of top.src"]
+0[color="red" label="q_0" style="filled"];
+0->0 [label="#o_0≥1&&(!(iter==0))"];
+}
+digraph G {
+graph [label="FSM of top.snk"]
+0[color="red" label="q_0" style="filled"];
+0->0 [label="#i_0≥1"];
+}

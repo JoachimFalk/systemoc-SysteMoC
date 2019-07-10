@@ -1,0 +1,18 @@
+digraph G {
+graph [label="FSM of top.src"]
+0[color="red" label="q_0" style="filled"];
+1[label="q_1"];
+2[label="q_2"];
+3[label="q_3"];
+4[label="q_4"];
+0->1 [label="#o_0≥1&&(iter>=2)"];
+1->2 [label="#o_0≥1&&(iter>=2)"];
+2->3 [label="#o_0≥1&&(iter>=2)"];
+3->4 [label="#o_0≥1&&(iter>=2)"];
+4->0 [label="#o_0≥1&&(iter>=3)"];
+}
+digraph G {
+graph [label="FSM of top.snk"]
+0[color="red" label="q_0" style="filled"];
+0->0 [label="#i_0≥1"];
+}

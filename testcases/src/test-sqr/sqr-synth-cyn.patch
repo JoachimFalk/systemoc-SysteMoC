@@ -1,0 +1,62 @@
+--- sqr-synth-cyn.orig/project.tcl	2015-04-28 12:43:03.951174901 +0200
++++ sqr-synth-cyn/project.tcl	2015-04-28 12:39:50.282990263 +0200
+@@ -52,8 +52,14 @@
+ # Design modules
+ ######################################################################
+ 
+-
+-
++# HL synthesis target
++cynthModule Dut module_Dut.cpp \
++  [cynthConfigs { 
++    BASIC
++    ASAP  --sched_asap=on
++    FLATTENED
++    ASAPNOCHAIN  --sched_asap=on --chain=no
++  }]
+ 
+ ######################################################################
+ #
+@@ -70,39 +76,15 @@
+ 
+ # Behavioral simConfig.
+ simConfig BEH \
+-  
+- \
++  { Dut BEH BASIC} \
+   [escArgv $CLK_PERIOD]
+ 
+ # SystemC RTL simConfig.
+ simConfig RTL_C \
+-  
+-  \
++  { Dut RTL_C BASIC} \
+   [escArgv $CLK_PERIOD]
+ 
+ # Verilog simConfig.
+ simConfig RTL_V \
+-  
+- \
+-  [escArgv $CLK_PERIOD]
+-
+-# Post-synthesis simConfig.
+-simConfig SYN \
+-  
+- \
+-  [vlogFiles /opt/Xilinx/13.2/ISE_DS/ISE/verilog/src/glbl.v] \
+-  [nosdf] \
+-  [vlogTopModules glbl] \
+-  [vlogLibs /opt/Xilinx/13.2/ISE_DS/ISE/verilog/src/unisims] \
+-  [escArgv $CLK_PERIOD]
+-
+-# Post-place-and-route simConfig.
+-# IMPORTANT: set vlogInputDelay to the maximum hold time for inputs from testbench!!!
+-simConfig PNR \
+-  
+- \
+-  [vlogFiles /opt/Xilinx/13.2/ISE_DS/ISE/verilog/src/glbl.v] \
+-  [vlogTopModules glbl] \
+-  [vlogLibs /opt/Xilinx/13.2/ISE_DS/ISE/verilog/src/simprims] \
+-  [vlogInputDelay 2.7] \
++  { Dut RTL_V BASIC} \
+   [escArgv $CLK_PERIOD]

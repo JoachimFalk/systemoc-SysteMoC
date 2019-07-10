@@ -1,0 +1,29 @@
+<project basedir="." default="Simulate" name="SimulateTestVSP">
+  <!-- Set some variables for use in the Ant script -->
+
+  <target name="Initialize CoMET">
+    <vast.init logFile="batch_mode.log" debug="true"/>
+  </target>
+
+  <target name="Build" depends="Initialize CoMET">
+    <echo message="The base dir: ${basedir}"/>
+    <vast.importProjects projectsPath="${basedir}/vast-res-aware-synthesis" clearWorkspace="true"/>
+    <vast.build mode="clean" debug="true"/>
+    <vast.build mode="build" debug="true"/>
+  </target>
+
+  <target name="Simulate" depends="Build">
+    <vast.simulateVsp 
+      project="sqrvsp" 
+      vpmExeMode="simulate" 
+      target="foobar" 
+      maxTasks="500" 
+      maxSystemTime="5s" 
+      maxSimulationTime="5s"
+      pcxFile="sqrvsp.pcx"
+      build="true"
+      debug="true"> 
+    </vast.simulateVsp>
+  </target>
+
+</project>

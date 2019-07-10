@@ -1,0 +1,25 @@
+<?xml version="1.0"?>
+<!DOCTYPE vpcconfiguration SYSTEM "vpc.dtd">
+<vpcconfiguration>
+ <resultfile name=""/>
+ <measurefile name=""/>
+
+ <resources>
+  <component name="CPU" scheduler="SP">
+   <attribute type="tracing" value="VCD"/>
+  </component>
+ </resources>
+
+ <mappings>
+  <mapping source="top.src" target="CPU">
+    <timing delay="7.5 ms"/>
+    <attribute type="priority" value="2" />
+  </mapping>
+  <mapping source="top.snk" target="CPU">
+    <timing delay="10.0 ms"/>
+    <attribute type="priority" value="1" />
+  </mapping>
+ </mappings>
+
+ <topology default="ignore"/>
+</vpcconfiguration>

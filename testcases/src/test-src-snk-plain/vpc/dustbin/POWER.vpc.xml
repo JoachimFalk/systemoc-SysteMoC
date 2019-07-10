@@ -1,0 +1,106 @@
+<?xml version="1.0"?>
+<!DOCTYPE vpcconfiguration SYSTEM "vpc.dtd">
+<vpcconfiguration>
+ <resultfile name=""/>
+ <measurefile name=""/>
+
+ <resources>
+  <component name="CPU" scheduler="FCFS-old">
+    <attribute type="powermode">
+      <attribute type="governor">
+       <parameter type="sliding_window" value="12.5 ms" />
+       <parameter type="upper_threshold" value="0.90" />
+       <parameter type="lower_threshold" value="0.20" />
+      </attribute>
+      <attribute type="SLOW"> <!-- 78MHz, 1.05V-->
+        <parameter type="RUNNING" value="19.6560 mW" /> <!-- 0.24mA/MHz -->
+        <parameter type="IDLE"    value="0.65520 mW" /> <!-- 0.008mA/MHz -->
+        <parameter type="STALLED" value="4.9140 mW"  /> <!-- 0.06mA/MHz -->
+        <parameter type="transaction_delay" value="3 ns" />
+      </attribute>
+      <attribute type="FAST"> <!-- 312MHz, 1.35V -->
+        <parameter type="RUNNING" value="126.360 mW" /> <!-- 0.30mA/MHz -->
+        <parameter type="IDLE"    value="4.2120 mW"  /> <!-- 0.010mA/MHz -->
+        <parameter type="STALLED" value="33.6960 mW" /> <!-- 0.08mA/MHz -->
+        <parameter type="transaction_delay" value="1 ns" />
+      </attribute>
+    </attribute>
+   <attribute type="tracing" value="VCD"/>
+  </component>
+
+  <component name="Bus" scheduler="FCFS-old">
+    <attribute type="powermode">
+      <attribute type="governor">
+       <parameter type="sliding_window" value="12.5 ms" />
+       <parameter type="upper_threshold" value="0.90" />
+       <parameter type="lower_threshold" value="0.20" />
+      </attribute>
+      <attribute type="SLOW"> <!-- 78MHz, 1.05V-->
+        <parameter type="RUNNING" value="19.6560 mW" /> <!-- 0.24mA/MHz -->
+        <parameter type="IDLE"    value="0.65520 mW" /> <!-- 0.008mA/MHz -->
+        <parameter type="STALLED" value="4.9140 mW"  /> <!-- 0.06mA/MHz -->
+        <parameter type="transaction_delay" value="3 ns" />
+      </attribute>
+      <attribute type="FAST"> <!-- 312MHz, 1.35V -->
+        <parameter type="RUNNING" value="126.360 mW" /> <!-- 0.30mA/MHz -->
+        <parameter type="IDLE"    value="4.2120 mW"  /> <!-- 0.010mA/MHz -->
+        <parameter type="STALLED" value="33.6960 mW" /> <!-- 0.08mA/MHz -->
+        <parameter type="transaction_delay" value="1 ns" />
+      </attribute>
+    </attribute>
+   <attribute type="tracing" value="VCD"/>
+  </component>
+
+  <component name="Mem" scheduler="FCFS-old">
+    <attribute type="powermode">
+      <attribute type="governor">
+       <parameter type="sliding_window" value="12.5 ms" />
+       <parameter type="upper_threshold" value="0.90" />
+       <parameter type="lower_threshold" value="0.20" />
+      </attribute>
+      <attribute type="SLOW"> <!-- 78MHz, 1.05V-->
+        <parameter type="RUNNING" value="19.6560 mW" /> <!-- 0.24mA/MHz -->
+        <parameter type="IDLE"    value="0.65520 mW" /> <!-- 0.008mA/MHz -->
+        <parameter type="STALLED" value="4.9140 mW"  /> <!-- 0.06mA/MHz -->
+        <parameter type="transaction_delay" value="3 ns" />
+      </attribute>
+      <attribute type="FAST"> <!-- 312MHz, 1.35V -->
+        <parameter type="RUNNING" value="126.360 mW" /> <!-- 0.30mA/MHz -->
+        <parameter type="IDLE"    value="4.2120 mW"  /> <!-- 0.010mA/MHz -->
+        <parameter type="STALLED" value="33.6960 mW" /> <!-- 0.08mA/MHz -->
+        <parameter type="transaction_delay" value="1 ns" />
+      </attribute>
+    </attribute>
+   <attribute type="tracing" value="VCD"/>
+  </component>
+ </resources>
+
+ <mappings>
+
+  <mapping source="top.snk" target="CPU">
+    <timing delay="100" powermode="SLOW"/>
+    <timing delay="10" powermode="FAST"/>
+    <attribute type="priority" value="1" />
+  </mapping>
+
+  <mapping source="top.src" target="CPU">
+    <timing delay="100" powermode="SLOW"/>
+    <timing delay="10" powermode="FAST"/>
+    <attribute type="priority" value="0" />
+  </mapping>
+ </mappings>
+
+ <topology> <!-- default="ignore"-->
+  <route source="top.src" destination="queue">
+   <hop name="CPU"> </hop>
+   <hop name="Bus"> </hop>
+   <hop name="Mem"> </hop>
+  </route>
+
+  <route source="queue" destination="top.snk">
+   <hop name="Mem"> </hop>
+   <hop name="Bus"> </hop>
+   <hop name="CPU"> </hop>
+  </route>
+ </topology>
+</vpcconfiguration>
