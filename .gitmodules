@@ -1,6 +1,0 @@
-[submodule "maestro"]
-	path = maestro
-	url = codesign:scd/src/systemoc/Maestro/Testcases.git
-[submodule "vpc"]
-	path = vpc
-	url = codesign:scd/src/systemoc/SystemC-VPC/Testcases.git
