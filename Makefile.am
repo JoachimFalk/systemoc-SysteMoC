@@ -75,44 +75,15 @@ AM_CPPFLAGS= @AM_CPPFLAGS@ $(SYSTEMOC_INCLUDE) $(BOOST_INCLUDE)
 AM_LDFLAGS = @AM_LDFLAGS@  $(SYSTEMOC_LDFLAGS) $(BOOST_LDFLAGS)
 
 noinst_PROGRAMS= \
-	test-cluster-example \
-	test-event \
 	test-fir \
 	test-fir-nostl \
-	test-fsm-action-parameters \
-	test-fsm-action-sequences \
-	test-fsm-dynamic \
-	test-fsm-hierarchy-and \
-	test-fsm-hierarchy-and-diss-falk \
-	test-fsm-hierarchy-xor \
-	test-fsm-hierarchy-xor-diss-falk \
-	test-fsm-junction-state \
-	test-getValueAt \
-	test-periodic \
-	test-sdf \
-	test-select \
 	test-sequence-alttoksize \
 	test-sqr \
 	test-sqr-int \
-	test-src-snk-hierarchy \
 	test-src-snk-multicast \
-	test-src-snk-multiplex \
 	test-src-snk-multirate \
-	test-src-snk-multireader \
-	test-src-snk-multiwriter \
-	test-src-snk-noconsume \
 	test-src-snk-plain \
-	test-src-snk-references \
-	test-src-snk-register \
-	test-src-snk-void \
-	test-systemc-blocking-cosim \
-	test-systemc-nonblocking-cosim \
-	test-systemc-sqr
-
-if SYSTEMOC_ENABLE_HOOKING
-noinst_PROGRAMS+= \
-	test-fsm-hooking
-endif
+	test-src-snk-references
 
 %.smx: %
 	./'$<' --systemoc-export-smx='$@' || \
@@ -148,22 +119,6 @@ TEST_LOGS	= $(foreach TEST,$(noinst_PROGRAMS),$(patsubst $(srcdir)/src/$(TEST)/g
 TEST_FSMS	= $(foreach TEST,$(noinst_PROGRAMS),$(patsubst $(srcdir)/src/$(TEST)/fsms.dot,$(TEST)-fsms.dot,$(wildcard $(srcdir)/src/$(TEST)/fsms.dot)))
 TEST_VPC_LOGS	= $(foreach TEST,$(noinst_PROGRAMS),$(patsubst $(srcdir)/src/$(TEST)/vpc/%.vpc.xml,$(TEST)-%.log,$(wildcard $(srcdir)/src/$(TEST)/vpc/*.vpc.xml)))
 TEST_VPC_VCDS	= $(foreach TEST,$(noinst_PROGRAMS),$(patsubst $(srcdir)/src/$(TEST)/vpc/%-golden.vcd,$(TEST)-%.vcd,$(wildcard $(srcdir)/src/$(TEST)/vpc/*-golden.vcd)))
-
-test_cluster_example_LDADD			= $(SYSTEMOC_LIBS)
-test_cluster_example_DEPENDENCIES		= $(SYSTEMOC_DEPENDENCIES)
-test_cluster_example_SOURCES			= \
-	src/test-cluster-example/cpp/cluster_ex.cpp
-
-test-cluster-example.log: test-cluster-example
-	$(srcdir)/scripts/runtest.py --log '$@' -- ./'$<' 100
-
-test_event_LDADD				= $(SYSTEMOC_LIBS)
-test_event_DEPENDENCIES				= $(SYSTEMOC_DEPENDENCIES)
-test_event_SOURCES				= \
-	src/test-event/cpp/design-event.cpp
-
-test-event.log: test-event
-	$(srcdir)/scripts/runtest.py --log '$@' -- ./'$<' 100
 
 # More integration required! check and synthesis
 test_fir_LDADD					= $(SYSTEMOC_LIBS)
@@ -214,85 +169,6 @@ if SYNTH_PTHREAD
 PTHREAD_SYNTH_TEST_FIR_NOSTL_CPPFLAGS = -I$(srcdir)/src/test-fir-nostl/cpp
 synth-pthread-fir-nostl: test-fir-nostl-$(PTHREAD_SYNTH_SUBDIR)/top
 endif
-
-test_fsm_action_parameters_LDADD		= $(SYSTEMOC_LIBS)
-test_fsm_action_parameters_DEPENDENCIES		= $(SYSTEMOC_DEPENDENCIES)
-test_fsm_action_parameters_SOURCES		= \
-	src/test-fsm-action-parameters/cpp/design-fsm-action-parameters.cpp
-
-test-fsm-action-parameters.log: test-fsm-action-parameters
-	$(srcdir)/scripts/runtest.py --log '$@' -- ./'$<' 100
-
-test_fsm_action_sequences_LDADD			= $(SYSTEMOC_LIBS)
-test_fsm_action_sequences_DEPENDENCIES		= $(SYSTEMOC_DEPENDENCIES)
-test_fsm_action_sequences_SOURCES		= \
-	src/test-fsm-action-sequences/cpp/design-fsm-action-sequences.cpp
-
-test-fsm-action-sequences.log: test-fsm-action-sequences
-	$(srcdir)/scripts/runtest.py --log '$@' -- ./'$<' 100
-
-test_fsm_dynamic_LDADD				= $(SYSTEMOC_LIBS)
-test_fsm_dynamic_DEPENDENCIES			= $(SYSTEMOC_DEPENDENCIES)
-test_fsm_dynamic_SOURCES			= \
-	src/test-fsm-dynamic/cpp/design-fsm-dynamic.cpp
-
-# More integration required! check
-test_fsm_hierarchy_and_LDADD			= $(SYSTEMOC_LIBS)
-test_fsm_hierarchy_and_DEPENDENCIES		= $(SYSTEMOC_DEPENDENCIES)
-test_fsm_hierarchy_and_SOURCES			= \
-	src/test-fsm-hierarchy-and/cpp/design-fsm-hierarchy-and.cpp
-
-test_fsm_hierarchy_and_diss_falk_LDADD		= $(SYSTEMOC_LIBS) -lboost_random
-test_fsm_hierarchy_and_diss_falk_DEPENDENCIES	= $(SYSTEMOC_DEPENDENCIES)
-test_fsm_hierarchy_and_diss_falk_SOURCES	= \
-	src/test-fsm-hierarchy-and-diss-falk/cpp/design-fsm-hierarchy-and.cpp
-
-# More integration required! check
-test_fsm_hierarchy_xor_LDADD			= $(SYSTEMOC_LIBS)
-test_fsm_hierarchy_xor_DEPENDENCIES		= $(SYSTEMOC_DEPENDENCIES)
-test_fsm_hierarchy_xor_SOURCES			= \
-	src/test-fsm-hierarchy-xor/cpp/design-fsm-hierarchy-xor.cpp
-
-test_fsm_hierarchy_xor_diss_falk_LDADD		= $(SYSTEMOC_LIBS) -lboost_random
-test_fsm_hierarchy_xor_diss_falk_DEPENDENCIES	= $(SYSTEMOC_DEPENDENCIES)
-test_fsm_hierarchy_xor_diss_falk_SOURCES	= \
-	src/test-fsm-hierarchy-xor-diss-falk/cpp/design-fsm-hierarchy-xor.cpp
-
-test_fsm_hooking_LDADD		= $(SYSTEMOC_LIBS)
-test_fsm_hooking_DEPENDENCIES	= $(SYSTEMOC_DEPENDENCIES)
-test_fsm_hooking_SOURCES	= \
-	src/test-fsm-hooking/cpp/design-fsm-hooking.cpp
-
-test-fsm-hooking.log: test-fsm-hooking
-	$(srcdir)/scripts/runtest.py --log '$@' --filter '^(top.[^[]*)\[' -- ./'$<' 100
-
-test_fsm_junction_state_LDADD			= $(SYSTEMOC_LIBS)
-test_fsm_junction_state_DEPENDENCIES		= $(SYSTEMOC_DEPENDENCIES)
-test_fsm_junction_state_SOURCES			= \
-	src/test-fsm-junction-state/cpp/design-junction-state.cpp
-
-test_getValueAt_LDADD				= $(SYSTEMOC_LIBS)
-test_getValueAt_DEPENDENCIES			= $(SYSTEMOC_DEPENDENCIES)
-test_getValueAt_SOURCES				= \
-	src/test-getValueAt/cpp/design-getValueAt.cpp
-
-test_periodic_LDADD				= $(SYSTEMOC_LIBS)
-test_periodic_DEPENDENCIES			= $(SYSTEMOC_DEPENDENCIES)
-test_periodic_SOURCES				= \
-	src/test-periodic/cpp/design-periodic.cpp
-
-test-periodic.log: test-periodic
-	$(srcdir)/scripts/runtest.py --log '$@' -- ./'$<' 100
-
-test_sdf_LDADD					= $(SYSTEMOC_LIBS)
-test_sdf_DEPENDENCIES				= $(SYSTEMOC_DEPENDENCIES)
-test_sdf_SOURCES				= \
-	src/test-sdf/cpp/design-sdf.cpp
-
-test_select_LDADD				= $(SYSTEMOC_LIBS)
-test_select_DEPENDENCIES			= $(SYSTEMOC_DEPENDENCIES)
-test_select_SOURCES				= \
-	src/test-select/cpp/design-select.cpp
 
 # More integration required! check and synthesis
 test_sequence_alttoksize_LDADD			= $(SYSTEMOC_LIBS)
@@ -379,11 +255,6 @@ synth-pthread-sqr-int-clu: test-sqr-int-after-binding-fsm-sched-$(PTHREAD_SYNTH_
 endif
 endif
 
-test_src_snk_hierarchy_LDADD			= $(SYSTEMOC_LIBS)
-test_src_snk_hierarchy_DEPENDENCIES		= $(SYSTEMOC_DEPENDENCIES)
-test_src_snk_hierarchy_SOURCES			= \
-	src/test-src-snk-hierarchy/cpp/design-src-snk-hierarchy.cpp
-
 test_src_snk_multicast_LDADD			= $(SYSTEMOC_LIBS)
 test_src_snk_multicast_DEPENDENCIES		= $(SYSTEMOC_DEPENDENCIES)
 test_src_snk_multicast_SOURCES			= \
@@ -399,36 +270,11 @@ test-src-snk-multicast-%.log test-src-snk-multicast-%-CPU.vcd test-src-snk-multi
 		-- ./'$<' --systemoc-vpc-config "$$2" 100
 endif
 
-# More integration required! check
-test_src_snk_multiplex_LDADD			= $(SYSTEMOC_LIBS) -lboost_random
-test_src_snk_multiplex_DEPENDENCIES		= $(SYSTEMOC_DEPENDENCIES)
-test_src_snk_multiplex_SOURCES			= \
-	src/test-src-snk-multiplex/cpp/design-src-snk-multiplex.cpp
-
-test-src-snk-multiplex.log: test-src-snk-multiplex
-	$(srcdir)/scripts/runtest.py --log '$@' --filter '^(top\.[^:]*):' -- ./'$<' 1000 10 20 5 4711
-
 # More integration required! Maybe check for VPC?
 test_src_snk_multirate_LDADD			= $(SYSTEMOC_LIBS)
 test_src_snk_multirate_DEPENDENCIES		= $(SYSTEMOC_DEPENDENCIES)
 test_src_snk_multirate_SOURCES			= \
 	src/test-src-snk-multirate/cpp/design-src-snk-multirate.cpp
-
-test_src_snk_multireader_LDADD			= $(SYSTEMOC_LIBS)
-test_src_snk_multireader_DEPENDENCIES		= $(SYSTEMOC_DEPENDENCIES)
-test_src_snk_multireader_SOURCES		= \
-	src/test-src-snk-multireader/cpp/design-src-snk-multireader.cpp
-
-test_src_snk_multiwriter_LDADD			= $(SYSTEMOC_LIBS)
-test_src_snk_multiwriter_DEPENDENCIES		= $(SYSTEMOC_DEPENDENCIES)
-test_src_snk_multiwriter_SOURCES		= \
-	src/test-src-snk-multiwriter/cpp/design-src-snk-multiwriter.cpp
-
-# More integration required! check
-test_src_snk_noconsume_LDADD			= $(SYSTEMOC_LIBS)
-test_src_snk_noconsume_DEPENDENCIES		= $(SYSTEMOC_DEPENDENCIES)
-test_src_snk_noconsume_SOURCES			= \
-	src/test-src-snk-noconsume/cpp/design-src-snk-noconsume.cpp
 
 # More integration required! Maybe check for VPC?
 test_src_snk_plain_LDADD			= $(SYSTEMOC_LIBS)
@@ -449,7 +295,7 @@ endif
 
 # More integration required! Maybe check for VPC?
 test_src_snk_references_LDADD			= $(SYSTEMOC_LIBS)
-test_src_snk_references_DEPENDENCIES			= $(SYSTEMOC_DEPENDENCIES)
+test_src_snk_references_DEPENDENCIES		= $(SYSTEMOC_DEPENDENCIES)
 test_src_snk_references_SOURCES			= \
 	src/test-src-snk-references/cpp/design-src-snk-references.cpp 
 
@@ -466,34 +312,6 @@ if SYNTH_PTHREAD
 PTHREAD_SYNTH_TEST_SRC_SNK_REFERENCES_CPPFLAGS = -I$(srcdir)/src/test-src-snk-references/cpp
 synth-pthread-src-snk-ref: test-src-snk-references-$(PTHREAD_SYNTH_SUBDIR)/top
 endif
-
-test_src_snk_register_LDADD			= $(SYSTEMOC_LIBS)
-test_src_snk_register_DEPENDENCIES		= $(SYSTEMOC_DEPENDENCIES)
-test_src_snk_register_SOURCES			= \
-	src/test-src-snk-register/cpp/design-src-snk-register.cpp
-
-test_src_snk_void_LDADD				= $(SYSTEMOC_LIBS)
-test_src_snk_void_DEPENDENCIES			= $(SYSTEMOC_DEPENDENCIES)
-test_src_snk_void_SOURCES			= \
-	src/test-src-snk-void/cpp/design-src-snk-void.cpp
-
-test-src-snk-void.log: test-src-snk-void
-	$(srcdir)/scripts/runtest.py --log '$@' -- ./'$<' 100
-
-test_systemc_blocking_cosim_LDADD		= $(SYSTEMOC_LIBS)
-test_systemc_blocking_cosim_DEPENDENCIES	= $(SYSTEMOC_DEPENDENCIES)
-test_systemc_blocking_cosim_SOURCES		= \
-	src/test-systemc-blocking-cosim/cpp/design-cosim-blocking.cpp
-
-test_systemc_nonblocking_cosim_LDADD		= $(SYSTEMOC_LIBS)
-test_systemc_nonblocking_cosim_DEPENDENCIES	= $(SYSTEMOC_DEPENDENCIES)
-test_systemc_nonblocking_cosim_SOURCES		= \
-	src/test-systemc-nonblocking-cosim/cpp/design-cosim-nonblocking.cpp
-
-test_systemc_sqr_LDADD				= $(SYSTEMC_LIBS)
-test_systemc_sqr_DEPENDENCIES			= $(SYSTEMC_DEPENDENCIES)
-test_systemc_sqr_SOURCES			= \
-	src/test-systemc-sqr/cpp/systemc-sqr.cpp
 
 clean-local:
 	rm -f $(addsuffix -pthread.map,$(noinst_PROGRAMS))
