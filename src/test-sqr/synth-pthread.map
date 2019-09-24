@@ -1,5 +1,5 @@
-Res Cpu1
-Res Cpu2
+Res Cpu1 scheduler RRNOPRE
+Res Cpu2 scheduler SPNOPRE
 
 Map sqrroot.a1 Cpu1
 Map sqrroot.a5 Cpu1
