@@ -61,11 +61,13 @@ namespace smoc { namespace Detail { namespace FSM {
       return nullptr;
     }
     result_type visitComm(PortBase &p, size_t c, size_t r) {
-      if (p.isInput())
+      if (p.isInput()) {
         fr.portInInfos.push_back(PortInInfo(static_cast<PortInBase &>(p), c, r));
-      else {
+        assert(c <= r);
+      } else {
         fr.portOutInfos.push_back(PortOutInfo(static_cast<PortOutBase &>(p), c));
-        assert(c == r);
+        // Cluster FSM guards have a consume of zero
+        assert(c == 0 || c == r);
       }
       return nullptr;
     }
