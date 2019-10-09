@@ -357,7 +357,9 @@ void NodeBase::schedule() {
          << std::endl << smoc::Detail::Indent::Up;
   }
 #endif // SYSTEMOC_ENABLE_DEBUG
-  assert(active);
+  // Don't check for active flag as schedule() might be called by QSSActionVisitor
+  // in SMXImporter.cpp while the actor is not active.
+  //assert(active);
   assert(ct);
   assert(ct->check());
   executing = true;
