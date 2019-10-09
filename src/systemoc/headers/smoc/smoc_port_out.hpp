@@ -58,7 +58,7 @@ namespace smoc {
       this_type *retval = new this_type(name);
       retval->setId(id);
       for (Detail::PortOutBaseIf *iface : this->get_interfaces())
-        retval->add_interface(iface);
+        retval->bind(*iface);
       return retval;
     }
 #endif //SYSTEMOC_ENABLE_SGX
