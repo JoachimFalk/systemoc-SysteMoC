@@ -318,9 +318,11 @@ void NodeBase::setActive(bool flag) {
     bool newState = active && useActivationCallback;
     if (oldState && !newState) {
       delMySelfAsListener(currentState);
-      getScheduler()->notifyActivation(this, false);
+      if (!executing)
+        getScheduler()->notifyActivation(this, false);
     } else if (!oldState && newState) {
       addMySelfAsListener(currentState);
+      assert(!executing);
       getScheduler()->notifyActivation(this, searchActiveTransition());
     }
   } else
@@ -362,6 +364,7 @@ void NodeBase::schedule() {
   //assert(active);
   assert(ct);
   assert(ct->check());
+  assert(!executing);
   executing = true;
   setCurrentState(ct->execute(this));
   executing = false;
