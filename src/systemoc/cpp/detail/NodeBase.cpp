@@ -186,8 +186,8 @@ void NodeBase::signaled(smoc::smoc_event_waiter *e) {
     // all smoc::smoc_event_and_list dependent on the state of the reseted basic
     // event may not be consistent while the event update hierarchy is
     // processed.  In case of reseted basic events that means that the actual
-    // availablility is worse than the availablitity denoted by the activation
-    // patterns while for activated events the actual availablility is better.
+    // availability is worse than the availability denoted by the activation
+    // patterns while for activated events the actual availability is better.
     if (e->isActive()) {
 #ifdef SYSTEMOC_ENABLE_DEBUG
       FSM::RuntimeTransition *oldct = ct;
