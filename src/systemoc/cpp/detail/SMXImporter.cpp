@@ -18,12 +18,14 @@
  * 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
  */
 
+#include <systemoc/smoc_config.h>
+
+#ifdef SYSTEMOC_ENABLE_SGX
+
 #include <CoSupport/SmartPtr/RefCountObject.hpp>
 
 #include "SMXImporter.hpp"
 #include "SimulationContext.hpp"
-
-#ifdef SYSTEMOC_ENABLE_SGX
 
 #include <CoSupport/String/Concat.hpp>
 
@@ -41,6 +43,12 @@
 #include <utility>
 #include <memory>
 #include <string>
+
+#if defined(LIBSGX_MAJOR_VERSION) && ( \
+    LIBSGX_MAJOR_VERSION > 0 || \
+    LIBSGX_MAJOR_VERSION == 0 && LIBSGX_MINOR_VERSION >= 5)
+# define _SYSTEMOC_LIBSGX_NO_PG
+#endif
 
 //#define SYSTEMOC_ENABLE_DEBUG
 
@@ -255,7 +263,12 @@ public:
   result_type operator()(SGX::Process const &p);
 };
 
-void iterateGraphs(SGX::ProblemGraph const &pg, ProcessVisitor &pv) {
+#ifdef _SYSTEMOC_LIBSGX_NO_PG
+void iterateGraphs(SGX::RefinedProcess const &pg, ProcessVisitor &pv)
+#else //!defined(_SYSTEMOC_LIBSGX_NO_PG)
+void iterateGraphs(SGX::ProblemGraph const &pg, ProcessVisitor &pv)
+#endif //!defined(_SYSTEMOC_LIBSGX_NO_PG)
+{
   SGX::ProcessList::ConstRef processList = pg.processes();
 
   for (SGX::Process::ConstRef proc : processList)
@@ -263,8 +276,12 @@ void iterateGraphs(SGX::ProblemGraph const &pg, ProcessVisitor &pv) {
 }
 
 ProcessVisitor::result_type ProcessVisitor::operator()(SGX::RefinedProcess const &rp) {
+#ifdef _SYSTEMOC_LIBSGX_NO_PG
+  SGX::RefinedProcess const &pg = rp;
+#else //!defined(_SYSTEMOC_LIBSGX_NO_PG)
   assert(rp.refinements().size() == 1);
   SGX::ProblemGraph const &pg = rp.refinements().front();
+#endif //!defined(_SYSTEMOC_LIBSGX_NO_PG)
   if (pg.firingFSM()) {
     std::cerr << pg.name() << " is a cluster!" << std::endl;
     new QSSCluster(pg.name().get().c_str(), rp);
@@ -304,9 +321,11 @@ void importSMX(SimulationContext *simCTX) {
   
   ProcessVisitor pv(simCTX);
 
+#ifdef _SYSTEMOC_LIBSGX_NO_PG
+  apply_visitor(pv, ngx.problemGraph());
+#else //!defined(_SYSTEMOC_LIBSGX_NO_PG)
   iterateGraphs(ngx.problemGraph(), pv);
-
-  simCTX->pNGX = ngx.toPtr();
+#endif //!defined(_SYSTEMOC_LIBSGX_NO_PG)
 }
 
 } } // namespace smoc::Detail

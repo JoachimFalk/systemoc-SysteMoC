@@ -25,7 +25,7 @@
 
 #ifdef SYSTEMOC_ENABLE_SGX
 
-#include <sgx.hpp>
+#include <istream>
 
 namespace smoc { namespace Detail {
 
@@ -37,11 +37,6 @@ protected:
   SimulationContextSMXImporting();
 
   std::istream   *importSMXFile;
-private:
-  // FIXME: Make this private and provide interface for NodeBase to check if an actor is inside a cluster and,
-  // thus, must not be scheduled by itself but by the containing cluster.
-public:
-  SystemCoDesigner::SGX::NetworkGraphAccess::Ptr pNGX;
 public:
   bool isSMXImportingEnabled() const
     { return importSMXFile; }

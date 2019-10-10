@@ -61,7 +61,6 @@ smoc_scheduler_top::~smoc_scheduler_top() {
 
 void smoc_scheduler_top::start_of_simulation() {
 #ifdef SYSTEMOC_ENABLE_SGX
-  getSimCTX()->pNGX = nullptr;
   if (getSimCTX()->isSMXDumpingPreSimEnabled()) {
     // Note that doReset() of each actor, graph, and channel must have been done before starting the dumping.
     Detail::dumpSMX(getSimCTX()->getSMXPreSimFile(), getSimCTX(), *g);
