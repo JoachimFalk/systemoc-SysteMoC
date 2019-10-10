@@ -27,8 +27,6 @@
 
 #include <smoc/detail/GraphBase.hpp>
 
-#include <sgx.hpp>
-
 namespace smoc { namespace Detail {
 
 class SimulationContextSMXDumping {
