@@ -155,7 +155,7 @@ void FiringFSM::addTransitionHook(
 void FiringFSM::before_end_of_elaboration(NodeBase *node, StateImpl *hsinit) {
 #ifdef SYSTEMOC_ENABLE_DEBUG
   if (smoc::Detail::outDbg.isVisible(smoc::Detail::Debug::High)) {
-    smoc::Detail::outDbg << "<FiringFSM::end_of_elaboration name=\"" << node->name() << "\">"
+    smoc::Detail::outDbg << "<FiringFSM::before_end_of_elaboration name=\"" << node->name() << "\">"
          << std::endl << smoc::Detail::Indent::Up;
   }
 #endif //defined(SYSTEMOC_ENABLE_DEBUG)
@@ -375,7 +375,7 @@ void FiringFSM::before_end_of_elaboration(NodeBase *node, StateImpl *hsinit) {
       reinterpret_cast<std::list<SimulatorAPI::FiringRuleInterface *> const &>(firingRules));
 #ifdef SYSTEMOC_ENABLE_DEBUG
   if (smoc::Detail::outDbg.isVisible(smoc::Detail::Debug::High)) {
-    smoc::Detail::outDbg << smoc::Detail::Indent::Down << "</FiringFSM::end_of_elaboration>"
+    smoc::Detail::outDbg << smoc::Detail::Indent::Down << "</FiringFSM::before_end_of_elaboration>"
          << std::endl;
   }
 #endif //defined(SYSTEMOC_ENABLE_DEBUG)
