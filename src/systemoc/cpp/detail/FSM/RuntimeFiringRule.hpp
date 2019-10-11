@@ -97,8 +97,9 @@ namespace smoc { namespace Detail { namespace FSM {
   private:
     class GuardVisitor;
 
-    FunctionNames guardNames;
-    size_t        guardComplexity;
+    FunctionNames       guardNames;
+    size_t              guardComplexity;
+    smoc_event_and_list events;
 
     /// @brief Event waiter for input/output guards (enough token/free space)
     smoc_event_and_list *ioPatternWaiter;
