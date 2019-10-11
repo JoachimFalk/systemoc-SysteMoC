@@ -40,27 +40,30 @@ namespace smoc { namespace Detail { namespace FSM {
       : fr(fr) {}
 
     result_type visitVar(std::string const &name, std::string const &type) {
+      fr.guardComplexity += 2;
       return nullptr;
     }
     result_type visitLiteral(std::string const &type, std::string const &value) {
-      fr.guardComplexity++;
+      fr.guardComplexity += 1;
       return nullptr;
     }
     result_type visitMemGuard(
         std::string const &name, std::string const &cxxType,
         std::string const &reType, ParamInfoList const &params) {
       fr.guardNames.push_back(name);
-      fr.guardComplexity++;
       return nullptr;
     }
     result_type visitEvent(smoc_event_waiter &e, std::string const &name) {
       *fr.ioPatternWaiter &= e;
+      fr.guardComplexity += 1;
       return nullptr;
     }
     result_type visitToken(PortBase &p, size_t n){
+      fr.guardComplexity += 5;
       return nullptr;
     }
     result_type visitComm(PortBase &p, size_t c, size_t r) {
+      fr.guardComplexity += 3;
       if (p.isInput()) {
         fr.portInInfos.push_back(PortInInfo(static_cast<PortInBase &>(p), c, r));
         assert(c <= r);
@@ -73,12 +76,14 @@ namespace smoc { namespace Detail { namespace FSM {
     }
     result_type visitUnOp(OpUnT op,
         boost::function<result_type (base_type &)> e){
+      fr.guardComplexity += 1;
       e(*this);
       return nullptr;
     }
     result_type visitBinOp(OpBinT op,
         boost::function<result_type (base_type &)> a,
         boost::function<result_type (base_type &)> b){
+      fr.guardComplexity += 1;
       a(*this);
       b(*this);
       return nullptr;
@@ -97,20 +102,21 @@ namespace smoc { namespace Detail { namespace FSM {
   RuntimeFiringRule::RuntimeFiringRule(smoc_guard const &g, smoc_action const &f)
     : smoc_firing_rule(g,f)
     , guardComplexity(0)
-    , ioPatternWaiter(nullptr) {}
-
-  void RuntimeFiringRule::end_of_elaboration() {
-    smoc_event_and_list tmp;
-    ioPatternWaiter = &tmp;
+    , ioPatternWaiter(nullptr)
+  {
     GuardVisitor visitor(*this);
     Expr::evalTo(visitor, getGuard());
+  }
+
+  void RuntimeFiringRule::end_of_elaboration() {
     for (PortInInfo portInfo : getPortInInfos()) {
-      tmp &= static_cast<PortInBase &>(portInfo.port).blockEvent(portInfo.required);
+      events &= static_cast<PortInBase &>(portInfo.port).blockEvent(portInfo.required);
     }
     for (PortOutInfo portInfo : getPortOutInfos()) {
-      tmp &= static_cast<PortOutBase &>(portInfo.port).blockEvent(portInfo.produced);
+      events &= static_cast<PortOutBase &>(portInfo.port).blockEvent(portInfo.produced);
     }
-    ioPatternWaiter = getCAP(tmp);
+    ioPatternWaiter = getCAP(events);
+    events.clear();
   }
 
   /// Implement SimulatorAPI::FiringRuleInterface
