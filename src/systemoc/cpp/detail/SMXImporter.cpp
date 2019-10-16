@@ -26,6 +26,7 @@
 
 #include "SMXImporter.hpp"
 #include "SimulationContext.hpp"
+#include "FSM/RuntimeState.hpp"
 
 #include <CoSupport/String/Concat.hpp>
 
@@ -166,6 +167,24 @@ private:
   static
   void actorFiringAction(int repeat, smoc_actor *actor) {
     for (int n = 0; n < repeat; ++n) {
+      smoc_event_or_list actorEnabled;
+      FSM::EventWaiterSet &am = actor->getCurrentState()->am;
+
+#ifdef SYSTEMOC_ENABLE_DEBUG
+      if (smoc::Detail::outDbg.isVisible(smoc::Detail::Debug::High))
+        smoc::Detail::outDbg << "QSS is waiting for actor " << actor->name() << " to become active." << std::endl;
+#endif // SYSTEMOC_ENABLE_DEBUG
+      for (FSM::EventWaiterSet::iterator iter = am.begin();
+           iter != am.end();
+           ++iter) {
+#ifdef SYSTEMOC_ENABLE_DEBUG
+        if (smoc::Detail::outDbg.isVisible(smoc::Detail::Debug::Medium)) {
+          smoc::Detail::outDbg << "[" << *iter << "] " << **iter << std::endl;
+        }
+#endif // SYSTEMOC_ENABLE_DEBUG
+        actorEnabled |= **iter;
+      }
+      smoc_wait(actorEnabled);
       sassert(actor->searchActiveTransition(true));
       actor->schedule();
     }
@@ -236,8 +255,6 @@ public:
           ;
       }
     }
-
-
   }
 protected:
   void flummy(boost::function<void ()> indirectAction) {
