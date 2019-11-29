@@ -44,11 +44,6 @@ if SYNTH_SW
   SW_SYNTH_INST_FLAGS = --no-preprocess-macros
   -include $(pkg_synthesis_sw_builddir)/mk/Rules-Synth-II.mk
 endif
-if SYNTH_PTHREAD
-  PTHREAD_SYNTH_SUBDIR     = synthesis-pthread
-  PTHREAD_SYNTH_INST_FLAGS = --no-preprocess-macros
-  -include $(pkg_synthesis_pthread_builddir)/mk/Rules-Synth-II.mk
-endif
 if SYNTH_TLM
   TLM_SYNTH_SUBDIR     = synthesis-tlm
   TLM_SYNTH_INST_FLAGS = --no-preprocess-macros
@@ -106,14 +101,6 @@ test-%.clu: src/test-%/clustering.clu
 	ln -sf '$<' '$@'
 endif
 endif
-if SYNTH_PTHREAD
-test-%-pthread.map: src/test-%/synth-pthread.map
-	ln -sf '$<' '$@'
-if CLUSTERING
-test-%-after-binding.clu: src/test-%/clustering-after-binding.clu
-	ln -sf '$<' '$@'
-endif
-endif
 
 TEST_LOGS	= $(foreach TEST,$(noinst_PROGRAMS),$(patsubst $(srcdir)/src/$(TEST)/golden%.log,$(TEST)%.log,$(wildcard $(srcdir)/src/$(TEST)/golden*.log)))
 TEST_FSMS	= $(foreach TEST,$(noinst_PROGRAMS),$(patsubst $(srcdir)/src/$(TEST)/fsms.dot,$(TEST)-fsms.dot,$(wildcard $(srcdir)/src/$(TEST)/fsms.dot)))
@@ -130,14 +117,10 @@ test_fir_SOURCES				= \
 test-fir.cpp: $(test_fir_SOURCES)
 	{ for i in $^; do echo "#include \"$$i\""; done; } > $@
 # .PHONY is outside conditionals to make automake happy
-.PHONY: synth-sw-fir synth-pthread-fir synth-vivadohls-fir
+.PHONY: synth-sw-fir synth-vivadohls-fir
 if SYNTH_SW
 SW_SYNTH_TEST_FIR_CPPFLAGS = -I$(srcdir)/src/test-fir/cpp
 synth-sw-fir: test-fir-$(SW_SYNTH_SUBDIR)/top
-endif
-if SYNTH_PTHREAD
-PTHREAD_SYNTH_TEST_FIR_CPPFLAGS = -I$(srcdir)/src/test-fir/cpp
-synth-pthread-fir: test-fir-$(PTHREAD_SYNTH_SUBDIR)/top
 endif
 if SYNTH_VIVADOHLS
 VIVADOHLS_SYNTH_TEST_FIR_CPPFLAGS = -I$(srcdir)/src/test-fir/cpp
@@ -154,7 +137,7 @@ test_fir_nostl_SOURCES				= \
 test-fir-nostl.cpp: $(test_fir_nostl_SOURCES)
 	{ for i in $^; do echo "#include \"$$i\""; done; } > $@
 # .PHONY is outside conditionals to make automake happy
-.PHONY: synth-sw-fir-nostl synth-vivadohls-fir-nostl synth-pthread-fir-nostl
+.PHONY: synth-sw-fir-nostl synth-vivadohls-fir-nostl
 if SYNTH_SW
 SW_SYNTH_TEST_FIR_NOSTL_CPPFLAGS = -I$(srcdir)/src/test-fir-nostl/cpp
 synth-sw-fir-nostl: test-fir-nostl-$(SW_SYNTH_SUBDIR)/top
@@ -163,11 +146,6 @@ endif
 if SYNTH_VIVADOHLS
 VIVADOHLS_SYNTH_TEST_FIR_NOSTL_CPPFLAGS = -I$(srcdir)/src/test-fir-nostl/cpp
 synth-vivadohls-fir-nostl: test-fir-nostl-$(VIVADOHLS_SYNTH_SUBDIR)/top
-endif
-
-if SYNTH_PTHREAD
-PTHREAD_SYNTH_TEST_FIR_NOSTL_CPPFLAGS = -I$(srcdir)/src/test-fir-nostl/cpp
-synth-pthread-fir-nostl: test-fir-nostl-$(PTHREAD_SYNTH_SUBDIR)/top
 endif
 
 # More integration required! check and synthesis
@@ -201,7 +179,7 @@ test_sqr_SOURCES				= \
 test-sqr.cpp: $(test_sqr_SOURCES)
 	{ for i in $^; do echo "#include \"$$i\""; done; } > $@
 # .PHONY is outside conditionals to make automake happy
-.PHONY: synth-sw-sqr synth-sw-sqr-clu synth-vivadohls-sqr synth-pthread-sqr synth-pthread-sqr-clu
+.PHONY: synth-sw-sqr synth-sw-sqr-clu synth-vivadohls-sqr
 if SYNTH_SW
 SW_SYNTH_TEST_SQR_CPPFLAGS = -I$(srcdir)/src/test-sqr/cpp
 synth-sw-sqr: test-sqr-$(SW_SYNTH_SUBDIR)/top
@@ -215,14 +193,6 @@ VIVADOHLS_SYNTH_TEST_SQR_CPPFLAGS = -I$(srcdir)/src/test-sqr/cpp
 synth-vivadohls-sqr: test-sqr-$(VIVADOHLS_SYNTH_SUBDIR)/top
 endif
 
-if SYNTH_PTHREAD
-PTHREAD_SYNTH_TEST_SQR_CPPFLAGS = -I$(srcdir)/src/test-sqr/cpp
-synth-pthread-sqr: test-sqr-$(PTHREAD_SYNTH_SUBDIR)/top
-if CLUSTERING
-synth-pthread-sqr-clu: test-sqr-after-binding-fsm-sched-$(PTHREAD_SYNTH_SUBDIR)/top
-endif
-endif
-
 # More integration required! check and synthesis
 test_sqr_int_LDADD				= $(SYSTEMOC_LIBS)
 test_sqr_int_DEPENDENCIES			= $(SYSTEMOC_DEPENDENCIES)
@@ -233,7 +203,7 @@ test_sqr_int_SOURCES				= \
 test-sqr-int.cpp: $(test_sqr_int_SOURCES)
 	{ for i in $^; do echo "#include \"$$i\""; done; } > $@
 # .PHONY is outside conditionals to make automake happy
-.PHONY: synth-sw-sqr-int synth-sw-sqr-int-clu synth-vivadohls-sqr-int synth-pthread-sqr-int synth-pthread-sqr-int-clu
+.PHONY: synth-sw-sqr-int synth-sw-sqr-int-clu synth-vivadohls-sqr-int
 if SYNTH_SW
 SW_SYNTH_TEST_SQR_INT_CPPFLAGS = -I$(srcdir)/src/test-sqr-int/cpp
 synth-sw-sqr-int: test-sqr-int-$(SW_SYNTH_SUBDIR)/top
@@ -245,14 +215,6 @@ endif
 if SYNTH_VIVADOHLS
 VIVADOHLS_SYNTH_TEST_SQR_INT_CPPFLAGS = -I$(srcdir)/src/test-sqr-int/cpp
 synth-vivadohls-sqr-int: test-sqr-int-$(VIVADOHLS_SYNTH_SUBDIR)/top
-endif
-
-if SYNTH_PTHREAD
-PTHREAD_SYNTH_TEST_SQR_INT_CPPFLAGS = -I$(srcdir)/src/test-sqr-int/cpp
-synth-pthread-sqr-int: test-sqr-int-$(PTHREAD_SYNTH_SUBDIR)/top
-if CLUSTERING
-synth-pthread-sqr-int-clu: test-sqr-int-after-binding-fsm-sched-$(PTHREAD_SYNTH_SUBDIR)/top
-endif
 endif
 
 test_src_snk_multicast_LDADD			= $(SYSTEMOC_LIBS)
@@ -303,18 +265,13 @@ test_src_snk_references_SOURCES			= \
 test-src-snk-references.cpp: $(test_src_snk_references_SOURCES)
 	{ for i in $^; do echo "#include \"$$i\""; done; } > $@
 # .PHONY is outside conditionals to make automake happy
-.PHONY: synth-sw-src-snk-ref synth-pthread-src-snk-ref
+.PHONY: synth-sw-src-snk-ref
 if SYNTH_SW
 SW_SYNTH_TEST_SRC_SNK_REFERENCES_CPPFLAGS = -I$(srcdir)/src/test-src-snk-references/cpp
 synth-sw-src-snk-ref: test-src-snk-references-$(SW_SYNTH_SUBDIR)/top
 endif
-if SYNTH_PTHREAD
-PTHREAD_SYNTH_TEST_SRC_SNK_REFERENCES_CPPFLAGS = -I$(srcdir)/src/test-src-snk-references/cpp
-synth-pthread-src-snk-ref: test-src-snk-references-$(PTHREAD_SYNTH_SUBDIR)/top
-endif
 
 clean-local:
-	rm -f $(addsuffix -pthread.map,$(noinst_PROGRAMS))
 	rm -f $(addsuffix -after-binding.clu,$(noinst_PROGRAMS))
 	rm -f $(addsuffix .clu,$(noinst_PROGRAMS))
 	rm -f $(addsuffix .log,$(noinst_PROGRAMS))
@@ -440,15 +397,4 @@ endif
 if SYNTH_VIVADOHLS
 synth-vivadohls: synth-vivadohls-fir synth-vivadohls-fir-nostl synth-vivadohls-sqr synth-vivadohls-sqr-int synth-vivadohls-sequence-alttoksize
 synth: synth-vivadohls
-endif
-
-# .PHONY is outside conditionals to make automake happy
-.PHONY: synth-pthread 
-if SYNTH_PTHREAD
-synth-pthread: synth-pthread-fir synth-pthread-sqr synth-pthread-sqr-int synth-pthread-src-snk-ref
-synth: synth-pthread
-if CLUSTERING
-synth-pthread-clu: synth-pthread-sqr-clu synth-pthread-sqr-int-clu
-synth: synth-pthread-clu
-endif
 endif
