@@ -32,8 +32,14 @@ namespace smoc { namespace SimulatorAPI {
     // SysteMoC task if task->getUseActivationCallback() returns true.
     virtual void notifyActivation(TaskInterface *task, bool activation) = 0;
 
+    // This must be implemented by the scheduler and will be called by the
+    // SysteMoC task to denote that the guard of fr is checked. The scheduler
+    // should account for the overhead of the guard.
     virtual void checkFiringRule(TaskInterface *task, FiringRuleInterface *fr) = 0;
 
+    // This must be implemented by the scheduler and will be called by the
+    // SysteMoC task to denote that the action of fr is executed. The scheduler
+    // must account for the execution time of the action.
     virtual void executeFiringRule(TaskInterface *task, FiringRuleInterface *fr) = 0;
 
     virtual ~SchedulerInterface() {}
