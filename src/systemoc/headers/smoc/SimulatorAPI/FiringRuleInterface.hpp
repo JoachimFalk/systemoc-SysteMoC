@@ -34,6 +34,8 @@ namespace smoc { namespace SimulatorAPI {
 
   class FiringRuleInterface {
   public:
+    typedef SimulatorAPI::FunctionNames FunctionNames;
+
     struct PortInInfo {
       PortInInfo(PortInInterface &in, size_t c, size_t r)
         : port(in), consumed(c), required(r) {}
