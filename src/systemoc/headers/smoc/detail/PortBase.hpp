@@ -182,9 +182,14 @@ protected:
     { portAccess->setLimit(req); }
 #endif //SYSTEMOC_ENABLE_DEBUG
 
+#if SYSTEMC_VERSION >= 20181013 // SystemC 2.3.3
+  int  interface_count() const;
+#elif SYSTEMC_VERSION >= 20070314 // SystemC 2.2
   // SystemC 2.2 requires this method
   // (must also return the correct number!!!)
   int  interface_count();
+#endif // SYSTEMC_VERSION >= 20070314 // SystemC 2.2
+
   void add_interface(sc_core::sc_interface *);
 
   virtual ~PortInBase();
@@ -275,9 +280,14 @@ protected:
   }
 #endif //SYSTEMOC_ENABLE_DEBUG
 
+#if SYSTEMC_VERSION >= 20181013 // SystemC 2.3.3
+  int  interface_count() const;
+#elif SYSTEMC_VERSION >= 20070314 // SystemC 2.2
   // SystemC 2.2 requires this method
   // (must also return the correct number!!!)
   int  interface_count();
+#endif // SYSTEMC_VERSION >= 20070314 // SystemC 2.2
+
   void add_interface(sc_core::sc_interface *);
 
   virtual ~PortOutBase();

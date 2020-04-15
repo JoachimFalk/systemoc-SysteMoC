@@ -27,6 +27,10 @@
 
 #include <systemc>
 
+#if SYSTEMC_VERSION >= 20181013 // SystemC 2.3.3
+# include <sysc/utils/sc_typeindex.h>
+#endif // SYSTEMC_VERSION >= 20181013 // SystemC 2.3.3
+
 #if defined(SYSTEMOC_ENABLE_MAESTRO) && defined(MAESTRO_ENABLE_BRUCKNER)
 # include  <Maestro/Bruckner/Port.hpp>
 #endif //defined(SYSTEMOC_ENABLE_MAESTRO) && defined(MAESTRO_ENABLE_BRUCKNER)
@@ -55,6 +59,13 @@ namespace smoc { namespace Detail {
       { base_type::bind(interface_); }
     void operator () (this_type &parent_)
       { base_type::bind(parent_); }
+
+#if SYSTEMC_VERSION >= 20181013 // SystemC 2.3.3
+    // return RTTI information of associated interface
+    virtual sc_core::sc_type_index get_interface_type() const
+      { return typeid(iface_type); }
+#endif // SYSTEMC_VERSION >= 20181013 // SystemC 2.3.3
+
   protected:
     PortCommon(const char *name)
       : BASE(name) {
@@ -64,8 +75,13 @@ namespace smoc { namespace Detail {
 #endif //defined(SYSTEMOC_ENABLE_MAESTRO) && defined(MAESTRO_ENABLE_BRUCKNER)
     }
   private:
+#if SYSTEMC_VERSION >= 20181013 // SystemC 2.3.3
+    const char *if_typename() const
+      { return get_interface_type().name(); }
+#else
     const char *if_typename() const
       { return typeid(iface_type).name(); }
+#endif // SYSTEMC_VERSION >= 20181013 // SystemC 2.3.3
 
     // called by pbind (for internal use only)
     int vbind(sc_core::sc_interface &interface_) {

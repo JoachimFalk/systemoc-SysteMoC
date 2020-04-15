@@ -96,11 +96,15 @@ PortInBase::PortInBase(const char *name)
 PortInBase::~PortInBase() {
 }
 
+#if SYSTEMC_VERSION >= 20181013 // SystemC 2.3.3
+int  PortInBase::interface_count() const
+  { return interface != nullptr ? 1 : 0; }
+#elif SYSTEMC_VERSION >= 20070314 // SystemC 2.2
 // SystemC 2.2 requires this method
 // (must also return the correct number!!!)
-int PortInBase::interface_count() {
-  return interface != nullptr ? 1 : 0;
-}
+int  PortInBase::interface_count()
+  { return interface != nullptr ? 1 : 0; }
+#endif // SYSTEMC_VERSION >= 20070314 // SystemC 2.2
 
 void PortInBase::add_interface(sc_core::sc_interface *i_) {
   if (i_ == nullptr)
@@ -133,11 +137,15 @@ PortOutBase::PortOutBase(const char *name)
 PortOutBase::~PortOutBase() {
 }
 
+#if SYSTEMC_VERSION >= 20181013 // SystemC 2.3.3
+int PortOutBase::interface_count() const
+  { return interfaces.size(); }
+#elif SYSTEMC_VERSION >= 20070314 // SystemC 2.2
 // SystemC 2.2 requires this method
 // (must also return the correct number!!!)
-int PortOutBase::interface_count() {
-  return interfaces.size();
-}
+int PortOutBase::interface_count()
+  { return interfaces.size(); }
+#endif // SYSTEMC_VERSION >= 20070314 // SystemC 2.2
 
 void PortOutBase::add_interface(sc_core::sc_interface *i_) {
   if (i_ == NULL)
