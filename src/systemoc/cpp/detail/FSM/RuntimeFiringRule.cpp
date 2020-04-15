@@ -54,7 +54,7 @@ namespace smoc { namespace Detail { namespace FSM {
       return nullptr;
     }
     result_type visitEvent(smoc_event_waiter &e, std::string const &name) {
-      *fr.ioPatternWaiter &= e;
+      fr.events &= e;
       fr.guardComplexity += 1;
       return nullptr;
     }
