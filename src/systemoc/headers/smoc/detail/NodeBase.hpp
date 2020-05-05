@@ -30,8 +30,6 @@
 
 #include <systemc>
 
-#include <CoSupport/Lambda/functor.hpp>
-
 #include <systemoc/smoc_config.h>
 
 #include "NamedIdedObj.hpp"
@@ -39,6 +37,7 @@
 #include "../smoc_action.hpp"
 #include "../smoc_state.hpp"
 #include "PortBase.hpp"
+#include "Functor.hpp"
 
 #include <smoc/smoc_hooking.hpp>
 
@@ -170,10 +169,10 @@ protected:
 
   template<typename F, typename X>
   static
-  typename CoSupport::Lambda::ParamAccumulator<ActionBuilder, CoSupport::Lambda::Functor<void, F>, true>::accumulated_type
+  typename ParamAccumulator<ActionBuilder, Functor<void, F>, true>::accumulated_type
   call(X* ins, const F &f, const char *name = "") {
-    return CoSupport::Lambda::ParamAccumulator<ActionBuilder, CoSupport::Lambda::Functor<void, F>, true>::build
-      (CoSupport::Lambda::Functor<void, F>(ins, f, name));
+    return ParamAccumulator<ActionBuilder, Functor<void, F>, true>::build
+      (Functor<void, F>(ins, f, name));
   }
 
   template<typename F, typename X>

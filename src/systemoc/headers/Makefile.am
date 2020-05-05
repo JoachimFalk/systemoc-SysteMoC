@@ -60,6 +60,7 @@ nobase_include_HEADERS = \
 	smoc/detail/DumpingInterfaces.hpp \
 	smoc/detail/EventMapManager.hpp \
 	smoc/detail/export_config.h \
+	smoc/detail/Functor.hpp \
 	smoc/detail/GraphBase.hpp \
 	smoc/detail/IdedObj.hpp \
 	smoc/detail/IdTAllocRequest.hpp \
