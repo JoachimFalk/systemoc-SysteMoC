@@ -34,7 +34,6 @@
 #include <CoSupport/commondefs.h>
 #include <CoSupport/SmartPtr/RefCountObject.hpp>
 #include <CoSupport/DataTypes/oneof.hpp>
-#include <CoSupport/Lambda/functor.hpp>
 #include <CoSupport/String/convert.hpp>
 
 #include <boost/typeof/typeof.hpp>
@@ -46,6 +45,7 @@
 #include "smoc_event.hpp"
 #include "detail/MemFuncCallIf.hpp"
 #include "detail/DebugOStream.hpp"
+#include "detail/Functor.hpp"
 
 namespace smoc { namespace Detail {
 
@@ -487,14 +487,14 @@ struct MemGuardHelper { typedef D<DMemGuard<F,PL> > type; };
 // Make a convenient typedef for the placeholder type.
 template<class F>
 struct MemGuard {
-  typedef typename CoSupport::Lambda::ParamAccumulator<
-    MemGuardHelper, CoSupport::Lambda::ConstFunctor<bool, F> >::accumulated_type type;
+  typedef typename Detail::ParamAccumulator<
+    MemGuardHelper, Detail::ConstFunctor<bool, F> >::accumulated_type type;
 };
 
 template<class X, typename F>
 typename MemGuard<F>::type guard(const X *o, const F &f, const char *name = "") {
   return typename MemGuard<F>::type(
-    CoSupport::Lambda::ConstFunctor<bool, F>(o, f, name));
+    Detail::ConstFunctor<bool, F>(o, f, name));
 }
 
 /****************************************************************************
