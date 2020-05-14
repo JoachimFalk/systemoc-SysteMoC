@@ -1,7 +1,14 @@
-// -*- tab-width:8; intent-tabs-mode:nil; c-basic-offset:2; -*-
+// -*- tab-width:8; indent-tabs-mode:nil; c-basic-offset:2; -*-
 // vim: set sw=2 ts=8 et:
 /*
- * Copyright (c) 2004-2019 Hardware-Software-CoDesign, University of Erlangen-Nuremberg.
+ * Copyright (c)
+ *   2010 FAU -- Joachim Falk <joachim.falk@fau.de>
+ *   2010 FAU -- Sebastian Graf <sebastian.graf@fau.de>
+ *   2012 FAU -- Joachim Falk <joachim.falk@fau.de>
+ *   2016 FAU -- Joachim Falk <joachim.falk@fau.de>
+ *   2017 FAU -- Joachim Falk <joachim.falk@fau.de>
+ *   2018 FAU -- Joachim Falk <joachim.falk@fau.de>
+ *   2019 FAU -- Joachim Falk <joachim.falk@fau.de>
  * 
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
