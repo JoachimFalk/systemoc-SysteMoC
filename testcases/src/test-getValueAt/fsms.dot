@@ -1,7 +1,7 @@
 digraph G {
 graph [label="FSM of top.src1"]
 0[color="red" label="q_0" style="filled"];
-0->0 [label="#o_0≥1&&(i<18446744073709551615)"];
+0->0 [label="#o_0≥1&&(i<1024)"];
 }
 digraph G {
 graph [label="FSM of top.sink"]
