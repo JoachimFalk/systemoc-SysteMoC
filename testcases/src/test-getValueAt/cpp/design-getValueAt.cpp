@@ -61,7 +61,7 @@ public:
 };
 
 int sc_main (int argc, char **argv) {
-  size_t iter = static_cast<size_t>(-1);
+  size_t iter = static_cast<size_t>(1024);
   
   if (argc >= 2)
     iter = atol(argv[1]);
