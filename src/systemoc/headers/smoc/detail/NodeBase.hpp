@@ -279,7 +279,7 @@ private:
   /// @brief Resets this node, calls reset()
   virtual void doReset();
 
-  void signaled(smoc::smoc_event_waiter *e);
+  bool signaled(smoc::smoc_event_waiter *e);
   void eventDestroyed(smoc::smoc_event_waiter *e);
   void renotified(smoc::smoc_event_waiter *e);
 

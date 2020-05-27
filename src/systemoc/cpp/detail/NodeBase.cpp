@@ -187,7 +187,7 @@ void NodeBase::renotified(smoc::smoc_event_waiter *e) {
 #endif // SYSTEMOC_ENABLE_DEBUG
 }
 
-void NodeBase::signaled(smoc::smoc_event_waiter *e) {
+bool NodeBase::signaled(smoc::smoc_event_waiter *e) {
 #ifdef SYSTEMOC_ENABLE_DEBUG
   if (smoc::Detail::outDbg.isVisible(smoc::Detail::Debug::High)) {
     smoc::Detail::outDbg << "<NodeBase::signaled name=\"" << name() << "\">"
@@ -229,6 +229,7 @@ void NodeBase::signaled(smoc::smoc_event_waiter *e) {
     smoc::Detail::outDbg << smoc::Detail::Indent::Down << "</NodeBase::signaled>" << std::endl;
   }
 #endif // SYSTEMOC_ENABLE_DEBUG
+  return false;
 }
 
 void NodeBase::eventDestroyed(smoc::smoc_event_waiter *e) {
