@@ -39,6 +39,8 @@ namespace smoc { namespace Detail {
     typedef QueueFRVWPtr  this_type;
     typedef QueueRVWPtr   base_type;
   protected:
+    typedef QueueFRVWPtr  queue_type;
+
     /*             fsize
      *   ____________^___________
      *  /                        \
@@ -94,10 +96,12 @@ namespace smoc { namespace Detail {
       base_type::resetQueue();
     }
 
+#ifdef SYSTEMOC_ENABLE_SGX
     void resize(size_t n) {
       assert(findex == 0);
       base_type::resize(n);
     }
+#endif //SYSTEMOC_ENABLE_SGX
 
     /// Invalidate n tokens in the visible area. Update findex and rindex
     /// assuming that the tokens in the queue are moved to the right.

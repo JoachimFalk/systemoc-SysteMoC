@@ -133,7 +133,6 @@ protected:
     }
   }
 
-public:
 #ifdef SYSTEMOC_ENABLE_SGX
   // FIXME: This should be protected for the SysteMoC user but accessible
   // for SysteMoC visitors
@@ -141,6 +140,13 @@ public:
     it->setType(typeid(typename this_type::data_type).name());
     for (size_t n = 0; n < this->visibleCount(); ++n)
       it->addToken(CoSupport::String::asStr(this->storage[n].get()));
+  }
+
+  void resize(size_t n) {
+    this->base_type::resize(n);
+    // Also update ring access
+    this->access_in_type_impl::resize(this->storage, this->qfSize());
+    this->access_out_type_impl::resize(this->storage, this->qfSize());
   }
 #endif // SYSTEMOC_ENABLE_SGX
 };

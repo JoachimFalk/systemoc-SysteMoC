@@ -122,6 +122,10 @@ public:
   // FIXME: This should be protected for the SysteMoC user but accessible
   // for SysteMoC visitors
   virtual void dumpInitialTokens(smoc::Detail::IfDumpingInitialTokens *it) = 0;
+
+  // This must be overwritten in QueueWithStorageHelper to also resize the
+  // storage buffer of the FIFO!
+  virtual void resize(size_t n) = 0;
 #endif // SYSTEMOC_ENABLE_SGX
 private:
   smoc::Detail::EventMapManager emmData;

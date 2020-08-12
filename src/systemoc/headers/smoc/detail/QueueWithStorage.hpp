@@ -129,10 +129,20 @@ protected:
     base_type::resetQueue();
   }
 
+#ifdef SYSTEMOC_ENABLE_SGX
   void resize(size_t n) {
-    assert(!"Implement this!");
-    base_type::resize(n);
+    size_t oldSize = this->qfSize();
+    storage_type *oldStorage = storage;
+    this->BASE::queue_type::resize(n);
+    storage = new storage_type[this->qfSize()];
+    size_t copyElems = std::min(this->qfSize(), oldSize);
+    for (size_t i = 0; i < copyElems; ++i) {
+      if (oldStorage[i].isValid())
+        storage[i].put(oldStorage[i].get());
+    }
+    delete[] oldStorage;
   }
+#endif //SYSTEMOC_ENABLE_SGX
 
   /// @brief Destructor
   ~QueueWithStorageHelper()
@@ -182,6 +192,12 @@ protected:
   template <class G>
   void dropRVisible(G const &g)
     { base_type::dropRVisible(moveTokensRight(g)); }
+
+#ifdef SYSTEMOC_ENABLE_SGX
+  void resize(size_t n) {
+    this->BASE::queue_type::resize(n);
+  }
+#endif //SYSTEMOC_ENABLE_SGX
 };
 
 class QueueRVWPtr;

@@ -43,6 +43,8 @@ namespace smoc { namespace Detail {
   public:
     typedef CoSupport::Math::ModuloGroup<CoSupport::Math::Modulus<size_t> > MG;
   private:
+    typedef QueueRWPtr queue_type;
+
     /*             fsize
      *   ____________^___________
      *  /                        \
@@ -123,11 +125,13 @@ namespace smoc { namespace Detail {
       windex = 0;
     }
 
+#ifdef SYSTEMOC_ENABLE_SGX
     void resize(size_t n) {
       assert(rindex == 0);
       assert(windex <= n);
       fsize = MG::M(n + 1);
     }
+#endif //SYSTEMOC_ENABLE_SGX
 
     /// Invalidate n tokens in the visible area. Update rindex assuming that
     /// the tokens in the queue are moved to the right. This method will be
