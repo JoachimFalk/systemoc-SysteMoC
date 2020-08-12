@@ -68,7 +68,10 @@ namespace smoc {
     this_type *copyPort(const char *name, Detail::NgId id) {
       this_type *retval = new this_type(name);
       retval->setId(id);
-      retval->bind(*this->get_interface());
+//    retval->bind(*this->get_interface());
+      // Use sc_core::sc_port_base::bind to skip manipulation
+      // of parent and child pointers in our ports.
+      retval->sc_core::sc_port_base::bind(*this);
       return retval;
     }
 #endif //SYSTEMOC_ENABLE_SGX

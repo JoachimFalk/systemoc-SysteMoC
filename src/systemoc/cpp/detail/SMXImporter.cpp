@@ -224,13 +224,13 @@ public:
     : smoc_graph(name, initState)
     , initState("initState")
   {
-    std::cerr << "Creating cluster " << this->name() << std::endl;
+//  std::cerr << "Creating cluster " << this->name() << std::endl;
     for (SGX::Port::ConstRef sgxPort : rp.ports()) {
       PortBase *smocActorPort =
           dynamic_cast<PortBase *>(getSimCTX()->getIdPool().getNodeById(sgxPort.actorPort()->id()));
       assert(smocActorPort != nullptr);
-      PortBase *smocClusterPort = smocActorPort->copyPort(sgxPort.name().get().c_str(), sgxPort.id());
-      std::cerr << "Creating port " << smocClusterPort->name() << " of cluster" << std::endl;
+      /* PortBase *smocClusterPort = */ smocActorPort->copyPort(sgxPort.name().get().c_str(), sgxPort.id());
+//    std::cerr << "Creating port " << smocClusterPort->name() << " of cluster from actor port " << smocActorPort->name() << std::endl;
     }
     SGX::FiringFSM::ConstRef sgxFSM = *rp.refinements().front().firingFSM();
 
@@ -307,7 +307,7 @@ ProcessVisitor::result_type ProcessVisitor::operator()(SGX::RefinedProcess const
   SGX::ProblemGraph const &pg = rp.refinements().front();
 #endif //!defined(_SYSTEMOC_LIBSGX_NO_PG)
   if (pg.firingFSM()) {
-    std::cerr << pg.name() << " is a cluster!" << std::endl;
+//  std::cerr << pg.name() << " is a cluster!" << std::endl;
     new QSSCluster(pg.name().get().c_str(), rp);
     // This disables all actors in the cluster. Scheduling
     // of these actors must be performed by the FSM created
