@@ -318,13 +318,15 @@ ProcessVisitor::result_type ProcessVisitor::operator()(SGX::RefinedProcess const
       assert(smocProcess);
       smocProcess->setActive(false);
     }
-  } else {
-    iterateGraphs(pg, *this);
   }
+  // The iterateGraphs method must also be called for clusters in order
+  // to resize contained FIFO channels.
+  iterateGraphs(pg, *this);
 }
 
 // This matches all FIFO channels
 ProcessVisitor::result_type ProcessVisitor::operator()(SGX::Fifo const &c) {
+//std::cerr << "Resizing FIFO " << c.name() << " to " << c.size()  << " tokens" << std::endl;
   size_t newSize = c.size().get();
   assert(newSize);
   smoc_fifo_chan_base *smocFifo =
