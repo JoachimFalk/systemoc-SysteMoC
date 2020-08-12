@@ -79,6 +79,14 @@ public:
       ? ringStorage[*ringOffset + n]
       : ringStorage[*ringOffset + n - ringStorageSize];
   }
+
+protected:
+#ifdef SYSTEMOC_ENABLE_SGX
+  void resize(storage_type *ringStorage, size_t ringStorageSize) {
+    this->ringStorage     = ringStorage;
+    this->ringStorageSize = ringStorageSize;
+  }
+#endif // SYSTEMOC_ENABLE_SGX
 };
 
 template <class PortIf>
