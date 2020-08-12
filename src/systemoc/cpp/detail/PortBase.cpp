@@ -122,6 +122,7 @@ int  PortInBase::interface_count()
 #endif // SYSTEMC_VERSION >= 20070314 // SystemC 2.2
 
 void PortInBase::add_interface(sc_core::sc_interface *i_) {
+//std::cerr << name() << ": add_interface(" << i_ << ") called" << std::endl;
   if (i_ == nullptr)
     throw std::runtime_error("Tried to add null channel interface to port!");
   PortInBaseIf *i = dynamic_cast<PortInBaseIf *>(i_);
@@ -163,6 +164,7 @@ int PortOutBase::interface_count()
 #endif // SYSTEMC_VERSION >= 20070314 // SystemC 2.2
 
 void PortOutBase::add_interface(sc_core::sc_interface *i_) {
+//std::cerr << name() << ": add_interface(" << i_ << ") called" << std::endl;
   if (i_ == NULL)
     throw std::runtime_error("Tried to add null channel interface to port!");
   PortOutBaseIf *i = dynamic_cast<PortOutBaseIf *>(i_);
