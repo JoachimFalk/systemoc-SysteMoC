@@ -70,6 +70,8 @@ NodeBase::NodeBase(sc_core::sc_module_name name, NodeType nodeType, smoc_state *
   , ct(nullptr)
   , nodeType(nodeType)
   , executing(false)
+  , signalingEvent(nullptr)
+  , signalingEventRemove(false)
   , useActivationCallback(true)
   , active(true)
 #ifdef SYSTEMOC_ENABLE_MAESTRO
@@ -178,7 +180,7 @@ void NodeBase::renotified(smoc::smoc_event_waiter *e) {
 #endif // SYSTEMOC_ENABLE_DEBUG
 
   assert(*e);
-  signaled(e);
+  sassert(!signaled(e));
 
 #ifdef SYSTEMOC_ENABLE_DEBUG
   if (smoc::Detail::outDbg.isVisible(smoc::Detail::Debug::High)) {
@@ -196,6 +198,9 @@ bool NodeBase::signaled(smoc::smoc_event_waiter *e) {
 #endif // SYSTEMOC_ENABLE_DEBUG
   assert(useActivationCallback && active);
   if (!executing) {
+    assert(!signalingEvent);
+    assert(!signalingEventRemove);
+    signalingEvent = e;
     // Never execute t->evaluateGuard() if events are reseted as the state of
     // all smoc::smoc_event_and_list dependent on the state of the reseted basic
     // event may not be consistent while the event update hierarchy is
@@ -222,6 +227,8 @@ bool NodeBase::signaled(smoc::smoc_event_waiter *e) {
       if (!ct)
         getScheduler()->notifyActivation(this, false);
     }
+    assert(signalingEvent == e);
+    signalingEvent = nullptr;
   }
   
 #ifdef SYSTEMOC_ENABLE_DEBUG
@@ -229,7 +236,9 @@ bool NodeBase::signaled(smoc::smoc_event_waiter *e) {
     smoc::Detail::outDbg << smoc::Detail::Indent::Down << "</NodeBase::signaled>" << std::endl;
   }
 #endif // SYSTEMOC_ENABLE_DEBUG
-  return false;
+  bool remove = signalingEventRemove;
+  signalingEventRemove = false;
+  return remove;
 }
 
 void NodeBase::eventDestroyed(smoc::smoc_event_waiter *e) {
@@ -298,8 +307,12 @@ void NodeBase::delMySelfAsListener(FSM::RuntimeState *state) {
 
   for (FSM::EventWaiterSet::iterator iter = am.begin();
        iter != am.end();
-       ++iter)
-    (*iter)->delListener(this);
+       ++iter) {
+    if (*iter == signalingEvent)
+      signalingEventRemove = true;
+    else
+      (*iter)->delListener(this);
+  }
 }
 void NodeBase::setUseActivationCallback(bool flag) {
   if (currentState) {

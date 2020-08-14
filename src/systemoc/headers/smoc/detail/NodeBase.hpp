@@ -254,6 +254,14 @@ private:
   /// This should be true if an action of the actor is currently executing
   /// and false otherwise.
   bool               executing;
+  /// This should point to the smoc::smoc_event_waiter currently calling
+  /// signaled.
+  smoc::smoc_event_waiter *signalingEvent;
+  /// This will be set to true to indicate that this NodeBase
+  /// should be removed from the signaling smoc_event_waiter after
+  /// the signaled method call by the event waiter.
+  bool                     signalingEventRemove;
+
   /// This should be true if SysteMoC should call notifyActivation to interface
   /// to the scheduler. If this is false, then the scheduler has to use
   /// canFire to inquire if the actor can be fired.
