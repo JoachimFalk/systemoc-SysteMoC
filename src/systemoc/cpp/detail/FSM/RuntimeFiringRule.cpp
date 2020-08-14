@@ -75,7 +75,7 @@ namespace smoc { namespace Detail { namespace FSM {
         fr.portInInfos.push_back(PortInInfo(static_cast<PortInBase &>(p), c, r));
         assert(c <= r);
       } else {
-        fr.portOutInfos.push_back(PortOutInfo(static_cast<PortOutBase &>(p), c));
+        fr.portOutInfos.push_back(PortOutInfo(static_cast<PortOutBase &>(p), c, r));
         // Cluster FSM guards have a consume of zero
         assert(c == 0 || c == r);
       }
@@ -120,7 +120,7 @@ namespace smoc { namespace Detail { namespace FSM {
       events &= static_cast<PortInBase &>(portInfo.port).blockEvent(portInfo.required);
     }
     for (PortOutInfo portInfo : getPortOutInfos()) {
-      events &= static_cast<PortOutBase &>(portInfo.port).blockEvent(portInfo.produced);
+      events &= static_cast<PortOutBase &>(portInfo.port).blockEvent(portInfo.required);
     }
     ioPatternWaiter = getCAP(events);
     events.clear();
