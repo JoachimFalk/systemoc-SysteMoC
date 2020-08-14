@@ -177,8 +177,7 @@ protected:
 
   virtual void end_of_elaboration();
 
-  smoc_event_waiter &blockEvent(size_t n)
-    { return interface->blockEvent(n); }
+  smoc_event_waiter &blockEvent(size_t n);
   size_t             availableCount() const
     { return this->numAvailable(); }
 

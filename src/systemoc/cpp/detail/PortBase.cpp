@@ -142,6 +142,16 @@ void PortInBase::end_of_elaboration() {
   }
 }
 
+smoc_event_waiter &PortInBase::blockEvent(size_t n) {
+  smoc_event_waiter &retval = interface->blockEvent(n);
+#ifdef SYSTEMOC_ENABLE_DEBUG
+  if (smoc::Detail::outDbg.isVisible(smoc::Detail::Debug::Low))
+    smoc::Detail::outDbg << "Block event " << &retval
+      << " is for " << interface->name() << " " << n << " available token(s)" << std::endl;
+#endif // SYSTEMOC_ENABLE_DEBUG
+  return retval;
+}
+
 /// Implements SimulatorAPI::PortInInterface::getSource.
 SimulatorAPI::ChannelSourceInterface *PortInBase::getSource()
   { return interface; }
@@ -205,7 +215,13 @@ smoc_event_waiter &PortOutBase::blockEvent(size_t n) {
     return iter->second;
   } else {
     assert(interfaces.size() == 1);
-    return interfaces.front()->blockEvent(n);
+    smoc_event_waiter &retval = interfaces.front()->blockEvent(n);
+#ifdef SYSTEMOC_ENABLE_DEBUG
+    if (smoc::Detail::outDbg.isVisible(smoc::Detail::Debug::Low))
+      smoc::Detail::outDbg << "Block event " << &retval
+        << " is for " << interfaces.front()->name() << " " << n << " free place(s)" << std::endl;
+#endif // SYSTEMOC_ENABLE_DEBUG
+    return retval;
   }
 }
 
