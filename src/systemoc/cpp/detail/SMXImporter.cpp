@@ -123,6 +123,10 @@ protected:
 
   inline
   result_type translateASTNode(const SGX::ASTNodeBinOpGe &, PortBase *p, int request) {
+#ifdef SYSTEMOC_ENABLE_DEBUG
+    if (smoc::Detail::outDbg.isVisible(smoc::Detail::Debug::High))
+      smoc::Detail::outDbg << "    " << "#" << p->name() << ">=" << request << std::endl;
+#endif // SYSTEMOC_ENABLE_DEBUG
     // FIXME: This should reuse smoc_port_in<T>::communicate / smoc_port_out<T>::communicate.
     return
       Expr::D<Expr::DComm<PortBase> >(*p, 0, request);
@@ -178,14 +182,14 @@ private:
       FSM::EventWaiterSet &am = actor->getCurrentState()->am;
 
 #ifdef SYSTEMOC_ENABLE_DEBUG
-      if (smoc::Detail::outDbg.isVisible(smoc::Detail::Debug::High))
+      if (smoc::Detail::outDbg.isVisible(smoc::Detail::Debug::Medium))
         smoc::Detail::outDbg << "QSS is waiting for actor " << actor->name() << " to become active." << std::endl;
 #endif // SYSTEMOC_ENABLE_DEBUG
       for (FSM::EventWaiterSet::iterator iter = am.begin();
            iter != am.end();
            ++iter) {
 #ifdef SYSTEMOC_ENABLE_DEBUG
-        if (smoc::Detail::outDbg.isVisible(smoc::Detail::Debug::Medium)) {
+        if (smoc::Detail::outDbg.isVisible(smoc::Detail::Debug::Low)) {
           smoc::Detail::outDbg << "[" << *iter << "] " << **iter << std::endl;
         }
 #endif // SYSTEMOC_ENABLE_DEBUG
@@ -224,13 +228,24 @@ public:
     : smoc_graph(name, initState)
     , initState("initState")
   {
-//  std::cerr << "Creating cluster " << this->name() << std::endl;
+#ifdef SYSTEMOC_ENABLE_DEBUG
+    if (smoc::Detail::outDbg.isVisible(smoc::Detail::Debug::High))
+      smoc::Detail::outDbg << "Creating cluster " << this->name() << std::endl;
+#endif // SYSTEMOC_ENABLE_DEBUG
     for (SGX::Port::ConstRef sgxPort : rp.ports()) {
       PortBase *smocActorPort =
           dynamic_cast<PortBase *>(getSimCTX()->getIdPool().getNodeById(sgxPort.actorPort()->id()));
       assert(smocActorPort != nullptr);
-      /* PortBase *smocClusterPort = */ smocActorPort->copyPort(sgxPort.name().get().c_str(), sgxPort.id());
-//    std::cerr << "Creating port " << smocClusterPort->name() << " of cluster from actor port " << smocActorPort->name() << std::endl;
+#ifdef SYSTEMOC_ENABLE_DEBUG
+      PortBase *smocClusterPort =
+#endif // SYSTEMOC_ENABLE_DEBUG
+        smocActorPort->copyPort(sgxPort.name().get().c_str(), sgxPort.id());
+#ifdef SYSTEMOC_ENABLE_DEBUG
+      if (smoc::Detail::outDbg.isVisible(smoc::Detail::Debug::High))
+        smoc::Detail::outDbg
+          << "  Creating port " << smocClusterPort->name()
+          << " of cluster from actor port " << smocActorPort->name() << std::endl;
+#endif // SYSTEMOC_ENABLE_DEBUG
     }
     SGX::FiringFSM::ConstRef sgxFSM = *rp.refinements().front().firingFSM();
 
@@ -254,6 +269,12 @@ public:
         SMoCStates::iterator dstStateIter = smocStates.find(sgxTransition.dstState()->id());
         assert(dstStateIter != smocStates.end());
 
+#ifdef SYSTEMOC_ENABLE_DEBUG
+        if (smoc::Detail::outDbg.isVisible(smoc::Detail::Debug::High))
+          smoc::Detail::outDbg << "  Creating transition "
+            << srcStateIter->second->getName() << " => "
+            << dstStateIter->second->getName() << std::endl;
+#endif // SYSTEMOC_ENABLE_DEBUG
         ASTEvaluator astEvaluator(getSimCTX()->getIdPool());
         *srcStateIter->second |=
             boost::get<Expr::Ex<ENABLED>::type>(astEvaluator.evaluate(*sgxTransition.activationPattern())) >>
@@ -307,7 +328,6 @@ ProcessVisitor::result_type ProcessVisitor::operator()(SGX::RefinedProcess const
   SGX::ProblemGraph const &pg = rp.refinements().front();
 #endif //!defined(_SYSTEMOC_LIBSGX_NO_PG)
   if (pg.firingFSM()) {
-//  std::cerr << pg.name() << " is a cluster!" << std::endl;
     new QSSCluster(pg.name().get().c_str(), rp);
     // This disables all actors in the cluster. Scheduling
     // of these actors must be performed by the FSM created
@@ -326,13 +346,21 @@ ProcessVisitor::result_type ProcessVisitor::operator()(SGX::RefinedProcess const
 
 // This matches all FIFO channels
 ProcessVisitor::result_type ProcessVisitor::operator()(SGX::Fifo const &c) {
-//std::cerr << "Resizing FIFO " << c.name() << " to " << c.size()  << " tokens" << std::endl;
   size_t newSize = c.size().get();
   assert(newSize);
   smoc_fifo_chan_base *smocFifo =
       dynamic_cast<smoc_fifo_chan_base *>(simCTX->getIdPool().getNodeById(c.id()));
-  smocFifo->resize(newSize);
-  assert(smocFifo->qfSize() == newSize+1);
+  if (smocFifo->qfSize() != newSize+1) {
+#ifdef SYSTEMOC_ENABLE_DEBUG
+    if (smoc::Detail::outDbg.isVisible(smoc::Detail::Debug::High))
+      smoc::Detail::outDbg
+        << "Resizing FIFO " << c.name()
+        << " from " << (smocFifo->qfSize()-1)
+        << " to " << newSize << " tokens" << std::endl;
+#endif // SYSTEMOC_ENABLE_DEBUG
+    smocFifo->resize(newSize);
+    assert(smocFifo->qfSize() == newSize+1);
+  }
 }
 
 ProcessVisitor::result_type ProcessVisitor::operator()(SGX::Process const &p) {
@@ -343,6 +371,13 @@ void importSMX(SimulationContext *simCTX) {
   if (!simCTX->isSMXImportingEnabled())
     return;
 
+#ifdef SYSTEMOC_ENABLE_DEBUG
+  if (smoc::Detail::outDbg.isVisible(smoc::Detail::Debug::High)) {
+    smoc::Detail::outDbg
+      << "Importing " << simCTX->importSMXFileName << " file..." << std::endl
+      << smoc::Detail::Indent::Up;
+  }
+#endif //SYSTEMOC_ENABLE_DEBUG
   SGX::NetworkGraphAccess ngx(*simCTX->importSMXFile);
   
   ProcessVisitor pv(simCTX);
@@ -352,6 +387,13 @@ void importSMX(SimulationContext *simCTX) {
 #else //!defined(_SYSTEMOC_LIBSGX_NO_PG)
   iterateGraphs(ngx.problemGraph(), pv);
 #endif //!defined(_SYSTEMOC_LIBSGX_NO_PG)
+
+#ifdef SYSTEMOC_ENABLE_DEBUG
+  if (smoc::Detail::outDbg.isVisible(smoc::Detail::Debug::High)) {
+    smoc::Detail::outDbg
+      << smoc::Detail::Indent::Down;
+  }
+#endif //SYSTEMOC_ENABLE_DEBUG
 }
 
 } } // namespace smoc::Detail

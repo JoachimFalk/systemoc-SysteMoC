@@ -249,7 +249,6 @@ SimulationContext::SimulationContext(int _argc, char *_argv[])
 #ifdef SYSTEMOC_ENABLE_DEBUG
       int   debugLevel = Debug::None.level - atoi(i->value.front().c_str());
       outDbg.setLevel(debugLevel < 0 ? 0 : debugLevel);
-      outDbg << Debug::High;
 #else  // !SYSTEMOC_ENABLE_DEBUG
       std::ostringstream str;
       str << "SysteMoC configured without debug output support: --" << i->string_key << " option not provided!";
@@ -309,6 +308,7 @@ SimulationContext::SimulationContext(int _argc, char *_argv[])
 #ifdef SYSTEMOC_ENABLE_SGX
       importSMXFile =
         new CoSupport::Streams::AIStream(std::cin, i->value.front(), "-");
+      importSMXFileName = i->value.front();
 #else  // !SYSTEMOC_ENABLE_SGX
       std::ostringstream str;
       str << "SysteMoC configured without sgx support: --" << i->string_key << " option not provided!";
