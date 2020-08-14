@@ -59,11 +59,12 @@ namespace smoc { namespace SimulatorAPI {
       { return portInInfos; }
 
     struct PortOutInfo {
-      PortOutInfo(PortOutInterface &out, size_t p)
-        : port(out), produced(p) {}
+      PortOutInfo(PortOutInterface &out, size_t p, size_t r)
+        : port(out), produced(p), required(r) {}
 
       PortOutInterface &port;
       size_t const      produced;
+      size_t const      required;
     };
     typedef std::vector<PortOutInfo> PortOutInfos;
 
