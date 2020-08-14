@@ -44,6 +44,7 @@ protected:
   SimulationContextSMXImporting();
 
   std::istream   *importSMXFile;
+  std::string     importSMXFileName;
 public:
   bool isSMXImportingEnabled() const
     { return importSMXFile; }
