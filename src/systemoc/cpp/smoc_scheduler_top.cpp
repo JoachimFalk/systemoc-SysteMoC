@@ -14,6 +14,7 @@
  *   2017 FAU -- Simone Müller <simone.mueller@fau.de>
  *   2018 FAU -- Joachim Falk <joachim.falk@fau.de>
  *   2019 FAU -- Joachim Falk <joachim.falk@fau.de>
+ *   2020 FAU -- Joachim Falk <joachim.falk@fau.de>
  * 
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -42,6 +43,7 @@
 #include <smoc/detail/GraphBase.hpp>
 
 #include "detail/SMXDumper.hpp"
+#include "detail/SNGDumper.hpp"
 #include "detail/SimulationContext.hpp"
 
 namespace smoc {
@@ -80,6 +82,11 @@ void smoc_scheduler_top::start_of_simulation() {
       sc_core::sc_stop();
   }
 #endif // SYSTEMOC_ENABLE_SGX
+  if (getSimCTX()->isSNGDumpingEnabled()) {
+    // Note that doReset() of each actor, graph, and channel must have been done before starting the dumping.
+    Detail::dumpSNG(getSimCTX()->getSNGDumpFile(), getSimCTX(), *g);
+    sc_core::sc_stop();
+  }
   simulation_running = true;
 }
 

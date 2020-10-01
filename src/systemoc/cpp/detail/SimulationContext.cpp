@@ -137,6 +137,12 @@ SimulationContext::SimulationContext(int _argc, char *_argv[])
      "Synchronize with specified smoc-XML")
     ;
   
+  systemocOptions.add_options()
+    ("systemoc-export-sng",
+     po::value<std::string>(),
+     "Dump SysteMoC data flow graph in SNG format")
+    ;
+
 #ifdef SYSTEMOC_ENABLE_TRANSITION_TRACE
   systemocOptions.add_options()
 #else // !SYSTEMOC_ENABLE_TRANSITION_TRACE
@@ -314,6 +320,12 @@ SimulationContext::SimulationContext(int _argc, char *_argv[])
       str << "SysteMoC configured without sgx support: --" << i->string_key << " option not provided!";
       throw std::runtime_error(str.str().c_str());
 #endif // !SYSTEMOC_ENABLE_SGX
+    } else if (i->string_key == "systemoc-export-sng") {
+      assert(!i->value.empty());
+      // delete null pointer is allowed...
+      delete dumpSNGFile;
+      dumpSNGFile =
+        new CoSupport::Streams::AOStream(std::cout, i->value.front(), "-");
     } else if (i->string_key == "systemoc-export-trace") {
       assert(!i->value.empty());
 #ifdef SYSTEMOC_ENABLE_TRANSITION_TRACE
