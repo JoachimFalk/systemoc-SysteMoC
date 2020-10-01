@@ -49,6 +49,8 @@
 #include "SMXDumper.hpp"
 #include "SMXImporter.hpp"
 
+#include "SNGDumper.hpp"
+
 #include "IdPool.hpp"
 
 namespace smoc { namespace Detail {
@@ -59,6 +61,7 @@ class SimulationContext
   , public SimulationContextSMXDumping
   , public SimulationContextSMXImporting
 #endif //SYSTEMOC_ENABLE_SGX
+  , public SimulationContextSNGDumping
 {
 private:
   typedef SimulatorAPI::SimulatorInterface SI;
