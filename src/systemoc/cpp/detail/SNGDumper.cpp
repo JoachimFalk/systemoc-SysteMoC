@@ -31,6 +31,7 @@
 
 #include <CoSupport/String/Concat.hpp>
 #include <CoSupport/String/convert.hpp>
+#include <CoSupport/String/DoubleQuotedString.hpp>
 
 #include <smoc/detail/DebugOStream.hpp>
 #include <smoc/detail/DumpingInterfaces.hpp>
@@ -151,6 +152,8 @@ namespace smoc { namespace Detail {
 using CoSupport::String::Concat;
 using CoSupport::String::asStr;
 
+typedef CoSupport::String::DoubleQuotedString DQ;
+
 SimulationContextSNGDumping::SimulationContextSNGDumping()
   : dumpSNGFile(nullptr) {}
 
@@ -161,6 +164,8 @@ SimulationContextSNGDumping::~SimulationContextSNGDumping() {
     dumpSNGFile = nullptr;
   }
 }
+
+namespace { // anonymous
 
 struct FlummyPort {
   std::string name;
@@ -365,8 +370,6 @@ struct SNGDumpCTX {
     : simCTX(ctx) {}
 };
 
-/*
-
 template <class Visitor>
 void recurse(Visitor &visitor, sc_core::sc_object &obj) {
 #if SYSTEMC_VERSION < 20050714
@@ -419,8 +422,6 @@ void recurse(Visitor &visitor, sc_core::sc_object &obj) {
 
 class GraphSubVisitor;
 
- */
-
 struct ExpectedPortConnections {
   // map from channel entry/outlet to inner port
   SCInterface2Port   unclassifiedPorts;
@@ -453,8 +454,6 @@ struct ExpectedPortConnections {
   }
 };
 
-#if 0
-
 class ProcessSubVisitor: public ExpectedPortConnections {
 public:
   typedef void result_type;
@@ -462,14 +461,10 @@ public:
   SNGDumpCTX              &ctx;
   // one hierarchy up
   ExpectedPortConnections &epc;
-  SGX::Process            &proc;
   SCPortBase2Port          ports;
 public:
-  SGX::Process &getProcess()
-    { return proc; }
-public:
-  ProcessSubVisitor(SNGDumpCTX &ctx, ExpectedPortConnections &epc, SGX::Process &proc)
-    : ctx(ctx), epc(epc), proc(proc) {}
+  ProcessSubVisitor(SNGDumpCTX &ctx, ExpectedPortConnections &epc)
+    : ctx(ctx), epc(epc) {}
 
   void operator ()(PortBase &obj);
 
@@ -484,22 +479,9 @@ class GraphSubVisitor: public ProcessSubVisitor {
 public:
   typedef void result_type;
 public:
-#ifndef _SYSTEMOC_LIBSGX_NO_PG
-  SGX::ProblemGraph::Ref pg;
-#else //defined(_SYSTEMOC_LIBSGX_NO_PG)
-  SGX::RefinedProcess   &pg;
-#endif //defined(_SYSTEMOC_LIBSGX_NO_PG)
 public:
-  SGX::RefinedProcess &getRefinedProcess()
-    { return static_cast<SGX::RefinedProcess &>(proc); }
-public:
-  GraphSubVisitor(SNGDumpCTX &ctx, ExpectedPortConnections &epc, SGX::RefinedProcess &proc)
-    : ProcessSubVisitor(ctx, epc, proc)
-#ifndef _SYSTEMOC_LIBSGX_NO_PG
-    , pg(*proc.refinements().begin())
-#else //defined(_SYSTEMOC_LIBSGX_NO_PG)
-    , pg(proc)
-#endif //defined(_SYSTEMOC_LIBSGX_NO_PG)
+  GraphSubVisitor(SNGDumpCTX &ctx, ExpectedPortConnections &epc)
+    : ProcessSubVisitor(ctx, epc)
     {}
 
   void operator ()(GraphBase &obj);
@@ -525,14 +507,14 @@ class ActorSubVisitor: public ProcessSubVisitor {
 public:
   typedef void result_type;
 protected:
-  SGX::Actor &getActor()
-    { return static_cast<SGX::Actor &>(proc); }
 public:
-  ActorSubVisitor(SNGDumpCTX &ctx, ExpectedPortConnections &epc, SGX::Actor &actor)
-    : ProcessSubVisitor(ctx, epc, actor) {}
+  ActorSubVisitor(SNGDumpCTX &ctx, ExpectedPortConnections &epc)
+    : ProcessSubVisitor(ctx, epc) {}
 
   using ProcessSubVisitor::operator();
 };
+
+#if 0
 
 class DumpPort: public NamedIdedObjAccess {
 public:
@@ -1015,16 +997,16 @@ public:
   }
 };
 
-class DumpActor: public NamedIdedObjAccess {
+#endif
+
+class DumpActor
+  : public NodeBaseAccess
+{
 public:
   typedef void result_type;
 protected:
   GraphSubVisitor &gsv;
 
-  struct TransitionInfo {
-    SGX::Action::Ptr  actionPtr;
-    SGX::ASTNode::Ptr astPtr;
-  };
 public:
   DumpActor(GraphSubVisitor &gsv)
     : gsv(gsv) {}
@@ -1035,58 +1017,13 @@ public:
       outDbg << "DumpActor::operator ()(...) [BEGIN] for " << getName(&a) << std::endl;
     }
 #endif //defined(SYSTEMOC_ENABLE_DEBUG)
-    SGX::Actor actor(getName(&a), getId(&a));
-    actor.cxxClass() = typeid(a).name();
-    ActorSubVisitor sv(gsv.ctx, gsv, actor);
+    gsv.ctx.simCTX->getSNGDumpFile()
+      << "  <actorInstance name=" << DQ(a.name()) << " type=" << DQ(typeid(a).name()) << "/>\n";
+    ActorSubVisitor sv(gsv.ctx, gsv);
     recurse(sv, a);
-    // Dump constructor parameters
-    {
-      SGX::ParameterList::Ref pl = actor.constructorParameters();
-      
-      for (ParamInfoList::const_iterator pIter = a.constrArgs.pil.begin();
-           pIter != a.constrArgs.pil.end();
-           ++pIter) {
-        SGX::Parameter parm(pIter->type, pIter->value);
-        parm.name() = pIter->name;
-        pl.push_back(parm);
-      }
-    }
-    // Dump firingFSM
-    {
-      actor.firingFSM() = DumpFiringFSM(sv)(a.getFiringFSM());
-    }
-    gsv.pg.processes().push_back(actor);
 #ifdef SYSTEMOC_ENABLE_DEBUG
     if (outDbg.isVisible(Debug::Low)) {
       outDbg << "DumpActor::operator ()(...) [END]" << std::endl;
-    }
-#endif //defined(SYSTEMOC_ENABLE_DEBUG)
-  }
-};
-
-class DumpSCModule {
-public:
-  typedef void result_type;
-protected:
-  GraphSubVisitor &gsv;
-public:
-  DumpSCModule(GraphSubVisitor &gsv)
-    : gsv(gsv) {}
-
-  result_type operator ()(sc_core::sc_module &a) {
-#ifdef SYSTEMOC_ENABLE_DEBUG
-    if (outDbg.isVisible(Debug::Low)) {
-      outDbg << "DumpSCModule::operator ()(...) [BEGIN] for " << a.name() << std::endl;
-    }
-#endif //defined(SYSTEMOC_ENABLE_DEBUG)
-    SGX::SCModule scModule(a.name());
-    scModule.cxxClass() = typeid(a).name();
-    gsv.pg.processes().push_back(scModule);
-    ProcessSubVisitor sv(gsv.ctx, gsv, scModule);
-    recurse(sv, a);
-#ifdef SYSTEMOC_ENABLE_DEBUG
-    if (outDbg.isVisible(Debug::Low)) {
-      outDbg << "DumpSCModule::operator ()(...) [END]" << std::endl;
     }
 #endif //defined(SYSTEMOC_ENABLE_DEBUG)
   }
@@ -1107,20 +1044,8 @@ public:
       outDbg << "DumpGraph::operator ()(...) [BEGIN] for " << getName(&g) << std::endl;
     }
 #endif //defined(SYSTEMOC_ENABLE_DEBUG)
-#ifndef _SYSTEMOC_LIBSGX_NO_PG
-    SGX::RefinedProcess  rp(Concat(getName(&g))("_rp"));
-    gsv.pg.processes().push_back(rp);
-    SGX::ProblemGraph    pg(getName(&g), getId(&g));
-    rp.refinements().push_back(pg);
-#else //defined(_SYSTEMOC_LIBSGX_NO_PG)
-    SGX::RefinedProcess  rp(getName(&g), getId(&g));
-    gsv.pg.processes().push_back(rp);
-    SGX::RefinedProcess &pg = rp;
-#endif //defined(_SYSTEMOC_LIBSGX_NO_PG)
-    pg.cxxClass() = typeid(g).name();
-    GraphSubVisitor sv(gsv.ctx, gsv, rp);
+    GraphSubVisitor sv(gsv.ctx, gsv);
     recurse(sv, g);
-    pg.firingFSM() = DumpFiringFSM(sv)(g.getFiringFSM());
 #ifdef SYSTEMOC_ENABLE_DEBUG
     if (outDbg.isVisible(Debug::Low)) {
       outDbg << "DumpGraph::operator ()(...) [END]" << std::endl;
@@ -1130,11 +1055,11 @@ public:
 };
 
 void ProcessSubVisitor::operator ()(PortBase &obj) {
-  DumpPort(*this)(obj);
+//DumpPort(*this)(obj);
 }
 
 void ProcessSubVisitor::operator ()(sc_core::sc_port_base &obj) {
-  DumpPort(*this)(obj);
+//DumpPort(*this)(obj);
 }
 
 void GraphSubVisitor::operator ()(GraphBase &obj) {
@@ -1146,23 +1071,23 @@ void GraphSubVisitor::operator ()(smoc_actor &obj) {
 }
 
 void GraphSubVisitor::operator ()(sc_core::sc_module &obj) {
-  DumpSCModule(*this)(obj);
+ /* ignore */
 }
 
 void GraphSubVisitor::operator ()(smoc_fifo_chan_base &obj) {
-  DumpFifo(*this)(obj);
+//DumpFifo(*this)(obj);
 }
 
 void GraphSubVisitor::operator ()(smoc_multireader_fifo_chan_base &obj) {
-  DumpMultiportFifo(*this)(obj);
+//DumpMultiportFifo(*this)(obj);
 }
 
 void GraphSubVisitor::operator ()(smoc_multiplex_fifo_chan_base &obj) {
-  DumpMultiplexFifo(*this)(obj);
+//DumpMultiplexFifo(*this)(obj);
 }
 
 void GraphSubVisitor::operator ()(smoc_reset_chan &obj) {
-  DumpResetNet(*this)(obj);
+//DumpResetNet(*this)(obj);
 }
 
 GraphSubVisitor::~GraphSubVisitor() {
@@ -1173,7 +1098,7 @@ GraphSubVisitor::~GraphSubVisitor() {
   expectedChannelConnections.clear();
 }
 
-#endif
+} // namespace anonymous
 
 void dumpSNG(std::ostream &file, SimulationContextSNGDumping *simCTX, GraphBase &g) {
   SNGDumpCTX              ctx(simCTX);
@@ -1185,8 +1110,8 @@ void dumpSNG(std::ostream &file, SimulationContextSNGDumping *simCTX, GraphBase 
     "  xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\n"
     "  xsi:noNamespaceSchemaLocation=\"sng.xsd\">\n"
     ;
-//GraphSubVisitor sv(ctx,epc,rp);
-//recurse(sv, g);
+  GraphSubVisitor sv(ctx,epc);
+  recurse(sv, g);
   // There may be dangling ports => erase them or we get an assertion!
   epc.expectedOuterPorts.clear();
   //epc.expectedChannelConnections.clear();
