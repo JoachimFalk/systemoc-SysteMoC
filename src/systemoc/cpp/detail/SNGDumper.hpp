@@ -34,6 +34,8 @@ class SimulationContextSNGDumping {
 protected:
   SimulationContextSNGDumping();
 
+  ~SimulationContextSNGDumping();
+
   std::ostream   *dumpSNGFile;
 public:
   bool isSNGDumpingEnabled() const

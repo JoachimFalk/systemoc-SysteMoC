@@ -52,6 +52,98 @@
 #include "FSM/RuntimeTransition.hpp"
 #include "FSM/FiringFSM.hpp"
 
+/*
+
+<?xml version="1.0"?>
+<networkGraph
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:noNamespaceSchemaLocation="sng.xsd">
+
+  <actorType name="A1">
+    <port name="i1" type="in"  rate="1"/>
+    <port name="i2" type="in"  rate="1"/>
+    <port name="o1" type="out" rate="1"/>
+    <port name="o2" type="out" rate="1"/>
+  </actorType>
+  <actorType name="A2">
+    <port name="i1" type="in"  rate="1"/>
+    <port name="i2" type="in"  rate="1"/>
+    <port name="o1" type="out" rate="1"/>
+    <port name="o2" type="out" rate="1"/>
+  </actorType>
+  <actorType name="A3">
+    <port name="i1" type="in"  rate="1"/>
+    <port name="i2" type="in"  rate="1"/>
+    <port name="o1" type="out" rate="1"/>
+    <port name="o2" type="out" rate="1"/>
+    <port name="o3" type="out" rate="1"/>
+  </actorType>
+  <actorType name="A4">
+    <port name="i1" type="in"  rate="1"/>
+    <port name="o1" type="out" rate="1"/>
+    <port name="o2" type="out" rate="1"/>
+  </actorType>
+  <actorType name="A5">
+    <port name="i1" type="in"  rate="1"/>
+    <port name="i2" type="in"  rate="1"/>
+    <port name="o1" type="out" rate="1"/>
+  </actorType>
+  <actorType name="A6">
+    <port name="i1" type="in"  rate="1"/>
+    <port name="i2" type="in"  rate="1"/>
+    <port name="i3" type="in"  rate="1"/>
+    <port name="o1" type="out" rate="1"/>
+  </actorType>
+
+  <actorInstance name="a1" type="A1"/>
+  <actorInstance name="a2" type="A2"/>
+  <actorInstance name="a3" type="A3"/>
+  <actorInstance name="a4" type="A4"/>
+  <actorInstance name="a5" type="A5"/>
+  <actorInstance name="a6" type="A6"/>
+
+  <fifo size="3" initial="1">
+    <source actor="a1" port="o2"/>
+    <target actor="a2" port="i2"/>
+  </fifo>
+  <fifo size="3" initial="1">
+    <source actor="a2" port="o2"/>
+    <target actor="a1" port="i2"/>
+  </fifo>
+  <fifo size="3" initial="0">
+    <source actor="a1" port="o1"/>
+    <target actor="a3" port="i1"/>
+  </fifo>
+  <fifo size="3" initial="0">
+    <source actor="a2" port="o1"/>
+    <target actor="a3" port="i2"/>
+  </fifo>
+  <fifo size="3" initial="0">
+    <source actor="a3" port="o1"/>
+    <target actor="a4" port="i1"/>
+  </fifo>
+  <fifo size="3" initial="0">
+    <source actor="a3" port="o2"/>
+    <target actor="a5" port="i1"/>
+  </fifo>
+  <fifo size="3" initial="0">
+    <source actor="a3" port="o3"/>
+    <target actor="a6" port="i3"/>
+  </fifo>
+  <fifo size="3" initial="0">
+    <source actor="a4" port="o2"/>
+    <target actor="a5" port="i2"/>
+  </fifo>
+  <fifo size="3" initial="0">
+    <source actor="a5" port="o1"/>
+    <target actor="a6" port="i2"/>
+  </fifo>
+
+</networkGraph>
+
+ */
+
+
 //#define SYSTEMOC_ENABLE_DEBUG
 
 namespace smoc { namespace Detail {
@@ -62,10 +154,22 @@ using CoSupport::String::asStr;
 SimulationContextSNGDumping::SimulationContextSNGDumping()
   : dumpSNGFile(nullptr) {}
 
-#if 0
+SimulationContextSNGDumping::~SimulationContextSNGDumping() {
+  if (isSNGDumpingEnabled()) {
+    dumpSNGFile->flush();
+    delete dumpSNGFile;
+    dumpSNGFile = nullptr;
+  }
+}
 
-typedef std::map<sc_core::sc_port_base const *, SGX::Port::Ptr>  SCPortBase2Port;
-typedef std::map<sc_core::sc_interface *, SGX::Port::Ptr>  SCInterface2Port;
+struct FlummyPort {
+  std::string name;
+};
+
+typedef std::map<sc_core::sc_port_base const *, FlummyPort>  SCPortBase2Port;
+typedef std::map<sc_core::sc_interface *,       FlummyPort>  SCInterface2Port;
+
+/*
 
 class ActionNGXVisitor {
 public:
@@ -252,12 +356,16 @@ ExprNGXVisitor::result_type ExprNGXVisitor::visitBinOp(
   return astNode.release();
 }
 
+*/
+
 struct SNGDumpCTX {
   SimulationContextSNGDumping *simCTX;
 
   SNGDumpCTX(SimulationContextSNGDumping *ctx)
     : simCTX(ctx) {}
 };
+
+/*
 
 template <class Visitor>
 void recurse(Visitor &visitor, sc_core::sc_object &obj) {
@@ -311,6 +419,8 @@ void recurse(Visitor &visitor, sc_core::sc_object &obj) {
 
 class GraphSubVisitor;
 
+ */
+
 struct ExpectedPortConnections {
   // map from channel entry/outlet to inner port
   SCInterface2Port   unclassifiedPorts;
@@ -331,19 +441,19 @@ struct ExpectedPortConnections {
       
       if ((entry = dynamic_cast<PortOutBaseIf *>(iter->first))) {
         std::cerr << "Unhandled entry type " << typeid(*entry).name()
-                  << " => dangling port " << iter->second->name() << std::endl;
+                  << " => dangling port " << iter->second.name << std::endl;
       } else if ((outlet = dynamic_cast<PortInBaseIf *>(iter->first))) {
         std::cerr << "Unhandled outlet type " << typeid(*outlet).name()
-                  << " => dangling port " << iter->second->name() << std::endl;
+                  << " => dangling port " << iter->second.name << std::endl;
       } else {
-        //FIXME: RTX hack dynamic_cast<...>(...) problem strikes again!!!
-        //assert(!"WTF?! Neither PortOutBaseIf nor PortInBaseIf!");
         std::cerr << "Unhandled entry/outlet type " << typeid(iter->first).name()
-                  << " => dangling port " << iter->second->name() << std::endl;
+                  << " => dangling port " << iter->second.name << std::endl;
       }
     }
   }
 };
+
+#if 0
 
 class ProcessSubVisitor: public ExpectedPortConnections {
 public:
@@ -1066,15 +1176,23 @@ GraphSubVisitor::~GraphSubVisitor() {
 #endif
 
 void dumpSNG(std::ostream &file, SimulationContextSNGDumping *simCTX, GraphBase &g) {
-//SNGDumpCTX              ctx(simCTX);
-//ExpectedPortConnections epc;
+  SNGDumpCTX              ctx(simCTX);
+  ExpectedPortConnections epc;
 
+  file <<
+    "<?xml version=\"1.0\"?>\n"
+    "<networkGraph\n"
+    "  xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\n"
+    "  xsi:noNamespaceSchemaLocation=\"sng.xsd\">\n"
+    ;
 //GraphSubVisitor sv(ctx,epc,rp);
 //recurse(sv, g);
-//// There may be dangling ports => erase them or we get an assertion!
-//epc.expectedOuterPorts.clear();
-//epc.expectedChannelConnections.clear();
-//ngx.save(file);
+  // There may be dangling ports => erase them or we get an assertion!
+  epc.expectedOuterPorts.clear();
+  //epc.expectedChannelConnections.clear();
+  file <<
+    "</networkGraph>\n"
+    ;
 }
 
 } } // namespace smoc::Detail
