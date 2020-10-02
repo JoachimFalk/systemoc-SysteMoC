@@ -95,6 +95,8 @@ SimulationContextSMXDumping::SimulationContextSMXDumping()
   , dumpPreSimSMXFile(nullptr)
   , dumpPostSimSMXFile(nullptr) {}
 
+namespace { // anonymous
+
 class ActionNGXVisitor {
 public:
   typedef SGX::Action::Ptr result_type;
@@ -942,7 +944,9 @@ public:
   }
 };
 
-class DumpActor: public NamedIdedObjAccess {
+class DumpActor
+  : public NodeBaseAccess
+{
 public:
   typedef void result_type;
 protected:
@@ -970,11 +974,9 @@ public:
     {
       SGX::ParameterList::Ref pl = actor.constructorParameters();
       
-      for (ParamInfoList::const_iterator pIter = a.constrArgs.pil.begin();
-           pIter != a.constrArgs.pil.end();
-           ++pIter) {
-        SGX::Parameter parm(pIter->type, pIter->value);
-        parm.name() = pIter->name;
+      for (ParamInfo const &pi : getConstrArgs(&a).pil) {
+        SGX::Parameter parm(pi.type, pi.value);
+        parm.name() = pi.name;
         pl.push_back(parm);
       }
     }
@@ -1099,6 +1101,8 @@ GraphSubVisitor::~GraphSubVisitor() {
     expectedChannelConnections.end());
   expectedChannelConnections.clear();
 }
+
+} // namespace anonymous
 
 void dumpSMX(std::ostream &file, SimulationContextSMXDumping *simCTX, GraphBase &g) {
   SGX::NetworkGraphAccess ngx;
