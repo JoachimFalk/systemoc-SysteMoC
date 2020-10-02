@@ -93,6 +93,7 @@ class RuntimeTransition;
 namespace smoc { namespace Detail {
 
 class GraphBase;
+class NodeBaseAccess;
 
 /**
  * smoc_root_node is the base class of all systemoc nodes be it
@@ -129,7 +130,7 @@ class NodeBase
   friend class smoc::smoc_graph;
   friend class FSM::FiringFSM;
   friend class GraphBase;
-  friend class DumpActor; // To access constrArgs by SMXDumper
+  friend class NodeBaseAccess;
   friend class ProcessVisitor; // To disable actors by SMXImporter.
   friend class QSSActionVisitor; // To schedule contained actors
 
@@ -306,6 +307,17 @@ private:
 };
 
 typedef std::list<NodeBase *> NodeList;
+
+class NodeBaseAccess
+#ifdef SYSTEMOC_NEED_IDS
+  : public NamedIdedObjAccess
+#endif // SYSTEMOC_NEED_IDS
+{
+public:
+  static
+  ParamInfoVisitor const &getConstrArgs(NodeBase const *nodeBase)
+    { return nodeBase->constrArgs; }
+};
 
 } } // namespace smoc::Detail
 
