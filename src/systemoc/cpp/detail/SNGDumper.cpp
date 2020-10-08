@@ -168,10 +168,16 @@ SimulationContextSNGDumping::~SimulationContextSNGDumping() {
 namespace { // anonymous
 
 struct FlummyPort {
-  FlummyPort(std::string const &name, bool isInput)
-    : name(name), isInput(isInput) {}
+  FlummyPort(
+      std::string const &actorName
+    , std::string const &portName
+    , bool isInput)
+    : actorName(actorName)
+    , portName(portName)
+    , isInput(isInput) {}
 
-  std::string name;
+  std::string actorName;
+  std::string portName;
   bool        isInput;
 };
 
@@ -207,7 +213,7 @@ void recurse(Visitor &visitor, sc_core::sc_object &obj) {
           pos++;
         else
           pos = 0;
-        // Now name.substr(pos, ...) is the leaf name
+        // Now name.substr(pos, ...) is the leaf portName
         if (name.substr(pos, sizeof("__smoc_")-1) != "__smoc_")
           apply_visitor(visitor, *static_cast<sc_core::sc_module *>(*iter));
       }
@@ -257,13 +263,13 @@ struct ExpectedPortConnections {
       
       if ((entry = dynamic_cast<PortOutBaseIf *>(iter->first))) {
         std::cerr << "Unhandled entry type " << typeid(*entry).name()
-                  << " => dangling port " << iter->second.name << std::endl;
+                  << " => dangling port " << iter->second.portName << std::endl;
       } else if ((outlet = dynamic_cast<PortInBaseIf *>(iter->first))) {
         std::cerr << "Unhandled outlet type " << typeid(*outlet).name()
-                  << " => dangling port " << iter->second.name << std::endl;
+                  << " => dangling port " << iter->second.portName << std::endl;
       } else {
         std::cerr << "Unhandled entry/outlet type " << typeid(iter->first).name()
-                  << " => dangling port " << iter->second.name << std::endl;
+                  << " => dangling port " << iter->second.portName << std::endl;
       }
     }
   }
@@ -345,12 +351,11 @@ public:
     }
 #endif //defined(SYSTEMOC_ENABLE_DEBUG)
     std::string portName = getName(&p);
-    {
-      std::string::size_type pos = portName.rfind('.');
-      if (pos != std::string::npos)
-        portName = portName.substr(pos+1);
-    }
-    FlummyPort port(portName, p.isInput());
+    std::string::size_type pos = portName.rfind('.');
+    assert(pos != std::string::npos && pos > 0);
+    std::string actorName = portName.substr(0, pos);
+    portName = portName.substr(pos+1);
+    FlummyPort port(actorName, portName, p.isInput());
     bool isInput = p.isInput();
     sassert(psv.ports.insert(std::make_pair(&p, port)).second);
     if (p.getActorPort() == &p) {
@@ -398,7 +403,7 @@ public:
     if (iter != psv.expectedOuterPorts.end()) {
 #ifdef SYSTEMOC_ENABLE_DEBUG
       if (outDbg.isVisible(Debug::Low)) {
-        outDbg << " => handled expectedOuterPorts " << iter->second.name << " connected to outer port " << getName(&p) << std::endl;
+        outDbg << " => handled expectedOuterPorts " << iter->second.portName << " connected to outer port " << getName(&p) << std::endl;
       }
 #endif //defined(SYSTEMOC_ENABLE_DEBUG)
       // FIXME: iter->second->otherPorts().insert(port.toPtr());???
@@ -441,7 +446,8 @@ public:
         }
 #endif //defined(SYSTEMOC_ENABLE_DEBUG)
         gsv.ctx.simCTX->getSNGDumpFile()
-          << "    <source actor=" << DQ("???") << " port=" << DQ(iter->second.name) << "/>\n";
+          << "    <source actor=" << DQ(iter->second.actorName)
+          <<             " port=" << DQ(iter->second.portName) << "/>\n";
         gsv.expectedChannelConnections.erase(iter); // handled it!
       }
     }
@@ -455,7 +461,8 @@ public:
         }
 #endif //defined(SYSTEMOC_ENABLE_DEBUG)
         gsv.ctx.simCTX->getSNGDumpFile()
-          << "    <target actor=" << DQ("???") << " port=" << DQ(iter->second.name) << "/>\n";
+          << "    <target actor=" << DQ(iter->second.actorName)
+          <<             " port=" << DQ(iter->second.portName) << "/>\n";
         gsv.expectedChannelConnections.erase(iter); // handled it!
       }
     }
@@ -489,17 +496,17 @@ public:
     recurse(sv, a);
 
     gsv.ctx.simCTX->getSNGDumpFile()
-      << "  <actorType name=" << DQ(typeid(a).name()) << ">\n";
+      << "  <actorType portName=" << DQ(typeid(a).name()) << ">\n";
     for (SCPortBase2Port::value_type p : sv.ports) {
       gsv.ctx.simCTX->getSNGDumpFile()
-       << "    <port name=" << DQ(p.second.name)
+       << "    <port portName=" << DQ(p.second.portName)
        << " type=" << (p.second.isInput ? "\"in\"" : "\"out\"") << "/>\n";
     }
     gsv.ctx.simCTX->getSNGDumpFile()
       << "  </actorType>\n";
 
     gsv.ctx.simCTX->getSNGDumpFile()
-      << "  <actorInstance name=" << DQ(a.name()) << " type=" << DQ(typeid(a).name()) << "/>\n";
+      << "  <actorInstance portName=" << DQ(a.name()) << " type=" << DQ(typeid(a).name()) << "/>\n";
 #ifdef SYSTEMOC_ENABLE_DEBUG
     if (outDbg.isVisible(Debug::Low)) {
       outDbg << "DumpActor::operator ()(...) [END]" << std::endl;
