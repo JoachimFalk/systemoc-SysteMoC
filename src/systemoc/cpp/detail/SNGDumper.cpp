@@ -168,7 +168,11 @@ SimulationContextSNGDumping::~SimulationContextSNGDumping() {
 namespace { // anonymous
 
 struct FlummyPort {
+  FlummyPort(std::string const &name, bool isInput)
+    : name(name), isInput(isInput) {}
+
   std::string name;
+  bool        isInput;
 };
 
 typedef std::map<sc_core::sc_port_base const *, FlummyPort>  SCPortBase2Port;
@@ -514,8 +518,6 @@ public:
   using ProcessSubVisitor::operator();
 };
 
-#if 0
-
 class DumpPort: public NamedIdedObjAccess {
 public:
   typedef void result_type;
@@ -531,13 +533,15 @@ public:
       outDbg << "DumpPort::operator ()(smoc_sysc_port &) [BEGIN]" << std::endl;
     }
 #endif //defined(SYSTEMOC_ENABLE_DEBUG)
-    SGX::Port port(getName(&p), getId(&p));
+    std::string portName = getName(&p);
+    {
+      std::string::size_type pos = portName.rfind('.');
+      if (pos != std::string::npos)
+        portName = portName.substr(pos+1);
+    }
+    FlummyPort port(portName, p.isInput());
     bool isInput = p.isInput();
-    port.direction() = isInput
-        ? SGX::Port::In
-        : SGX::Port::Out;
-    sassert(psv.ports.insert(std::make_pair(&p, &port)).second);
-    psv.proc.ports().push_back(port);
+    sassert(psv.ports.insert(std::make_pair(&p, port)).second);
     if (p.getActorPort() == &p) {
 #ifdef SYSTEMOC_ENABLE_DEBUG
       if (outDbg.isVisible(Debug::Low)) {
@@ -552,7 +556,7 @@ public:
         }
 #endif //defined(SYSTEMOC_ENABLE_DEBUG)
         sassert(psv.epc.expectedChannelConnections.insert(
-          std::make_pair(iface, &port)).second);
+          std::make_pair(iface, port)).second);
       } else {
         for (PortOutBaseIf *iface : static_cast<PortOutBase &>(p).get_interfaces()) {
 #ifdef SYSTEMOC_ENABLE_DEBUG
@@ -561,7 +565,7 @@ public:
           }
 #endif //defined(SYSTEMOC_ENABLE_DEBUG)
           sassert(psv.epc.expectedChannelConnections.insert(
-            std::make_pair(iface, &port)).second);
+            std::make_pair(iface, port)).second);
         }
       }
 #ifdef SYSTEMOC_ENABLE_DEBUG
@@ -577,16 +581,16 @@ public:
       }
 #endif //defined(SYSTEMOC_ENABLE_DEBUG)
       sassert(psv.epc.expectedOuterPorts.insert(
-        std::make_pair(p.getParentPort(), &port)).second);
+        std::make_pair(p.getParentPort(), port)).second);
     }
     SCPortBase2Port::iterator iter = psv.expectedOuterPorts.find(&p);
     if (iter != psv.expectedOuterPorts.end()) {
 #ifdef SYSTEMOC_ENABLE_DEBUG
       if (outDbg.isVisible(Debug::Low)) {
-        outDbg << " => handeled expectedOuterPorts " << iter->second->name() << " connected to outer port " << getName(&p) << std::endl;
+        outDbg << " => handled expectedOuterPorts " << iter->second.name << " connected to outer port " << getName(&p) << std::endl;
       }
 #endif //defined(SYSTEMOC_ENABLE_DEBUG)
-      iter->second->otherPorts().insert(port.toPtr());
+      // FIXME: iter->second->otherPorts().insert(port.toPtr());???
       psv.expectedOuterPorts.erase(iter); // handled it!
     }
 #ifdef SYSTEMOC_ENABLE_DEBUG
@@ -604,20 +608,25 @@ public:
 #endif //defined(SYSTEMOC_ENABLE_DEBUG)
     ChanAdapterBase *chanAdapterBase = dynamic_cast<ChanAdapterBase *>(p.get_interface());
     if (chanAdapterBase != nullptr) {
-      SGX::Port port(p.name());
-      sassert(psv.ports.insert(std::make_pair(&p, &port)).second);
-      psv.proc.ports().push_back(port);
+      std::string portName = p.name();
+      {
+        std::string::size_type pos = portName.rfind('.');
+        if (pos != std::string::npos)
+          portName = portName.substr(pos+1);
+      }
+      FlummyPort port(portName, true);
+      sassert(psv.ports.insert(std::make_pair(&p, port)).second);
 #ifdef SYSTEMOC_ENABLE_DEBUG
       if (outDbg.isVisible(Debug::Low)) {
         outDbg << p.name() << " => unclassifiedPorts" << std::endl;
       }
 #endif //defined(SYSTEMOC_ENABLE_DEBUG)
       sassert(psv.epc.unclassifiedPorts.insert(
-        std::make_pair(&chanAdapterBase->getIface(), &port)).second);
+        std::make_pair(&chanAdapterBase->getIface(), port)).second);
       SCInterface2Port::iterator iter =
         psv.unclassifiedPorts.find(&chanAdapterBase->getIface());
       if (iter != psv.unclassifiedPorts.end()) {
-        port.innerConnectedPort() = iter->second;
+        // FIXME: port.innerConnectedPort() = iter->second;???
         psv.unclassifiedPorts.erase(iter); // handled it!
       }
     } else {
@@ -635,6 +644,8 @@ public:
   }
 
 };
+
+#if 0
 
 class DumpFifoBase: public NamedIdedObjAccess {
 protected:
@@ -1017,10 +1028,21 @@ public:
       outDbg << "DumpActor::operator ()(...) [BEGIN] for " << getName(&a) << std::endl;
     }
 #endif //defined(SYSTEMOC_ENABLE_DEBUG)
-    gsv.ctx.simCTX->getSNGDumpFile()
-      << "  <actorInstance name=" << DQ(a.name()) << " type=" << DQ(typeid(a).name()) << "/>\n";
     ActorSubVisitor sv(gsv.ctx, gsv);
     recurse(sv, a);
+
+    gsv.ctx.simCTX->getSNGDumpFile()
+      << "  <actorType name=" << DQ(typeid(a).name()) << ">\n";
+    for (SCPortBase2Port::value_type p : sv.ports) {
+      gsv.ctx.simCTX->getSNGDumpFile()
+       << "    <port name=" << DQ(p.second.name)
+       << " type=" << (p.second.isInput ? "\"in\"" : "\"out\"") << "/>\n";
+    }
+    gsv.ctx.simCTX->getSNGDumpFile()
+      << "  </actorType>\n";
+
+    gsv.ctx.simCTX->getSNGDumpFile()
+      << "  <actorInstance name=" << DQ(a.name()) << " type=" << DQ(typeid(a).name()) << "/>\n";
 #ifdef SYSTEMOC_ENABLE_DEBUG
     if (outDbg.isVisible(Debug::Low)) {
       outDbg << "DumpActor::operator ()(...) [END]" << std::endl;
@@ -1055,11 +1077,11 @@ public:
 };
 
 void ProcessSubVisitor::operator ()(PortBase &obj) {
-//DumpPort(*this)(obj);
+  DumpPort(*this)(obj);
 }
 
 void ProcessSubVisitor::operator ()(sc_core::sc_port_base &obj) {
-//DumpPort(*this)(obj);
+  DumpPort(*this)(obj);
 }
 
 void GraphSubVisitor::operator ()(GraphBase &obj) {
