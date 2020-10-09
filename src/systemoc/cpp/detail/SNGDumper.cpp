@@ -454,7 +454,7 @@ public:
 #endif //defined(SYSTEMOC_ENABLE_DEBUG)
     
     gsv.ctx.simCTX->getSNGDumpFile()
-      << "  <fifo size=\"" << p.depthCount() << "\" initial=\"" << -1 << "\">\n";
+      << "  <fifo size=\"" << p.depthCount() << "\" initial=\"" << p.usedCount() << "\">\n";
     for (ChanBase::EntryMap::value_type entry : p.getEntries()) {
       SCInterface2Port::iterator iter =
         gsv.expectedChannelConnections.find(entry.first);
