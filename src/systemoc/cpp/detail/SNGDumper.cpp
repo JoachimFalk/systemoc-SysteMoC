@@ -21,26 +21,16 @@
 
 #include <systemoc/smoc_config.h>
 
-#include <map>
-#include <utility>
-#include <memory>
-
-#include <boost/scoped_ptr.hpp>
-
-#include <smoc/smoc_guard.hpp>
-
-#include <CoSupport/String/Concat.hpp>
-#include <CoSupport/String/convert.hpp>
-#include <CoSupport/String/DoubleQuotedString.hpp>
-
 #include <smoc/detail/DebugOStream.hpp>
 #include <smoc/detail/DumpingInterfaces.hpp>
 #include <smoc/detail/NamedIdedObj.hpp>
-
 #include <smoc/detail/NodeBase.hpp>
 #include <smoc/detail/ChanBase.hpp>
 #include <smoc/detail/PortBase.hpp>
+
+#include <smoc/smoc_guard.hpp>
 #include <smoc/smoc_actor.hpp>
+
 #include <systemoc/smoc_fifo.hpp>
 #include <systemoc/smoc_multiplex_fifo.hpp>
 #include <systemoc/smoc_multireader_fifo.hpp>
@@ -48,10 +38,23 @@
 #include "apply_visitor.hpp"
 #include "SimulationContext.hpp"
 
-#include "FSM/RuntimeState.hpp"
-#include "FSM/RuntimeFiringRule.hpp"
-#include "FSM/RuntimeTransition.hpp"
-#include "FSM/FiringFSM.hpp"
+//#include "FSM/RuntimeState.hpp"
+//#include "FSM/RuntimeFiringRule.hpp"
+//#include "FSM/RuntimeTransition.hpp"
+//#include "FSM/FiringFSM.hpp"
+
+#include <CoSupport/String/Concat.hpp>
+#include <CoSupport/String/convert.hpp>
+#include <CoSupport/String/DoubleQuotedString.hpp>
+
+#include <map>
+#include <utility>
+#include <memory>
+#include <cstdlib>
+
+#ifdef __GNUG__
+# include <cxxabi.h>
+#endif
 
 /*
 
@@ -167,6 +170,22 @@ SimulationContextSNGDumping::~SimulationContextSNGDumping() {
 
 namespace { // anonymous
 
+std::string demangle(const char *name) {
+#ifdef __GNUG__
+  int status = -4; // some arbitrary value to eliminate the compiler warning
+
+  std::unique_ptr<char, void(*)(void*)> res {
+      abi::__cxa_demangle(name, NULL, NULL, &status),
+      std::free
+  };
+
+  return (status==0) ? res.get() : name ;
+#else
+  // does nothing if not g++
+  return name;
+#endif
+}
+
 struct FlummyPort {
   FlummyPort(
       std::string const &actorName
@@ -213,7 +232,7 @@ void recurse(Visitor &visitor, sc_core::sc_object &obj) {
           pos++;
         else
           pos = 0;
-        // Now name.substr(pos, ...) is the leaf portName
+        // Now name.substr(pos, ...) is the leaf name
         if (name.substr(pos, sizeof("__smoc_")-1) != "__smoc_")
           apply_visitor(visitor, *static_cast<sc_core::sc_module *>(*iter));
       }
@@ -495,18 +514,21 @@ public:
     ActorSubVisitor sv(gsv.ctx, gsv);
     recurse(sv, a);
 
+    DQ actorType = demangle(typeid(a).name());
+    DQ actorName = a.name();
+
     gsv.ctx.simCTX->getSNGDumpFile()
-      << "  <actorType portName=" << DQ(typeid(a).name()) << ">\n";
+      << "  <actorType name=" << actorType << ">\n";
     for (SCPortBase2Port::value_type p : sv.ports) {
       gsv.ctx.simCTX->getSNGDumpFile()
-       << "    <port portName=" << DQ(p.second.portName)
+       << "    <port name=" << DQ(p.second.portName)
        << " type=" << (p.second.isInput ? "\"in\"" : "\"out\"") << "/>\n";
     }
     gsv.ctx.simCTX->getSNGDumpFile()
       << "  </actorType>\n";
 
     gsv.ctx.simCTX->getSNGDumpFile()
-      << "  <actorInstance portName=" << DQ(a.name()) << " type=" << DQ(typeid(a).name()) << "/>\n";
+      << "  <actorInstance name=" << actorName << " type=" << actorType << "/>\n";
 #ifdef SYSTEMOC_ENABLE_DEBUG
     if (outDbg.isVisible(Debug::Low)) {
       outDbg << "DumpActor::operator ()(...) [END]" << std::endl;
