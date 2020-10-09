@@ -46,6 +46,7 @@
 #include <CoSupport/String/Concat.hpp>
 #include <CoSupport/String/convert.hpp>
 #include <CoSupport/String/DoubleQuotedString.hpp>
+#include <CoSupport/String/UniquePool.hpp>
 
 #include <map>
 #include <utility>
@@ -204,7 +205,9 @@ typedef std::map<sc_core::sc_port_base const *, FlummyPort>  SCPortBase2Port;
 typedef std::map<sc_core::sc_interface *,       FlummyPort>  SCInterface2Port;
 
 struct SNGDumpCTX {
-  SimulationContextSNGDumping *simCTX;
+  SimulationContextSNGDumping        *simCTX;
+  std::map<std::string, std::string>  actorTypeCache;
+  CoSupport::String::UniquePool       actorTypeUniquePool;
 
   SNGDumpCTX(SimulationContextSNGDumping *ctx)
     : simCTX(ctx) {}
@@ -514,21 +517,33 @@ public:
     ActorSubVisitor sv(gsv.ctx, gsv);
     recurse(sv, a);
 
-    DQ actorType = demangle(typeid(a).name());
-    DQ actorName = a.name();
+    std::string actorType = demangle(typeid(a).name());
+    std::string actorName = a.name();
 
-    gsv.ctx.simCTX->getSNGDumpFile()
-      << "  <actorType name=" << actorType << ">\n";
-    for (SCPortBase2Port::value_type p : sv.ports) {
-      gsv.ctx.simCTX->getSNGDumpFile()
-       << "    <port name=" << DQ(p.second.portName)
-       << " type=" << (p.second.isInput ? "\"in\"" : "\"out\"") << "/>\n";
+    {
+      std::string key = actorType;
+      for (SCPortBase2Port::value_type p : sv.ports) {
+        key += ";" + p.second.portName;
+        key += p.second.isInput ? "[IN]" : "[OUT]";
+      }
+      std::string &type = gsv.ctx.actorTypeCache[key];
+      if (type.empty()) {
+        type = gsv.ctx.actorTypeUniquePool(actorType);
+        gsv.ctx.simCTX->getSNGDumpFile()
+          << "  <actorType name=" << DQ(type) << ">\n";
+        for (SCPortBase2Port::value_type p : sv.ports) {
+          gsv.ctx.simCTX->getSNGDumpFile()
+           << "    <port name=" << DQ(p.second.portName)
+           << " type=" << (p.second.isInput ? "\"in\"" : "\"out\"") << "/>\n";
+        }
+        gsv.ctx.simCTX->getSNGDumpFile()
+          << "  </actorType>\n";
+      }
+      actorType = type;
     }
-    gsv.ctx.simCTX->getSNGDumpFile()
-      << "  </actorType>\n";
 
     gsv.ctx.simCTX->getSNGDumpFile()
-      << "  <actorInstance name=" << actorName << " type=" << actorType << "/>\n";
+      << "  <actorInstance name=" << DQ(actorName) << " type=" << DQ(actorType) << "/>\n";
 #ifdef SYSTEMOC_ENABLE_DEBUG
     if (outDbg.isVisible(Debug::Low)) {
       outDbg << "DumpActor::operator ()(...) [END]" << std::endl;
