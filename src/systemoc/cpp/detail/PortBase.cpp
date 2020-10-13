@@ -42,6 +42,8 @@
 
 #include "SimulationContext.hpp"
 
+#include <sstream>
+
 namespace smoc { namespace Detail {
 
 using namespace CoSupport;
@@ -122,14 +124,22 @@ int  PortInBase::interface_count()
 #endif // SYSTEMC_VERSION >= 20070314 // SystemC 2.2
 
 void PortInBase::add_interface(sc_core::sc_interface *i_) {
-//std::cerr << name() << ": add_interface(" << i_ << ") called" << std::endl;
-  if (i_ == nullptr)
-    throw std::runtime_error("Tried to add null channel interface to port!");
+  if (i_ == nullptr) {
+    std::stringstream msg;
+    msg << "Tried to add null channel interface to port " << name() << "!";
+    throw std::runtime_error(msg.str());
+  }
   PortInBaseIf *i = dynamic_cast<PortInBaseIf *>(i_);
-  if (i == nullptr)
-    throw std::runtime_error("Tried to add wrong channel interface to port!");
-  if (interface != nullptr)
-    throw std::runtime_error("Tried to add multiple channel interfaces to port!");
+  if (i_ == nullptr) {
+    std::stringstream msg;
+    msg << "Tried to add wrong channel interface " << typeid(*i_).name() << " to port " << name() << "!";
+    throw std::runtime_error(msg.str());
+  }
+  if (interface != nullptr) {
+    std::stringstream msg;
+    msg << "Tried to add multiple channel interfaces to port " << name() << "!";
+    throw std::runtime_error(msg.str());
+  }
   interface = i;
   portAccess = i->getChannelAccess();
 }
