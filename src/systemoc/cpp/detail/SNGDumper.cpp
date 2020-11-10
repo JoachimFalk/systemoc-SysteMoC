@@ -209,6 +209,10 @@ struct SNGDumpCTX {
   std::map<std::string, std::string>  actorTypeCache;
   CoSupport::String::UniquePool       actorTypeUniquePool;
 
+  std::stringstream actorTypes;
+  std::stringstream actorInstances;
+  std::stringstream fifoConnections;
+
   SNGDumpCTX(SimulationContextSNGDumping *ctx)
     : simCTX(ctx) {}
 };
@@ -456,7 +460,7 @@ public:
     }
 #endif //defined(SYSTEMOC_ENABLE_DEBUG)
     
-    gsv.ctx.simCTX->getSNGDumpFile()
+    gsv.ctx.fifoConnections
       << "  <fifo size=\"" << p.depthCount() << "\" initial=\"" << p.usedCount() << "\">\n";
     for (ChanBase::EntryMap::value_type entry : p.getEntries()) {
       SCInterface2Port::iterator iter =
@@ -467,7 +471,7 @@ public:
           outDbg << "DumpFifoBase::connectPort handled expectedChannelConnection " << reinterpret_cast<void *>(iter->first) << std::endl;
         }
 #endif //defined(SYSTEMOC_ENABLE_DEBUG)
-        gsv.ctx.simCTX->getSNGDumpFile()
+        gsv.ctx.fifoConnections
           << "    <source actor=" << DQ(iter->second.actorName)
           <<             " port=" << DQ(iter->second.portName) << "/>\n";
         gsv.expectedChannelConnections.erase(iter); // handled it!
@@ -482,13 +486,13 @@ public:
           outDbg << "DumpFifoBase::connectPort handled expectedChannelConnection " << reinterpret_cast<void *>(iter->first) << std::endl;
         }
 #endif //defined(SYSTEMOC_ENABLE_DEBUG)
-        gsv.ctx.simCTX->getSNGDumpFile()
+        gsv.ctx.fifoConnections
           << "    <target actor=" << DQ(iter->second.actorName)
           <<             " port=" << DQ(iter->second.portName) << "/>\n";
         gsv.expectedChannelConnections.erase(iter); // handled it!
       }
     }
-    gsv.ctx.simCTX->getSNGDumpFile()
+    gsv.ctx.fifoConnections
       << "  </fifo>\n";
 #ifdef SYSTEMOC_ENABLE_DEBUG
     if (outDbg.isVisible(Debug::Low)) {
@@ -529,20 +533,20 @@ public:
       std::string &type = gsv.ctx.actorTypeCache[key];
       if (type.empty()) {
         type = gsv.ctx.actorTypeUniquePool(actorType);
-        gsv.ctx.simCTX->getSNGDumpFile()
+        gsv.ctx.actorTypes
           << "  <actorType name=" << DQ(type) << ">\n";
         for (SCPortBase2Port::value_type p : sv.ports) {
-          gsv.ctx.simCTX->getSNGDumpFile()
-           << "    <port name=" << DQ(p.second.portName)
-           << " type=" << (p.second.isInput ? "\"in\"" : "\"out\"") << "/>\n";
+          gsv.ctx.actorTypes
+            << "    <port name=" << DQ(p.second.portName)
+            << " type=" << (p.second.isInput ? "\"in\"" : "\"out\"") << "/>\n";
         }
-        gsv.ctx.simCTX->getSNGDumpFile()
+        gsv.ctx.actorTypes
           << "  </actorType>\n";
       }
       actorType = type;
     }
 
-    gsv.ctx.simCTX->getSNGDumpFile()
+    gsv.ctx.actorInstances
       << "  <actorInstance name=" << DQ(actorName) << " type=" << DQ(actorType) << "/>\n";
 #ifdef SYSTEMOC_ENABLE_DEBUG
     if (outDbg.isVisible(Debug::Low)) {
@@ -627,20 +631,21 @@ void dumpSNG(std::ostream &file, SimulationContextSNGDumping *simCTX, GraphBase 
   SNGDumpCTX              ctx(simCTX);
   ExpectedPortConnections epc;
 
-  file <<
-    "<?xml version=\"1.0\"?>\n"
-    "<networkGraph\n"
-    "  xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\n"
-    "  xsi:noNamespaceSchemaLocation=\"sng.xsd\">\n"
-    ;
+  file
+    << "<?xml version=\"1.0\"?>\n"
+       "<networkGraph\n"
+       "  xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\n"
+       "  xsi:noNamespaceSchemaLocation=\"sng.xsd\">\n";
   GraphSubVisitor sv(ctx,epc);
   recurse(sv, g);
   // There may be dangling ports => erase them or we get an assertion!
   epc.expectedOuterPorts.clear();
   //epc.expectedChannelConnections.clear();
-  file <<
-    "</networkGraph>\n"
-    ;
+  file
+    << ctx.actorTypes.str()
+    << ctx.actorInstances.str()
+    << ctx.fifoConnections.str()
+    << "</networkGraph>\n";
 }
 
 } } // namespace smoc::Detail
