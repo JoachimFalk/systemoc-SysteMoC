@@ -461,7 +461,10 @@ public:
 #endif //defined(SYSTEMOC_ENABLE_DEBUG)
     
     gsv.ctx.fifoConnections
-      << "  <fifo size=\"" << p.depthCount() << "\" initial=\"" << p.usedCount() << "\">\n";
+      << "  <fifo "
+              "name=" << DQ(p.name()) << " "
+              "size=\"" << p.depthCount() << "\" "
+              "initial=\"" << p.usedCount() << "\">\n";
     for (ChanBase::EntryMap::value_type entry : p.getEntries()) {
       SCInterface2Port::iterator iter =
         gsv.expectedChannelConnections.find(entry.first);
