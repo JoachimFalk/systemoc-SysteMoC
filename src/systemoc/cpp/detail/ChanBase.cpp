@@ -15,6 +15,7 @@
  *   2017 FAU -- Simone Müller <simone.mueller@fau.de>
  *   2018 FAU -- Joachim Falk <joachim.falk@fau.de>
  *   2019 FAU -- Joachim Falk <joachim.falk@fau.de>
+ *   2020 FAU -- Joachim Falk <joachim.falk@fau.de>
  * 
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -36,10 +37,11 @@
 #include <systemoc/detail/smoc_chan_if.hpp>
 #include <smoc/detail/DebugOStream.hpp>
 
-#include <map>
+#include <set>
 #include <sstream>
 
 #include <CoSupport/String/Concat.hpp>
+#include <CoSupport/sassert.h>
 
 #include <smoc/detail/NodeBase.hpp>
 #include <smoc/detail/ChanBase.hpp>
@@ -53,44 +55,52 @@ using CoSupport::String::Concat;
 #ifndef SYSTEMOC_ENABLE_MAESTROMM_SPEEDUP
 void ChanBase::generateName() {
   // value_type will be constructed as T(), which initializes primite types to 0!
-  static std::map<std::string, size_t> _smoc_channel_name_map;
+#ifndef NDEBUG
+  static std::set<std::string> _smoc_channel_names;
+#endif //NDEBUG
   
   if (myName == "") {
     //Only overwrite if not specified by user
   
-    std::ostringstream genName;
+    // We need the set to sort output and input port names. Otherwise, the generated names
+    // will not be deterministic!
+    std::set<std::string> outputPorts, inputPorts;
   
-    genName << "cf_";
+    for (EntryMap::value_type const &entry : getEntries()) {
+      PortBase              const *p  =
+          dynamic_cast<PortBase *>(entry.second);
+      sc_core::sc_port_base const *ap = p != nullptr
+          ? p->getActorPort()
+          : entry.second;
+      sassert(outputPorts.insert(ap->name()).second);
+    }
+    for (OutletMap::value_type const &outlet : getOutlets()) {
+      PortBase              const *p  =
+          dynamic_cast<PortBase *>(outlet.second);
+      sc_core::sc_port_base const *ap = p != nullptr
+          ? p->getActorPort()
+          : outlet.second;
+      sassert(inputPorts.insert(ap->name()).second);
+    }
+    std::ostringstream genName;
+    genName << "cf:";
     {
-      const EntryMap& entries = getEntries();
-      
-      for (EntryMap::const_iterator iter = entries.begin();
-           iter != entries.end();
-           ++iter ) {
-        PortBase        const *p  = dynamic_cast<PortBase *>(iter->second);
-        sc_core::sc_port_base const *ap = p != nullptr ? p->getActorPort() : iter->second;
-        genName
-          << (iter == entries.begin() ? "" : "|")
-          << ap->get_parent_object()->name();
+      bool first = true;
+      for (std::string outputPort : outputPorts) {
+        genName << (first ? "" : "|") << outputPort;
+        first = false;
       }
     }
-    genName << "_";
+    genName << "->";
     {
-      const OutletMap& outlets = getOutlets();
-      
-      for (OutletMap::const_iterator iter = outlets.begin();
-           iter != outlets.end();
-           ++iter ) {
-        PortBase        const *p  = dynamic_cast<PortBase *>(iter->second);
-        sc_core::sc_port_base const *ap = p != nullptr ? p->getActorPort() : iter->second;
-        genName
-          << (iter == outlets.begin() ? "" : "|")
-          << ap->get_parent_object()->name();
+      bool first = true;
+      for (std::string inputPort : inputPorts) {
+        genName << (first ? "" : "|") << inputPort;
+        first = false;
       }
     }
-    genName << "_";
-    genName << (_smoc_channel_name_map[genName.str()] += 1);
     myName = genName.str();
+    assert(_smoc_channel_names.insert(myName).second);
   }
 }
 #endif //!SYSTEMOC_ENABLE_MAESTROMM_SPEEDUP
