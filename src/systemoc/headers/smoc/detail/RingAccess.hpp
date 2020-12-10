@@ -25,16 +25,16 @@
  * 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
  */
 
-#ifndef _INCLUDED_SYSTEMOC_DETAIL_SMOC_RING_ACCESS_HPP
-#define _INCLUDED_SYSTEMOC_DETAIL_SMOC_RING_ACCESS_HPP
+#ifndef _INCLUDED_SMOC_DETAIL_RINGACCESS_HPP
+#define _INCLUDED_SMOC_DETAIL_RINGACCESS_HPP
 
 #include <systemoc/smoc_config.h>
 
-#include "smoc_chan_if.hpp"
+namespace smoc { namespace Detail {
 
 template<class T, class PortIf>
-class smoc_ring_access: public PortIf {
-  typedef smoc_ring_access<T,PortIf>                 this_type;
+class RingAccess: public PortIf {
+  typedef RingAccess<T,PortIf>                 this_type;
 public:
   typedef typename PortIf::access_type::return_type  return_type;
   typedef smoc::Detail::Storage<T>                   storage_type;
@@ -46,7 +46,7 @@ private:
   size_t        ringStorageSize;
   const size_t *ringOffset;
 public:
-  smoc_ring_access(storage_type *ringStorage, size_t ringStorageSize, const size_t *ringOffset):
+  RingAccess(storage_type *ringStorage, size_t ringStorageSize, const size_t *ringOffset):
 #if defined(SYSTEMOC_ENABLE_DEBUG)
       ringLimit(0),
 #endif
@@ -90,14 +90,14 @@ protected:
 };
 
 template <class PortIf>
-class smoc_ring_access<void, PortIf>: public PortIf {
-  typedef smoc_ring_access<void, PortIf> this_type;
+class RingAccess<void, PortIf>: public PortIf {
+  typedef RingAccess<void, PortIf> this_type;
 public:
   typedef void                           return_type;
   typedef void                           storage_type;
 private:
 public:
-  smoc_ring_access()
+  RingAccess()
     {}
 
 #if defined(SYSTEMOC_ENABLE_DEBUG)
@@ -110,4 +110,6 @@ public:
   }
 };
 
-#endif /* _INCLUDED_SYSTEMOC_DETAIL_SMOC_RING_ACCESS_HPP */
+} } // smoc::Detail
+
+#endif /* _INCLUDED_SMOC_DETAIL_RINGACCESS_HPP */

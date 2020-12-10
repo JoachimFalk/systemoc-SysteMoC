@@ -73,6 +73,7 @@ nobase_include_HEADERS = \
 	smoc/detail/DumpingInterfaces.hpp \
 	smoc/detail/EventMapManager.hpp \
 	smoc/detail/export_config.h \
+	smoc/detail/FifoStorage.hpp \
 	smoc/detail/Functor.hpp \
 	smoc/detail/GraphBase.hpp \
 	smoc/detail/IdedObj.hpp \
@@ -89,6 +90,7 @@ nobase_include_HEADERS = \
 	smoc/detail/QueueRVWPtr.hpp \
 	smoc/detail/QueueRWPtr.hpp \
 	smoc/detail/QueueWithStorage.hpp \
+	smoc/detail/RingAccess.hpp \
 	smoc/detail/SimCTXBase.hpp \
 	smoc/detail/Storage.hpp \
 	smoc/detail/TraceLog.hpp \
@@ -116,6 +118,5 @@ nobase_include_HEADERS = \
 	systemoc/smoc_scheduler_top.hpp \
 	systemoc/smoc_tt.hpp \
 	systemoc/detail/smoc_chan_if.hpp \
-	systemoc/detail/smoc_fifo_storage.hpp \
-	systemoc/detail/smoc_port_registry.hpp \
-	systemoc/detail/smoc_ring_access.hpp
+	systemoc/detail/smoc_port_registry.hpp
+
