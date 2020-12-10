@@ -37,9 +37,11 @@
 #include <smoc/detail/PortBase.hpp>
 #include <smoc/smoc_graph.hpp>
 #include <smoc/smoc_actor.hpp>
+
 #include <systemoc/smoc_fifo.hpp>
 #include <systemoc/smoc_multiplex_fifo.hpp>
 #include <systemoc/smoc_multireader_fifo.hpp>
+#include <systemoc/smoc_register.hpp>
 #include <systemoc/smoc_reset.hpp>
 
 namespace smoc {
@@ -146,6 +148,17 @@ namespace Detail {
 
 _SMOC_GENERATE_APPLY_VISITOR(smoc_multireader_fifo_chan_base)
 
+/* smoc_register */
+
+namespace Detail {
+  template<template <class> class M, class Visitor>
+  typename Visitor::result_type
+  apply_visitor_helper(Visitor &visitor, typename M<RegisterChanBase>::type *ptr)
+    { return visitor(*ptr); }
+} // namespace Detail
+
+_SMOC_GENERATE_APPLY_VISITOR(Detail::RegisterChanBase)
+
 /* smoc_reset_chan */
 
 namespace Detail {
@@ -166,8 +179,9 @@ namespace Detail {
     _SMOC_HANDLE_DERIVED_CLASS(smoc_fifo_chan_base);
     _SMOC_HANDLE_DERIVED_CLASS(smoc_multiplex_fifo_chan_base);
     _SMOC_HANDLE_DERIVED_CLASS(smoc_multireader_fifo_chan_base);
+    _SMOC_HANDLE_DERIVED_CLASS(RegisterChanBase);
     _SMOC_HANDLE_DERIVED_CLASS(smoc_reset_chan);
-    assert(!"WTF?! Unhandled derived class of smoc_root_chan!");
+    assert(!"Oops! Internal error: Unhandled derived class of smoc::Detail::ChanBase!");
   }
 } // namespace Detail
 
