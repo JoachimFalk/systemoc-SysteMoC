@@ -27,14 +27,14 @@
  * 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
  */
 
+#include <smoc/detail/FifoChanBase.hpp>
+//#include <smoc/smoc_graph.hpp>
+
 #include <systemoc/smoc_config.h>
 
-#include <systemoc/smoc_fifo.hpp>
-#include <smoc/smoc_graph.hpp>
+namespace smoc { namespace Detail {
 
-namespace smoc {
-
-smoc_fifo_chan_base::smoc_fifo_chan_base(const chan_init& i)
+FifoChanBase::FifoChanBase(const chan_init& i)
   : ChanBase(i.name, 0)
 #ifdef SYSTEMOC_ENABLE_ROUTING
   , QueueFRVWPtr(i.n)
@@ -44,13 +44,13 @@ smoc_fifo_chan_base::smoc_fifo_chan_base(const chan_init& i)
   , tokenId(0)
 {}
 
-void smoc_fifo_chan_base::before_end_of_elaboration() {
+void FifoChanBase::before_end_of_elaboration() {
   ChanBase::before_end_of_elaboration();
   assert(getEntries().size() == 1);
   assert(getOutlets().size() == 1);
 }
 
-void smoc_fifo_chan_base::end_of_simulation() {
+void FifoChanBase::end_of_simulation() {
   ChanBase::end_of_simulation();
 #ifdef SYSTEMOC_ENABLE_DEBUG
   if (smoc::Detail::outDbg.isVisible(smoc::Detail::Debug::High)) {
@@ -64,7 +64,7 @@ void smoc_fifo_chan_base::end_of_simulation() {
 #endif // SYSTEMOC_ENABLE_DEBUG
 }
 
-void smoc_fifo_chan_base::doReset() {
+void FifoChanBase::doReset() {
 #ifdef SYSTEMOC_ENABLE_DEBUG
   if (smoc::Detail::outDbg.isVisible(smoc::Detail::Debug::High)) {
     smoc::Detail::outDbg << "<smoc_fifo_chan_base::doReset name=\"" << name() << "\">"
@@ -85,4 +85,4 @@ void smoc_fifo_chan_base::doReset() {
 #endif // SYSTEMOC_ENABLE_DEBUG
 }
 
-} // namespace smoc
+} } // namespace smoc::Detail

@@ -437,7 +437,7 @@ public:
 
   void operator ()(smoc_actor &obj);
 
-  void operator ()(smoc_fifo_chan_base &obj);
+  void operator ()(FifoChanBase &obj);
 
   void operator ()(smoc_multireader_fifo_chan_base &obj);
 
@@ -669,7 +669,7 @@ public:
   DumpFifo(GraphSubVisitor &gsv)
     : DumpFifoBase(gsv) {}
 
-  result_type operator ()(smoc_fifo_chan_base &p) {
+  result_type operator ()(FifoChanBase &p) {
 #ifdef SYSTEMOC_ENABLE_DEBUG
     if (outDbg.isVisible(Debug::Low)) {
       outDbg << "DumpFifo::operator ()(...) [BEGIN] for " << getName(&p) << std::endl;
@@ -1078,7 +1078,7 @@ void GraphSubVisitor::operator ()(sc_core::sc_module &obj) {
   DumpSCModule(*this)(obj);
 }
 
-void GraphSubVisitor::operator ()(smoc_fifo_chan_base &obj) {
+void GraphSubVisitor::operator ()(FifoChanBase &obj) {
   DumpFifo(*this)(obj);
 }
 

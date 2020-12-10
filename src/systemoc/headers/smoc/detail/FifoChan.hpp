@@ -32,11 +32,13 @@
  * 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
  */
 
-#ifndef _INCLUDED_SMOC_SMOC_FIFO_HPP
-#define _INCLUDED_SMOC_SMOC_FIFO_HPP
+#ifndef _INCLUDED_SMOC_DETAIL_FIFOCHAN_HPP
+#define _INCLUDED_SMOC_DETAIL_FIFOCHAN_HPP
 
-//#include "smoc_chan_adapter.hpp"
-#include "detail/FifoChan.hpp"
+#include "FifoStorage.hpp"
+#include "FifoChanBase.hpp"
+#include "FifoEntry.hpp"
+#include "FifoOutlet.hpp"
 
 #include <systemoc/smoc_config.h>
 
@@ -44,64 +46,57 @@
 
 #include <systemc>
 
-namespace smoc {
+namespace smoc { namespace Detail {
 
 /**
- * This class is the channel initializer for Detail::FifoChan
+ * This class provides interfaces and connect methods
  */
-template <typename T>
-class smoc_fifo
-  : public Detail::FifoChan<T>::chan_init
-  , public Detail::ConnectProvider<
-      smoc_fifo<T>,
-      Detail::FifoChan<T> >
+template<class T>
+class FifoChan
+: public FifoStorage<T, FifoChanBase>
 {
+  friend class FifoOutlet<T>;
+  friend class FifoEntry<T>;
 public:
-  //typedef T                 data_type;
-  typedef smoc_fifo<T>                  this_type;
-  typedef typename this_type::chan_type chan_type;
-  typedef typename chan_type::chan_init base_type;
-  friend typename this_type::con_type;
-  friend class smoc_reset_net;
-private:
-  chan_type *chan;
-public:
-  /// @brief Constructor
-  smoc_fifo(size_t n = 1)
-    : base_type("", n), chan(nullptr)
-  {}
-
-  /// @brief Constructor
-  explicit smoc_fifo(const std::string& name, size_t n = 1)
-    : base_type(name, n), chan(nullptr)
-  {}
-
-  /// @brief Constructor
-  smoc_fifo(const this_type &x)
-    : base_type(x), chan(nullptr)
-  {
-    if(x.chan)
-      assert(!"Can't copy initializer: Channel already created!");
-  }
-
-  this_type &operator<<(typename this_type::add_param_ty x) {
-    if(chan)
-      assert(!"Can't place initial token: Channel already created!");
-    this->add(x);
-    return *this;
-  }
+  typedef T                           data_type;
+  typedef FifoChan<data_type>   this_type;
+  typedef FifoEntry<data_type>  entry_type;
+  typedef FifoOutlet<data_type> outlet_type;
   
-private:
-  chan_type *getChan() {
-    if (chan == nullptr)
-      chan = new chan_type(*this);
-    return chan;
-  }
+  /// @brief Channel initializer
+  typedef typename FifoStorage<T, FifoChanBase>::chan_init chan_init;
 
-  // disable
-  this_type &operator =(const this_type &);
+  /// @brief Constructor
+  FifoChan(const chan_init &i)
+    : FifoStorage<T, FifoChanBase>(i)
+  {}
+protected:
+  /// @brief See smoc_port_registry
+  PortOutBaseIf *createEntry()
+    { return new entry_type(*this); }
+
+  /// @brief See smoc_port_registry
+  PortInBaseIf *createOutlet()
+    { return new outlet_type(*this); }
+
+  class InvalidateTokenGenerator {
+    int n;
+  public:
+    InvalidateTokenGenerator(int n): n(n) {}
+
+    int popMax() { return --n; }
+    int count() const { return n; }
+  };
+
+#ifdef SYSTEMOC_ENABLE_ROUTING
+  void invalidateToken(size_t x) {
+    this->dropRInvisible(InvalidateTokenGenerator(x));
+  }
+#endif //defined(SYSTEMOC_ENABLE_ROUTING)
+
+private:
 };
 
-} // namespace smoc
+} } // namespace smoc::Detail
 
-#endif /* _INCLUDED_SMOC_SMOC_FIFO_HPP */
+#endif /* _INCLUDED_SMOC_DETAIL_FIFOCHAN_HPP */

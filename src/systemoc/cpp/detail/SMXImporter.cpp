@@ -348,8 +348,8 @@ ProcessVisitor::result_type ProcessVisitor::operator()(SGX::RefinedProcess const
 ProcessVisitor::result_type ProcessVisitor::operator()(SGX::Fifo const &c) {
   size_t newSize = c.size().get();
   assert(newSize);
-  smoc_fifo_chan_base *smocFifo =
-      dynamic_cast<smoc_fifo_chan_base *>(simCTX->getIdPool().getNodeById(c.id()));
+  FifoChanBase *smocFifo =
+      dynamic_cast<FifoChanBase *>(simCTX->getIdPool().getNodeById(c.id()));
   if (smocFifo->qfSize() != newSize+1) {
 #ifdef SYSTEMOC_ENABLE_DEBUG
     if (smoc::Detail::outDbg.isVisible(smoc::Detail::Debug::High))
