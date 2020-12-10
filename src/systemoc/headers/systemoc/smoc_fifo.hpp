@@ -48,10 +48,6 @@
 
 #include <systemoc/smoc_config.h>
 
-#if defined(SYSTEMOC_ENABLE_MAESTRO) && defined(MAESTRO_ENABLE_BRUCKNER)
-# include <Maestro/Bruckner/Channel.hpp>
-#endif //defined(SYSTEMOC_ENABLE_MAESTRO) && defined(MAESTRO_ENABLE_BRUCKNER)
-
 #include <CoSupport/commondefs.h>
 
 #include <systemc>
@@ -326,9 +322,6 @@ private:
 template <typename T>
 class smoc_fifo
   : public smoc_fifo_chan<T>::chan_init
-#if defined(SYSTEMOC_ENABLE_MAESTRO) && defined(MAESTRO_ENABLE_BRUCKNER)
-  , public Bruckner::Model::Channel
-#endif //defined(SYSTEMOC_ENABLE_MAESTRO) && defined(MAESTRO_ENABLE_BRUCKNER)
   , public smoc::Detail::ConnectProvider<
       smoc_fifo<T>,
       smoc_fifo_chan<T> >

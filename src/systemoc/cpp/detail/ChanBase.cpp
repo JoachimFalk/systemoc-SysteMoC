@@ -105,13 +105,14 @@ void ChanBase::generateName() {
 }
 #endif //!SYSTEMOC_ENABLE_MAESTROMM_SPEEDUP
 
-ChanBase::ChanBase(std::string const &name)
+ChanBase::ChanBase(std::string const &name, size_t tokenSize)
   : sc_core::sc_prim_channel(name.empty()
       ? sc_core::sc_gen_unique_name("smoc_unnamed_channel")
       : name.c_str())
 #ifndef SYSTEMOC_ENABLE_MAESTROMM_SPEEDUP
   , myName(name)
 #endif //!defined(SYSTEMOC_ENABLE_MAESTROMM_SPEEDUP)
+  , tokenSize(tokenSize)
   {}
 
 /// @brief Remember that reset has been called.

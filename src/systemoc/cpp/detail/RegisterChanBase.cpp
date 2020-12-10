@@ -32,12 +32,9 @@ RegisterChanBase::chan_init::chan_init(
 {}
 
 RegisterChanBase::RegisterChanBase(
-    const chan_init &i)
-  : ChanBase(
-#ifndef SYSTEMOC_ENABLE_MAESTROMM_SPEEDUP
-      i.name
-#endif //!defined(SYSTEMOC_ENABLE_MAESTROMM_SPEEDUP)
-    )
+    const chan_init &i
+  , size_t tokenSize)
+  : ChanBase(i.name, tokenSize)
   , tokenId(0) {}
 
 } } // namespace smoc::Detail

@@ -41,12 +41,8 @@ smoc_reset_chan::chan_init::chan_init(
 
 smoc_reset_chan::smoc_reset_chan(
     const chan_init &i)
-: ChanBase(
-#ifndef SYSTEMOC_ENABLE_MAESTROMM_SPEEDUP
-    i.name
-#endif //!defined(SYSTEMOC_ENABLE_MAESTROMM_SPEEDUP)
-  ),
-  tokenId(1)
+  : ChanBase(i.name, 0)
+  , tokenId(1)
 {}
   
 smoc::Detail::PortOutBaseIf *smoc_reset_chan::createEntry() {

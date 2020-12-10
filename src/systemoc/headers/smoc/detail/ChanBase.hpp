@@ -61,18 +61,15 @@ class ChanBase
   friend class GraphBase; // reset
   friend class ::smoc_reset_chan; // reset
 public:
-#if defined(SYSTEMOC_NEED_IDS) || !defined(SYSTEMOC_ENABLE_MAESTROMM_SPEEDUP)
   // To reflect the generated name or SystemC name back to the NamedIdedObj base class
   // or to replace the SystemC name with out generated name.
   const char *name() const
-# if !defined(SYSTEMOC_ENABLE_MAESTROMM_SPEEDUP)
     { assert(myName != ""); return myName.c_str(); }
-# else //defined(SYSTEMOC_ENABLE_MAESTROMM_SPEEDUP)
-    { return this->sc_core::sc_prim_channel::name(); }
-# endif //defined(SYSTEMOC_ENABLE_MAESTROMM_SPEEDUP)
-#endif // defined(SYSTEMOC_NEED_IDS) || !defined(SYSTEMOC_ENABLE_MAESTROMM_SPEEDUP)
+
+  size_t getTokenSize()
+    { return tokenSize; }
 protected:
-  ChanBase(const std::string &name);
+  ChanBase(const std::string &name, size_t tokenSize);
 
   virtual void setChannelID( std::string sourceActor,
                              CoSupport::SystemC::ChannelId id,
@@ -88,11 +85,10 @@ protected:
 
   virtual ~ChanBase();
 private:
-#ifndef SYSTEMOC_ENABLE_MAESTROMM_SPEEDUP
   std::string myName; // patched in before_end_of_elaboration
+  size_t tokenSize;
 
   void generateName();
-#endif //!defined(SYSTEMOC_ENABLE_MAESTROMM_SPEEDUP)
 };
 
 typedef std::list<ChanBase *> smoc_chan_list;
