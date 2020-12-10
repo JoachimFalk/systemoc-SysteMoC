@@ -61,7 +61,7 @@ public:
 
 protected:
   // constructors
-  RegisterChanBase(chan_init const &i);
+  RegisterChanBase(chan_init const &i, size_t tokenSize);
 
   size_t inTokenId() const
     { return tokenId; }

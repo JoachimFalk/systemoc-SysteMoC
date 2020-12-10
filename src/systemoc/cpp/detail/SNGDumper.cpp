@@ -466,7 +466,8 @@ public:
       << "  <fifo "
               "name=" << DQ(p.name()) << " "
               "size=\"" << p.depthCount() << "\" "
-              "initial=\"" << p.usedCount() << "\">\n";
+              "initial=\"" << p.usedCount() << "\">\n"
+         "    <opendseattr name=\"smoc-token-size\" type=\"INT\" value=\"" << p.getTokenSize() << "\"/>\n";
     for (ChanBase::EntryMap::value_type entry : p.getEntries()) {
       SCInterface2Port::iterator iter =
         gsv.expectedChannelConnections.find(entry.first);
@@ -525,7 +526,8 @@ public:
 
     gsv.ctx.fifoConnections
       << "  <register "
-              "name=" << DQ(p.name()) << ">\n";
+              "name=" << DQ(p.name()) << ">\n"
+         "    <opendseattr name=\"smoc-token-size\" type=\"INT\" value=\"" << p.getTokenSize() << "\"/>\n";
     for (ChanBase::EntryMap::value_type entry : p.getEntries()) {
       SCInterface2Port::iterator iter =
         gsv.expectedChannelConnections.find(entry.first);

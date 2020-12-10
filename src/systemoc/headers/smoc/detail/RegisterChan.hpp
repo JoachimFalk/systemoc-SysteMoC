@@ -45,7 +45,7 @@ public:
 
   /// @brief Constructor
   RegisterChan(typename RegisterStorage<T>::chan_init const &i)
-    : RegisterStorage<T>(i) {}
+    : RegisterStorage<T>(i, sizeof(T)) {}
 protected:
   /// @brief See smoc_port_registry
   smoc::Detail::PortOutBaseIf *createEntry()

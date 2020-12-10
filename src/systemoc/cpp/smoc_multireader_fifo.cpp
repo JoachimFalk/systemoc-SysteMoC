@@ -35,11 +35,7 @@
 #include <systemoc/smoc_config.h>
 
 smoc_multireader_fifo_chan_base::smoc_multireader_fifo_chan_base(const chan_init &i)
-#ifdef SYSTEMOC_ENABLE_MAESTROMM_SPEEDUP
-  : ChanBase(),
-#else
-  : ChanBase(i.name)
-#endif
+  : ChanBase(i.name, 0)
 #ifdef SYSTEMOC_ENABLE_ROUTING
   , QueueFRVWPtr(i.n)
 #else //!SYSTEMOC_ENABLE_ROUTING

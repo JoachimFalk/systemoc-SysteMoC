@@ -72,8 +72,8 @@ public:
   };
 protected:
   /// @brief Constructor
-  RegisterStorage(chan_init const &i)
-    : RegisterChanBase(i)
+  RegisterStorage(chan_init const &i, size_t tokenSize)
+    : RegisterChanBase(i, tokenSize)
   {
     assert(i.marking.size() <= 1);
     if (i.marking.size() > 0)
@@ -113,8 +113,8 @@ public:
 
 protected:
   /// @brief Constructor
-  RegisterStorage(chan_init const &i)
-    : RegisterChanBase(i) {}
+  RegisterStorage(chan_init const &i, size_t tokenSize)
+    : RegisterChanBase(i, tokenSize) {}
 
   bool isValid() const
     { return true; }

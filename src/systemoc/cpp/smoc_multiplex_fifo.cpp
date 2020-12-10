@@ -33,17 +33,13 @@
 #include <smoc/smoc_graph.hpp>
 
 smoc_multiplex_fifo_chan_base::smoc_multiplex_fifo_chan_base(const chan_init &i)
-#ifdef SYSTEMOC_ENABLE_MAESTROMM_SPEEDUP
-  : ChanBase(),
-#else
-  : ChanBase(i.name),
-#endif
+  : ChanBase(i.name, 0)
 #ifdef SYSTEMOC_ENABLE_ROUTING
-    smoc::Detail::QueueFRVWPtr(i.n),
+  , smoc::Detail::QueueFRVWPtr(i.n)
 #else //!SYSTEMOC_ENABLE_ROUTING
-    smoc::Detail::QueueRWPtr(i.n),
+  , smoc::Detail::QueueRWPtr(i.n)
 #endif //!SYSTEMOC_ENABLE_ROUTING
-    fifoOutOfOrder(i.m)
+  , fifoOutOfOrder(i.m)
 {
   assert(fifoOutOfOrder + 1 <= depthCount());
 }
