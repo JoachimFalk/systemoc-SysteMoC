@@ -36,14 +36,13 @@
 //#include "smoc_fifo.hpp"
 //#include "smoc_chan_adapter.hpp"
 #include "detail/smoc_chan_if.hpp"
-#include "detail/smoc_fifo_storage.hpp"
 #include "../smoc/detail/ChanBase.hpp"
 #include "../smoc/detail/ConnectProvider.hpp"
+#include "../smoc/detail/DumpingInterfaces.hpp"
 #include "../smoc/detail/EventMapManager.hpp"
+#include "../smoc/detail/FifoStorage.hpp"
 #include "../smoc/detail/QueueFRVWPtr.hpp"
 #include "../smoc/detail/QueueRWPtr.hpp"
-
-#include <smoc/detail/DumpingInterfaces.hpp>
 
 #include <systemoc/smoc_config.h>
 
@@ -292,7 +291,7 @@ private:
  */
 template<class T>
 class smoc_multireader_fifo_chan
-: public smoc_fifo_storage<T, smoc_multireader_fifo_chan_base>
+: public smoc::Detail::FifoStorage<T, smoc_multireader_fifo_chan_base>
 {
   friend class smoc_multireader_fifo_outlet<T>;
   friend class smoc_multireader_fifo_entry<T>;
@@ -303,11 +302,11 @@ public:
   typedef smoc_multireader_fifo_outlet<data_type> outlet_type;
 
   /// @brief Channel initializer
-  typedef typename smoc_fifo_storage<T, smoc_multireader_fifo_chan_base>::chan_init chan_init;
+  typedef typename smoc::Detail::FifoStorage<T, smoc_multireader_fifo_chan_base>::chan_init chan_init;
 
   /// @brief Constructor
   smoc_multireader_fifo_chan(const chan_init &i)
-    : smoc_fifo_storage<T, smoc_multireader_fifo_chan_base>(i)
+    : smoc::Detail::FifoStorage<T, smoc_multireader_fifo_chan_base>(i)
   {}
 protected:
   /// @brief See smoc_port_registry

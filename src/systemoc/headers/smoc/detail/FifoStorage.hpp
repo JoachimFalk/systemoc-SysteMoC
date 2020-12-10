@@ -32,19 +32,22 @@
  * 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
  */
 
-#ifndef _INCLUDED_SYSTEMOC_DETAIL_SMOC_FIFO_STORAGE_HPP
-#define _INCLUDED_SYSTEMOC_DETAIL_SMOC_FIFO_STORAGE_HPP
+#ifndef _INCLUDED_SMOC_DETAIL_FIFOSTORAGE_HPP
+#define _INCLUDED_SMOC_DETAIL_FIFOSTORAGE_HPP
 
 #include <algorithm>
 
-#include <systemoc/smoc_config.h>
+#include "DumpingInterfaces.hpp"
+#include "QueueWithStorage.hpp"
+#include "RingAccess.hpp"
 
-#include "../../smoc/detail/DumpingInterfaces.hpp"
-#include "../../smoc/detail/QueueWithStorage.hpp"
+#include "../../systemoc/detail/smoc_chan_if.hpp"
+
+#include <systemoc/smoc_config.h>
 
 #include <CoSupport/String/convert.hpp>
 
-#include "smoc_ring_access.hpp"
+namespace smoc { namespace Detail {
 
 /**
  * This class implements the data type specific
@@ -55,23 +58,23 @@
  * methods)
  */
 template<class T, class BASE>
-class smoc_fifo_storage
+class FifoStorage
   : public smoc::Detail::QueueWithStorage<T, BASE>
-  , public smoc_ring_access<T, typename smoc_port_in_if<T>::access_type>
-  , public smoc_ring_access<T, typename smoc_port_out_if<T>::access_type>
+  , public RingAccess<T, typename smoc_port_in_if<T>::access_type>
+  , public RingAccess<T, typename smoc_port_out_if<T>::access_type>
 {
-  typedef smoc_fifo_storage<T, BASE>              this_type;
+  typedef FifoStorage<T, BASE>              this_type;
   typedef smoc::Detail::QueueWithStorage<T, BASE> base_type;
 public:
   typedef typename base_type::storage_type storage_type;
 protected:
-  typedef smoc_ring_access<T, typename smoc_port_in_if<T>::access_type>  access_in_type_impl;
-  typedef smoc_ring_access<T, typename smoc_port_out_if<T>::access_type> access_out_type_impl;
+  typedef RingAccess<T, typename smoc_port_in_if<T>::access_type>  access_in_type_impl;
+  typedef RingAccess<T, typename smoc_port_out_if<T>::access_type> access_out_type_impl;
 
   /// @brief Channel initializer
   class chan_init: public BASE::chan_init {
   public:
-    friend class smoc_fifo_storage;
+    friend class FifoStorage;
     typedef const T& add_param_ty;
 
     void add(add_param_ty t)
@@ -91,7 +94,7 @@ protected:
 protected:
 
   /// @brief Constructor
-  smoc_fifo_storage(const chan_init &i)
+  FifoStorage(const chan_init &i)
     : base_type(i),
       access_in_type_impl(this->storage, this->qfSize(), &this->rIndex()),
       access_out_type_impl(this->storage, this->qfSize(), &this->wIndex()),
@@ -156,23 +159,23 @@ protected:
  * channel storage operations (void specialization)
  */
 template<class BASE>
-class smoc_fifo_storage<void, BASE>
+class FifoStorage<void, BASE>
   : public smoc::Detail::QueueWithStorage<void, BASE>
-  , public smoc_ring_access<void, smoc_port_in_if<void>::access_type>
-  , public smoc_ring_access<void, smoc_port_out_if<void>::access_type>
+  , public RingAccess<void, smoc_port_in_if<void>::access_type>
+  , public RingAccess<void, smoc_port_out_if<void>::access_type>
 {
-  typedef smoc_fifo_storage<void, BASE>               this_type;
+  typedef FifoStorage<void, BASE>               this_type;
   typedef smoc::Detail::QueueWithStorage<void, BASE>  base_type;
 public:
   typedef typename base_type::storage_type storage_type;
 protected:
-  typedef smoc_ring_access<void, smoc_port_in_if<void>::access_type>  access_in_type_impl;
-  typedef smoc_ring_access<void, smoc_port_out_if<void>::access_type> access_out_type_impl;
+  typedef RingAccess<void, smoc_port_in_if<void>::access_type>  access_in_type_impl;
+  typedef RingAccess<void, smoc_port_out_if<void>::access_type> access_out_type_impl;
 
   /// @brief Channel initializer
   class chan_init: public BASE::chan_init {
   public:
-    friend class smoc_fifo_storage;
+    friend class FifoStorage;
     typedef size_t add_param_ty;
 
     void add(add_param_ty t)
@@ -191,7 +194,7 @@ private:
   size_t initialTokens;
 protected:
   /// @brief Constructor
-  smoc_fifo_storage(const chan_init &i)
+  FifoStorage(const chan_init &i)
     : base_type(i),
       initialTokens(i.marking)
   {}
@@ -228,4 +231,6 @@ public:
 #endif // SYSTEMOC_ENABLE_SGX
 };
 
-#endif /* _INCLUDED_SYSTEMOC_DETAIL_SMOC_FIFO_STORAGE_HPP */
+} } // smoc::Detail
+
+#endif /* _INCLUDED_SMOC_DETAIL_FIFOSTORAGE_HPP */

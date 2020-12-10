@@ -33,6 +33,7 @@
 #include "smoc/smoc_and_state.hpp"
 #include "smoc/smoc_base_state.hpp"
 #include "smoc/smoc_event.hpp"
+#include "smoc/smoc_fifo.hpp"
 #include "smoc/smoc_firing_rule.hpp"
 #include "smoc/smoc_firing_state.hpp"
 #include "smoc/smoc_graph.hpp"

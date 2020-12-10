@@ -32,6 +32,8 @@
 #include <systemoc/smoc_fifo.hpp>
 #include <smoc/smoc_graph.hpp>
 
+namespace smoc {
+
 smoc_fifo_chan_base::smoc_fifo_chan_base(const chan_init& i)
   : ChanBase(i.name, 0)
 #ifdef SYSTEMOC_ENABLE_ROUTING
@@ -82,3 +84,5 @@ void smoc_fifo_chan_base::doReset() {
   }
 #endif // SYSTEMOC_ENABLE_DEBUG
 }
+
+} // namespace smoc

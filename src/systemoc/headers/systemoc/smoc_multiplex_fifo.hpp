@@ -34,12 +34,12 @@
 #define _INCLUDED_SYSTEMOC_SMOC_MULTIPLEX_FIFO_HPP
 
 //#include "smoc_chan_adapter.hpp"
-#include "detail/smoc_fifo_storage.hpp"
 #include "detail/smoc_chan_if.hpp"
 #include "../smoc/detail/ChanBase.hpp"
 #include "../smoc/detail/ConnectProvider.hpp"
-#include "../smoc/detail/EventMapManager.hpp"
 #include "../smoc/detail/DumpingInterfaces.hpp"
+#include "../smoc/detail/EventMapManager.hpp"
+#include "../smoc/detail/FifoStorage.hpp"
 #include "../smoc/detail/QueueFRVWPtr.hpp"
 #include "../smoc/detail/QueueRWPtr.hpp"
 
@@ -157,10 +157,10 @@ class smoc_multiplex_vfifo_chan;
  */
 template<class T, class A>
 class smoc_multiplex_fifo_chan
-: public smoc_fifo_storage<T, smoc_multiplex_fifo_chan_base>
+: public smoc::Detail::FifoStorage<T, smoc_multiplex_fifo_chan_base>
 {
   typedef smoc_multiplex_fifo_chan<T,A>                       this_type;
-  typedef smoc_fifo_storage<T, smoc_multiplex_fifo_chan_base> base_type;
+  typedef smoc::Detail::FifoStorage<T, smoc_multiplex_fifo_chan_base> base_type;
 
   friend class smoc_multiplex_fifo<T,A>;
   friend class smoc_multiplex_fifo_outlet<T,A>;
@@ -179,11 +179,11 @@ public:
   typedef typename this_type::VOutletMap  VOutletMap;
 
   /// @brief Channel initializer
-  typedef typename smoc_fifo_storage<T, smoc_multiplex_fifo_chan_base>::chan_init chan_init;
+  typedef typename smoc::Detail::FifoStorage<T, smoc_multiplex_fifo_chan_base>::chan_init chan_init;
 protected:
   /// @brief Constructor
   smoc_multiplex_fifo_chan(const chan_init &i)
-    : smoc_fifo_storage<T, smoc_multiplex_fifo_chan_base>(i)
+    : smoc::Detail::FifoStorage<T, smoc_multiplex_fifo_chan_base>(i)
     {}
 
   void doReset() {
