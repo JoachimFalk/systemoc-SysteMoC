@@ -20,6 +20,7 @@
 #   2018 FAU -- Franz-Josef Streit <franz-josef.streit@fau.de>
 #   2018 FAU -- Joachim Falk <joachim.falk@fau.de>
 #   2019 FAU -- Joachim Falk <joachim.falk@fau.de>
+#   2020 FAU -- Joachim Falk <joachim.falk@fau.de>
 # 
 # This library is free software; you can redistribute it and/or modify it under
 # the terms of the GNU Lesser General Public License as published by the Free
@@ -115,6 +116,9 @@ libsystemoc_la_SOURCES = \
 	src/systemoc/cpp/detail/NodeBase.cpp \
 	src/systemoc/cpp/detail/NodeQueue.cpp \
 	src/systemoc/cpp/detail/PortBase.cpp \
+	src/systemoc/cpp/detail/RegisterChanBase.cpp \
+	src/systemoc/cpp/detail/RegisterEntry.cpp \
+	src/systemoc/cpp/detail/RegisterOutlet.cpp \
 	src/systemoc/cpp/detail/SimulationContext.cpp \
 	src/systemoc/cpp/detail/SMXDumper.cpp \
 	src/systemoc/cpp/detail/SMXImporter.cpp \
@@ -138,7 +142,6 @@ libsystemoc_la_SOURCES = \
 	src/systemoc/cpp/smoc_multi_state.cpp \
 	src/systemoc/cpp/smoc_periodic_actor.cpp \
 	src/systemoc/cpp/smoc_port_out.cpp \
-	src/systemoc/cpp/smoc_register.cpp \
 	src/systemoc/cpp/smoc_reset.cpp \
 	src/systemoc/cpp/smoc_scheduler_top.cpp \
 	src/systemoc/cpp/smoc_state.cpp \
