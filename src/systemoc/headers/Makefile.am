@@ -73,6 +73,10 @@ nobase_include_HEADERS = \
 	smoc/detail/DumpingInterfaces.hpp \
 	smoc/detail/EventMapManager.hpp \
 	smoc/detail/export_config.h \
+	smoc/detail/FifoChanBase.hpp \
+	smoc/detail/FifoChan.hpp \
+	smoc/detail/FifoEntry.hpp \
+	smoc/detail/FifoOutlet.hpp \
 	smoc/detail/FifoStorage.hpp \
 	smoc/detail/Functor.hpp \
 	smoc/detail/GraphBase.hpp \

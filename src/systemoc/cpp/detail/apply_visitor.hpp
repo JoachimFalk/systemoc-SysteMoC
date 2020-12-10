@@ -32,16 +32,16 @@
 
 #include <boost/type_traits/add_const.hpp>
 #include <boost/type_traits/remove_const.hpp>
-#include <smoc/detail/NodeBase.hpp>
 #include <smoc/detail/ChanBase.hpp>
+#include <smoc/detail/FifoChanBase.hpp>
+#include <smoc/detail/NodeBase.hpp>
 #include <smoc/detail/PortBase.hpp>
+#include <smoc/detail/RegisterChanBase.hpp>
 #include <smoc/smoc_graph.hpp>
 #include <smoc/smoc_actor.hpp>
 
-#include <systemoc/smoc_fifo.hpp>
 #include <systemoc/smoc_multiplex_fifo.hpp>
 #include <systemoc/smoc_multireader_fifo.hpp>
-#include <systemoc/smoc_register.hpp>
 #include <systemoc/smoc_reset.hpp>
 
 namespace smoc {
@@ -115,16 +115,16 @@ namespace Detail {
 
 _SMOC_GENERATE_APPLY_VISITOR(smoc::Detail::NodeBase)
 
-/* smoc_fifo_chan_base */
+/* smoc_fifo */
 
 namespace Detail {
   template<template <class> class M, class Visitor>
   typename Visitor::result_type
-  apply_visitor_helper(Visitor &visitor, typename M<smoc_fifo_chan_base>::type *ptr)
+  apply_visitor_helper(Visitor &visitor, typename M<FifoChanBase>::type *ptr)
     { return visitor(*ptr); }
 } // namespace Detail
 
-_SMOC_GENERATE_APPLY_VISITOR(smoc_fifo_chan_base)
+_SMOC_GENERATE_APPLY_VISITOR(Detail::FifoChanBase)
 
 /* smoc_multiplex_fifo_chan_base */
 
@@ -176,7 +176,7 @@ namespace Detail {
   template<template <class> class M, class Visitor>
   typename Visitor::result_type
   apply_visitor_helper(Visitor &visitor, typename M<ChanBase>::type *ptr) {
-    _SMOC_HANDLE_DERIVED_CLASS(smoc_fifo_chan_base);
+    _SMOC_HANDLE_DERIVED_CLASS(FifoChanBase);
     _SMOC_HANDLE_DERIVED_CLASS(smoc_multiplex_fifo_chan_base);
     _SMOC_HANDLE_DERIVED_CLASS(smoc_multireader_fifo_chan_base);
     _SMOC_HANDLE_DERIVED_CLASS(RegisterChanBase);

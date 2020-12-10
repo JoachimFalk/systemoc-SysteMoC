@@ -111,6 +111,7 @@ libsystemoc_la_SOURCES = \
 	src/systemoc/cpp/detail/FSM/RuntimeTransitionHook.cpp \
         src/systemoc/cpp/detail/FSM/StateImpl.cpp \
         src/systemoc/cpp/detail/FSM/XORStateImpl.cpp \
+	src/systemoc/cpp/detail/FifoChanBase.cpp \
 	src/systemoc/cpp/detail/GraphBase.cpp \
 	src/systemoc/cpp/detail/IdPool.cpp \
 	src/systemoc/cpp/detail/NodeBase.cpp \
@@ -132,7 +133,6 @@ libsystemoc_la_SOURCES = \
 	src/systemoc/cpp/smoc_chan_if.cpp \
 	src/systemoc/cpp/smoc_elab_and_sim.cpp \
 	src/systemoc/cpp/smoc_expr.cpp \
-	src/systemoc/cpp/smoc_fifo.cpp \
 	src/systemoc/cpp/smoc_firing_state.cpp \
 	src/systemoc/cpp/smoc_graph.cpp \
 	src/systemoc/cpp/smoc_junction_state.cpp \

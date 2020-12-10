@@ -32,11 +32,11 @@
  * 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
  */
 
-#ifndef _INCLUDED_SMOC_SMOC_FIFO_HPP
-#define _INCLUDED_SMOC_SMOC_FIFO_HPP
+#ifndef _INCLUDED_SMOC_DETAIL_FIFOOUTLET_HPP
+#define _INCLUDED_SMOC_DETAIL_FIFOOUTLET_HPP
 
 //#include "smoc_chan_adapter.hpp"
-#include "detail/FifoChan.hpp"
+#include "../../systemoc/detail/smoc_chan_if.hpp"
 
 #include <systemoc/smoc_config.h>
 
@@ -44,64 +44,74 @@
 
 #include <systemc>
 
-namespace smoc {
+namespace smoc { namespace Detail {
+
+template<class> class FifoChan;
 
 /**
- * This class is the channel initializer for Detail::FifoChan
+ * This class implements the channel in interface
  */
-template <typename T>
-class smoc_fifo
-  : public Detail::FifoChan<T>::chan_init
-  , public Detail::ConnectProvider<
-      smoc_fifo<T>,
-      Detail::FifoChan<T> >
-{
+template<class T>
+class FifoOutlet: public smoc_port_in_if<T> {
+  typedef FifoOutlet<T>              this_type;
 public:
-  //typedef T                 data_type;
-  typedef smoc_fifo<T>                  this_type;
-  typedef typename this_type::chan_type chan_type;
-  typedef typename chan_type::chan_init base_type;
-  friend typename this_type::con_type;
-  friend class smoc_reset_net;
-private:
-  chan_type *chan;
-public:
+  typedef smoc_port_in_if<T>               iface_type;
+  typedef typename iface_type::access_type access_type;
+
   /// @brief Constructor
-  smoc_fifo(size_t n = 1)
-    : base_type("", n), chan(nullptr)
+  FifoOutlet(FifoChan<T> &chan)
+    : chan(chan)
   {}
 
-  /// @brief Constructor
-  explicit smoc_fifo(const std::string& name, size_t n = 1)
-    : base_type(name, n), chan(nullptr)
-  {}
+protected:
 
-  /// @brief Constructor
-  smoc_fifo(const this_type &x)
-    : base_type(x), chan(nullptr)
-  {
-    if(x.chan)
-      assert(!"Can't copy initializer: Channel already created!");
+  /// @brief See PortBaseIf
+  void commStart(size_t consume) {
+    chan.rpp(consume);
+    chan.emmData.decreasedCount(chan.visibleCount());
+  }
+  /// @brief See PortBaseIf
+  void commFinish(size_t consume, bool dropped = false) {
+    assert(!dropped);
+    chan.readConsumeEventExpired(consume);
   }
 
-  this_type &operator<<(typename this_type::add_param_ty x) {
-    if(chan)
-      assert(!"Can't place initial token: Channel already created!");
-    this->add(x);
-    return *this;
+  /// @brief See PortBaseIf
+  void commExec(size_t consume) {
+    commStart(consume);
+    commFinish(consume);
   }
+
+  /// @brief See PortInBaseIf
+  smoc::smoc_event &dataAvailableEvent(size_t n)
+    { return chan.emmData.getEvent(n); }
+
+  /// @brief See PortInBaseIf
+  size_t numAvailable() const
+    { return chan.visibleCount(); }
+
+  const char *name() const
+    { return chan.name();}
+
+  /// @brief See PortInBaseIf
+  size_t inTokenId() const
+    { return chan.tokenId - chan.usedCount(); }
   
-private:
-  chan_type *getChan() {
-    if (chan == nullptr)
-      chan = new chan_type(*this);
-    return chan;
-  }
+  /// @brief See smoc_port_in_if
+  access_type* getReadPortAccess()
+    { return chan.getReadPortAccess(); }
 
-  // disable
-  this_type &operator =(const this_type &);
+private:
+#ifdef SYSTEMOC_ENABLE_DATAFLOW_TRACE
+  virtual void traceCommSetup(size_t req){
+    this->getSimCTX()->getDataflowTraceLog()->traceCommSetup(&chan, req);
+  }
+#endif // SYSTEMOC_ENABLE_DATAFLOW_TRACE
+
+  /// @brief The channel implementation
+  FifoChan<T> &chan;
 };
 
-} // namespace smoc
+} } // namespace smoc::Detail
 
-#endif /* _INCLUDED_SMOC_SMOC_FIFO_HPP */
+#endif /* _INCLUDED_SMOC_DETAIL_FIFOOUTLET_HPP */
