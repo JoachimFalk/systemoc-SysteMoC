@@ -92,6 +92,7 @@ noinst_PROGRAMS= \
 	test-src-snk-plain \
 	test-src-snk-references \
 	test-src-snk-register \
+	test-src-snk-register-void \
 	test-src-snk-void \
 	test-systemc-blocking-cosim \
 	test-systemc-nonblocking-cosim \
@@ -323,6 +324,11 @@ test_src_snk_register_LDFLAGS			= $(SYSTEMOC_LIBS_)
 test_src_snk_register_DEPENDENCIES		= $(SYSTEMOC_DEPENDENCIES_)
 test_src_snk_register_SOURCES			= \
 	src/test-src-snk-register/cpp/design-src-snk-register.cpp
+
+test_src_snk_register_void_LDFLAGS		= $(SYSTEMOC_LIBS_)
+test_src_snk_register_void_DEPENDENCIES		= $(SYSTEMOC_DEPENDENCIES_)
+test_src_snk_register_void_SOURCES		= \
+	src/test-src-snk-register-void/cpp/design-src-snk-register-void.cpp
 
 test_src_snk_void_LDFLAGS			= $(SYSTEMOC_LIBS_)
 test_src_snk_void_DEPENDENCIES			= $(SYSTEMOC_DEPENDENCIES_)
