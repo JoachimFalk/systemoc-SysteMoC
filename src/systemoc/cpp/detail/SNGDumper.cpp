@@ -343,6 +343,8 @@ public:
 
   void operator ()(smoc_multiplex_fifo_chan_base &obj);
 
+  void operator ()(RegisterChanBase &obj);
+
   void operator ()(smoc_reset_chan &obj);
 
   ~GraphSubVisitor();
@@ -471,7 +473,7 @@ public:
       if (iter != gsv.expectedChannelConnections.end()) {
 #ifdef SYSTEMOC_ENABLE_DEBUG
         if (outDbg.isVisible(Debug::Low)) {
-          outDbg << "DumpFifoBase::connectPort handled expectedChannelConnection " << reinterpret_cast<void *>(iter->first) << std::endl;
+          outDbg << "DumpFifo::connectPort handled expectedChannelConnection " << reinterpret_cast<void *>(iter->first) << std::endl;
         }
 #endif //defined(SYSTEMOC_ENABLE_DEBUG)
         gsv.ctx.fifoConnections
@@ -486,7 +488,7 @@ public:
       if (iter != gsv.expectedChannelConnections.end()) {
 #ifdef SYSTEMOC_ENABLE_DEBUG
         if (outDbg.isVisible(Debug::Low)) {
-          outDbg << "DumpFifoBase::connectPort handled expectedChannelConnection " << reinterpret_cast<void *>(iter->first) << std::endl;
+          outDbg << "DumpFifo::connectPort handled expectedChannelConnection " << reinterpret_cast<void *>(iter->first) << std::endl;
         }
 #endif //defined(SYSTEMOC_ENABLE_DEBUG)
         gsv.ctx.fifoConnections
@@ -500,6 +502,65 @@ public:
 #ifdef SYSTEMOC_ENABLE_DEBUG
     if (outDbg.isVisible(Debug::Low)) {
       outDbg << "DumpFifo::operator ()(...) [END]" << std::endl;
+    }
+#endif //defined(SYSTEMOC_ENABLE_DEBUG)
+  }
+};
+
+class DumpRegister: public NamedIdedObjAccess {
+public:
+  typedef void result_type;
+protected:
+  GraphSubVisitor &gsv;
+public:
+  DumpRegister(GraphSubVisitor &gsv)
+    : gsv(gsv) {}
+
+  result_type operator ()(RegisterChanBase &p) {
+#ifdef SYSTEMOC_ENABLE_DEBUG
+    if (outDbg.isVisible(Debug::Low)) {
+      outDbg << "DumpRegister::operator ()(...) [BEGIN] for " << getName(&p) << std::endl;
+    }
+#endif //defined(SYSTEMOC_ENABLE_DEBUG)
+
+    gsv.ctx.fifoConnections
+      << "  <register "
+              "name=" << DQ(p.name()) << ">\n";
+    for (ChanBase::EntryMap::value_type entry : p.getEntries()) {
+      SCInterface2Port::iterator iter =
+        gsv.expectedChannelConnections.find(entry.first);
+      if (iter != gsv.expectedChannelConnections.end()) {
+#ifdef SYSTEMOC_ENABLE_DEBUG
+        if (outDbg.isVisible(Debug::Low)) {
+          outDbg << "DumpRegister::connectPort handled expectedChannelConnection " << reinterpret_cast<void *>(iter->first) << std::endl;
+        }
+#endif //defined(SYSTEMOC_ENABLE_DEBUG)
+        gsv.ctx.fifoConnections
+          << "    <source actor=" << DQ(iter->second.actorName)
+          <<             " port=" << DQ(iter->second.portName) << "/>\n";
+        gsv.expectedChannelConnections.erase(iter); // handled it!
+      }
+    }
+    for (ChanBase::OutletMap::value_type outlet : p.getOutlets()) {
+      SCInterface2Port::iterator iter =
+        gsv.expectedChannelConnections.find(outlet.first);
+      if (iter != gsv.expectedChannelConnections.end()) {
+#ifdef SYSTEMOC_ENABLE_DEBUG
+        if (outDbg.isVisible(Debug::Low)) {
+          outDbg << "DumpRegister::connectPort handled expectedChannelConnection " << reinterpret_cast<void *>(iter->first) << std::endl;
+        }
+#endif //defined(SYSTEMOC_ENABLE_DEBUG)
+        gsv.ctx.fifoConnections
+          << "    <target actor=" << DQ(iter->second.actorName)
+          <<             " port=" << DQ(iter->second.portName) << "/>\n";
+        gsv.expectedChannelConnections.erase(iter); // handled it!
+      }
+    }
+    gsv.ctx.fifoConnections
+      << "  </register>\n";
+#ifdef SYSTEMOC_ENABLE_DEBUG
+    if (outDbg.isVisible(Debug::Low)) {
+      outDbg << "DumpRegister::operator ()(...) [END]" << std::endl;
     }
 #endif //defined(SYSTEMOC_ENABLE_DEBUG)
   }
@@ -614,6 +675,10 @@ void GraphSubVisitor::operator ()(smoc_multireader_fifo_chan_base &obj) {
 
 void GraphSubVisitor::operator ()(smoc_multiplex_fifo_chan_base &obj) {
   std::cerr << "Ignoring " << obj.name() << std::endl;
+}
+
+void GraphSubVisitor::operator ()(RegisterChanBase &obj) {
+  DumpRegister(*this)(obj);
 }
 
 void GraphSubVisitor::operator ()(smoc_reset_chan &obj) {
