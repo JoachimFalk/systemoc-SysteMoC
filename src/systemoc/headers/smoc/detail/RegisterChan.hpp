@@ -31,6 +31,8 @@
 #include "RegisterEntry.hpp"
 #include "RegisterOutlet.hpp"
 
+#include "../smoc_token_traits.hpp"
+
 namespace smoc { namespace Detail {
 
 template <typename T>
@@ -45,7 +47,7 @@ public:
 
   /// @brief Constructor
   RegisterChan(typename RegisterStorage<T>::chan_init const &i)
-    : RegisterStorage<T>(i, sizeof(T)) {}
+    : RegisterStorage<T>(i, smoc_token_traits<T>::tokenSize()) {}
 protected:
   /// @brief See smoc_port_registry
   smoc::Detail::PortOutBaseIf *createEntry()

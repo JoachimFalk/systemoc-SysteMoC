@@ -32,8 +32,8 @@
 #include <systemoc/smoc_multiplex_fifo.hpp>
 #include <smoc/smoc_graph.hpp>
 
-smoc_multiplex_fifo_chan_base::smoc_multiplex_fifo_chan_base(const chan_init &i)
-  : ChanBase(i.name, 0)
+smoc_multiplex_fifo_chan_base::smoc_multiplex_fifo_chan_base(const chan_init &i, size_t tokenSize)
+  : ChanBase(i.name, tokenSize)
 #ifdef SYSTEMOC_ENABLE_ROUTING
   , smoc::Detail::QueueFRVWPtr(i.n)
 #else //!SYSTEMOC_ENABLE_ROUTING

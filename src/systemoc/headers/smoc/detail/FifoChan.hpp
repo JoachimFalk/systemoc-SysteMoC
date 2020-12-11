@@ -40,11 +40,7 @@
 #include "FifoEntry.hpp"
 #include "FifoOutlet.hpp"
 
-#include <systemoc/smoc_config.h>
-
-#include <CoSupport/commondefs.h>
-
-#include <systemc>
+#include "../smoc_token_traits.hpp"
 
 namespace smoc { namespace Detail {
 
@@ -68,7 +64,7 @@ public:
 
   /// @brief Constructor
   FifoChan(const chan_init &i)
-    : FifoStorage<T, FifoChanBase>(i)
+    : FifoStorage<T, FifoChanBase>(i, smoc_token_traits<T>::tokenSize())
   {}
 protected:
   /// @brief See smoc_port_registry

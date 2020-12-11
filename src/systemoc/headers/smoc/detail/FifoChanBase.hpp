@@ -82,7 +82,7 @@ public:
 protected:
   
   /// @brief Constructor
-  FifoChanBase(const chan_init &i);
+  FifoChanBase(const chan_init &i, size_t tokenSize);
 
   /// @brief LatencyQueue callback
   void latencyExpired(size_t n) {
