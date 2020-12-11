@@ -48,6 +48,7 @@
 #include "smoc/smoc_reset_port.hpp"
 #include "smoc/smoc_scheduler_top.hpp"
 #include "smoc/smoc_state.hpp"
+#include "smoc/smoc_token_traits.hpp"
 #include "smoc/smoc_transition.hpp"
 #include "smoc/smoc_xor_state.hpp"
 

@@ -34,8 +34,8 @@
 
 namespace smoc { namespace Detail {
 
-FifoChanBase::FifoChanBase(const chan_init& i)
-  : ChanBase(i.name, 0)
+FifoChanBase::FifoChanBase(const chan_init &i, size_t tokenSize)
+  : ChanBase(i.name, tokenSize)
 #ifdef SYSTEMOC_ENABLE_ROUTING
   , QueueFRVWPtr(i.n)
 #else //!SYSTEMOC_ENABLE_ROUTING

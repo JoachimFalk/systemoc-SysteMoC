@@ -58,6 +58,7 @@ nobase_include_HEADERS = \
 	smoc/smoc_reset_port.hpp \
 	smoc/smoc_scheduler_top.hpp \
 	smoc/smoc_state.hpp \
+	smoc/smoc_token_traits.hpp \
 	smoc/smoc_transition.hpp \
 	smoc/smoc_xor_state.hpp \
 	smoc/SimulatorAPI/ChannelInterfaces.hpp \

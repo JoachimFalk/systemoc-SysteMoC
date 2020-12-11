@@ -94,8 +94,8 @@ protected:
 protected:
 
   /// @brief Constructor
-  FifoStorage(const chan_init &i)
-    : base_type(i),
+  FifoStorage(const chan_init &i, size_t tokenSize)
+    : base_type(i, tokenSize),
       access_in_type_impl(this->storage, this->qfSize(), &this->rIndex()),
       access_out_type_impl(this->storage, this->qfSize(), &this->wIndex()),
       initialTokens(i.marking)
@@ -194,8 +194,8 @@ private:
   size_t initialTokens;
 protected:
   /// @brief Constructor
-  FifoStorage(const chan_init &i)
-    : base_type(i),
+  FifoStorage(const chan_init &i, size_t tokenSize)
+    : base_type(i, tokenSize),
       initialTokens(i.marking)
   {}
 

@@ -35,6 +35,7 @@
 
 //#include "smoc_chan_adapter.hpp"
 #include "detail/smoc_chan_if.hpp"
+#include "../smoc/smoc_token_traits.hpp"
 #include "../smoc/detail/ChanBase.hpp"
 #include "../smoc/detail/ConnectProvider.hpp"
 #include "../smoc/detail/DumpingInterfaces.hpp"
@@ -100,7 +101,7 @@ protected:
   smoc::Detail::EventMapManager emmFree;      // for smoc_multiplex_fifo_entry
   smoc::Detail::EventMapManager emmAvailable; // for smoc_multiplex_fifo_outlet
 protected:
-  smoc_multiplex_fifo_chan_base(const chan_init &i);
+  smoc_multiplex_fifo_chan_base(const chan_init &i, size_t tokenSize);
 
   void registerVOutlet(const VOutletMap::value_type &entry);
   void deregisterVOutlet(FifoId fifoId);
@@ -183,7 +184,7 @@ public:
 protected:
   /// @brief Constructor
   smoc_multiplex_fifo_chan(const chan_init &i)
-    : smoc::Detail::FifoStorage<T, smoc_multiplex_fifo_chan_base>(i)
+    : smoc::Detail::FifoStorage<T, smoc_multiplex_fifo_chan_base>(i, smoc::smoc_token_traits<T>::tokenSize())
     {}
 
   void doReset() {

@@ -34,8 +34,8 @@
 
 #include <systemoc/smoc_config.h>
 
-smoc_multireader_fifo_chan_base::smoc_multireader_fifo_chan_base(const chan_init &i)
-  : ChanBase(i.name, 0)
+smoc_multireader_fifo_chan_base::smoc_multireader_fifo_chan_base(const chan_init &i, size_t tokenSize)
+  : ChanBase(i.name, tokenSize)
 #ifdef SYSTEMOC_ENABLE_ROUTING
   , QueueFRVWPtr(i.n)
 #else //!SYSTEMOC_ENABLE_ROUTING
