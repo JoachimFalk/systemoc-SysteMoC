@@ -52,7 +52,6 @@ namespace smoc { namespace Detail {
 
 using CoSupport::String::Concat;
 
-#ifndef SYSTEMOC_ENABLE_MAESTROMM_SPEEDUP
 void ChanBase::generateName() {
   // value_type will be constructed as T(), which initializes primite types to 0!
 #ifndef NDEBUG
@@ -103,15 +102,12 @@ void ChanBase::generateName() {
     assert(_smoc_channel_names.insert(myName).second);
   }
 }
-#endif //!SYSTEMOC_ENABLE_MAESTROMM_SPEEDUP
 
 ChanBase::ChanBase(std::string const &name, size_t tokenSize)
   : sc_core::sc_prim_channel(name.empty()
       ? sc_core::sc_gen_unique_name("smoc_unnamed_channel")
       : name.c_str())
-#ifndef SYSTEMOC_ENABLE_MAESTROMM_SPEEDUP
-  , myName(name)
-#endif //!defined(SYSTEMOC_ENABLE_MAESTROMM_SPEEDUP)
+  , myName(name.empty() ? "" : sc_core::sc_prim_channel::name())
   , tokenSize(tokenSize)
   {}
 
@@ -131,10 +127,8 @@ void ChanBase::doReset() {
 }
 
 void ChanBase::before_end_of_elaboration() {
-#ifndef SYSTEMOC_ENABLE_MAESTROMM_SPEEDUP
   // This is required before we use the first call to the name() method!
   generateName();
-#endif //!defined(SYSTEMOC_ENABLE_MAESTROMM_SPEEDUP)
 #ifdef SYSTEMOC_ENABLE_DEBUG
   if (smoc::Detail::outDbg.isVisible(smoc::Detail::Debug::High)) {
     smoc::Detail::outDbg << "<smoc_root_chan::before_end_of_elaboration name=\"" << name() << "\">"
