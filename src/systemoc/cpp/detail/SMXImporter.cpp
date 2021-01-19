@@ -348,18 +348,24 @@ ProcessVisitor::result_type ProcessVisitor::operator()(SGX::RefinedProcess const
 ProcessVisitor::result_type ProcessVisitor::operator()(SGX::Fifo const &c) {
   size_t newSize = c.size().get();
   assert(newSize);
-  FifoChanBase *smocFifo =
-      dynamic_cast<FifoChanBase *>(simCTX->getIdPool().getNodeById(c.id()));
-  if (smocFifo->qfSize() != newSize+1) {
-#ifdef SYSTEMOC_ENABLE_DEBUG
-    if (smoc::Detail::outDbg.isVisible(smoc::Detail::Debug::High))
-      smoc::Detail::outDbg
-        << "Resizing FIFO " << c.name()
-        << " from " << (smocFifo->qfSize()-1)
-        << " to " << newSize << " tokens" << std::endl;
-#endif // SYSTEMOC_ENABLE_DEBUG
-    smocFifo->resize(newSize);
-    assert(smocFifo->qfSize() == newSize+1);
+
+  IdedObj *idedObj = simCTX->getIdPool().getNodeById(c.id());
+  if (idedObj) {
+    FifoChanBase *smocFifo = dynamic_cast<FifoChanBase *>(idedObj);
+    assert(smocFifo != nullptr && "Given id for FIFO is not a SysteMoC FIFO!");
+    if (smocFifo->qfSize() != newSize+1) {
+  #ifdef SYSTEMOC_ENABLE_DEBUG
+      if (smoc::Detail::outDbg.isVisible(smoc::Detail::Debug::High))
+        smoc::Detail::outDbg
+          << "Resizing FIFO " << c.name()
+          << " from " << (smocFifo->qfSize()-1)
+          << " to " << newSize << " tokens" << std::endl;
+  #endif // SYSTEMOC_ENABLE_DEBUG
+      smocFifo->resize(newSize);
+      assert(smocFifo->qfSize() == newSize+1);
+    }
+  } else {
+    std::cerr << "Warning: SMX Fifo " << c.name() << " with id" << c.id() << " is not present!" << std::endl;
   }
 }
 
