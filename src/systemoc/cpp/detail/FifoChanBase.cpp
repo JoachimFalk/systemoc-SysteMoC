@@ -46,6 +46,14 @@ FifoChanBase::FifoChanBase(const chan_init &i, size_t tokenSize)
 
 void FifoChanBase::before_end_of_elaboration() {
   ChanBase::before_end_of_elaboration();
+  if (getEntries().size() > 1)
+    std::cerr << "Error: FIFO " << name() << " has multiple writers!" << std::endl;
+  else if (getEntries().size() == 0)
+    std::cerr << "Error: FIFO " << name() << " has no writers!" << std::endl;
+  if (getOutlets().size() > 1)
+    std::cerr << "Error: FIFO " << name() << " has multiple readers!" << std::endl;
+  else if (getOutlets().size() == 0)
+    std::cerr << "Error: FIFO " << name() << " has no readers!" << std::endl;
   assert(getEntries().size() == 1);
   assert(getOutlets().size() == 1);
 }
