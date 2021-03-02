@@ -41,7 +41,7 @@
 #include <climits>
 #include <cmath>
 #include <typeinfo>
-
+#include <functional>
 #include <list>
 #include <map>
 
@@ -51,8 +51,6 @@
 #include <CoSupport/String/convert.hpp>
 
 #include <boost/typeof/typeof.hpp>
-#include <boost/function.hpp>
-#include <boost/bind.hpp>
 
 #include <systemoc/smoc_config.h>
 
@@ -155,8 +153,8 @@ namespace smoc { namespace Detail {
     virtual result_type visitEvent(smoc_event_waiter &e, std::string const &name) = 0;
     virtual result_type visitToken(PortBase &p, size_t n) = 0;
     virtual result_type visitComm(PortBase &p, size_t c, size_t r) = 0;
-    virtual result_type visitUnOp(OpUnT op, boost::function<result_type (this_type &)> e) = 0;
-    virtual result_type visitBinOp(OpBinT op, boost::function<result_type (this_type &)> a, boost::function<result_type (this_type &)> b) = 0;
+    virtual result_type visitUnOp(OpUnT op, std::function<result_type (this_type &)> e) = 0;
+    virtual result_type visitBinOp(OpBinT op, std::function<result_type (this_type &)> a, std::function<result_type (this_type &)> b) = 0;
 
     virtual ~ExprVisitor() {}
   };
@@ -631,8 +629,8 @@ public:
   static inline
   result_type apply(const DBinOp<A,B,Op> &e, param1_type p) {
     return p.visitBinOp(Op,
-      boost::bind(VisitorApplication<A>::apply, e.a, _1),
-      boost::bind(VisitorApplication<B>::apply, e.b, _1));
+      std::bind(VisitorApplication<A>::apply, e.a, std::placeholders::_1),
+      std::bind(VisitorApplication<B>::apply, e.b, std::placeholders::_1));
   }
 };
 
@@ -834,7 +832,7 @@ public:
   static inline
   result_type apply(const DUnOp<E,Op> &e, param1_type p) {
     return p.visitUnOp(Op,
-      boost::bind(VisitorApplication<E>::apply, e.e, _1));
+      std::bind(VisitorApplication<E>::apply, e.e, std::placeholders::_1));
   }
 };
 

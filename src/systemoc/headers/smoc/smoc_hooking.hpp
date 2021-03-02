@@ -33,15 +33,14 @@
 #ifdef SYSTEMOC_ENABLE_HOOKING
 
 #include <string>
-
-#include <boost/function.hpp>
+#include <functional>
 
 namespace smoc {
 
 class smoc_actor;
 
-typedef boost::function<void (smoc_actor *, const std::string &, const std::string &, const std::string &)> smoc_pre_hook_callback;
-typedef boost::function<void (smoc_actor *, const std::string &, const std::string &, const std::string &)> smoc_post_hook_callback;
+typedef std::function<void (smoc_actor *, const std::string &, const std::string &, const std::string &)> smoc_pre_hook_callback;
+typedef std::function<void (smoc_actor *, const std::string &, const std::string &, const std::string &)> smoc_post_hook_callback;
 
 /// Add transition hook matching srcStateRegex, actionRegex, and dstStateRegex.
 /// For runtime transitions matching the hook, the pre and post callbacks are called

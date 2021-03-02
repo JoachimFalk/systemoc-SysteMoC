@@ -148,8 +148,8 @@ public:
   result_type visitEvent(smoc_event_waiter &e, std::string const &name);
   result_type visitToken(PortBase &p, size_t n);
   result_type visitComm(PortBase &p, size_t c, size_t r);
-  result_type visitUnOp(OpUnT op, boost::function<result_type (base_type &)> e);
-  result_type visitBinOp(OpBinT op, boost::function<result_type (base_type &)> a, boost::function<result_type (base_type &)> b);
+  result_type visitUnOp(OpUnT op, std::function<result_type (base_type &)> e);
+  result_type visitBinOp(OpBinT op, std::function<result_type (base_type &)> a, std::function<result_type (base_type &)> b);
 };
 
 ExprNGXVisitor::result_type ExprNGXVisitor::visitVar(const std::string &name, const std::string &type) {
@@ -232,7 +232,7 @@ ExprNGXVisitor::result_type ExprNGXVisitor::visitComm(PortBase &p, size_t c, siz
 
 ExprNGXVisitor::result_type ExprNGXVisitor::visitUnOp(
     OpUnT op,
-    boost::function<result_type (base_type &)> e)
+    std::function<result_type (base_type &)> e)
 {
   std::unique_ptr<SGX::ASTNodeUnOp> astNode(new SGX::ASTNodeUnOp);
   SGX::OpUnT sgxOp(-1);
@@ -251,8 +251,8 @@ ExprNGXVisitor::result_type ExprNGXVisitor::visitUnOp(
 
 ExprNGXVisitor::result_type ExprNGXVisitor::visitBinOp(
     OpBinT op,
-    boost::function<result_type (base_type &)> a,
-    boost::function<result_type (base_type &)> b)
+    std::function<result_type (base_type &)> a,
+    std::function<result_type (base_type &)> b)
 {
   std::unique_ptr<SGX::ASTNodeBinOp> astNode(new SGX::ASTNodeBinOp);
   SGX::OpBinT sgxOp(-1);
