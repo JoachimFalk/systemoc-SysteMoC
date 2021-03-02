@@ -1,7 +1,7 @@
-#! /usr/bin/python
+#! /usr/bin/python3
 # vim: set sw=2 ts=8 sts=2 et:
 
-from __future__ import print_function
+#from __future__ import print_function
 
 import sys
 import argparse
@@ -56,7 +56,8 @@ In this case, {prog} will also die.'''.format(prog=PROG)
 
   out = dict()
 
-  for line in PUT.stdout:
+  for line_ in PUT.stdout:
+    line = line_.decode()
     if line == "Info: /OSCI/SystemC: Simulation stopped by user.\n":
       continue 
     m = filter.match(line)
