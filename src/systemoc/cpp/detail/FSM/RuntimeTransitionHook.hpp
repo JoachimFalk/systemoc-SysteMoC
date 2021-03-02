@@ -37,7 +37,6 @@
 
 #include <smoc/smoc_hooking.hpp>
 
-#include <boost/function.hpp>
 #include <boost/regex.hpp>
 
 namespace smoc { namespace Detail { namespace FSM {

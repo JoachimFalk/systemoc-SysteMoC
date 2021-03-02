@@ -51,6 +51,7 @@
 #include <utility>
 #include <memory>
 #include <string>
+#include <functional>
 
 #if defined(LIBSGX_MAJOR_VERSION) && ( \
     LIBSGX_MAJOR_VERSION > 0 || \
@@ -135,7 +136,7 @@ protected:
 };
 
 class QSSActionVisitor
-: public boost::static_visitor<boost::function<void ()> > {
+: public boost::static_visitor<std::function<void ()> > {
 
 private:
   IdPool const &idPool;
@@ -150,19 +151,19 @@ public:
     smoc_actor *smocActor = dynamic_cast<smoc_actor *>
       (idPool.getNodeById(action.actor()->id()));
     assert(smocActor != nullptr);
-    return boost::bind(&actorFiringAction,
+    return std::bind(&actorFiringAction,
         repeat.isDefined() ? repeat.get() : 1,
             smocActor);
   }
 
   result_type operator()(const SGX::CompoundAction &actions) const {
-    std::vector<boost::function<void ()> > smocActions;
+    std::vector<std::function<void ()> > smocActions;
 
     for (SGX::Action::ConstRef action : actions.actions())
       smocActions.push_back(apply_visitor(*this, action));
     SGX::MSizeT repeat = actions.repeat();
 
-    return boost::bind(&compoundAction, repeat.isDefined() ? repeat.get() : 1, smocActions);
+    return std::bind(&compoundAction, repeat.isDefined() ? repeat.get() : 1, smocActions);
   }
 
   result_type operator()(const SGX::Function &action) const {
@@ -202,9 +203,9 @@ private:
   }
 
   static
-  void compoundAction(int repeat,  std::vector<boost::function<void ()> > const &childActions) {
+  void compoundAction(int repeat,  std::vector<std::function<void ()> > const &childActions) {
     for (int n = 0; n < repeat; ++n) {
-      for (boost::function<void ()> action : childActions)
+      for (std::function<void ()> action : childActions)
         action();
     }
   }
@@ -285,7 +286,7 @@ public:
     }
   }
 protected:
-  void flummy(boost::function<void ()> indirectAction) {
+  void flummy(std::function<void ()> indirectAction) {
     indirectAction();
   }
 };

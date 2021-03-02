@@ -82,14 +82,14 @@ namespace smoc { namespace Detail { namespace FSM {
       return nullptr;
     }
     result_type visitUnOp(OpUnT op,
-        boost::function<result_type (base_type &)> e){
+        std::function<result_type (base_type &)> e){
       fr.guardComplexity += 1;
       e(*this);
       return nullptr;
     }
     result_type visitBinOp(OpBinT op,
-        boost::function<result_type (base_type &)> a,
-        boost::function<result_type (base_type &)> b){
+        std::function<result_type (base_type &)> a,
+        std::function<result_type (base_type &)> b){
       fr.guardComplexity += 1;
       a(*this);
       b(*this);
