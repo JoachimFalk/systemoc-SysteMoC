@@ -218,6 +218,15 @@ private:
 
 };
 
+class QSSAction: public std::function<void ()> {
+public:
+  QSSAction(std::function<void ()> &&action)
+    : std::function<void ()>(action) {}
+};
+
+std::ostream &operator <<(std::ostream &out, QSSAction const &)
+  { return out << "QSSAction(...)"; }
+
 class QSSCluster
 : public smoc_graph
 , public NamedIdedObjAccess
@@ -279,15 +288,15 @@ public:
         ASTEvaluator astEvaluator(getSimCTX()->getIdPool());
         *srcStateIter->second |=
             boost::get<Expr::Ex<ENABLED>::type>(astEvaluator.evaluate(*sgxTransition.activationPattern())) >>
-            SMOC_CALL(QSSCluster::flummy)(
+            SMOC_CALL(QSSCluster::action)(
                 apply_visitor(QSSActionVisitor(getSimCTX()->getIdPool()), *sgxTransition.action())) >> *dstStateIter->second;
           ;
       }
     }
   }
 protected:
-  void flummy(std::function<void ()> indirectAction) {
-    indirectAction();
+  void action(QSSAction qssAction) {
+    qssAction();
   }
 };
 
