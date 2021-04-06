@@ -45,7 +45,7 @@
 
 #include <CoSupport/String/Concat.hpp>
 #include <CoSupport/String/convert.hpp>
-#include <CoSupport/String/DoubleQuotedString.hpp>
+#include <CoSupport/String/XMLQuotedString.hpp>
 #include <CoSupport/String/UniquePool.hpp>
 
 #include <map>
@@ -156,7 +156,7 @@ namespace smoc { namespace Detail {
 using CoSupport::String::Concat;
 using CoSupport::String::asStr;
 
-typedef CoSupport::String::DoubleQuotedString DQ;
+typedef CoSupport::String::XMLQuotedString XQ;
 
 SimulationContextSNGDumping::SimulationContextSNGDumping()
   : dumpSNGFile(nullptr) {}
@@ -464,7 +464,7 @@ public:
     
     gsv.ctx.fifoConnections
       << "  <fifo "
-              "name=" << DQ(p.name()) << " "
+              "name=" << XQ(p.name()) << " "
               "size=\"" << p.depthCount() << "\" "
               "initial=\"" << p.usedCount() << "\">\n"
          "    <opendseattr name=\"smoc-token-size\" type=\"INT\" value=\"" << p.getTokenSize() << "\"/>\n";
@@ -478,8 +478,8 @@ public:
         }
 #endif //defined(SYSTEMOC_ENABLE_DEBUG)
         gsv.ctx.fifoConnections
-          << "    <source actor=" << DQ(iter->second.actorName)
-          <<             " port=" << DQ(iter->second.portName) << "/>\n";
+          << "    <source actor=" << XQ(iter->second.actorName)
+          <<             " port=" << XQ(iter->second.portName) << "/>\n";
         gsv.expectedChannelConnections.erase(iter); // handled it!
       }
     }
@@ -493,8 +493,8 @@ public:
         }
 #endif //defined(SYSTEMOC_ENABLE_DEBUG)
         gsv.ctx.fifoConnections
-          << "    <target actor=" << DQ(iter->second.actorName)
-          <<             " port=" << DQ(iter->second.portName) << "/>\n";
+          << "    <target actor=" << XQ(iter->second.actorName)
+          <<             " port=" << XQ(iter->second.portName) << "/>\n";
         gsv.expectedChannelConnections.erase(iter); // handled it!
       }
     }
@@ -526,7 +526,7 @@ public:
 
     gsv.ctx.fifoConnections
       << "  <register "
-              "name=" << DQ(p.name()) << ">\n"
+              "name=" << XQ(p.name()) << ">\n"
          "    <opendseattr name=\"smoc-token-size\" type=\"INT\" value=\"" << p.getTokenSize() << "\"/>\n";
     for (ChanBase::EntryMap::value_type entry : p.getEntries()) {
       SCInterface2Port::iterator iter =
@@ -538,8 +538,8 @@ public:
         }
 #endif //defined(SYSTEMOC_ENABLE_DEBUG)
         gsv.ctx.fifoConnections
-          << "    <source actor=" << DQ(iter->second.actorName)
-          <<             " port=" << DQ(iter->second.portName) << "/>\n";
+          << "    <source actor=" << XQ(iter->second.actorName)
+          <<             " port=" << XQ(iter->second.portName) << "/>\n";
         gsv.expectedChannelConnections.erase(iter); // handled it!
       }
     }
@@ -553,8 +553,8 @@ public:
         }
 #endif //defined(SYSTEMOC_ENABLE_DEBUG)
         gsv.ctx.fifoConnections
-          << "    <target actor=" << DQ(iter->second.actorName)
-          <<             " port=" << DQ(iter->second.portName) << "/>\n";
+          << "    <target actor=" << XQ(iter->second.actorName)
+          <<             " port=" << XQ(iter->second.portName) << "/>\n";
         gsv.expectedChannelConnections.erase(iter); // handled it!
       }
     }
@@ -600,10 +600,10 @@ public:
       if (type.empty()) {
         type = gsv.ctx.actorTypeUniquePool(actorType);
         gsv.ctx.actorTypes
-          << "  <actorType name=" << DQ(type) << ">\n";
+          << "  <actorType name=" << XQ(type) << ">\n";
         for (SCPortBase2Port::value_type p : sv.ports) {
           gsv.ctx.actorTypes
-            << "    <port name=" << DQ(p.second.portName)
+            << "    <port name=" << XQ(p.second.portName)
             << " type=" << (p.second.isInput ? "\"in\"" : "\"out\"") << "/>\n";
         }
         gsv.ctx.actorTypes
@@ -613,7 +613,7 @@ public:
     }
 
     gsv.ctx.actorInstances
-      << "  <actorInstance name=" << DQ(actorName) << " type=" << DQ(actorType) << "/>\n";
+      << "  <actorInstance name=" << XQ(actorName) << " type=" << XQ(actorType) << "/>\n";
 #ifdef SYSTEMOC_ENABLE_DEBUG
     if (outDbg.isVisible(Debug::Low)) {
       outDbg << "DumpActor::operator ()(...) [END]" << std::endl;
