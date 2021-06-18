@@ -44,6 +44,7 @@ nobase_include_HEADERS = \
 	smoc/smoc_and_state.hpp \
 	smoc/smoc_base_state.hpp \
 	smoc/smoc_event.hpp \
+	smoc/smoc_fifo.hpp \
 	smoc/smoc_firing_rule.hpp \
 	smoc/smoc_firing_state.hpp \
 	smoc/smoc_graph.hpp \
@@ -95,6 +96,11 @@ nobase_include_HEADERS = \
 	smoc/detail/QueueRVWPtr.hpp \
 	smoc/detail/QueueRWPtr.hpp \
 	smoc/detail/QueueWithStorage.hpp \
+	smoc/detail/RegisterChanBase.hpp \
+	smoc/detail/RegisterChan.hpp \
+	smoc/detail/RegisterEntry.hpp \
+	smoc/detail/RegisterOutlet.hpp \
+	smoc/detail/RegisterStorage.hpp \
 	smoc/detail/RingAccess.hpp \
 	smoc/detail/SimCTXBase.hpp \
 	smoc/detail/Storage.hpp \
