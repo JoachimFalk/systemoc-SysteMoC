@@ -678,6 +678,8 @@ public:
     SGX::Fifo fifo(getName(&p), getId(&p));
     // set some attributes
     fifo.size() = p.depthCount();
+    SGX::Attribute attrTokenSize("smoc-token-size", boost::any(p.getTokenSize()));
+    fifo.attributes().push_back(attrTokenSize);
     gsv.pg.processes().push_back(fifo);
     registerPorts(fifo, p);
     
@@ -726,6 +728,8 @@ public:
     SGX::MultiportFifo fifo(getName(&p), getId(&p));
     // set some attributes
     fifo.size() = p.depthCount();
+    SGX::Attribute attrTokenSize("smoc-token-size", boost::any(p.getTokenSize()));
+    fifo.attributes().push_back(attrTokenSize);
     gsv.pg.processes().push_back(fifo);
     registerPorts(fifo, p);
     
@@ -798,6 +802,8 @@ public:
     SGX::MultiplexFifo fifo(getName(&p), getId(&p));
     // set some attributes
     fifo.size() = p.depthCount();
+    SGX::Attribute attrTokenSize("smoc-token-size", boost::any(p.getTokenSize()));
+    fifo.attributes().push_back(attrTokenSize);
     gsv.pg.processes().push_back(fifo);
     registerPorts(fifo, p);
     
