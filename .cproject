@@ -40,6 +40,7 @@
 								<option id="gnu.c.compiler.option.include.paths.342374017" name="Include paths (-I)" superClass="gnu.c.compiler.option.include.paths" valueType="includePath">
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/SysteMoC/obj/src/systemoc/headers}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/SysteMoC/src/systemoc/headers}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/SysteMoC/obj/tools/src/sng-to-dot/resources}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/Support/src/cosupport-xerces/headers}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/Support/src/cosupport-tracing/headers}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/Support/src/cosupport-systemc/headers}&quot;"/>
@@ -64,6 +65,7 @@
 								<option id="gnu.cpp.compiler.option.include.paths.474299919" name="Include paths (-I)" superClass="gnu.cpp.compiler.option.include.paths" valueType="includePath">
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/SysteMoC/obj/src/systemoc/headers}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/SysteMoC/src/systemoc/headers}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/SysteMoC/obj/tools/src/sng-to-dot/resources}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/Support/src/cosupport-xerces/headers}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/Support/src/cosupport-tracing/headers}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/Support/src/cosupport-systemc/headers}&quot;"/>
@@ -89,6 +91,7 @@
 					<sourceEntries>
 						<entry flags="VALUE_WORKSPACE_PATH" kind="sourcePath" name="src/systemoc/cpp"/>
 						<entry flags="VALUE_WORKSPACE_PATH" kind="sourcePath" name="src/systemoc/headers"/>
+						<entry flags="VALUE_WORKSPACE_PATH" kind="sourcePath" name="tools/src/sng-to-dot/cpp"/>
 						<entry flags="VALUE_WORKSPACE_PATH" kind="sourcePath" name="tutorial/src/data-flow/cpp"/>
 						<entry flags="VALUE_WORKSPACE_PATH" kind="sourcePath" name="tutorial/src/dynamics/cpp"/>
 						<entry flags="VALUE_WORKSPACE_PATH" kind="sourcePath" name="tutorial/src/guards/cpp"/>

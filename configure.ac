@@ -23,6 +23,7 @@
 #   2018 FAU -- Franz-Josef Streit <franz-josef.streit@fau.de>
 #   2018 FAU -- Joachim Falk <joachim.falk@fau.de>
 #   2019 FAU -- Joachim Falk <joachim.falk@fau.de>
+#   2021 FAU -- Joachim Falk <joachim.falk@fau.de>
 # 
 # This library is free software; you can redistribute it and/or modify it under
 # the terms of the GNU Lesser General Public License as published by the Free
@@ -143,6 +144,7 @@ ACJF_CHECK_LIB_COSUPPORT_SMARTPTR([[version:>= 1.0]])
 ACJF_CHECK_LIB_COSUPPORT_MATH([[version:>= 1.0]])
 ACJF_CHECK_LIB_COSUPPORT_ALLOCATORS([[version:>= 1.0]])
 ACJF_CHECK_LIB_COSUPPORT_STRING([[version:>= 1.0]])
+ACJF_CHECK_LIB_COSUPPORT_XERCES([[version:>= 1.0]])
 
 AC_CHECK_LIB([ltdl], [lt_dlinit],
   [],
@@ -277,6 +279,7 @@ AC_CONFIG_FILES([
   pkgconfig/libsystemoc.pc
   testcases/Makefile
   tutorial/Makefile
+  tools/Makefile
 ])
 
 ACJF_DONE

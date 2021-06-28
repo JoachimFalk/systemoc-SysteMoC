@@ -21,6 +21,7 @@
 #   2018 FAU -- Joachim Falk <joachim.falk@fau.de>
 #   2019 FAU -- Joachim Falk <joachim.falk@fau.de>
 #   2020 FAU -- Joachim Falk <joachim.falk@fau.de>
+#   2021 FAU -- Joachim Falk <joachim.falk@fau.de>
 # 
 # This library is free software; you can redistribute it and/or modify it under
 # the terms of the GNU Lesser General Public License as published by the Free
@@ -41,7 +42,7 @@
 include $(auxdir)/jfrules.mk
 include ../BuildSystem/doxygen.am
 
-SUBDIRS = . src/systemoc/headers testcases tutorial
+SUBDIRS = . src/systemoc/headers testcases tutorial tools
 
 AUTOMAKE_OPTIONS = nostdinc
 # This is only needed if there is a configure.ac in this directory

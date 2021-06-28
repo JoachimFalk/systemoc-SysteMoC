@@ -1,0 +1,119 @@
+<?xml version="1.0"?>
+<xs:schema
+  xmlns:xs="http://www.w3.org/2001/XMLSchema"
+  elementFormDefault="qualified">
+
+  <xs:simpleType name="TypeIdentifier">
+    <xs:restriction base="xs:string">
+      <xs:pattern value="([_a-zA-Z])+([_a-zA-Z0-9&lt;&gt;, ])*(::([_a-zA-Z])+([_a-zA-Z0-9&lt;&gt;, ])*)*"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="Identifier">
+    <xs:restriction base="xs:string">
+      <xs:pattern value="([_a-zA-Z])+([_a-zA-Z0-9])*([.]([_a-zA-Z])+([_a-zA-Z0-9])*)*"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:complexType name="PortReq">
+    <xs:attribute name="port" type="Identifier"/>
+    <xs:attribute name="count" type="xs:positiveInteger" default="1"/>
+  </xs:complexType>
+
+  <xs:complexType name="Transition">
+    <xs:sequence>
+      <xs:element name="portReq" type="PortReq" minOccurs="0" maxOccurs="unbounded"/>
+    </xs:sequence>
+    <xs:attribute name="next" type="Identifier"/>
+  </xs:complexType>
+
+  <xs:complexType name="State">
+    <xs:sequence>
+      <xs:element name="transition" type="Transition" maxOccurs="unbounded"/>
+    </xs:sequence>
+    <xs:attribute name="name" type="Identifier"/>
+  </xs:complexType>
+
+  <xs:complexType name="Fsm">
+    <xs:sequence>
+      <xs:element name="state" type="State" maxOccurs="unbounded"/>
+    </xs:sequence>
+    <xs:attribute name="start" type="Identifier"/>
+  </xs:complexType>
+
+  <xs:simpleType name="PortType">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="in"/>
+      <xs:enumeration value="out"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:complexType name="Port">
+    <xs:attribute name="name" type="Identifier"/>
+    <xs:attribute name="type" type="PortType"/>
+    <xs:attribute name="rate" type="xs:nonNegativeInteger" default="0"/>
+  </xs:complexType>
+
+  <xs:complexType name="ActorType">
+    <xs:sequence>
+      <xs:element name="port" type="Port" maxOccurs="unbounded"/>
+      <xs:element name="fsm" type="Fsm" minOccurs="0"/>
+    </xs:sequence>
+    <xs:attribute name="name" type="TypeIdentifier"/>
+  </xs:complexType>
+
+  <xs:complexType name="ActorInstance">
+    <xs:attribute name="name" type="Identifier"/>
+    <xs:attribute name="type" type="TypeIdentifier"/>
+  </xs:complexType>
+
+  <xs:complexType name="ActorPortRef">
+    <xs:attribute name="actor" type="Identifier"/>
+    <xs:attribute name="port" type="Identifier"/>
+  </xs:complexType>
+
+  <xs:complexType name="OpenDSEAttr">
+    <xs:sequence>
+      <xs:element name="opendseattr" type="OpenDSEAttr" minOccurs="0" maxOccurs="unbounded"/>
+    </xs:sequence>
+    <xs:attribute name="name"/>
+    <xs:attribute name="cxxType"/>
+    <xs:attribute name="javaType"/>
+    <xs:attribute name="type"/>
+    <xs:attribute name="value"/>
+  </xs:complexType>
+
+  <xs:complexType name="Fifo">
+    <xs:sequence>
+      <xs:element name="opendseattr" type="OpenDSEAttr" minOccurs="0" maxOccurs="unbounded"/>
+      <xs:element name="source"      type="ActorPortRef"/>
+      <xs:element name="target"      type="ActorPortRef"/>
+    </xs:sequence>
+    <xs:attribute name="name" type="xs:string" default=""/>
+    <xs:attribute name="size" type="xs:positiveInteger" default="1"/>
+    <xs:attribute name="initial" type="xs:nonNegativeInteger" default="0"/>
+  </xs:complexType>
+
+  <xs:complexType name="Register">
+    <xs:sequence>
+      <xs:element name="opendseattr" type="OpenDSEAttr" minOccurs="0" maxOccurs="unbounded"/>
+      <xs:element name="source"      type="ActorPortRef" minOccurs="0" maxOccurs="unbounded"/>
+      <xs:element name="target"      type="ActorPortRef" minOccurs="0" maxOccurs="unbounded"/>
+    </xs:sequence>
+    <xs:attribute name="name" type="xs:string" default=""/>
+  </xs:complexType>
+
+  <xs:complexType name="NetworkGraph">
+    <xs:sequence>
+      <xs:element name="actorType" type="ActorType" maxOccurs="unbounded"/>
+      <xs:element name="actorInstance" type="ActorInstance" maxOccurs="unbounded"/>
+      <xs:choice minOccurs="0" maxOccurs="unbounded">
+        <xs:element name="fifo"     type="Fifo"/>
+        <xs:element name="register" type="Register"/>
+      </xs:choice>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:element name="networkGraph" type="NetworkGraph"/>
+
+</xs:schema>
