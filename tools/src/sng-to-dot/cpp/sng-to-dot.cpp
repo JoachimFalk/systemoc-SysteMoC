@@ -24,14 +24,10 @@
 
 #include <cstdio>
 
-#include <CoSupport/compatibility-glue/nullptr.h>
-
 #include <CoSupport/Streams/DebugOStream.hpp>
 #include <CoSupport/Streams/AlternateStream.hpp>
 
-#include <CoSupport/String/color.hpp>
-
-#include <CoSupport/boost/program_options/value_semantic.hpp>
+#include <CoSupport/sassert.h>
 
 #include <CoSupport/XML/Xerces/Handler.hpp>
 
@@ -42,8 +38,6 @@
 
 #include <boost/filesystem/path.hpp>
 #include <boost/filesystem/convenience.hpp>
-
-#include <boost/algorithm/string.hpp>
 
 #include <boost/graph/adjacency_list.hpp>
 #include <boost/graph/filtered_graph.hpp>
@@ -67,11 +61,14 @@
 
 std::string prgname = "???";
 
-namespace po  = CoSupport::boost::program_options;
-namespace fs  = ::boost::filesystem;
+namespace po = ::boost::program_options;
+namespace fs = ::boost::filesystem;
+namespace XN = ::CoSupport::XML::Xerces::XN;
 
 using ::CoSupport::Streams::Debug;
-using ::CoSupport::Streams::ScopedIndent;
+//using ::CoSupport::Streams::ScopedIndent;
+using ::CoSupport::XML::Xerces::XStr;
+using ::CoSupport::XML::Xerces::NStr;
 
 typedef
 #ifdef NDEBUG
@@ -89,84 +86,182 @@ typedef
 /// Debug output stream
 DebugOStream outDbg(std::cerr);
 
-/*
-//typedef SGX::BGL::P2PGraph::ConverterExperiment  BGLConverter;
-class BGLConverter:
-  public SGX::BGL::P2PGraph::SliceCSDFAttributes<
-    SGX::BGL::P2PGraph::SliceProcessChannelNames<
-      SGX::BGL::P2PGraph::SliceChannelSizeAndInitialTokens<
-        SGX::BGL::P2PGraph::ConverterBase
-  > > >::ImplType<
-    // vertex properties
-    boost::property<SystemCoDesigner::NGAnalysis::SDF::vertex_repcount_t, size_t>,
-    // edge properties
-    boost::no_property,
-    // graph properties
-    boost::no_property // don't need graph properties
-  >
-{
-  typedef SGX::BGL::P2PGraph::SliceCSDFAttributes<
-    SGX::BGL::P2PGraph::SliceProcessChannelNames<
-      SGX::BGL::P2PGraph::SliceChannelSizeAndInitialTokens<
-        SGX::BGL::P2PGraph::ConverterBase
-  > > >::ImplType<
-    // vertex properties
-    boost::property<SystemCoDesigner::NGAnalysis::SDF::vertex_repcount_t, size_t>,
-    // edge properties
-    boost::no_property,
-    // graph properties
-    boost::no_property // don't need graph properties
-  >                     parent_type;
-  typedef BGLConverter  this_type;
-public:
-  BGLConverter(SystemCoDesigner::SGX::ProblemGraph::Ref pg)
-    : parent_type(pg) {}
+namespace smoc { namespace sng {
 
-  class VertexPropertyWriter
-  : public parent_type::VertexPropertyWriter {
-    typedef VertexPropertyWriter               this_type;
-    typedef parent_type::VertexPropertyWriter  base_type;
+  struct ActorInfo {
+
+  };
+
+  struct FIFOInfo {
+    size_t       tokenSize; ///< size of a token in bytes
+    size_t       capacity;  ///< size of the FIFO buffer in tokens
+    size_t       delay;     ///< number of initial tokens
+  };
+
+  struct RegisterInfo {
+    size_t       tokenSize; ///< size of a token in bytes
+  };
+
+  struct VertexInfo {
+    enum Type { ACTOR, FIFO, REGISTER };
+
+    std::string    name;
+    Type           type;
+    union {
+      ActorInfo    actor;
+      FIFOInfo     fifo;
+      RegisterInfo reg;
+    };
+  };
+
+  struct EdgeInfo {
+    std::string name;
+    int         tokenSize;
+    int         tokens;
+  };
+
+  typedef boost::adjacency_list<
+    // edge container type
+    boost::vecS,
+    // vertex container type
+    boost::vecS,
+    // direction type
+    boost::bidirectionalS,
+    // vertex properties
+    VertexInfo,
+    // edge properties
+    EdgeInfo,
+    // graph properties
+    boost::no_property // don't need graph properties
+  > Graph;
+
+  /// Basic vertex property writer for SDF.
+  /// Property writers are used in dot file generation, which are mainly used for debugging purpose.
+  /// \sa SDF::EdgePropertyWriter
+  class VertexPropertyWriter {
+    typedef VertexPropertyWriter this_type;
   protected:
-    const GraphPartitioning &gp;
+    Graph &g;
   public:
-    VertexPropertyWriter(const BGLConverter::graph &g, const GraphPartitioning &gp)
-      : base_type(g), gp(gp) {}
+    VertexPropertyWriter(Graph &g): g(g) {}
 
-    virtual ~VertexPropertyWriter() {}
-  protected:
+    void operator()(std::ostream &out, Graph::vertex_descriptor vd) {
+      VertexInfo const &vi = g[vd];
 
-    /// This function is reponsible for collecting the label string
-    /// belonging to the associated properties.
-    /// Note that overloaded functions must call the parents
-    /// so that all properties can be taken into account.
-    virtual void collectAttributes(const BGLConverter::vertex_descriptor vd) {
-      GraphPartitioning::const_iterator iter;
-
-      base_type::collectAttributes(vd);
-
-      if ((iter = gp.find(get(::boost::vertex_name, g, vd))) != gp.end()) {
-        char                     colorStr[8];
-        CoSupport::String::Color color = CoSupport::String::getColor(iter->second);
-
-        std::snprintf(colorStr, sizeof(colorStr), "#%02X%02X%02X",
-            static_cast<unsigned int>(color.r()),
-            static_cast<unsigned int>(color.g()),
-            static_cast<unsigned int>(color.b()));
-        colorStr[sizeof(colorStr)-1] = '\0';
-        this->attributes["style"] = "filled";
-        this->attributes["color"] = colorStr;
+      switch (vi.type) {
+        case VertexInfo::ACTOR:
+          out << "[label=\"" << vi.name << "\"]";
+          break;
+        case VertexInfo::FIFO:
+          out << "[label=\"" << vi.name << "\" shape=\"box\"]";
+          break;
+        case VertexInfo::REGISTER:
+          out << "[label=\"" << vi.name << "\" shape=\"box\"]";
+          break;
       }
-      SystemCoDesigner::NGAnalysis::MoC moc = get(SystemCoDesigner::NGAnalysis::vertex_moc, g, vd);
-      if (moc == SystemCoDesigner::NGAnalysis::MoC::SDF ||
-          moc == SystemCoDesigner::NGAnalysis::MoC::CSDF) {
-        this->attributes["label"] += "(x" + std::to_string(get(SystemCoDesigner::NGAnalysis::SDF::vertex_repcount, g, vd)) + ")";
-      }
+  //  out << "[label=\"" << get(&VertexInfo::name, g, vd) << "(x" << g[vd].repCount << ")\" shape=\"box\"]";
     }
   };
-};
-*/
 
-void loadSNG(std::istream &in) {
+  /// Basic edge property writer for SDF.
+  /// Property writers are used in dot file generation, which are mainly used for debugging purpose.
+  /// \sa SDF::VertexPropertyWriter
+  class EdgePropertyWriter {
+    typedef EdgePropertyWriter this_type;
+  protected:
+    Graph &g;
+  public:
+    EdgePropertyWriter(Graph &g): g(g) {}
+
+    void operator()(std::ostream &out, Graph::edge_descriptor ed) {
+      EdgeInfo const &ei = g[ed];
+      out << "[label=\"" << ei.name << "\"]";
+  //  out << "[headlabel=\"c:" << g[ed].cons << "\" taillabel=\"p:" << g[ed].prod << "\"]";
+  //  out << "[label=\"c:" << g[ed].cons << "\\np:" << g[ed].prod << "\\ns:" << g[ed].capacity << "\\nd:" << g[ed].delay << "\"]";
+    }
+  };
+
+} } // namespace smoc::SNG
+
+//struct SNGGraph: public CoSupport::boost::graph_traits<
+//>
+//{
+//  typedef DetailX::VertexInfo VertexInfo;
+//  typedef DetailX::EdgeInfo   EdgeInfo;
+//
+//  typedef boost::property_map<
+//    graph, boost::vertex_index_t>::type           PropVertexIndexMap;
+//  typedef boost::property_map<
+//    graph, std::string VertexInfo::*>::type       PropVertexNameMap;
+//  typedef boost::property_map<
+//    graph, size_t VertexInfo::*>::type            PropVertexRepCountMap;
+//
+//  typedef boost::property_map<
+//    graph, std::string EdgeInfo::*>::type         PropEdgeNameMap;
+//  typedef boost::property_map<
+//    graph, size_t EdgeInfo::*>::type              PropEdgeSizeTMap;
+//
+//static edge_descriptor add_edge(vertex_descriptor vSrc, vertex_descriptor vSnk, graph &g) {
+//  static size_t i = 0;
+//
+//  std::pair<edge_descriptor, bool> eStatus = boost::add_edge(vSrc, vSnk, g);
+//  assert(eStatus.second && "WTF?! Failed to insert edge into boost graph g!");
+//  SNGGraph::edge_descriptor &ed = eStatus.first;
+//  g[ed].name = Concat("c")(++i);
+//  size_t repSrc = g[vSrc].repCount;
+//  size_t repSnk = g[vSnk].repCount;
+//  size_t repGcd = boost::math::gcd(repSrc, repSnk);
+//  g[ed].cons = repSrc/repGcd;
+//  g[ed].prod = repSnk/repGcd;
+//  return ed;
+//}
+//};
+
+class ActorPort {
+public:
+  enum Direction { IN, OUT };
+
+  ActorPort(XN::DOMElement *domActorPort)
+    : name(domActorPort->getAttribute(XMLCH("name")))
+  {
+    XMLCh const *d = domActorPort->getAttribute(XMLCH("type"));
+    assert(
+        XN::XMLString::compareString(XMLCH("in"), d)  == 0
+     || XN::XMLString::compareString(XMLCH("out"), d) == 0);
+    direction = XN::XMLString::compareString(XMLCH("in"), d) == 0
+        ? IN : OUT;
+  }
+
+  std::string const &getName()
+    { return name; }
+
+protected:
+  NStr      name;
+  Direction direction;
+};
+
+class ActorType {
+
+public:
+  ActorType(XN::DOMElement *domActorType)
+    : type(domActorType->getAttribute(XMLCH("name")))
+  {
+    const XN::DOMNodeList *domActorPorts = domActorType->getElementsByTagName(XMLCH("port"));
+    for (size_t i = 0; i < domActorPorts->getLength(); ++i) {
+      ActorPort actorPort(static_cast<XN::DOMElement *>(domActorPorts->item(i)));
+      sassert(ports.insert(std::make_pair(actorPort.getName(), actorPort)).second);
+    }
+  }
+
+  std::string const &getType()
+    { return type; }
+
+protected:
+  NStr                             type;
+  std::map<std::string, ActorPort> ports;
+};
+
+smoc::sng::Graph loadSNG(std::istream &in) {
 
   CoSupport::XML::Xerces::Handler sng;
 
@@ -175,9 +270,26 @@ void loadSNG(std::istream &in) {
   sng.setXSD(sngXSD, sizeof(sngXSD));
   sng.load(in);
 
+  const XN::DOMDocument *domDoc = sng.getDocument();
+  const XN::DOMElement  *domTop = domDoc->getDocumentElement();
+  assert(XStr(domTop->getTagName()) == XMLCH("networkGraph"));
+
+  std::map<std::string, ActorType> actorTypes;
+
+  {
+    const XN::DOMNodeList *domActorTypes = domTop->getElementsByTagName(XMLCH("actorType"));
+    for (size_t i = 0; i < domActorTypes->getLength(); ++i) {
+      ActorType actorType(static_cast<XN::DOMElement *>(domActorTypes->item(i)));
+      sassert(actorTypes.insert(std::make_pair(actorType.getType(), actorType)).second);
+    }
+  }
+
+  smoc::sng::Graph sngGraph;
 
 
 
+
+  return sngGraph;
 }
 
 
@@ -269,10 +381,11 @@ int main(int argc, char** argv)
     
     CoSupport::XML::Xerces::Handler sng();
 
+    smoc::sng::Graph sngGraph = loadSNG(in);
 
-    loadSNG(in);
-
-    //SGX::problemGraphToDot(ngx.problemGraph(), out);
+    smoc::sng::VertexPropertyWriter vpw(sngGraph);
+    smoc::sng::EdgePropertyWriter   epw(sngGraph);
+    boost::write_graphviz(out, sngGraph, vpw, epw);
   } catch (std::exception &e) {
     std::cerr << prgname << ": " << e.what() << std::endl;
     return 1;
