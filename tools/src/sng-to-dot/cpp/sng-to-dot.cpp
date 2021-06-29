@@ -150,13 +150,13 @@ namespace smoc { namespace sng {
 
       switch (vi.type) {
         case VertexInfo::ACTOR:
-          out << "[label=\"" << vi.name << "\"]";
+          out << "[label=\"" << vi.name << "\" style=\"filled\" fillcolor=\"#ff684c\"]";
           break;
         case VertexInfo::FIFO:
-          out << "[label=\"" << vi.name << "\" shape=\"box\"]";
+          out << "[label=\"" << vi.name << "\" style=\"filled\" fillcolor=\"#f2e898\" shape=\"box\"]";
           break;
         case VertexInfo::REGISTER:
-          out << "[label=\"" << vi.name << "\" shape=\"box\"]";
+          out << "[label=\"" << vi.name << "\" style=\"filled\" fillcolor=\"#f2e898\" shape=\"box\"]";
           break;
       }
   //  out << "[label=\"" << get(&VertexInfo::name, g, vd) << "(x" << g[vd].repCount << ")\" shape=\"box\"]";
@@ -217,6 +217,9 @@ namespace smoc { namespace sng {
 //}
 //};
 
+typedef smoc::sng::Graph::vertex_descriptor VD;
+typedef smoc::sng::Graph::edge_descriptor   ED;
+
 class ActorPort {
 public:
   enum Direction { IN, OUT };
@@ -232,13 +235,18 @@ public:
         ? IN : OUT;
   }
 
-  std::string const &getName()
+  std::string const &getName() const
     { return name; }
+
+  Direction          getDirection() const
+    { return direction; }
 
 protected:
   NStr      name;
   Direction direction;
 };
+
+typedef std::map<std::string, ActorPort> ActorPorts;
 
 class ActorType {
 
@@ -253,12 +261,154 @@ public:
     }
   }
 
-  std::string const &getType()
+  std::string const &getType() const
     { return type; }
 
+  ActorPorts  const &getPorts() const
+    { return ports; }
+
 protected:
-  NStr                             type;
-  std::map<std::string, ActorPort> ports;
+  NStr       type;
+  ActorPorts ports;
+};
+
+typedef std::map<std::string, ActorType> ActorTypes;
+
+class ActorInstance {
+
+public:
+  ActorInstance(
+      XN::DOMElement *domActorInstance
+    , smoc::sng::Graph &g
+    , ActorTypes const &actorTypes)
+    : name(domActorInstance->getAttribute(XMLCH("name")))
+    , type(findType(domActorInstance, actorTypes))
+    , vd(add_vertex(g))
+  {
+    smoc::sng::VertexInfo &vi = g[vd];
+    vi.name = getName();
+    vi.type = smoc::sng::VertexInfo::ACTOR;
+
+    for (ActorPorts::value_type const &e : type.getPorts())
+      sassert(danglingPorts.insert(e.first).second);
+  }
+
+  std::string const &getName() const
+    { return name; }
+
+  ActorType   const &getType() const
+    { return type; }
+
+  VD                 getVD() const
+    { return vd; }
+
+  ActorPort   const &connectPort(std::string const &name) {
+    danglingPorts.erase(name);
+    ActorPorts::const_iterator iter = type.getPorts().find(name);
+    assert(iter != type.getPorts().end());
+    return iter->second;
+  }
+protected:
+  static ActorType const &findType(
+      XN::DOMElement *domActorInstance
+    , ActorTypes const &actorTypes)
+  {
+    NStr type(domActorInstance->getAttribute(XMLCH("type")));
+
+    ActorTypes::const_iterator iter = actorTypes.find(type);
+    assert(iter != actorTypes.end());
+    return iter->second;
+  }
+
+  typedef std::set<std::string> DanglingPorts;
+
+  NStr             name;
+  ActorType const &type;
+  VD               vd;
+  DanglingPorts    danglingPorts;
+};
+
+typedef std::map<std::string, ActorInstance> ActorInstances;
+
+class ChanInstance {
+public:
+  ChanInstance(
+      XN::DOMElement *domChanInstance
+    , smoc::sng::Graph &g
+    , ActorInstances &actorInstances)
+    : name(domChanInstance->getAttribute(XMLCH("name")))
+    , vd(add_vertex(g))
+  {
+    smoc::sng::VertexInfo &vi = g[vd];
+    vi.name = getName();
+    {
+      const XN::DOMNodeList *domSources = domChanInstance->getElementsByTagName(XMLCH("source"));
+      for (size_t i = 0; i < domSources->getLength(); ++i) {
+        XN::DOMElement *domSource = static_cast<XN::DOMElement *>(domSources->item(i));
+        NStr actorName(domSource->getAttribute(XMLCH("actor")));
+        ActorInstances::iterator iter = actorInstances.find(actorName);
+        assert(iter != actorInstances.end());
+        NStr portName(domSource->getAttribute(XMLCH("port")));
+        ActorPort const &port = iter->second.connectPort(portName);
+        assert(port.getDirection() == ActorPort::OUT);
+
+        std::pair<ED, bool> eStatus = boost::add_edge(iter->second.getVD(), vd, g);
+        assert(eStatus.second && "WTF?! Failed to insert edge into boost graph g!");
+        smoc::sng::EdgeInfo &ei = g[eStatus.first];
+        ei.name = portName;
+      }
+    }
+    {
+      const XN::DOMNodeList *domTargets = domChanInstance->getElementsByTagName(XMLCH("target"));
+      for (size_t i = 0; i < domTargets->getLength(); ++i) {
+        XN::DOMElement *domTarget = static_cast<XN::DOMElement *>(domTargets->item(i));
+        NStr actorName(domTarget->getAttribute(XMLCH("actor")));
+        ActorInstances::iterator iter = actorInstances.find(actorName);
+        assert(iter != actorInstances.end());
+        NStr portName(domTarget->getAttribute(XMLCH("port")));
+        ActorPort const &port = iter->second.connectPort(portName);
+        assert(port.getDirection() == ActorPort::IN);
+
+        std::pair<ED, bool> eStatus = boost::add_edge(vd, iter->second.getVD(), g);
+        assert(eStatus.second && "WTF?! Failed to insert edge into boost graph g!");
+        smoc::sng::EdgeInfo &ei = g[eStatus.first];
+        ei.name = portName;
+      }
+    }
+  }
+
+  std::string const &getName()
+    { return name; }
+
+protected:
+  static ActorInstance const &findActor(
+      XN::DOMElement *domActorInstance
+    , ActorInstances const &actorInstances)
+  {
+    NStr type(domActorInstance->getAttribute(XMLCH("type")));
+
+    ActorInstances::const_iterator iter = actorInstances.find(type);
+    assert(iter != actorInstances.end());
+    return iter->second;
+  }
+
+  NStr   name;
+  VD     vd;
+};
+
+class FifoInstance: public ChanInstance {
+public:
+  FifoInstance(
+      XN::DOMElement *domFifoInstance
+    , smoc::sng::Graph &g
+    , ActorInstances &actorInstances)
+    : ChanInstance(domFifoInstance, g, actorInstances)
+  {
+    smoc::sng::VertexInfo &vi = g[vd];
+    vi.type = smoc::sng::VertexInfo::FIFO;
+    vi.fifo.capacity = std::stoul(NStr(domFifoInstance->getAttribute(XMLCH("size"))));
+    vi.fifo.delay    = std::stoul(NStr(domFifoInstance->getAttribute(XMLCH("initial"))));
+  }
 };
 
 smoc::sng::Graph loadSNG(std::istream &in) {
@@ -274,7 +424,7 @@ smoc::sng::Graph loadSNG(std::istream &in) {
   const XN::DOMElement  *domTop = domDoc->getDocumentElement();
   assert(XStr(domTop->getTagName()) == XMLCH("networkGraph"));
 
-  std::map<std::string, ActorType> actorTypes;
+  ActorTypes actorTypes;
 
   {
     const XN::DOMNodeList *domActorTypes = domTop->getElementsByTagName(XMLCH("actorType"));
@@ -286,8 +436,28 @@ smoc::sng::Graph loadSNG(std::istream &in) {
 
   smoc::sng::Graph sngGraph;
 
+  ActorInstances actorInstances;
 
+  {
+    const XN::DOMNodeList *domActorInstances = domTop->getElementsByTagName(XMLCH("actorInstance"));
+    for (size_t i = 0; i < domActorInstances->getLength(); ++i) {
+      ActorInstance actorInstance(
+          static_cast<XN::DOMElement *>(domActorInstances->item(i))
+        , sngGraph
+        , actorTypes);
+      sassert(actorInstances.insert(std::make_pair(actorInstance.getName(), actorInstance)).second);
+    }
+  }
 
+  {
+    const XN::DOMNodeList *domFifoInstances = domTop->getElementsByTagName(XMLCH("fifo"));
+    for (size_t i = 0; i < domFifoInstances->getLength(); ++i) {
+      FifoInstance fifoInstance(
+          static_cast<XN::DOMElement *>(domFifoInstances->item(i))
+        , sngGraph
+        , actorInstances);
+    }
+  }
 
   return sngGraph;
 }
