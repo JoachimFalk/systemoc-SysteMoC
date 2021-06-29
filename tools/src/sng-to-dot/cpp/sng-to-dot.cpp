@@ -26,6 +26,7 @@
 
 #include <CoSupport/Streams/DebugOStream.hpp>
 #include <CoSupport/Streams/AlternateStream.hpp>
+#include <CoSupport/Streams/NullStreambuf.hpp>
 
 #include <CoSupport/sassert.h>
 
