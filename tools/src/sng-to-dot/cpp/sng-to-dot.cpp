@@ -184,12 +184,6 @@ namespace smoc { namespace sng {
 
 } } // namespace smoc::SNG
 
-//struct SNGGraph: public CoSupport::boost::graph_traits<
-//>
-//{
-//  typedef DetailX::VertexInfo VertexInfo;
-//  typedef DetailX::EdgeInfo   EdgeInfo;
-//
 //  typedef boost::property_map<
 //    graph, boost::vertex_index_t>::type           PropVertexIndexMap;
 //  typedef boost::property_map<
@@ -201,22 +195,7 @@ namespace smoc { namespace sng {
 //    graph, std::string EdgeInfo::*>::type         PropEdgeNameMap;
 //  typedef boost::property_map<
 //    graph, size_t EdgeInfo::*>::type              PropEdgeSizeTMap;
-//
-//static edge_descriptor add_edge(vertex_descriptor vSrc, vertex_descriptor vSnk, graph &g) {
-//  static size_t i = 0;
-//
-//  std::pair<edge_descriptor, bool> eStatus = boost::add_edge(vSrc, vSnk, g);
-//  assert(eStatus.second && "WTF?! Failed to insert edge into boost graph g!");
-//  SNGGraph::edge_descriptor &ed = eStatus.first;
-//  g[ed].name = Concat("c")(++i);
-//  size_t repSrc = g[vSrc].repCount;
-//  size_t repSnk = g[vSnk].repCount;
-//  size_t repGcd = boost::math::gcd(repSrc, repSnk);
-//  g[ed].cons = repSrc/repGcd;
-//  g[ed].prod = repSnk/repGcd;
-//  return ed;
-//}
-//};
+
 
 typedef smoc::sng::Graph::vertex_descriptor VD;
 typedef smoc::sng::Graph::edge_descriptor   ED;
@@ -412,6 +391,19 @@ public:
   }
 };
 
+class RegisterInstance: public ChanInstance {
+public:
+  RegisterInstance(
+      XN::DOMElement *domFifoInstance
+    , smoc::sng::Graph &g
+    , ActorInstances &actorInstances)
+    : ChanInstance(domFifoInstance, g, actorInstances)
+  {
+    smoc::sng::VertexInfo &vi = g[vd];
+    vi.type = smoc::sng::VertexInfo::REGISTER;
+  }
+};
+
 smoc::sng::Graph loadSNG(std::istream &in) {
 
   CoSupport::XML::Xerces::Handler sng;
@@ -455,6 +447,16 @@ smoc::sng::Graph loadSNG(std::istream &in) {
     for (size_t i = 0; i < domFifoInstances->getLength(); ++i) {
       FifoInstance fifoInstance(
           static_cast<XN::DOMElement *>(domFifoInstances->item(i))
+        , sngGraph
+        , actorInstances);
+    }
+  }
+
+  {
+    const XN::DOMNodeList *domRegisterInstances = domTop->getElementsByTagName(XMLCH("register"));
+    for (size_t i = 0; i < domRegisterInstances->getLength(); ++i) {
+      RegisterInstance registerInstance(
+          static_cast<XN::DOMElement *>(domRegisterInstances->item(i))
         , sngGraph
         , actorInstances);
     }
