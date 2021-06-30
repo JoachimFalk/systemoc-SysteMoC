@@ -276,6 +276,7 @@ AC_CONFIG_HEADER([src/systemoc/headers/systemoc/smoc_config.h])
 AC_CONFIG_FILES([
   Makefile
   src/systemoc/headers/Makefile
+  src/systemoc-sng/headers/Makefile
   pkgconfig/libsystemoc.pc
   testcases/Makefile
   tutorial/Makefile

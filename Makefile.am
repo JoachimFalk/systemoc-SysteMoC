@@ -42,15 +42,13 @@
 include $(auxdir)/jfrules.mk
 include ../BuildSystem/doxygen.am
 
-SUBDIRS = . src/systemoc/headers testcases tutorial tools
+SUBDIRS = . src/systemoc-sng/headers src/systemoc/headers testcases tutorial tools
 
 AUTOMAKE_OPTIONS = nostdinc
 # This is only needed if there is a configure.ac in this directory
 ACLOCAL_AMFLAGS=-I ../BuildSystem/m4
 
 AM_CPPFLAGS= @AM_CPPFLAGS@ \
-	-Isrc/systemoc/headers \
-	-I$(srcdir)/src/systemoc/headers \
 	$(BOOST_CPPFLAGS) \
 	$(SYSTEMC_CPPFLAGS) \
 	$(TLM1_CPPFLAGS) \
@@ -62,8 +60,7 @@ AM_CPPFLAGS= @AM_CPPFLAGS@ \
 	$(COSUPPORT_MATH_CPPFLAGS) \
 	$(COSUPPORT_STRING_CPPFLAGS) \
 	$(LIBSGX_CPPFLAGS) \
-	$(LIBSGXUTILS_CPPFLAGS) \
-	$(MAESTRO_METAMAP_CPPFLAGS)
+	$(LIBSGXUTILS_CPPFLAGS)
 
 AM_LDFLAGS = @AM_LDFLAGS@ \
 	$(BOOST_LDFLAGS) \
@@ -77,13 +74,7 @@ AM_LDFLAGS = @AM_LDFLAGS@ \
 	$(COSUPPORT_MATH_LDFLAGS) \
 	$(COSUPPORT_STRING_LDFLAGS) \
 	$(LIBSGX_LDFLAGS) \
-	$(LIBSGXUTILS_LDFLAGS) \
-	$(MAESTRO_METAMAP_LDFLAGS)
-
-pkgconfigdir = $(libdir)/pkgconfig
-
-nodist_pkgconfig_DATA =	\
-	libsystemoc.pc
+	$(LIBSGXUTILS_LDFLAGS)
 
 %.pc: pkgconfig/%.pc
 	@sed -e '/^srctreemode_\w\+\s*=/d' \
@@ -91,9 +82,52 @@ nodist_pkgconfig_DATA =	\
 	     -e 's/\$${srctreemode_\(\w\+\)}/\$${\1}/g' \
 	  < $^ > $@
 
-CLEANFILES=$(nodist_pkgconfig_DATA)
+#%-xsd.c: %.xsd Makefile
+%-xsd.c: %.xsd
+	test -d  $(dir $*) || mkdir -p $(dir $*)
+	{ set -e; echo "static char const $(notdir $*)XSD[] ="; \
+	  sed -e 's/\(["\\]\)/\\\1/g' -e 's/^\(.*\)$$/  "\1\\n"/' $<; \
+	  echo ";"; \
+	} > $@
+#%-dtd.c: %.dtd Makefile
+%-dtd.c: %.dtd
+	test -d  $(dir $*) || mkdir -p $(dir $*)
+	{ set -e; echo "static char const $(notdir $*)DTD[] ="; \
+	  sed -e 's/\(["\\]\)/\\\1/g' -e 's/^\(.*\)$$/  "\1\\n"/' $<; \
+	  echo ";"; \
+	} > $@
+
+CLEANFILES=
+
+pkgconfigdir = $(libdir)/pkgconfig
+
+nodist_pkgconfig_DATA =	\
+	libsystemoc.pc
+
+CLEANFILES += $(nodist_pkgconfig_DATA)
+
+BUILT_SOURCES=src/systemoc-sng/resources/sng-xsd.c
+
+CLEANFILES += $(BUILT_SOURCES)
 
 lib_LTLIBRARIES = libsystemoc.la
+noinst_LTLIBRARIES = libsystemoc-sng.la
+
+libsystemoc_sng_la_SOURCES = \
+	src/systemoc-sng/cpp/io/loadSNG.cpp
+libsystemoc_sng_la_DEPENDENCIES = \
+	$(COSUPPORT_STRING_DEPENDENCIES) \
+	$(COSUPPORT_XERCES_DEPENDENCIES)
+libsystemoc_sng_la_CPPFLAGS = \
+	-Isrc/systemoc-sng/headers \
+	-Isrc/systemoc-sng/resources \
+	-I$(srcdir)/src/systemoc-sng/headers \
+	$(AM_CPPFLAGS)
+libsystemoc_sng_la_LDFLAGS = $(AM_LDFLAGS) \
+	-Wl,--no-undefined
+libsystemoc_sng_la_LIBADD = \
+	$(COSUPPORT_STRING_LIBS) \
+	$(COSUPPORT_XERCES_LIBS)
 
 libsystemoc_la_SOURCES = \
 	src/systemoc/cpp/detail/ChanBase.cpp \
@@ -147,25 +181,6 @@ libsystemoc_la_SOURCES = \
 	src/systemoc/cpp/smoc_scheduler_top.cpp \
 	src/systemoc/cpp/smoc_state.cpp \
 	src/systemoc/cpp/smoc_xor_state.cpp
-
-libsystemoc_la_CPPFLAGS = $(AM_CPPFLAGS)
-libsystemoc_la_LDFLAGS = $(AM_LDFLAGS) \
-	-version-info 0:0:0 \
-	-Wl,--no-undefined
-libsystemoc_la_LIBADD = \
-	-lboost_program_options$(BOOST_LIBPOSTFIX) \
-	-lsystemc \
-	-lltdl \
-	$(COSUPPORT_SYSTEMC_LIBS) \
-	$(COSUPPORT_TRACING_LIBS) \
-	$(COSUPPORT_STREAMS_LIBS) \
-	$(COSUPPORT_SMARTPTR_LIBS) \
-	$(COSUPPORT_ALLOCATORS_LIBS) \
-	$(COSUPPORT_MATH_LIBS) \
-	$(COSUPPORT_STRING_LIBS) \
-	$(LIBSGX_LIBS) \
-	$(LIBSGXUTILS_LIBS) \
-	$(MAESTRO_METAMAP_LIBS)
 libsystemoc_la_DEPENDENCIES = \
 	$(COSUPPORT_SYSTEMC_DEPENDENCIES) \
 	$(COSUPPORT_TRACING_DEPENDENCIES) \
@@ -175,5 +190,12 @@ libsystemoc_la_DEPENDENCIES = \
 	$(COSUPPORT_MATH_DEPENDENCIES) \
 	$(COSUPPORT_STRING_DEPENDENCIES) \
 	$(LIBSGX_DEPENDENCIES) \
-	$(LIBSGXUTILS_DEPENDENCIES) \
-	$(MAESTRO_METAMAP_DEPENDENCIES)
+	$(LIBSGXUTILS_DEPENDENCIES)
+libsystemoc_la_CPPFLAGS = \
+	-Isrc/systemoc/headers \
+	-I$(srcdir)/src/systemoc/headers \
+	$(AM_CPPFLAGS)
+libsystemoc_la_LDFLAGS = $(AM_LDFLAGS) \
+	-version-info 0:0:0 \
+	-Wl,--no-undefined \
+	$(filter-out %/libsystemoc.la, $(shell PKG_CONFIG_PATH="$(PKG_CONFIG_PATH)"; export PKG_CONFIG_PATH; $(PKG_CONFIG) --static --libs libsystemoc))
