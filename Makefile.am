@@ -114,7 +114,8 @@ lib_LTLIBRARIES = libsystemoc.la
 noinst_LTLIBRARIES = libsystemoc-sng.la
 
 libsystemoc_sng_la_SOURCES = \
-	src/systemoc-sng/cpp/io/loadSNG.cpp
+	src/systemoc-sng/cpp/io/loadSNG.cpp \
+	src/systemoc-sng/cpp/transform/transform.cpp
 libsystemoc_sng_la_DEPENDENCIES = \
 	$(COSUPPORT_STRING_DEPENDENCIES) \
 	$(COSUPPORT_XERCES_DEPENDENCIES)

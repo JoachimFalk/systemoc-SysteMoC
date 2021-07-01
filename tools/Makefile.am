@@ -49,6 +49,7 @@ sng_to_dot_LDADD = $(AM_LDFLAGS) \
         ../libsystemoc-sng.la
 sng_to_dot_DEPENDENCIES = \
 	$(COSUPPORT_STRING_DEPENDENCIES) \
-	$(COSUPPORT_STREAMS_DEPENDENCIES)
+	$(COSUPPORT_STREAMS_DEPENDENCIES) \
+        ../libsystemoc-sng.la
 sng_to_dot_SOURCES = \
 	src/sng-to-dot/cpp/sng-to-dot.cpp

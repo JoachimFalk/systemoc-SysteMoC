@@ -99,8 +99,16 @@ int main(int argc, char** argv)
 #ifndef NDEBUG
     ("debug", po::value<size_t>()->default_value(0), sstr.str().c_str())
 #endif //SGXUTILS_DEBUG_OUTPUT
-    ("sng" , po::value<std::string>()->default_value("-"), "input sng file")
-    ("dot" , po::value<std::string>()->default_value("-"), "output dot file")
+    ("transform", po::value<smoc::SNG::Transform>()->default_value(smoc::SNG::Transform::FIFOS_NO_MERGING), "one of "
+        "FIFOS_NO_MERGING (default), "
+        "FIFOS_SAME_CONTENT_MERGING, "
+        "FIFOS_SAME_PRODUCER_MERGING, "
+        "CHANS_ARE_DROPPED_NO_MERGING, or "
+        "CHANS_ARE_DROPPED_SAME_CONTENT_MERGING")
+    ("sng" , po::value<std::string>()->default_value("-"),
+        "input sng file")
+    ("dot" , po::value<std::string>()->default_value("-"),
+        "output dot file")
     ;
 
   po::options_description privateOptions;
@@ -153,6 +161,11 @@ int main(int argc, char** argv)
     CoSupport::Streams::AOStream out(std::cout, vm["dot"].as<std::string>(), "-");
     
     smoc::SNG::Graph sngGraph = smoc::SNG::loadSNG(in);
+
+    smoc::SNG::Transform transform = vm["transform"].as<smoc::SNG::Transform>();
+
+    if (transform != smoc::SNG::Transform::FIFOS_NO_MERGING)
+      sngGraph = smoc::SNG::transform(sngGraph, transform);
 
     smoc::SNG::VertexPropertyWriter vpw(sngGraph);
     smoc::SNG::EdgePropertyWriter   epw(sngGraph);
