@@ -48,33 +48,8 @@ AUTOMAKE_OPTIONS = nostdinc
 # This is only needed if there is a configure.ac in this directory
 ACLOCAL_AMFLAGS=-I ../BuildSystem/m4
 
-AM_CPPFLAGS= @AM_CPPFLAGS@ \
-	$(BOOST_CPPFLAGS) \
-	$(SYSTEMC_CPPFLAGS) \
-	$(TLM1_CPPFLAGS) \
-	$(COSUPPORT_SYSTEMC_CPPFLAGS) \
-	$(COSUPPORT_TRACING_CPPFLAGS) \
-	$(COSUPPORT_STREAMS_CPPFLAGS) \
-	$(COSUPPORT_SMARTPTR_CPPFLAGS) \
-	$(COSUPPORT_ALLOCATORS_CPPFLAGS) \
-	$(COSUPPORT_MATH_CPPFLAGS) \
-	$(COSUPPORT_STRING_CPPFLAGS) \
-	$(LIBSGX_CPPFLAGS) \
-	$(LIBSGXUTILS_CPPFLAGS)
-
-AM_LDFLAGS = @AM_LDFLAGS@ \
-	$(BOOST_LDFLAGS) \
-	$(SYSTEMC_LDFLAGS) \
-	$(TLM1_LDFLAGS) \
-	$(COSUPPORT_SYSTEMC_LDFLAGS) \
-	$(COSUPPORT_TRACING_LDFLAGS) \
-	$(COSUPPORT_STREAMS_LDFLAGS) \
-	$(COSUPPORT_SMARTPTR_LDFLAGS) \
-	$(COSUPPORT_ALLOCATORS_LDFLAGS) \
-	$(COSUPPORT_MATH_LDFLAGS) \
-	$(COSUPPORT_STRING_LDFLAGS) \
-	$(LIBSGX_LDFLAGS) \
-	$(LIBSGXUTILS_LDFLAGS)
+AM_CPPFLAGS= @AM_CPPFLAGS@
+AM_LDFLAGS = @AM_LDFLAGS@
 
 %.pc: pkgconfig/%.pc
 	@sed -e '/^srctreemode_\w\+\s*=/d' \
@@ -123,9 +98,14 @@ libsystemoc_sng_la_CPPFLAGS = \
 	-Isrc/systemoc-sng/headers \
 	-Isrc/systemoc-sng/resources \
 	-I$(srcdir)/src/systemoc-sng/headers \
-	$(AM_CPPFLAGS)
-libsystemoc_sng_la_LDFLAGS = $(AM_LDFLAGS) \
-	-Wl,--no-undefined
+	$(AM_CPPFLAGS) \
+	$(COSUPPORT_STRING_CPPFLAGS) \
+	$(COSUPPORT_XERCES_CPPFLAGS)
+libsystemoc_sng_la_LDFLAGS = \
+	-Wl,--no-undefined \
+	$(AM_LDFLAGS) \
+	$(COSUPPORT_STRING_LDFLAGS) \
+	$(COSUPPORT_XERCES_LDFLAGS)
 libsystemoc_sng_la_LIBADD = \
 	$(COSUPPORT_STRING_LIBS) \
 	$(COSUPPORT_XERCES_LIBS)
@@ -195,8 +175,10 @@ libsystemoc_la_DEPENDENCIES = \
 libsystemoc_la_CPPFLAGS = \
 	-Isrc/systemoc/headers \
 	-I$(srcdir)/src/systemoc/headers \
-	$(AM_CPPFLAGS)
-libsystemoc_la_LDFLAGS = $(AM_LDFLAGS) \
+	$(AM_CPPFLAGS) \
+	$(shell PKG_CONFIG_PATH="$(PKG_CONFIG_PATH)"; export PKG_CONFIG_PATH; $(PKG_CONFIG) --static --cflags libsystemoc)
+libsystemoc_la_LDFLAGS = \
 	-version-info 0:0:0 \
 	-Wl,--no-undefined \
+	$(AM_LDFLAGS) \
 	$(filter-out %/libsystemoc.la, $(shell PKG_CONFIG_PATH="$(PKG_CONFIG_PATH)"; export PKG_CONFIG_PATH; $(PKG_CONFIG) --static --libs libsystemoc))
