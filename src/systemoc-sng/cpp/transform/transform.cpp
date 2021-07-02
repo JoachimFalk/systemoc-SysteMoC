@@ -68,7 +68,7 @@ std::istream &operator >>(std::istream &in, Transform &transform) {
 
 namespace {
 
-  void transformFifosSameContentMerging(Graph const &g, Graph &gout) {
+  void transformFifos(Graph const &g, Transform transform, Graph &gout) {
     Graph::vertex_iterator vIter, vEndIter;
 
     typedef std::map<Graph::vertex_descriptor, Graph::vertex_descriptor> VertexMap;
@@ -99,8 +99,39 @@ namespace {
         Graph::vertex_descriptor vTarget   = target(*eIter, g);
         Graph::vertex_descriptor vdTgtFifo;
 
+        std::string chanName;
+
+        switch (transform) {
+          case Transform::FIFOS_SAME_CONTENT_MERGING:
+            switch (g[vTarget].type) {
+              case VertexInfo::FIFO:
+                chanName = "cf:" + viSrcActor.name + "." + g[*eIter].name;
+                break;
+              case VertexInfo::REGISTER:
+                chanName = "reg:" + viSrcActor.name + "." + g[*eIter].name;
+                break;
+              default:
+                assert(!"Oops, this should never happen!");
+            }
+            break;
+          case Transform::FIFOS_SAME_PRODUCER_MERGING:
+            switch (g[vTarget].type) {
+              case VertexInfo::FIFO:
+                chanName = "cf:" + viSrcActor.name + ".out";
+                break;
+              case VertexInfo::REGISTER:
+                chanName = "reg:" + viSrcActor.name + ".out";
+                break;
+              default:
+                assert(!"Oops, this should never happen!");
+            }
+            break;
+          default:
+            assert(!"Oops, this should never happen!");
+        }
+
         std::pair<MergedVertices::iterator, bool> status =
-            mergedVertices.insert(std::make_pair(g[*eIter].name, Graph::null_vertex()));
+            mergedVertices.insert(std::make_pair(chanName, Graph::null_vertex()));
         if (status.second) {
           vdTgtFifo = status.first->second = add_vertex(gout);
           gout[vdTgtFifo] = g[vTarget];
@@ -109,17 +140,7 @@ namespace {
         } else {
           vdTgtFifo = status.first->second;
           VertexInfo &viTgtFifo = gout[vdTgtFifo];
-
-          switch (viTgtFifo.type) {
-            case VertexInfo::FIFO:
-              viTgtFifo.name = "cf:" + viSrcActor.name + "." + g[*eIter].name;
-              break;
-            case VertexInfo::REGISTER:
-              viTgtFifo.name = "reg:" + viSrcActor.name + "." + g[*eIter].name;
-              break;
-            default:
-              assert(!"Oops, this should never happen!");
-          }
+          viTgtFifo.name = chanName;
         }
         vertexMap.insert(std::make_pair(vTarget, vdTgtFifo));
       }
@@ -143,11 +164,16 @@ namespace {
 
       Graph::in_edge_iterator eIter, eEndIter;
 
+      typedef std::map<Graph::vertex_descriptor, Graph::edge_descriptor> MergedEdges;
+
+      MergedEdges mergedEdges;
+
       for (boost::tie(eIter, eEndIter) = in_edges(*vIter, g);
            eIter != eEndIter;
            ++eIter) {
         Graph::vertex_descriptor vSource = source(*eIter, g);
         Graph::vertex_descriptor vdSrcFifo;
+        Graph::edge_descriptor   edRead;
         {
           std::pair<VertexMap::iterator, bool> status =
               vertexMap.insert(std::make_pair(vSource, Graph::null_vertex()));
@@ -157,97 +183,15 @@ namespace {
           } else
             vdSrcFifo = status.first->second;
         }
-        Graph::edge_descriptor edRead = add_edge(vdSrcFifo, vdTgtActor, gout).first;
-        gout[edRead] = g[*eIter];
-      }
-    }
-  }
-
-  void transformFifosSameProducerMerging(Graph const &g, Graph &gout) {
-    Graph::vertex_iterator vIter, vEndIter;
-
-    typedef std::map<Graph::vertex_descriptor, Graph::vertex_descriptor> VertexMap;
-
-    VertexMap vertexMap;
-
-    // Copy over actors, merge channels with same content, and add write edges of actors
-    for (boost::tie(vIter, vEndIter) = vertices(g);
-         vIter != vEndIter;
-         ++vIter) {
-      VertexInfo const &viSrcActor = g[*vIter];
-
-      if (viSrcActor.type != VertexInfo::ACTOR)
-        continue;
-
-      Graph::vertex_descriptor vdSrcActor = add_vertex(gout);
-      vertexMap.insert(std::make_pair(*vIter, vdSrcActor));
-      gout[vdSrcActor] = g[*vIter];
-
-      Graph::out_edge_iterator eIter, eEndIter;
-      Graph::vertex_descriptor vdTgtFifo = Graph::null_vertex();
-
-      for (boost::tie(eIter, eEndIter) = out_edges(*vIter, g);
-           eIter != eEndIter;
-           ++eIter) {
-        Graph::vertex_descriptor vTarget   = target(*eIter, g);
-
-        if (vdTgtFifo == Graph::null_vertex()) {
-          vdTgtFifo = add_vertex(gout);
-          gout[vdTgtFifo] = g[vTarget];
-          Graph::edge_descriptor edWrite = add_edge(vdSrcActor, vdTgtFifo, gout).first;
-          gout[edWrite] = g[*eIter];
-        } else {
-          VertexInfo &viTgtFifo = gout[vdTgtFifo];
-
-          switch (viTgtFifo.type) {
-            case VertexInfo::FIFO:
-              viTgtFifo.name = "cf:" + viSrcActor.name + ".out";
-              break;
-            case VertexInfo::REGISTER:
-              viTgtFifo.name = "reg:" + viSrcActor.name + ".out";
-              break;
-            default:
-              assert(!"Oops, this should never happen!");
-          }
-        }
-        vertexMap.insert(std::make_pair(vTarget, vdTgtFifo));
-      }
-    }
-
-    // Copy over rest of channels and add read edges of actors
-    for (boost::tie(vIter, vEndIter) = vertices(g);
-         vIter != vEndIter;
-         ++vIter) {
-      VertexInfo const &vi = g[*vIter];
-
-      if (vi.type != VertexInfo::ACTOR)
-        continue;
-
-      Graph::vertex_descriptor vdTgtActor;
-      {
-        VertexMap::const_iterator iter = vertexMap.find(*vIter);
-        assert(iter != vertexMap.end());
-        vdTgtActor = iter->second;
-      }
-
-      Graph::in_edge_iterator eIter, eEndIter;
-
-      for (boost::tie(eIter, eEndIter) = in_edges(*vIter, g);
-           eIter != eEndIter;
-           ++eIter) {
-        Graph::vertex_descriptor vSource = source(*eIter, g);
-        Graph::vertex_descriptor vdSrcFifo;
         {
-          std::pair<VertexMap::iterator, bool> status =
-              vertexMap.insert(std::make_pair(vSource, Graph::null_vertex()));
+          std::pair<MergedEdges::iterator, bool> status =
+              mergedEdges.insert(std::make_pair(vdSrcFifo, Graph::edge_descriptor()));
           if (status.second) {
-            vdSrcFifo = status.first->second = add_vertex(gout);
-            gout[vdSrcFifo] = g[vSource];
+            edRead = status.first->second = add_edge(vdSrcFifo, vdTgtActor, gout).first;
+            gout[edRead] = g[*eIter];
           } else
-            vdSrcFifo = status.first->second;
+            edRead = status.first->second;
         }
-        Graph::edge_descriptor edRead = add_edge(vdSrcFifo, vdTgtActor, gout).first;
-        gout[edRead] = g[*eIter];
       }
     }
   }
@@ -258,10 +202,8 @@ Graph transform(Graph const &g, Transform transform) {
   Graph gout;
   switch (transform) {
     case Transform::FIFOS_SAME_CONTENT_MERGING:
-      transformFifosSameContentMerging(g, gout);
-      return gout;
     case Transform::FIFOS_SAME_PRODUCER_MERGING:
-      transformFifosSameProducerMerging(g, gout);
+      transformFifos(g, transform, gout);
       return gout;
     case Transform::CHANS_ARE_DROPPED_NO_MERGING:
       return gout; // FIXME: Implement this
