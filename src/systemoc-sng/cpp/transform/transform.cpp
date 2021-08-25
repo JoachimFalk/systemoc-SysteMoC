@@ -68,6 +68,18 @@ std::istream &operator >>(std::istream &in, Transform &transform) {
 
 namespace {
 
+  struct MergeInfo {
+    Graph::vertex_descriptor vd;
+    Graph::edge_descriptor   ed;
+
+    MergeInfo()
+      : vd(Graph::null_vertex()) {}
+    MergeInfo(Graph::vertex_descriptor vd, Graph::edge_descriptor ed)
+      : vd(vd), ed(ed) {}
+  };
+
+  typedef std::map<std::string, MergeInfo> MergedVertices;
+
   void transformFifos(Graph const &g, Transform transform, Graph &gout) {
     Graph::vertex_iterator vIter, vEndIter;
 
@@ -88,34 +100,35 @@ namespace {
       vertexMap.insert(std::make_pair(*vIter, vdSrcActor));
       gout[vdSrcActor] = g[*vIter];
 
-      typedef std::map<std::string, Graph::vertex_descriptor> MergedVertices;
-
       Graph::out_edge_iterator eIter, eEndIter;
       MergedVertices           mergedVertices;
 
       for (boost::tie(eIter, eEndIter) = out_edges(*vIter, g);
            eIter != eEndIter;
            ++eIter) {
-        Graph::vertex_descriptor vTarget   = target(*eIter, g);
+        Graph::vertex_descriptor vTarget  = target(*eIter, g);
+        EdgeInfo          const &eiTarget = g[*eIter];
+        VertexInfo        const &viTarget = g[vTarget];
+
         Graph::vertex_descriptor vdTgtFifo;
 
         std::string chanName;
 
         switch (transform) {
           case Transform::FIFOS_SAME_CONTENT_MERGING:
-            switch (g[vTarget].type) {
+            switch (viTarget.type) {
               case VertexInfo::FIFO:
-                chanName = "cf:" + viSrcActor.name + "." + g[*eIter].name;
+                chanName = "cf:" + viSrcActor.name + "." + eiTarget.name;
                 break;
               case VertexInfo::REGISTER:
-                chanName = "reg:" + viSrcActor.name + "." + g[*eIter].name;
+                chanName = "reg:" + viSrcActor.name + "." + eiTarget.name;
                 break;
               default:
                 assert(!"Oops, this should never happen!");
             }
             break;
           case Transform::FIFOS_SAME_PRODUCER_MERGING:
-            switch (g[vTarget].type) {
+            switch (viTarget.type) {
               case VertexInfo::FIFO:
                 chanName = "cf:" + viSrcActor.name + ".out";
                 break;
@@ -131,16 +144,33 @@ namespace {
         }
 
         std::pair<MergedVertices::iterator, bool> status =
-            mergedVertices.insert(std::make_pair(chanName, Graph::null_vertex()));
+            mergedVertices.insert(std::make_pair(chanName, MergeInfo()));
         if (status.second) {
-          vdTgtFifo = status.first->second = add_vertex(gout);
-          gout[vdTgtFifo] = g[vTarget];
-          Graph::edge_descriptor edWrite = add_edge(vdSrcActor, vdTgtFifo, gout).first;
-          gout[edWrite] = g[*eIter];
+          vdTgtFifo = status.first->second.vd = add_vertex(gout);
+          gout[vdTgtFifo] = viTarget;
+          status.first->second.ed = add_edge(vdSrcActor, vdTgtFifo, gout).first;
+          gout[status.first->second.ed] = eiTarget;
         } else {
-          vdTgtFifo = status.first->second;
+          vdTgtFifo = status.first->second.vd;
           VertexInfo &viTgtFifo = gout[vdTgtFifo];
           viTgtFifo.name = chanName;
+          switch (viTgtFifo.type) {
+            case VertexInfo::FIFO:
+              viTgtFifo.fifo.delay = -1;
+              viTgtFifo.fifo.tokenSize = viTgtFifo.fifo.tokenSize * viTgtFifo.fifo.capacity
+                  + viTarget.fifo.tokenSize * viTarget.fifo.capacity;
+              viTgtFifo.fifo.capacity = 1;
+              break;
+            case VertexInfo::REGISTER:
+              viTgtFifo.reg.tokenSize = viTgtFifo.reg.tokenSize + viTarget.reg.tokenSize;
+              break;
+            default:
+              assert(!"Oops, this should never happen!");
+          }
+          EdgeInfo &eiTgtFifo = gout[status.first->second.ed];
+          eiTgtFifo.tokenSize = eiTgtFifo.tokenSize * eiTgtFifo.tokens
+              + eiTarget.tokenSize * eiTarget.tokens;
+          eiTgtFifo.tokens = 1;
         }
         vertexMap.insert(std::make_pair(vTarget, vdTgtFifo));
       }
