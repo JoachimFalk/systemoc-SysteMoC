@@ -68,17 +68,20 @@ std::istream &operator >>(std::istream &in, Transform &transform) {
 
 namespace {
 
-  struct MergeInfo {
+  struct VertexMergeInfo {
     Graph::vertex_descriptor vd;
     Graph::edge_descriptor   ed;
 
-    MergeInfo()
+    VertexMergeInfo()
       : vd(Graph::null_vertex()) {}
-    MergeInfo(Graph::vertex_descriptor vd, Graph::edge_descriptor ed)
+    VertexMergeInfo(Graph::vertex_descriptor vd, Graph::edge_descriptor ed)
       : vd(vd), ed(ed) {}
   };
 
-  typedef std::map<std::string, MergeInfo> MergedVertices;
+  typedef std::map<std::string,
+      VertexMergeInfo>        MergedVertices;
+  typedef std::map<Graph::vertex_descriptor,
+      Graph::edge_descriptor> MergedEdges;
 
   void transformFifos(Graph const &g, Transform transform, Graph &gout) {
     Graph::vertex_iterator vIter, vEndIter;
@@ -144,7 +147,7 @@ namespace {
         }
 
         std::pair<MergedVertices::iterator, bool> status =
-            mergedVertices.insert(std::make_pair(chanName, MergeInfo()));
+            mergedVertices.insert(std::make_pair(chanName, VertexMergeInfo()));
         if (status.second) {
           vdTgtFifo = status.first->second.vd = add_vertex(gout);
           gout[vdTgtFifo] = viTarget;
@@ -194,13 +197,13 @@ namespace {
 
       Graph::in_edge_iterator eIter, eEndIter;
 
-      typedef std::map<Graph::vertex_descriptor, Graph::edge_descriptor> MergedEdges;
-
       MergedEdges mergedEdges;
 
       for (boost::tie(eIter, eEndIter) = in_edges(*vIter, g);
            eIter != eEndIter;
            ++eIter) {
+        EdgeInfo const &ei = g[*eIter];
+
         Graph::vertex_descriptor vSource = source(*eIter, g);
         Graph::vertex_descriptor vdSrcFifo;
         Graph::edge_descriptor   edRead;
@@ -218,9 +221,14 @@ namespace {
               mergedEdges.insert(std::make_pair(vdSrcFifo, Graph::edge_descriptor()));
           if (status.second) {
             edRead = status.first->second = add_edge(vdSrcFifo, vdTgtActor, gout).first;
-            gout[edRead] = g[*eIter];
-          } else
+            gout[edRead] = ei;
+          } else {
             edRead = status.first->second;
+            EdgeInfo &eiMerged = gout[edRead];
+            eiMerged.tokenSize = eiMerged.tokenSize * eiMerged.tokens
+                + ei.tokenSize * ei.tokens;
+            eiMerged.tokens = 1;
+          }
         }
       }
     }
