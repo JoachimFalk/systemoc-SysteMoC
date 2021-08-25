@@ -60,6 +60,9 @@ namespace smoc { namespace SNG {
     std::string name;
     int         tokenSize;
     int         tokens;
+
+    EdgeInfo()
+      : tokenSize(-1), tokens(-1) {}
   };
 
   typedef ::boost::adjacency_list<
@@ -95,10 +98,10 @@ namespace smoc { namespace SNG {
           out << "[label=\"" << vi.name << "\" style=\"filled\" fillcolor=\"#ff684c\"]";
           break;
         case VertexInfo::FIFO:
-          out << "[label=\"" << vi.name << "\" style=\"filled\" fillcolor=\"#f2e898\" shape=\"box\"]";
+          out << "[label=\"" << vi.name << ", " << vi.fifo.capacity * vi.fifo.tokenSize << "\" style=\"filled\" fillcolor=\"#f2e898\" shape=\"box\"]";
           break;
         case VertexInfo::REGISTER:
-          out << "[label=\"" << vi.name << "\" style=\"filled\" fillcolor=\"#f2e898\" shape=\"box\"]";
+          out << "[label=\"" << vi.name << ", " << vi.reg.tokenSize << "\" style=\"filled\" fillcolor=\"#f2e898\" shape=\"box\"]";
           break;
       }
   //  out << "[label=\"" << get(&VertexInfo::name, g, vd) << "(x" << g[vd].repCount << ")\" shape=\"box\"]";
@@ -117,7 +120,7 @@ namespace smoc { namespace SNG {
 
     void operator()(std::ostream &out, Graph::edge_descriptor ed) {
       EdgeInfo const &ei = g[ed];
-      out << "[label=\"" << ei.name << "\"]";
+      out << "[label=\"" << ei.name << ", " << ei.tokenSize*ei.tokens << "\"]";
   //  out << "[headlabel=\"c:" << g[ed].cons << "\" taillabel=\"p:" << g[ed].prod << "\"]";
   //  out << "[label=\"c:" << g[ed].cons << "\\np:" << g[ed].prod << "\\ns:" << g[ed].capacity << "\\nd:" << g[ed].delay << "\"]";
     }

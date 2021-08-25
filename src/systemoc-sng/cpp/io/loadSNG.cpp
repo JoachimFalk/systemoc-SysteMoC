@@ -161,10 +161,22 @@ namespace {
       , Graph &g
       , ActorInstances &actorInstances)
       : name(domChanInstance->getAttribute(XMLCH("name")))
+      , tokenSize(-1)
       , vd(add_vertex(g))
     {
       VertexInfo &vi = g[vd];
       vi.name = getName();
+      {
+        const XN::DOMNodeList *domAttrs = domChanInstance->getElementsByTagName(XMLCH("opendseattr"));
+        for (size_t i = 0; i < domAttrs->getLength(); ++i) {
+          XN::DOMElement *domAttr = static_cast<XN::DOMElement *>(domAttrs->item(i));
+          XStr name(domAttr->getAttribute(XMLCH("name")));
+          if (name == XMLCH("smoc-token-size")) {
+            assert(XStr(domAttr->getAttribute(XMLCH("type"))) == XMLCH("INT"));
+            tokenSize = std::stoul(NStr(domAttr->getAttribute(XMLCH("value"))));
+          }
+        }
+      }
       {
         const XN::DOMNodeList *domSources = domChanInstance->getElementsByTagName(XMLCH("source"));
         for (size_t i = 0; i < domSources->getLength(); ++i) {
@@ -180,6 +192,8 @@ namespace {
           assert(eStatus.second && "WTF?! Failed to insert edge into boost graph g!");
           EdgeInfo &ei = g[eStatus.first];
           ei.name = portName;
+          ei.tokenSize = tokenSize;
+          ei.tokens = 1;
         }
       }
       {
@@ -197,12 +211,17 @@ namespace {
           assert(eStatus.second && "WTF?! Failed to insert edge into boost graph g!");
           EdgeInfo &ei = g[eStatus.first];
           ei.name = portName;
+          ei.tokenSize = tokenSize;
+          ei.tokens = 1;
         }
       }
     }
 
     std::string const &getName()
       { return name; }
+
+    int getTokenSize()
+      { return tokenSize; }
 
   protected:
     static ActorInstance const &findActor(
@@ -217,6 +236,7 @@ namespace {
     }
 
     NStr   name;
+    int    tokenSize;
     VD     vd;
   };
 
@@ -230,8 +250,9 @@ namespace {
     {
       VertexInfo &vi = g[vd];
       vi.type = VertexInfo::FIFO;
-      vi.fifo.capacity = std::stoul(NStr(domFifoInstance->getAttribute(XMLCH("size"))));
-      vi.fifo.delay    = std::stoul(NStr(domFifoInstance->getAttribute(XMLCH("initial"))));
+      vi.fifo.tokenSize = tokenSize;
+      vi.fifo.capacity  = std::stoul(NStr(domFifoInstance->getAttribute(XMLCH("size"))));
+      vi.fifo.delay     = std::stoul(NStr(domFifoInstance->getAttribute(XMLCH("initial"))));
     }
   };
 
@@ -245,6 +266,7 @@ namespace {
     {
       VertexInfo &vi = g[vd];
       vi.type = VertexInfo::REGISTER;
+      vi.reg.tokenSize = tokenSize;
     }
   };
 
