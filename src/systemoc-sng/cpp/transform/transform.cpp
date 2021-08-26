@@ -157,15 +157,37 @@ namespace {
           vdTgtFifo = status.first->second.vd;
           VertexInfo &viTgtFifo = gout[vdTgtFifo];
           viTgtFifo.name = chanName;
-          switch (viTgtFifo.type) {
-            case VertexInfo::FIFO:
-              viTgtFifo.fifo.delay = -1;
-              viTgtFifo.fifo.tokenSize = viTgtFifo.fifo.tokenSize * viTgtFifo.fifo.capacity
-                  + viTarget.fifo.tokenSize * viTarget.fifo.capacity;
-              viTgtFifo.fifo.capacity = 1;
+          switch (transform) {
+            case Transform::FIFOS_SAME_CONTENT_MERGING:
+              switch (viTgtFifo.type) {
+                case VertexInfo::FIFO:
+                  if (viTgtFifo.fifo.delay != viTarget.fifo.delay)
+                    viTgtFifo.fifo.delay = -1;
+                  assert(viTgtFifo.fifo.tokenSize == viTarget.fifo.tokenSize);
+                  viTgtFifo.fifo.capacity = std::max(viTgtFifo.fifo.capacity, viTarget.fifo.capacity);
+                  break;
+                case VertexInfo::REGISTER:
+                  assert(viTgtFifo.reg.tokenSize == viTarget.reg.tokenSize);
+                  break;
+                default:
+                  assert(!"Oops, this should never happen!");
+              }
               break;
-            case VertexInfo::REGISTER:
-              viTgtFifo.reg.tokenSize = viTgtFifo.reg.tokenSize + viTarget.reg.tokenSize;
+            case Transform::FIFOS_SAME_PRODUCER_MERGING:
+              // FIXME: This is wrong!
+              switch (viTgtFifo.type) {
+                case VertexInfo::FIFO:
+                  viTgtFifo.fifo.delay = -1;
+                  viTgtFifo.fifo.tokenSize = viTgtFifo.fifo.tokenSize * viTgtFifo.fifo.capacity
+                      + viTarget.fifo.tokenSize * viTarget.fifo.capacity;
+                  viTgtFifo.fifo.capacity = 1;
+                  break;
+                case VertexInfo::REGISTER:
+                  viTgtFifo.reg.tokenSize = viTgtFifo.reg.tokenSize + viTarget.reg.tokenSize;
+                  break;
+                default:
+                  assert(!"Oops, this should never happen!");
+              }
               break;
             default:
               assert(!"Oops, this should never happen!");
