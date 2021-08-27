@@ -74,8 +74,18 @@ namespace {
 
     VertexMergeInfo()
       : vd(Graph::null_vertex()) {}
-    VertexMergeInfo(Graph::vertex_descriptor vd, Graph::edge_descriptor ed)
-      : vd(vd), ed(ed) {}
+
+    struct OrigChanInfo {
+      size_t tokenSize;
+      size_t capacity;
+
+      OrigChanInfo()
+        : tokenSize(-1), capacity(1) {}
+      OrigChanInfo(size_t tokenSize, size_t capacity)
+        : tokenSize(tokenSize), capacity(capacity) {}
+    };
+
+    std::map<std::string, OrigChanInfo> origChanInfo;
   };
 
   typedef std::map<std::string,
@@ -109,38 +119,37 @@ namespace {
       for (boost::tie(eIter, eEndIter) = out_edges(*vIter, g);
            eIter != eEndIter;
            ++eIter) {
-        Graph::vertex_descriptor vTarget  = target(*eIter, g);
-        EdgeInfo          const &eiTarget = g[*eIter];
-        VertexInfo        const &viTarget = g[vTarget];
+        EdgeInfo          const &eiEdge = g[*eIter];
+        Graph::vertex_descriptor vdChan = target(*eIter, g);
+        VertexInfo        const &viChan = g[vdChan];
 
-        Graph::vertex_descriptor vdTgtFifo;
+        std::string chanNameSameContent;
+        std::string chanNameSameProducer;
+        size_t tokenSize, capacity;
+        switch (viChan.type) {
+          case VertexInfo::FIFO:
+            chanNameSameContent  = "cf:" + viSrcActor.name + "." + eiEdge.name;
+            chanNameSameProducer = "cf:" + viSrcActor.name + ".out";
+            tokenSize = viChan.fifo.tokenSize;
+            capacity  = viChan.fifo.capacity;
+            break;
+          case VertexInfo::REGISTER:
+            chanNameSameContent  = "reg:" + viSrcActor.name + "." + eiEdge.name;
+            chanNameSameProducer = "reg:" + viSrcActor.name + ".out";
+            tokenSize = viChan.reg.tokenSize;
+            capacity  = 1;
+            break;
+          default:
+            assert(!"Oops, this should never happen!");
+        }
 
         std::string chanName;
-
         switch (transform) {
           case Transform::FIFOS_SAME_CONTENT_MERGING:
-            switch (viTarget.type) {
-              case VertexInfo::FIFO:
-                chanName = "cf:" + viSrcActor.name + "." + eiTarget.name;
-                break;
-              case VertexInfo::REGISTER:
-                chanName = "reg:" + viSrcActor.name + "." + eiTarget.name;
-                break;
-              default:
-                assert(!"Oops, this should never happen!");
-            }
+            chanName = chanNameSameContent;
             break;
           case Transform::FIFOS_SAME_PRODUCER_MERGING:
-            switch (viTarget.type) {
-              case VertexInfo::FIFO:
-                chanName = "cf:" + viSrcActor.name + ".out";
-                break;
-              case VertexInfo::REGISTER:
-                chanName = "reg:" + viSrcActor.name + ".out";
-                break;
-              default:
-                assert(!"Oops, this should never happen!");
-            }
+            chanName = chanNameSameProducer;
             break;
           default:
             assert(!"Oops, this should never happen!");
@@ -148,56 +157,70 @@ namespace {
 
         std::pair<MergedVertices::iterator, bool> status =
             mergedVertices.insert(std::make_pair(chanName, VertexMergeInfo()));
+        VertexMergeInfo &vertexMergeInfo = status.first->second;
         if (status.second) {
-          vdTgtFifo = status.first->second.vd = add_vertex(gout);
-          gout[vdTgtFifo] = viTarget;
-          status.first->second.ed = add_edge(vdSrcActor, vdTgtFifo, gout).first;
-          gout[status.first->second.ed] = eiTarget;
+          vertexMergeInfo.vd = add_vertex(gout);
+          vertexMergeInfo.ed = add_edge(vdSrcActor, vertexMergeInfo.vd, gout).first;
+          vertexMergeInfo.origChanInfo.insert(std::make_pair(
+              chanNameSameContent
+            , VertexMergeInfo::OrigChanInfo(tokenSize, capacity)));
+          gout[vertexMergeInfo.vd] = viChan;
+          gout[vertexMergeInfo.ed] = eiEdge;
         } else {
-          vdTgtFifo = status.first->second.vd;
-          VertexInfo &viTgtFifo = gout[vdTgtFifo];
-          viTgtFifo.name = chanName;
+          VertexInfo &viMergedChan = gout[vertexMergeInfo.vd];
+          EdgeInfo   &eiMergedEdge = gout[vertexMergeInfo.ed];
+          viMergedChan.name = chanName;
+          assert(viMergedChan.type == viChan.type);
+          std::pair<std::map<std::string, VertexMergeInfo::OrigChanInfo>::iterator, bool> stat =
+              vertexMergeInfo.origChanInfo.insert(std::make_pair(
+                  chanNameSameContent
+                , VertexMergeInfo::OrigChanInfo(tokenSize, capacity)));
+          if (!stat.second) {
+            assert(stat.first->second.tokenSize == tokenSize);
+            stat.first->second.capacity = std::max(stat.first->second.capacity, capacity);
+          } else {
+            eiMergedEdge.tokenSize = eiMergedEdge.tokenSize * eiMergedEdge.tokens
+                + eiEdge.tokenSize * eiEdge.tokens;
+            eiMergedEdge.tokens = 1;
+          }
           switch (transform) {
             case Transform::FIFOS_SAME_CONTENT_MERGING:
-              switch (viTgtFifo.type) {
+              assert(vertexMergeInfo.origChanInfo.size() == 1);
+              switch (viMergedChan.type) {
                 case VertexInfo::FIFO:
-                  if (viTgtFifo.fifo.delay != viTarget.fifo.delay)
-                    viTgtFifo.fifo.delay = -1;
-                  assert(viTgtFifo.fifo.tokenSize == viTarget.fifo.tokenSize);
-                  viTgtFifo.fifo.capacity = std::max(viTgtFifo.fifo.capacity, viTarget.fifo.capacity);
+                  if (viMergedChan.fifo.delay != viChan.fifo.delay)
+                    viMergedChan.fifo.delay = -1;
+                  viMergedChan.fifo.capacity = stat.first->second.capacity;
                   break;
                 case VertexInfo::REGISTER:
-                  assert(viTgtFifo.reg.tokenSize == viTarget.reg.tokenSize);
                   break;
                 default:
                   assert(!"Oops, this should never happen!");
               }
               break;
-            case Transform::FIFOS_SAME_PRODUCER_MERGING:
-              // FIXME: This is wrong!
-              switch (viTgtFifo.type) {
+            case Transform::FIFOS_SAME_PRODUCER_MERGING: {
+              size_t bufferSize = 0;
+              for (std::pair<std::string, VertexMergeInfo::OrigChanInfo> const &entry : vertexMergeInfo.origChanInfo)
+                bufferSize += entry.second.tokenSize * entry.second.capacity;
+              switch (viMergedChan.type) {
                 case VertexInfo::FIFO:
-                  viTgtFifo.fifo.delay = -1;
-                  viTgtFifo.fifo.tokenSize = viTgtFifo.fifo.tokenSize * viTgtFifo.fifo.capacity
-                      + viTarget.fifo.tokenSize * viTarget.fifo.capacity;
-                  viTgtFifo.fifo.capacity = 1;
+                  viMergedChan.fifo.delay     = -1;
+                  viMergedChan.fifo.tokenSize = bufferSize;
+                  viMergedChan.fifo.capacity  = 1;
                   break;
                 case VertexInfo::REGISTER:
-                  viTgtFifo.reg.tokenSize = viTgtFifo.reg.tokenSize + viTarget.reg.tokenSize;
+                  viMergedChan.reg.tokenSize = bufferSize;
                   break;
                 default:
                   assert(!"Oops, this should never happen!");
               }
               break;
+            }
             default:
               assert(!"Oops, this should never happen!");
           }
-          EdgeInfo &eiTgtFifo = gout[status.first->second.ed];
-          eiTgtFifo.tokenSize = eiTgtFifo.tokenSize * eiTgtFifo.tokens
-              + eiTarget.tokenSize * eiTarget.tokens;
-          eiTgtFifo.tokens = 1;
         }
-        vertexMap.insert(std::make_pair(vTarget, vdTgtFifo));
+        vertexMap.insert(std::make_pair(vdChan, vertexMergeInfo.vd));
       }
     }
 
