@@ -432,6 +432,7 @@ Graph::vertex_descriptor addChannel(
   size_t prod = repLcm/repSrc; // production rate
   {
     EdgeDescriptor edProd = add_edge(vdSrcActor, vdChannel, g).first;
+    g[edProd].name = Concat("o")(out_degree(vdSrcActor, g));
     g[edProd].tokenSize = vi.fifo.tokenSize;
     g[edProd].tokens = prod;
   }
@@ -440,6 +441,7 @@ Graph::vertex_descriptor addChannel(
     EdgeDescriptor edCons = add_edge(vdChannel, vdSnkActor, g).first;
     size_t repSnk = g[vdSnkActor].actor.repCount;
     size_t cons = repLcm/repSnk; // consumption rate
+    g[edCons].name = Concat("i")(in_degree(vdSnkActor, g));
     g[edCons].tokenSize = vi.fifo.tokenSize;
     g[edCons].tokens = cons;
     maxCons = std::max(maxCons, cons);
