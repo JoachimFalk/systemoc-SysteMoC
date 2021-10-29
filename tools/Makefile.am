@@ -74,11 +74,13 @@ sng_generate_sdf_LDADD = \
 	$(LIBNGANALYSIS_LIBS) \
 	$(LIBSGXUTILS_LIBS) \
 	-lboost_program_options$(BOOST_LIBPOSTFIX) \
-	-lboost_filesystem$(BOOST_LIBPOSTFIX)
+	-lboost_filesystem$(BOOST_LIBPOSTFIX) \
+        ../libsystemoc-sng.la
 sng_generate_sdf_DEPENDENCIES = \
 	$(COSUPPORT_STRING_DEPENDENCIES) \
 	$(COSUPPORT_RANDOM_DEPENDENCIES) \
 	$(LIBNGANALYSIS_DEPENDENCIES) \
-	$(LIBSGXUTILS_DEPENDENCIES)
+	$(LIBSGXUTILS_DEPENDENCIES) \
+        ../libsystemoc-sng.la
 sng_generate_sdf_SOURCES = \
 	src/sng-generate-sdf/cpp/sng-generate-sdf.cpp

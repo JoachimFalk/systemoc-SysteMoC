@@ -522,6 +522,7 @@ int main(int argc, char** argv) {
     ("dump-seed" , po::value<std::string>(), "dump used seed into file")
     ("no-source-actor", "disable generation of source actor")
     ("ngx" , po::value<std::string>(), "output network graph xml file")
+    ("sng" , po::value<std::string>(), "output simple network graph xml file")
     ("dot" , po::value<std::string>(), "output network graph in dot format")
     ("nr-actors", po::value<RandomGenerator<size_t> >()
         ->default_value(RandomConst<size_t>(6), "6"),
@@ -749,20 +750,6 @@ int main(int argc, char** argv) {
         if (actorOutDegree)
           std::cerr << "Warning: could not create " << actorOutDegree << " output edges for " << g[vdSrc].name << std::endl;
       }
-//    int nrChannels = ceil(clusterSize*clusterOptions.actorOutDegree()/2);
-//    if (allowSelfEdges) {
-//      for (int j = 0; j < nrChannels; ++j)
-//        addChannel(actorMap[dist(randomSource)], actorMap[dist(randomSource)], g);
-//    } else if (clusterSize > 1) { // no self edges requires at least two actors in the cluster
-//      for (int j = 0; j < nrChannels; ++j) {
-//        size_t srcIndex, snkIndex;
-//        srcIndex = dist(randomSource);
-//        do { snkIndex = dist(randomSource); } while (srcIndex == snkIndex);
-//        if (createDAG && snkIndex < srcIndex)
-//          std::swap(srcIndex, snkIndex);
-//        addChannel(actorMap[srcIndex], actorMap[snkIndex], g);
-//      }
-//    }
       i += clusterSize;
     }
     if (clusterMap.size() > 1) {
@@ -959,7 +946,7 @@ int main(int argc, char** argv) {
 
 
 #if 0
-    }
+
     SDF::PropEdgeSizeTMap       edgeTSizeMap      = get(&SDF::EdgeInfo::tokenSize, g);
 
     // Set the communication size for the graph
@@ -983,13 +970,12 @@ int main(int argc, char** argv) {
            eip.first != eip.second;
            ++eip.first) {
         double normFactor = commScalings[i]/totalCommScaling;
-        size_t tokensTransmission = get(edgeProdMap, *eip.first) *
+        size_t tokensTransmission = get(edgeTokensMap, *eip.first) *
                     get(vertexRepCountMap, source(*eip.first, g));
         put(edgeTSizeMap, *eip.first, (normFactor*totalCommunication)/tokensTransmission);
         i++;
       }
     }
-
     // Add additional initial tokens as specified by option
     if (vm.count("extra-delay-factor")) {
       RandomGenerator<double> extraDelayFactor = vm["extra-delay-factor"].as<RandomGenerator<double> >();
@@ -1181,6 +1167,10 @@ int main(int argc, char** argv) {
     }
 #endif //SYSTEMOC_ENABLE_SGX
 #endif
+    if (vm.count("sng")) {
+      CoSupport::Streams::AOStream out(std::cout, vm["sng"].as<std::string>(), "-");
+      saveSNG(g, out);
+    }
   } catch (std::exception &e) {
     std::cerr << prgname << ": " << e.what() << std::endl;
     return 1;

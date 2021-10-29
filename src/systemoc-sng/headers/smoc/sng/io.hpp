@@ -30,6 +30,8 @@ namespace smoc { namespace SNG {
 
   Graph loadSNG(std::istream &in);
 
+  void  saveSNG(Graph const &g, std::ostream &out);
+
 } } // namespace smoc::SNG
 
 #endif /* _INCLUDED_SMOC_SNG_IO_HPP */
