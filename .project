@@ -6,6 +6,7 @@
 		<project>LibSGX</project>
 		<project>LibSGXUtils</project>
 		<project>Support</project>
+		<project>LibNGAnalysis</project>
 	</projects>
 	<buildSpec>
 		<buildCommand>
