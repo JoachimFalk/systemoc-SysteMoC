@@ -31,7 +31,7 @@
 namespace smoc { namespace SNG {
 
   struct ActorInfo {
-
+    size_t       repCount;  ///< repetition vector count
   };
 
   struct FIFOInfo {
@@ -54,12 +54,19 @@ namespace smoc { namespace SNG {
       FIFOInfo     fifo;
       RegisterInfo reg;
     };
+
+    VertexInfo()
+      : type(FIFO) {
+      fifo.tokenSize = -1;
+      fifo.capacity  = -1;
+      fifo.delay     = -1;
+    }
   };
 
   struct EdgeInfo {
     std::string name;
-    int         tokenSize;
-    int         tokens;
+    size_t      tokenSize;
+    size_t      tokens;
 
     EdgeInfo()
       : tokenSize(-1), tokens(-1) {}
@@ -80,6 +87,80 @@ namespace smoc { namespace SNG {
     ::boost::no_property // don't need graph properties
   > Graph;
 
+  typedef Graph::vertex_descriptor VertexDescriptor;
+  typedef Graph::vertex_iterator   VertexIterator;
+  typedef std::pair<
+      VertexIterator
+    , VertexIterator>              VertexIteratorPair;
+
+  typedef Graph::edge_descriptor   EdgeDescriptor;
+  typedef Graph::edge_iterator     EdgeIterator;
+  typedef std::pair<
+      EdgeIterator
+    , EdgeIterator>                EdgeIteratorPair;
+
+  typedef boost::property_map<
+    Graph, boost::vertex_index_t>::type          VertexIndexMap;
+  typedef boost::property_map<
+    Graph, std::string VertexInfo::*>::type      VertexNameMap;
+  typedef boost::property_map<
+    Graph, VertexInfo::Type VertexInfo::*>::type VertexTypeMap;
+
+  class VertexRepCountMap: public boost::put_get_helper<size_t &, VertexRepCountMap> {
+  public:
+    typedef VertexDescriptor                    key_type;
+    typedef size_t                              value_type;
+    typedef value_type                         &reference;
+    typedef boost::read_write_property_map_tag  category;
+
+    VertexRepCountMap(Graph &g)
+      : g(g) {}
+
+    reference operator[](const key_type &key) const
+      { return g[key].actor.repCount; }
+  private:
+    Graph &g;
+  };
+
+  class VertexDelayMap: public boost::put_get_helper<size_t &, VertexDelayMap> {
+  public:
+    typedef VertexDescriptor                    key_type;
+    typedef size_t                              value_type;
+    typedef value_type                         &reference;
+    typedef boost::read_write_property_map_tag  category;
+
+    VertexDelayMap(Graph &g)
+      : g(g) {}
+
+    reference operator[](const key_type &key) const
+      { return g[key].fifo.delay; }
+  private:
+    Graph &g;
+  };
+
+  class VertexCapacityMap: public boost::put_get_helper<size_t &, VertexCapacityMap> {
+  public:
+    typedef VertexDescriptor                    key_type;
+    typedef size_t                              value_type;
+    typedef value_type                         &reference;
+    typedef boost::read_write_property_map_tag  category;
+
+    VertexCapacityMap(Graph &g)
+      : g(g) {}
+
+    reference operator[](const key_type &key) const
+      { return g[key].fifo.capacity; }
+  private:
+    Graph &g;
+  };
+
+  typedef boost::property_map<
+    Graph, std::string EdgeInfo::*>::type EdgeNameMap;
+  typedef boost::property_map<
+    Graph, size_t EdgeInfo::*>::type      EdgeTokenSizeMap;
+  typedef boost::property_map<
+    Graph, size_t EdgeInfo::*>::type      EdgeTokensMap;
+
   /// Basic vertex property writer for SNG graphs.
   /// Property writers are used in dot file generation, which are mainly used for debugging purpose.
   /// \sa EdgePropertyWriter
@@ -95,13 +176,27 @@ namespace smoc { namespace SNG {
 
       switch (vi.type) {
         case VertexInfo::ACTOR:
-          out << "[label=\"" << vi.name << "\" style=\"filled\" fillcolor=\"#ff684c\"]";
+          if (vi.actor.repCount != static_cast<size_t>(-1))
+            out << "[label=\"" << vi.name << "(x" << vi.actor.repCount << ")\" style=\"filled\" fillcolor=\"#ff684c\" shape=\"box\"]";
+          else
+            out << "[label=\"" << vi.name << "\" style=\"filled\" fillcolor=\"#ff684c\"]";
           break;
         case VertexInfo::FIFO:
-          out << "[label=\"" << vi.name << ", " << vi.fifo.capacity * vi.fifo.tokenSize << "\" style=\"filled\" fillcolor=\"#f2e898\" shape=\"box\"]";
+          out << "[label=\"" << vi.name;
+          if (vi.fifo.delay != 0)
+            out << ", d:" << vi.fifo.delay;
+          if (vi.fifo.capacity != static_cast<size_t>(-1)) {
+            out << ", c:" << vi.fifo.capacity;
+            if (vi.fifo.tokenSize != static_cast<size_t>(-1))
+              out << ", s:" << vi.fifo.capacity * vi.fifo.tokenSize;
+          }
+          out << "\" style=\"filled\" fillcolor=\"#f2e898\" shape=\"box\"]";
           break;
         case VertexInfo::REGISTER:
-          out << "[label=\"" << vi.name << ", " << vi.reg.tokenSize << "\" style=\"filled\" fillcolor=\"#f2e898\" shape=\"box\"]";
+          out << "[label=\"" << vi.name;
+          if (vi.reg.tokenSize != static_cast<size_t>(-1))
+            out << ", s:" << vi.reg.tokenSize;
+          out << "\" style=\"filled\" fillcolor=\"#f2e898\" shape=\"box\"]";
           break;
       }
   //  out << "[label=\"" << get(&VertexInfo::name, g, vd) << "(x" << g[vd].repCount << ")\" shape=\"box\"]";
@@ -120,7 +215,16 @@ namespace smoc { namespace SNG {
 
     void operator()(std::ostream &out, Graph::edge_descriptor ed) {
       EdgeInfo const &ei = g[ed];
-      out << "[label=\"" << ei.name << ", " << ei.tokenSize*ei.tokens << "\"]";
+
+      out << "[label=\"" << ei.name;
+      bool commaReq = !ei.name.empty();
+      if (ei.tokens != static_cast<size_t>(-1)) {
+        out << (commaReq ? ", t:" : "t:") << ei.tokens;
+        if (ei.tokenSize != static_cast<size_t>(-1))
+          out << ", s:" << ei.tokenSize*ei.tokens;
+        commaReq = true;
+      }
+      out << "\"]";
   //  out << "[headlabel=\"c:" << g[ed].cons << "\" taillabel=\"p:" << g[ed].prod << "\"]";
   //  out << "[label=\"c:" << g[ed].cons << "\\np:" << g[ed].prod << "\\ns:" << g[ed].capacity << "\\nd:" << g[ed].delay << "\"]";
     }
