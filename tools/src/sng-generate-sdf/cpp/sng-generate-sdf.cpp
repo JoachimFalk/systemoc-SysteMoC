@@ -128,120 +128,6 @@ using ::CoSupport::Streams::ScopedIndent;
 using ::SystemCoDesigner::SGXUtils::outDbg;
 
 /*
-namespace DetailX {
-  typedef CoSupport::boost::graph_traits<
-    boost::adjacency_list<
-      // edge container type
-      boost::vecS,
-      // vertex container type
-      boost::vecS,
-      // direction type
-      boost::bidirectionalS
-  > > _SDF;
-
-  struct SDFVertexInfo {
-    std::string  name;
-    size_t       repCount; ///< repetition vector count
-
-    SDFVertexInfo() {}
-  };
-
-  struct SDFEdgeInfo {
-    std::string  name;
-    size_t       cons;      ///< consumption from FIFO
-    size_t       prod;      ///< production to FIFO
-    size_t       capacity;  ///< size of the FIFO buffer in tokens
-    size_t       delay;     ///< number of initial tokens
-    size_t       tokenSize; ///< size of a token in bytes
-    SDFEdgeInfo() {}
-  };
-}
-
-struct SDF: public CoSupport::boost::graph_traits<
-    boost::adjacency_list<
-      // edge container type
-      boost::vecS,
-      // vertex container type
-      boost::vecS,
-      // direction type
-      boost::bidirectionalS,
-      // vertex properties
-      DetailX::SDFVertexInfo,
-      // edge properties
-      DetailX::SDFEdgeInfo,
-      // graph properties
-      boost::no_property // don't need graph properties
-  > >
-{
-  typedef DetailX::SDFVertexInfo VertexInfo;
-  typedef DetailX::SDFEdgeInfo   EdgeInfo;
-
-  typedef boost::property_map<
-    graph, boost::vertex_index_t>::type           PropVertexIndexMap;
-  typedef boost::property_map<
-    graph, std::string VertexInfo::*>::type       PropVertexNameMap;
-  typedef boost::property_map<
-    graph, size_t VertexInfo::*>::type            PropVertexRepCountMap;
-
-  typedef boost::property_map<
-    graph, std::string EdgeInfo::*>::type         PropEdgeNameMap;
-  typedef boost::property_map<
-    graph, size_t EdgeInfo::*>::type              PropEdgeSizeTMap;
-
-  /// Basic vertex property writer for SDF.
-  class VertexPropertyWriter;
-  /// Basic edge property writer for SDF.
-  class EdgePropertyWriter;
-
-  static void dump(graph &g);
-
-  static edge_descriptor add_edge(vertex_descriptor vSrc, vertex_descriptor vSnk, graph &g) {
-    static size_t i = 0;
-    
-    std::pair<edge_descriptor, bool> eStatus = boost::add_edge(vSrc, vSnk, g);
-    assert(eStatus.second && "WTF?! Failed to insert edge into boost graph g!");
-    SDF::edge_descriptor &ed = eStatus.first;
-    g[ed].name = Concat("c")(++i);
-    size_t repSrc = g[vSrc].repCount;
-    size_t repSnk = g[vSnk].repCount;
-    size_t repGcd = boost::math::gcd(repSrc, repSnk);
-    g[ed].cons = repSrc/repGcd;
-    g[ed].prod = repSnk/repGcd;
-    return ed;
-  }
-};
-
-/// Basic vertex property writer for SDF.
-/// Property writers are used in dot file generation, which are mainly used for debugging purpose.
-/// \sa SDF::EdgePropertyWriter
-class SDF::VertexPropertyWriter {
-  typedef VertexPropertyWriter this_type;
-protected:
-  graph &g;
-public:
-  VertexPropertyWriter(graph &g): g(g) {}
-
-  void operator()(std::ostream &out, SDF::vertex_descriptor vd) {
-    out << "[label=\"" << get(&VertexInfo::name, g, vd) << "(x" << g[vd].repCount << ")\" shape=\"box\"]";
-  }
-};
-
-/// Basic edge property writer for SDF.
-/// Property writers are used in dot file generation, which are mainly used for debugging purpose.
-/// \sa SDF::VertexPropertyWriter
-class SDF::EdgePropertyWriter {
-  typedef EdgePropertyWriter this_type;
-protected:
-  graph &g;
-public:
-  EdgePropertyWriter(graph &g): g(g) {}
-
-  void operator()(std::ostream &out, SDF::edge_descriptor ed) {
-//  out << "[headlabel=\"c:" << g[ed].cons << "\" taillabel=\"p:" << g[ed].prod << "\"]";
-    out << "[label=\"c:" << g[ed].cons << "\\np:" << g[ed].prod << "\\ns:" << g[ed].capacity << "\\nd:" << g[ed].delay << "\"]";
-  }
-};
-
 void SDF::dump(graph &g) {
 #ifdef SGXUTILS_DEBUG_OUTPUT
   if (!outDbg.isVisible(Debug::Low))
@@ -366,7 +252,7 @@ protected:
   }
 };
 
-#ifdef SYSTEMOC_ENABLE_SGX
+#if 0 && defined(SYSTEMOC_ENABLE_SGX)
 void connectPorts(
     SGX::Port &actorOutPort,
     SGX::Port &actorInPort,
@@ -399,6 +285,119 @@ void connectPorts(
   actorOutPort.direction()   = SGX::Port::Out;
   channelInPort.actorPort()  = actorOutPort.toPtr();
   channelOutPort.actorPort() = actorInPort.toPtr();
+}
+
+void saveNGX(Graph &g, std::ostream &out) {
+  SGX::NetworkGraphAccess ngx;
+
+  SGX::ProblemGraph pg;
+  ngx.problemGraphPtr() = pg.toPtr();
+
+  SGX::Actor::Ptr             actorPtrStor[num_vertices(g)];
+  boost::iterator_property_map<SGX::Actor::Ptr *, SDF::PropVertexIndexMap>
+                              actorPtrMap(actorPtrStor, vertexIndexMap);
+  SGX::FiringTransition::Ptr  transitionPtrStor[num_vertices(g)];
+  boost::iterator_property_map<SGX::FiringTransition::Ptr *, SDF::PropVertexIndexMap>
+                              transitionPtrMap(transitionPtrStor, vertexIndexMap);
+
+  SGX::ActorList::Ref   actors    = pg.actors();
+  SGX::ChannelList::Ref channels  = pg.channels();
+
+  //FIXME: generate ngx from g
+  for (SDF::vertex_iterator_pair vip = vertices(g);
+       vip.first != vip.second;
+       ++vip.first) {
+    bool isSource = g[*vip.first].name == "source";
+
+    SGX::Actor actor(g[*vip.first].name);
+    actors.push_back(actor);
+    actorPtrMap[*vip.first] = actor.toPtr();
+    SGX::FiringFSM        fsm;
+    SGX::FiringState      srun;
+    SGX::FiringTransition trun;
+    fsm.states().push_back(srun);
+    fsm.startState() = srun.toPtr();
+    srun.outTransitions().push_back(trun);
+    trun.dstState() = srun.toPtr(); // self loop
+
+    if (isSource) {
+      SGX::FiringState       sfin;
+      SGX::FiringTransition  tfin;
+      SGX::Function          f;
+
+      fsm.states().push_back(sfin);
+      srun.name() = "run";
+      srun.outTransitions().push_back(tfin);
+
+      {
+        SGX::ASTNodeVar srcIter;
+        srcIter.name() = "SRC_ITER";
+
+        SGX::ASTNodeVar srcIters;
+        srcIters.name() = "SRC_ITERS";
+
+        SGX::ASTNodeBinOp iterCmp;
+        iterCmp.opType() = SGX::OpBinT::Lt;
+        iterCmp.leftNode() = &srcIter;
+        iterCmp.rightNode() = &srcIters;
+
+        trun.action()            = f.toPtr();
+        // Add condition SRC_ITER < SRC_ITERS to transition trun.
+        trun.activationPattern() = iterCmp.toPtr();
+        // FIXME: We do not even have infrastructure for this bad hack (yet),
+        // so we do some even nastier things...
+        f.name() = "action|void action() { ++SRC_ITER; }";
+      }
+      {
+        tfin.dstState() = sfin.toPtr(); // to end state
+
+        SGX::ASTNodeVar srcIter;
+        srcIter.name() = "SRC_ITER";
+
+        SGX::ASTNodeVar srcIters;
+        srcIters.name() = "SRC_ITERS";
+
+        SGX::ASTNodeBinOp top;
+        top.opType() = SGX::OpBinT::Ge;
+        top.leftNode() = &srcIter;
+        top.rightNode() = &srcIters;
+
+        tfin.activationPattern() = top.toPtr();
+      }
+    }
+
+    actor.schedule() = fsm.toPtr();
+    transitionPtrMap[*vip.first] = trun.toPtr();
+  }
+
+  SDF::PropEdgeSizeTMap edgeTSizeMap = get(&SDF::EdgeInfo::tokenSize, g);
+
+  for (SDF::edge_iterator_pair eip = edges(g);
+       eip.first != eip.second;
+       ++eip.first) {
+    SGX::Fifo channel(g[*eip.first].name);
+
+    channels.push_back(channel);
+
+    bool isFromSource = g[source(*eip.first, g)].name == "source";
+
+    SGX::Actor::Ptr            &srcActor      = actorPtrMap[source(*eip.first, g)];
+    SGX::FiringTransition::Ptr &srcTransition = transitionPtrMap[source(*eip.first, g)];
+    SGX::Actor::Ptr            &snkActor      = actorPtrMap[target(*eip.first, g)];
+    SGX::FiringTransition::Ptr &snkTransition = transitionPtrMap[target(*eip.first, g)];
+    SGX::Port actorInPort(Concat("in_")(g[*eip.first].name));
+    SGX::Port actorOutPort(Concat("out_")(g[*eip.first].name));
+    srcActor->ports().push_back(actorOutPort);
+    snkActor->ports().push_back(actorInPort);
+    const char *fifoTokenType = isFromSource ? "void" : "int";
+    connectPorts(actorOutPort, actorInPort, channel, fifoTokenType,
+        edgeCapMap[*eip.first], edgeDelayMap[*eip.first], edgeTSizeMap[*eip.first]);
+    SGX::ASTTools::setCommunicate(*srcTransition,
+      SGX::ASTTools::TokenComReq(actorOutPort.toPtr(), g[*eip.first].prod));
+    SGX::ASTTools::setCommunicate(*snkTransition,
+      SGX::ASTTools::TokenComReq(actorInPort.toPtr(), g[*eip.first].cons));
+  }
+  ngx.save(out);
 }
 #endif //SYSTEMOC_ENABLE_SGX
 
@@ -464,6 +463,50 @@ Graph::vertex_descriptor addChannel(
   vdSnkActors.push_back(vdSnkActor);
   return addChannel(vdSrcActor, vdSnkActors, g);
 }
+
+void checkGraphDeadlockFree(Graph &g) {
+#ifndef NDEBUG
+  VertexNameMap     vertexNameMap  = get(&VertexInfo::name, g);
+  ActorRepCountMap  actorRepCountMap(g);
+  ChannelTSizeMap   channelTSizeMap(g);
+  FIFODelayMap      fifoDelayMap(g);
+  FIFOCapacityMap   fifoCapacityMap(g);
+  EdgeTokensMap     edgeTokensMap = get(&EdgeInfo::tokens, g);
+
+  typedef NGA::DropChannelVertices<Graph> SDF;
+  SDF gSDF(g, [&g] (VertexDescriptor vd)
+      { return g[vd].type != VertexInfo::ACTOR; });
+
+//    boost::property_map<DFG, boost::vertex_index_t>::const_type flummy
+//      = get(boost::vertex_index, dfg);
+
+  SDF::EdgeConsMap<EdgeTokensMap>::type  sdfEdgeConsMap(edgeTokensMap);
+  SDF::EdgeProdMap<EdgeTokensMap>::type  sdfEdgeProdMap(g, edgeTokensMap);
+  SDF::EdgeNameMap<VertexNameMap>::type  sdfEdgeNameMap(g, vertexNameMap);
+  SDF::EdgeDelayMap<FIFODelayMap>::type  sdfEdgeDelayMap(g, fifoDelayMap);
+  SDF::EdgeCapMap<FIFOCapacityMap>::type sdfEdgeCapMap(g, fifoCapacityMap);
+
+  typedef std::map<SDF::edge_descriptor, size_t> SDFEdgeTokensStorage;
+  SDFEdgeTokensStorage sdfEdgeTokensStorage;
+  boost::associative_property_map<SDFEdgeTokensStorage> sdfEdgeTokensMap(sdfEdgeTokensStorage);
+
+  typedef std::vector<size_t> VertexRepLeftStorage;
+  VertexRepLeftStorage vertexRepLeftStorage(num_vertices(gSDF));
+  boost::container_property_map<SDF, VertexDescriptor, VertexRepLeftStorage>
+    vertexRepLeftMap(vertexRepLeftStorage, gSDF);
+
+  assert(SystemCoDesigner::NGAnalysis::SDF::isGraphDeadlockFree(
+    gSDF,
+    actorRepCountMap,
+    vertexRepLeftMap,
+    sdfEdgeConsMap,
+    sdfEdgeProdMap,
+    sdfEdgeDelayMap,
+    sdfEdgeCapMap,
+    sdfEdgeTokensMap));
+#endif //NDEBUG
+}
+
 
 /*
  * program [options] <network_graph>
@@ -900,6 +943,7 @@ int main(int argc, char** argv) {
           
           boost::random::uniform_int_distribution<> dist(0, indexToVertexMap.size()-1);
           SDF::vertex_descriptor randomActor = indexToVertexMap[dist(randomSource)];
+          std::cout << "Forcing actor " << vertexNameMap[randomActor] << " ready!";
           NGA::SDF::forceReadyActor(
             gSDF,
             randomActor,
@@ -926,22 +970,41 @@ int main(int argc, char** argv) {
         size_t &delay = get(edgeDelayMap, *eip.first);
         delay = std::max(delay, get(edgeTokensMap, *eip.first));
       }
-#ifndef NDEBUG
-      {
-        typedef std::map<SDF::edge_descriptor, size_t> EdgeTokensStorage;
-        EdgeTokensStorage edgeTokensStorage;
-        boost::associative_property_map<EdgeTokensStorage> edgeTokensMap(edgeTokensStorage);
-        assert(SystemCoDesigner::NGAnalysis::SDF::isGraphDeadlockFree(
-          gSDF,
-          actorRepCountMap,
-          vertexRepLeftMap,
-          edgeConsMap,
-          edgeProdMap,
-          edgeDelayMap,
-          edgeCapMap,
-          edgeTokensMap));
+    }
+    checkGraphDeadlockFree(g);
+    // Add additional initial tokens as specified by option
+    if (vm.count("extra-delay-factor")) {
+      RandomGenerator<double> extraDelayFactor = vm["extra-delay-factor"].as<RandomGenerator<double> >();
+
+      for (std::pair<
+               Graph::vertex_iterator
+             , Graph::vertex_iterator> vip = vertices(g);
+           vip.first != vip.second;
+           ++vip.first) {
+        if (g[*vip.first].type != VertexInfo::FIFO)
+          continue;
+        assert(in_degree(*vip.first, g) == 1);
+        Graph::edge_descriptor edProd = *in_edges(*vip.first, g).first;
+        size_t additionalInitialTokens =
+            get(edgeTokensMap, edProd) * extraDelayFactor();
+        g[*vip.first].fifo.delay    += additionalInitialTokens;
+        g[*vip.first].fifo.capacity += additionalInitialTokens;
       }
-#endif //NDEBUG
+      checkGraphDeadlockFree(g);
+    }
+    // Add additional initial tokens at edges between clusters as specified by option
+    if (vm.count("extra-delay-factor-inter-cluster")) {
+      RandomGenerator<double> extraDelayFactor = vm["extra-delay-factor-inter-cluster"].as<RandomGenerator<double> >();
+      for (Graph::vertex_descriptor vd : channelsBetweenClusters) {
+        assert(g[vd].type == VertexInfo::FIFO);
+        assert(in_degree(vd, g) == 1);
+        Graph::edge_descriptor edProd = *in_edges(vd, g).first;
+        size_t additionalInitialTokens =
+            get(edgeTokensMap, edProd) * extraDelayFactor();
+        g[vd].fifo.delay    += additionalInitialTokens;
+        g[vd].fifo.capacity += additionalInitialTokens;
+      }
+      checkGraphDeadlockFree(g);
     }
 
     // Set the communication size for the graph
@@ -991,210 +1054,75 @@ int main(int argc, char** argv) {
       boost::write_graphviz(out, g, vpw, epw);
     }
 
-#if 0
+    if (1) {
+      size_t internalBytesRead    = 0;
+      size_t internalBytesWritten = 0;
+      size_t inputBytesRead       = 0;
+      size_t outputBytesWritten   = 0;
 
-    // Add additional initial tokens as specified by option
-    if (vm.count("extra-delay-factor")) {
-      RandomGenerator<double> extraDelayFactor = vm["extra-delay-factor"].as<RandomGenerator<double> >();
-
-      for (SDF::edge_iterator_pair eip = edges(g);
-           eip.first != eip.second;
-           ++eip.first) {
-        size_t additionalInitialTokens =
-          get(edgeConsMap, *eip.first) * extraDelayFactor();
-        put(edgeDelayMap, *eip.first, get(edgeDelayMap, *eip.first) +
-          additionalInitialTokens);
-        put(edgeCapMap,  *eip.first, get(edgeCapMap,  *eip.first) +
-          additionalInitialTokens);
-      }
-#ifndef NDEBUG
-      {
-        typedef std::map<SDF::edge_descriptor, size_t> EdgeTokensStorage;
-        EdgeTokensStorage edgeTokensStorage;
-        boost::associative_property_map<EdgeTokensStorage> edgeTokensMap(edgeTokensStorage);
-        typedef std::vector<size_t> VertexRepLeftStorage;
-        VertexRepLeftStorage vertexRepLeftStorage(num_vertices(g));
-        boost::container_property_map<SDF::graph, SDF::vertex_descriptor, VertexRepLeftStorage>
-          vertexRepLeftMap(vertexRepLeftStorage, g);
-        assert(SystemCoDesigner::NGAnalysis::SDF::isGraphDeadlockFree(
-          g,
-          actorRepCountMap,
-          vertexRepLeftMap,
-          edgeConsMap,
-          edgeProdMap,
-          edgeDelayMap,
-          edgeCapMap,
-          edgeTokensMap));
-      }
-#endif //NDEBUG
-    }
-    // Add additional initial tokens at edges between clusters as specified by option
-    if (vm.count("extra-delay-factor-inter-cluster")) {
-      RandomGenerator<double> extraDelayFactor = vm["extra-delay-factor-inter-cluster"].as<RandomGenerator<double> >();
-      std::set<SDF::edge_descriptor>::iterator it_edges;
-
-      for (it_edges = channelsBetweenClusters.begin();
-          it_edges != channelsBetweenClusters.end();
-          ++it_edges) {
-
-        size_t additionalInitialTokens =
-          get(edgeConsMap, *it_edges) * extraDelayFactor();
-        put(edgeDelayMap, *it_edges, get(edgeDelayMap, *it_edges) +
-          additionalInitialTokens);
-        put(edgeCapMap,  *it_edges, get(edgeCapMap,  *it_edges) +
-          additionalInitialTokens);
-      }
-#ifndef NDEBUG
-      {
-        typedef std::map<SDF::edge_descriptor, size_t> EdgeTokensStorage;
-        EdgeTokensStorage edgeTokensStorage;
-        boost::associative_property_map<EdgeTokensStorage> edgeTokensMap(edgeTokensStorage);
-        typedef std::vector<size_t> VertexRepLeftStorage;
-        VertexRepLeftStorage vertexRepLeftStorage(num_vertices(g));
-        boost::container_property_map<SDF::graph, SDF::vertex_descriptor, VertexRepLeftStorage>
-          vertexRepLeftMap(vertexRepLeftStorage, g);
-        assert(SystemCoDesigner::NGAnalysis::SDF::isGraphDeadlockFree(
-          g,
-          actorRepCountMap,
-          vertexRepLeftMap,
-          edgeConsMap,
-          edgeProdMap,
-          edgeDelayMap,
-          edgeCapMap,
-          edgeTokensMap));
-      }
-#endif //NDEBUG
-    }
-    if (vm.count("dot")) {
-      CoSupport::Streams::AOStream out(std::cout, vm["dot"].as<std::string>(), "-");
-      SDF::VertexPropertyWriter vpw(g);
-      SDF::EdgePropertyWriter   epw(g);
-      boost::write_graphviz(out, g, vpw, epw);
-    }
-#ifdef SYSTEMOC_ENABLE_SGX
-    if (vm.count("ngx")) {
-      CoSupport::Streams::AOStream out(std::cout, vm["ngx"].as<std::string>(), "-");
-      SGX::NetworkGraphAccess ngx;
-      
-      SGX::ProblemGraph pg;
-      ngx.problemGraphPtr() = pg.toPtr();
-      
-      SGX::Actor::Ptr             actorPtrStor[num_vertices(g)];
-      boost::iterator_property_map<SGX::Actor::Ptr *, SDF::PropVertexIndexMap>
-                                  actorPtrMap(actorPtrStor, vertexIndexMap);
-      SGX::FiringTransition::Ptr  transitionPtrStor[num_vertices(g)];
-      boost::iterator_property_map<SGX::FiringTransition::Ptr *, SDF::PropVertexIndexMap>
-                                  transitionPtrMap(transitionPtrStor, vertexIndexMap);
-      
-      SGX::ActorList::Ref   actors    = pg.actors();
-      SGX::ChannelList::Ref channels  = pg.channels();
-      
-      //FIXME: generate ngx from g
-      for (SDF::vertex_iterator_pair vip = vertices(g);
+      for (std::pair<
+               Graph::vertex_iterator
+             , Graph::vertex_iterator> vip = vertices(g);
            vip.first != vip.second;
            ++vip.first) {
-        bool isSource = g[*vip.first].name == "source";
+        if (g[*vip.first].type == VertexInfo::ACTOR)
+          continue;
 
-        SGX::Actor actor(g[*vip.first].name);
-        actors.push_back(actor);
-        actorPtrMap[*vip.first] = actor.toPtr();
-        SGX::FiringFSM        fsm;
-        SGX::FiringState      srun;
-        SGX::FiringTransition trun;
-        fsm.states().push_back(srun);
-        fsm.startState() = srun.toPtr();
-        srun.outTransitions().push_back(trun);
-        trun.dstState() = srun.toPtr(); // self loop
-
-        if (isSource) {
-          SGX::FiringState       sfin;
-          SGX::FiringTransition  tfin;
-          SGX::Function          f;
-
-          fsm.states().push_back(sfin);
-          srun.name() = "run";
-          srun.outTransitions().push_back(tfin);
-
-          {
-            SGX::ASTNodeVar srcIter;
-            srcIter.name() = "SRC_ITER";
-
-            SGX::ASTNodeVar srcIters;
-            srcIters.name() = "SRC_ITERS";
-
-            SGX::ASTNodeBinOp iterCmp;
-            iterCmp.opType() = SGX::OpBinT::Lt;
-            iterCmp.leftNode() = &srcIter;
-            iterCmp.rightNode() = &srcIters;
-
-            trun.action()            = f.toPtr();
-            // Add condition SRC_ITER < SRC_ITERS to transition trun.
-            trun.activationPattern() = iterCmp.toPtr();
-            // FIXME: We do not even have infrastructure for this bad hack (yet),
-            // so we do some even nastier things...
-            f.name() = "action|void action() { ++SRC_ITER; }";
-          }
-          {
-            tfin.dstState() = sfin.toPtr(); // to end state
-
-            SGX::ASTNodeVar srcIter;
-            srcIter.name() = "SRC_ITER";
-
-            SGX::ASTNodeVar srcIters;
-            srcIters.name() = "SRC_ITERS";
-
-            SGX::ASTNodeBinOp top;
-            top.opType() = SGX::OpBinT::Ge;
-            top.leftNode() = &srcIter;
-            top.rightNode() = &srcIters;
-
-            tfin.activationPattern() = top.toPtr();
-          }
+        bool isInput = in_degree(*vip.first, g) == 0;
+        for (std::pair<
+                 Graph::out_edge_iterator
+               , Graph::out_edge_iterator> eip = out_edges(*vip.first, g);
+             eip.first != eip.second;
+             ++eip.first)
+        {
+          Graph::edge_descriptor   edCons = *eip.first;
+          Graph::vertex_descriptor vdCons = target(*eip.first, g);
+          size_t cons      = get(edgeTokensMap, edCons);
+          size_t repCount  = get(actorRepCountMap, vdCons);
+          size_t tokenSize = get(channelTSizeMap, *vip.first);
+          if (isInput)
+            inputBytesRead += cons * repCount * tokenSize;
+          else
+            internalBytesRead += cons * repCount * tokenSize;
         }
 
-        actor.schedule() = fsm.toPtr();
-        transitionPtrMap[*vip.first] = trun.toPtr();
+        if (isInput) {
+          assert(g[*vip.first].type == VertexInfo::REGISTER);
+          assert(out_degree(*vip.first, g) > 0);
+        } else {
+          assert(in_degree(*vip.first, g) == 1);
+          Graph::edge_descriptor   edProd = *in_edges(*vip.first, g).first;
+          Graph::vertex_descriptor vdProd = source(edProd, g);
+          size_t prod      = get(edgeTokensMap, edProd);
+          size_t repCount  = get(actorRepCountMap, vdProd);
+          size_t tokenSize = get(channelTSizeMap, *vip.first);
+          if (out_degree(*vip.first, g) == 0) {
+            assert(g[*vip.first].type == VertexInfo::REGISTER);
+            outputBytesWritten += prod * repCount * tokenSize;
+          } else {
+            assert(g[*vip.first].type == VertexInfo::FIFO);
+            internalBytesWritten += prod * repCount * tokenSize;
+          }
+        }
       }
-
-      SDF::PropEdgeSizeTMap edgeTSizeMap = get(&SDF::EdgeInfo::tokenSize, g);
-
-      for (SDF::edge_iterator_pair eip = edges(g);
-           eip.first != eip.second;
-           ++eip.first) {
-        SGX::Fifo channel(g[*eip.first].name);
-
-        channels.push_back(channel);
-
-        bool isFromSource = g[source(*eip.first, g)].name == "source";
-
-        SGX::Actor::Ptr            &srcActor      = actorPtrMap[source(*eip.first, g)];
-        SGX::FiringTransition::Ptr &srcTransition = transitionPtrMap[source(*eip.first, g)];
-        SGX::Actor::Ptr            &snkActor      = actorPtrMap[target(*eip.first, g)];
-        SGX::FiringTransition::Ptr &snkTransition = transitionPtrMap[target(*eip.first, g)];
-        SGX::Port actorInPort(Concat("in_")(g[*eip.first].name));
-        SGX::Port actorOutPort(Concat("out_")(g[*eip.first].name));
-        srcActor->ports().push_back(actorOutPort);
-        snkActor->ports().push_back(actorInPort);
-        const char *fifoTokenType = isFromSource ? "void" : "int";
-        connectPorts(actorOutPort, actorInPort, channel, fifoTokenType,
-            edgeCapMap[*eip.first], edgeDelayMap[*eip.first], edgeTSizeMap[*eip.first]);
-        SGX::ASTTools::setCommunicate(*srcTransition,
-          SGX::ASTTools::TokenComReq(actorOutPort.toPtr(), g[*eip.first].prod));
-        SGX::ASTTools::setCommunicate(*snkTransition,
-          SGX::ASTTools::TokenComReq(actorInPort.toPtr(), g[*eip.first].cons));
-      }
-      ngx.save(out);
+      std::cout << "internalBytesRead:    " << internalBytesRead << std::endl;
+      std::cout << "internalBytesWritten: " << internalBytesWritten << std::endl;
+      std::cout << "inputBytesRead:       " << inputBytesRead << std::endl;
+      std::cout << "outputBytesWritten:   " << outputBytesWritten << std::endl;
     }
-#endif //SYSTEMOC_ENABLE_SGX
-#endif
     if (vm.count("sng")) {
       CoSupport::Streams::AOStream out(std::cout, vm["sng"].as<std::string>(), "-");
       saveSNG(g, out);
     }
+#if 0 && defined(SYSTEMOC_ENABLE_SGX)
+    if (vm.count("ngx")) {
+      CoSupport::Streams::AOStream out(std::cout, vm["ngx"].as<std::string>(), "-");
+      saveNGX(g, out);
+    }
+#endif //SYSTEMOC_ENABLE_SGX
   } catch (std::exception &e) {
     std::cerr << prgname << ": " << e.what() << std::endl;
     return 1;
   }
-  
   return 0;
 }
