@@ -495,7 +495,7 @@ void checkGraphDeadlockFree(Graph &g) {
   boost::container_property_map<SDF, VertexDescriptor, VertexRepLeftStorage>
     vertexRepLeftMap(vertexRepLeftStorage, gSDF);
 
-  assert(SystemCoDesigner::NGAnalysis::SDF::isGraphDeadlockFree(
+  bool noDeadlocks = SystemCoDesigner::NGAnalysis::SDF::isGraphDeadlockFree(
     gSDF,
     actorRepCountMap,
     vertexRepLeftMap,
@@ -503,7 +503,14 @@ void checkGraphDeadlockFree(Graph &g) {
     sdfEdgeProdMap,
     sdfEdgeDelayMap,
     sdfEdgeCapMap,
-    sdfEdgeTokensMap));
+    sdfEdgeTokensMap);
+  if (!noDeadlocks) {
+    std::ofstream out("deadlocks-error.dot");
+    VertexPropertyWriter vpw(g);
+    EdgePropertyWriter   epw(g);
+    boost::write_graphviz(out, g, vpw, epw);
+    assert(!"Internal error graph has deadlocks, see deadlocks-error.dot!\n");
+  }
 #endif //NDEBUG
 }
 
