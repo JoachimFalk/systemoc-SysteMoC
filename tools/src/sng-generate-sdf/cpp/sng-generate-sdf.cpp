@@ -146,11 +146,18 @@ void SDF::dump(graph &g) {
 }
 */
 
+using CoSupport::Random::randomSource;
+using CoSupport::Random::RandomGenerator;
+using CoSupport::Random::RandomConst;
+using CoSupport::Random::RandomUniform;
+using CoSupport::Random::RandomUrn;
+using CoSupport::Random::RandomNormal;
+
 struct ClusterOptions {
-  boost::function<size_t (void)> repCount;
-  boost::function<size_t (void)> actorCount;
-  boost::function<double (void)> actorOutDegree;
-  boost::function<double (void)> actorMulticastDegree;
+  RandomGenerator<size_t> repCount;
+  RandomGenerator<size_t> actorCount;
+  RandomGenerator<double> actorOutDegree;
+  RandomGenerator<double> actorMulticastDegree;
 };
 
 typedef std::map<size_t, ClusterOptions> ClusterOptionsMap;
@@ -514,6 +521,8 @@ void checkGraphDeadlockFree(Graph &g) {
 #endif //NDEBUG
 }
 
+// Mersenne twister pseudo randomness source
+boost::random::mt19937 randomSourceTopology;
 
 /*
  * program [options] <network_graph>
@@ -542,13 +551,6 @@ int main(int argc, char** argv) {
   sstr.str(""); // reset string stream
   sstr << "set debug level; level 0 is off; level " << Debug::None.level << " is most verbose";
 #endif //SGXUTILS_DEBUG_OUTPUT
-
-  using CoSupport::Random::randomSource;
-  using CoSupport::Random::RandomGenerator;
-  using CoSupport::Random::RandomConst;
-  using CoSupport::Random::RandomUniform;
-  using CoSupport::Random::RandomUrn;
-  using CoSupport::Random::RandomNormal;
 
   // urn:1,2,3,6,5,10,15,12,18,30
   std::vector<std::pair<size_t, size_t> > repCounts;
@@ -674,6 +676,7 @@ int main(int argc, char** argv) {
       }
       //FIXME: The uint64_t seed does not contain enough entropy to really initialize the mersenne twister properly.
       randomSource.seed(seed); 
+      randomSourceTopology.seed(seed);
       if (vm.count("dump-seed")) {
         CoSupport::Streams::AOStream out(std::cout, vm["dump-seed"].as<std::string>(), "-");
         out << "seed: " << seed << std::endl;
@@ -727,6 +730,7 @@ int main(int argc, char** argv) {
         clusterOptions.actorCount           = clusterActorCount.find(i)->second;
         clusterOptions.actorOutDegree       = clusterActorOutDegree.find(i)->second;
         clusterOptions.actorMulticastDegree = clusterActorMulticastDegree.find(i)->second;
+        clusterOptions.actorOutDegree.setRandomSource(&randomSourceTopology);
       }
     }
     boost::random::uniform_int_distribution<> distClusterTypeSelection(0, clusterEndWeight-1);
@@ -738,7 +742,7 @@ int main(int argc, char** argv) {
     
     for (size_t i = 0; i < nrActors; ) {
       ClusterOptions const &clusterOptions =
-          clusterOptionsMap.lower_bound(static_cast<size_t>(distClusterTypeSelection(randomSource)))->second;
+          clusterOptionsMap.lower_bound(static_cast<size_t>(distClusterTypeSelection(randomSourceTopology)))->second;
 
       size_t clusterSize = std::min(clusterOptions.actorCount(), nrActors-i);
       assert(clusterSize >= 1);
@@ -792,7 +796,7 @@ int main(int argc, char** argv) {
         while (!vdSnks.empty() && actorOutDegree > 0) {
           std::vector<VertexDescriptor> vdMulticast;
           do {
-            size_t snkIndex = boost::random::uniform_int_distribution<>(0, vdSnks.size()-1)(randomSource);
+            size_t snkIndex = boost::random::uniform_int_distribution<>(0, vdSnks.size()-1)(randomSourceTopology);
             vdMulticast.push_back(vdSnks[snkIndex]);
             vdSnks.erase(vdSnks.begin() + snkIndex);
             --actorMulticastDegree;
@@ -810,15 +814,15 @@ int main(int argc, char** argv) {
       size_t nrChannels = clusterMap.size()*vm["avg-cluster-degree"].as<RandomGenerator<double> >()()/2;
       for (size_t i = 0; i < nrChannels; ++i) {
         size_t srcCluster, snkCluster;
-        srcCluster = dist(randomSource);
-        do { snkCluster = dist(randomSource); } while (snkCluster == srcCluster);
+        srcCluster = dist(randomSourceTopology);
+        do { snkCluster = dist(randomSourceTopology); } while (snkCluster == srcCluster);
         if (createDAG && snkCluster < srcCluster)
           std::swap(srcCluster, snkCluster);
         VertexMap const &vertexMapSrc = clusterMap[srcCluster];
         VertexMap const &vertexMapSnk = clusterMap[snkCluster];
         channelsBetweenClusters.insert(addChannel(
-          vertexMapSrc[boost::random::uniform_int_distribution<>(0, vertexMapSrc.size()-1)(randomSource)],
-          vertexMapSnk[boost::random::uniform_int_distribution<>(0, vertexMapSnk.size()-1)(randomSource)],
+          vertexMapSrc[boost::random::uniform_int_distribution<>(0, vertexMapSrc.size()-1)(randomSourceTopology)],
+          vertexMapSnk[boost::random::uniform_int_distribution<>(0, vertexMapSnk.size()-1)(randomSourceTopology)],
           g));
       }
     }
@@ -841,13 +845,13 @@ int main(int argc, char** argv) {
         while (components.size() > 1) {
           boost::random::uniform_int_distribution<> dist(0, components.size()-1);
           size_t srcComponent, snkComponent;
-          srcComponent = dist(randomSource);
-          do { snkComponent = dist(randomSource); } while (snkComponent == srcComponent);
+          srcComponent = dist(randomSourceTopology);
+          do { snkComponent = dist(randomSourceTopology); } while (snkComponent == srcComponent);
           addChannel(
             components[srcComponent][boost::random::uniform_int_distribution<>
-              (0, components[srcComponent].size()-1)(randomSource)],
+              (0, components[srcComponent].size()-1)(randomSourceTopology)],
             components[snkComponent][boost::random::uniform_int_distribution<>
-              (0, components[snkComponent].size()-1)(randomSource)],
+              (0, components[snkComponent].size()-1)(randomSourceTopology)],
             g);
           components[srcComponent].insert(components[srcComponent].end(), 
               components[snkComponent].begin(), components[snkComponent].end());
