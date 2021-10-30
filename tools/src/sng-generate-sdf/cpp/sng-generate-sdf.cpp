@@ -475,7 +475,6 @@ void checkGraphDeadlockFree(Graph &g) {
 #ifndef NDEBUG
   VertexNameMap     vertexNameMap  = get(&VertexInfo::name, g);
   ActorRepCountMap  actorRepCountMap(g);
-  ChannelTSizeMap   channelTSizeMap(g);
   FIFODelayMap      fifoDelayMap(g);
   FIFOCapacityMap   fifoCapacityMap(g);
   EdgeTokensMap     edgeTokensMap = get(&EdgeInfo::tokens, g);
@@ -497,15 +496,15 @@ void checkGraphDeadlockFree(Graph &g) {
   SDFEdgeTokensStorage sdfEdgeTokensStorage;
   boost::associative_property_map<SDFEdgeTokensStorage> sdfEdgeTokensMap(sdfEdgeTokensStorage);
 
-  typedef std::vector<size_t> VertexRepLeftStorage;
-  VertexRepLeftStorage vertexRepLeftStorage(num_vertices(gSDF));
-  boost::container_property_map<SDF, VertexDescriptor, VertexRepLeftStorage>
-    vertexRepLeftMap(vertexRepLeftStorage, gSDF);
+  typedef std::vector<size_t> ActorRepLeftStorage;
+  ActorRepLeftStorage actorRepLeftStorage(num_vertices(gSDF));
+  boost::container_property_map<SDF, VertexDescriptor, ActorRepLeftStorage>
+    actorRepLeftMap(actorRepLeftStorage, gSDF);
 
   bool noDeadlocks = SystemCoDesigner::NGAnalysis::SDF::isGraphDeadlockFree(
     gSDF,
     actorRepCountMap,
-    vertexRepLeftMap,
+    actorRepLeftMap,
     sdfEdgeConsMap,
     sdfEdgeProdMap,
     sdfEdgeDelayMap,
@@ -696,14 +695,9 @@ int main(int argc, char** argv) {
 
     EdgeTokensMap   edgeTokensMap  = get(&EdgeInfo::tokens, g);
 
-//  PropVertexRepCountMap  vertexRepCountMap = get(&VertexInfo::actor.repCount, g);
-//  SDF::PropVertexRepCountMap  vertexRepCountMap = get(&SDF::VertexInfo::repCount, g);
-//  SDF::PropEdgeNameMap        edgeNameMap       = get(&SDF::EdgeInfo::name, g);
-    
     std::set<VertexDescriptor> channelsBetweenClusters;
 
-    size_t nrActors   = vm["nr-actors"].as<RandomGenerator<size_t> >()();
-//  size_t nrChannels = vm["nr-channels"].as<size_t>();
+    size_t nrActors = vm["nr-actors"].as<RandomGenerator<size_t> >()();
 
     ClusterOptionsMap clusterOptionsMap;
     size_t            clusterEndWeight = 0;
@@ -782,9 +776,9 @@ int main(int argc, char** argv) {
             ? 1 : actorMulticastDegrees.top();
         if (!actorMulticastDegrees.empty())
           actorMulticastDegrees.pop();
-        std::cout
-            << "actorOutDegree: " << actorOutDegree
-            << ", actorMulticastDegree: " << actorMulticastDegree << std::endl;
+//      std::cout
+//          << "actorOutDegree: " << actorOutDegree
+//          << ", actorMulticastDegree: " << actorMulticastDegree << std::endl;
         std::vector<VertexDescriptor> vdSnks;
         if (createDAG) {
           for (size_t k = j+1; k < clusterSize; ++k)
@@ -896,19 +890,11 @@ int main(int argc, char** argv) {
       SDF gSDF(g, [&g] (VertexDescriptor vd)
           { return g[vd].type != VertexInfo::ACTOR; });
 
-//    boost::property_map<DFG, boost::vertex_index_t>::const_type flummy
-//      = get(boost::vertex_index, dfg);
-
       SDF::EdgeConsMap<EdgeTokensMap>::type  edgeConsMap(edgeTokensMap);
       SDF::EdgeProdMap<EdgeTokensMap>::type  edgeProdMap(g, edgeTokensMap);
       SDF::EdgeNameMap<VertexNameMap>::type  edgeNameMap(g, vertexNameMap);
       SDF::EdgeDelayMap<FIFODelayMap>::type  edgeDelayMap(g, fifoDelayMap);
       SDF::EdgeCapMap<FIFOCapacityMap>::type edgeCapMap(g, fifoCapacityMap);
-
-//      boost::property_map<DFG, NGA::SDF::edge_cons_t>::const_type edgeConsMap
-//        = get(NGA::SDF::edge_cons, dfg);
-//      typedef boost::property_map<DFG, NGA::SDF::edge_prod_t>::const_type edgeProdMap;
-//      //= get(NGA::SDF::edge_prod, dfg);
 
       typedef std::vector<size_t> VertexRepLeftStorage;
       VertexRepLeftStorage vertexRepLeftStorage(num_vertices(gSDF));
@@ -954,7 +940,7 @@ int main(int argc, char** argv) {
           
           boost::random::uniform_int_distribution<> dist(0, indexToVertexMap.size()-1);
           SDF::vertex_descriptor randomActor = indexToVertexMap[dist(randomSource)];
-          std::cout << "Forcing actor " << vertexNameMap[randomActor] << " ready!";
+//        std::cout << "Forcing actor " << vertexNameMap[randomActor] << " ready!";
           NGA::SDF::forceReadyActor(
             gSDF,
             randomActor,
@@ -1036,7 +1022,7 @@ int main(int argc, char** argv) {
            ++vip.first) {
         if (g[*vip.first].type != VertexInfo::FIFO)
           continue;
-        double commScaling = graphCommScaling();
+        double commScaling = std::max(0.0, graphCommScaling());
         fifoComScalingMap[*vip.first] = commScaling;
         totalCommScaling += commScaling * (1 + out_degree(*vip.first, g));
       }
@@ -1054,6 +1040,8 @@ int main(int argc, char** argv) {
         size_t tokensTransmission =
             get(edgeTokensMap, edProd)
           * get(actorRepCountMap, vdProd);
+//      std::cout << "nf: " << normFactor << " tc: " << totalCommunication << " tt: " << tokensTransmission
+//          << " => " << (normFactor*totalCommunication)/tokensTransmission << std::endl;
         put(channelTSizeMap, *vip.first, (normFactor*totalCommunication)/tokensTransmission);
       }
     }
