@@ -1034,7 +1034,7 @@ int main(int argc, char** argv) {
           continue;
         double commScaling = graphCommScaling();
         fifoComScalingMap[*vip.first] = commScaling;
-        totalCommScaling += commScaling;
+        totalCommScaling += commScaling * (1 + out_degree(*vip.first, g));
       }
       for (std::pair<
                Graph::vertex_iterator
@@ -1114,6 +1114,8 @@ int main(int argc, char** argv) {
       }
       std::cout << "internalBytesRead:    " << internalBytesRead << std::endl;
       std::cout << "internalBytesWritten: " << internalBytesWritten << std::endl;
+      std::cout << "internalBytesTotal:   " << (internalBytesRead+internalBytesWritten) << std::endl;
+      std::cout << "internalReadRation:   " << (1.0*internalBytesRead) / internalBytesWritten << std::endl;
       std::cout << "inputBytesRead:       " << inputBytesRead << std::endl;
       std::cout << "outputBytesWritten:   " << outputBytesWritten << std::endl;
     }
