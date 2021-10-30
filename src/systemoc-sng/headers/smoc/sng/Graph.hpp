@@ -106,14 +106,14 @@ namespace smoc { namespace SNG {
   typedef boost::property_map<
     Graph, VertexInfo::Type VertexInfo::*>::type VertexTypeMap;
 
-  class VertexRepCountMap: public boost::put_get_helper<size_t &, VertexRepCountMap> {
+  class ActorRepCountMap: public boost::put_get_helper<size_t &, ActorRepCountMap> {
   public:
     typedef VertexDescriptor                    key_type;
     typedef size_t                              value_type;
     typedef value_type                         &reference;
     typedef boost::read_write_property_map_tag  category;
 
-    VertexRepCountMap(Graph &g)
+    ActorRepCountMap(Graph &g)
       : g(g) {}
 
     reference operator[](const key_type &key) const
@@ -122,14 +122,30 @@ namespace smoc { namespace SNG {
     Graph &g;
   };
 
-  class VertexDelayMap: public boost::put_get_helper<size_t &, VertexDelayMap> {
+  class ChannelTSizeMap: public boost::put_get_helper<size_t &, ChannelTSizeMap> {
   public:
     typedef VertexDescriptor                    key_type;
     typedef size_t                              value_type;
     typedef value_type                         &reference;
     typedef boost::read_write_property_map_tag  category;
 
-    VertexDelayMap(Graph &g)
+    ChannelTSizeMap(Graph &g)
+      : g(g) {}
+
+    reference operator[](const key_type &key) const
+      { return g[key].fifo.tokenSize; }
+  private:
+    Graph &g;
+  };
+
+  class FIFODelayMap: public boost::put_get_helper<size_t &, FIFODelayMap> {
+  public:
+    typedef VertexDescriptor                    key_type;
+    typedef size_t                              value_type;
+    typedef value_type                         &reference;
+    typedef boost::read_write_property_map_tag  category;
+
+    FIFODelayMap(Graph &g)
       : g(g) {}
 
     reference operator[](const key_type &key) const
@@ -138,14 +154,14 @@ namespace smoc { namespace SNG {
     Graph &g;
   };
 
-  class VertexCapacityMap: public boost::put_get_helper<size_t &, VertexCapacityMap> {
+  class FIFOCapacityMap: public boost::put_get_helper<size_t &, FIFOCapacityMap> {
   public:
     typedef VertexDescriptor                    key_type;
     typedef size_t                              value_type;
     typedef value_type                         &reference;
     typedef boost::read_write_property_map_tag  category;
 
-    VertexCapacityMap(Graph &g)
+    FIFOCapacityMap(Graph &g)
       : g(g) {}
 
     reference operator[](const key_type &key) const

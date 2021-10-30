@@ -636,9 +636,10 @@ int main(int argc, char** argv) {
     Graph             g;
     VertexIndexMap    vertexIndexMap = get(::boost::vertex_index, g);
     VertexNameMap     vertexNameMap  = get(&VertexInfo::name, g);
-    VertexRepCountMap vertexRepCountMap(g);
-    VertexDelayMap    vertexDelayMap(g);
-    VertexCapacityMap vertexCapacityMap(g);
+    ActorRepCountMap  actorRepCountMap(g);
+    ChannelTSizeMap   channelTSizeMap(g);
+    FIFODelayMap      fifoDelayMap(g);
+    FIFOCapacityMap   fifoCapacityMap(g);
 
     EdgeTokensMap   edgeTokensMap  = get(&EdgeInfo::tokens, g);
 
@@ -844,11 +845,11 @@ int main(int argc, char** argv) {
 //    boost::property_map<DFG, boost::vertex_index_t>::const_type flummy
 //      = get(boost::vertex_index, dfg);
 
-      SDF::EdgeConsMap<EdgeTokensMap>::type    edgeConsMap(edgeTokensMap);
-      SDF::EdgeProdMap<EdgeTokensMap>::type    edgeProdMap(g, edgeTokensMap);
-      SDF::EdgeNameMap<VertexNameMap>::type    edgeNameMap(g, vertexNameMap);
-      SDF::EdgeDelayMap<VertexDelayMap>::type  edgeDelayMap(g, vertexDelayMap);
-      SDF::EdgeCapMap<VertexCapacityMap>::type edgeCapMap(g, vertexCapacityMap);
+      SDF::EdgeConsMap<EdgeTokensMap>::type  edgeConsMap(edgeTokensMap);
+      SDF::EdgeProdMap<EdgeTokensMap>::type  edgeProdMap(g, edgeTokensMap);
+      SDF::EdgeNameMap<VertexNameMap>::type  edgeNameMap(g, vertexNameMap);
+      SDF::EdgeDelayMap<FIFODelayMap>::type  edgeDelayMap(g, fifoDelayMap);
+      SDF::EdgeCapMap<FIFOCapacityMap>::type edgeCapMap(g, fifoCapacityMap);
 
 //      boost::property_map<DFG, NGA::SDF::edge_cons_t>::const_type edgeConsMap
 //        = get(NGA::SDF::edge_cons, dfg);
@@ -860,10 +861,12 @@ int main(int argc, char** argv) {
       boost::container_property_map<SDF, VertexDescriptor, VertexRepLeftStorage>
         vertexRepLeftMap(vertexRepLeftStorage, gSDF);
 
-      for (std::pair<SDF::vertex_iterator, SDF::vertex_iterator> vip = vertices(gSDF);
+      for (std::pair<
+               SDF::vertex_iterator
+             , SDF::vertex_iterator> vip = vertices(gSDF);
            vip.first != vip.second;
            ++vip.first)
-        vertexRepLeftMap[*vip.first] = vertexRepCountMap[*vip.first];
+        vertexRepLeftMap[*vip.first] = actorRepCountMap[*vip.first];
 
       std::map<SDF::edge_descriptor, size_t> edgeTokensStorage;
       boost::associative_property_map<std::map<SDF::edge_descriptor, size_t> > edgeTokensMap(edgeTokensStorage);
@@ -886,13 +889,13 @@ int main(int argc, char** argv) {
         if (readyActors.empty()) {
           std::vector<SDF::vertex_descriptor> indexToVertexMap;
           
-          SDF::vertex_iterator vIter, vEnd;
-          for (boost::tie(vIter, vEnd) = vertices(gSDF);
-               vIter != vEnd;
-               ++vIter) {
-            if (vertexRepLeftMap[*vIter])
-              indexToVertexMap.push_back(*vIter);
-          }
+          for (std::pair<
+                   SDF::vertex_iterator
+                 , SDF::vertex_iterator> vip = vertices(gSDF);
+               vip.first != vip.second;
+               ++vip.first)
+            if (vertexRepLeftMap[*vip.first])
+              indexToVertexMap.push_back(*vip.first);
           assert(!indexToVertexMap.empty());
           
           boost::random::uniform_int_distribution<> dist(0, indexToVertexMap.size()-1);
@@ -915,7 +918,9 @@ int main(int argc, char** argv) {
             vertexRepLeftMap);
       } while (true);
 
-      for (std::pair<SDF::edge_iterator, SDF::edge_iterator> eip = edges(gSDF);
+      for (std::pair<
+               SDF::edge_iterator
+             , SDF::edge_iterator> eip = edges(gSDF);
            eip.first != eip.second;
            ++eip.first) {
         size_t &delay = get(edgeDelayMap, *eip.first);
@@ -928,7 +933,7 @@ int main(int argc, char** argv) {
         boost::associative_property_map<EdgeTokensStorage> edgeTokensMap(edgeTokensStorage);
         assert(SystemCoDesigner::NGAnalysis::SDF::isGraphDeadlockFree(
           gSDF,
-          vertexRepCountMap,
+          actorRepCountMap,
           vertexRepLeftMap,
           edgeConsMap,
           edgeProdMap,
@@ -939,6 +944,46 @@ int main(int argc, char** argv) {
 #endif //NDEBUG
     }
 
+    // Set the communication size for the graph
+    if (vm.count("graph-total-communication")) {
+      typedef std::vector<double> FIFOComScalingStorage;
+      FIFOComScalingStorage fifoComScalingStorage(num_vertices(g));
+      boost::container_property_map<Graph, VertexDescriptor, FIFOComScalingStorage>
+        fifoComScalingMap(fifoComScalingStorage, g);
+
+      RandomGenerator<size_t> graphTotalComm = vm["graph-total-communication"].as<RandomGenerator<size_t> >();
+      RandomGenerator<double> graphCommScaling = vm["graph-communication-scaling"].as<RandomGenerator<double> >();
+      size_t totalCommunication = graphTotalComm();
+      double totalCommScaling = 0;
+      for (std::pair<
+               Graph::vertex_iterator
+             , Graph::vertex_iterator> vip = vertices(g);
+           vip.first != vip.second;
+           ++vip.first) {
+        if (g[*vip.first].type != VertexInfo::FIFO)
+          continue;
+        double commScaling = graphCommScaling();
+        fifoComScalingMap[*vip.first] = commScaling;
+        totalCommScaling += commScaling;
+      }
+      for (std::pair<
+               Graph::vertex_iterator
+             , Graph::vertex_iterator> vip = vertices(g);
+           vip.first != vip.second;
+           ++vip.first) {
+        if (g[*vip.first].type != VertexInfo::FIFO)
+          continue;
+        double normFactor = fifoComScalingMap[*vip.first]/totalCommScaling;
+        assert(in_degree(*vip.first, g) == 1);
+        Graph::edge_descriptor   edProd = *in_edges(*vip.first, g).first;
+        Graph::vertex_descriptor vdProd = source(edProd, g);
+        size_t tokensTransmission =
+            get(edgeTokensMap, edProd)
+          * get(actorRepCountMap, vdProd);
+        put(channelTSizeMap, *vip.first, (normFactor*totalCommunication)/tokensTransmission);
+      }
+    }
+
     if (vm.count("dot")) {
       CoSupport::Streams::AOStream out(std::cout, vm["dot"].as<std::string>(), "-");
       VertexPropertyWriter vpw(g);
@@ -946,38 +991,8 @@ int main(int argc, char** argv) {
       boost::write_graphviz(out, g, vpw, epw);
     }
 
-
 #if 0
 
-    SDF::PropEdgeSizeTMap       edgeTSizeMap      = get(&SDF::EdgeInfo::tokenSize, g);
-
-    // Set the communication size for the graph
-    if (vm.count("graph-total-communication")) {
-      RandomGenerator<size_t> graphTotalComm = vm["graph-total-communication"].as<RandomGenerator<size_t> >();
-      RandomGenerator<double> graphCommScaling = vm["graph-communication-scaling"].as<RandomGenerator<double> >();
-      size_t totalCommunication = graphTotalComm();
-      double totalCommScaling = 0;
-      double commScalings[num_edges(g)];
-      int i = 0;
-      for (EdgeIteratorPair eip = edges(g);
-           eip.first != eip.second;
-           ++eip.first) {;
-        double commScaling = graphCommScaling();
-        commScalings[i] = commScaling;
-        totalCommScaling += commScaling;
-        i++;
-      }
-      i = 0;
-      for (EdgeIteratorPair eip = edges(g);
-           eip.first != eip.second;
-           ++eip.first) {
-        double normFactor = commScalings[i]/totalCommScaling;
-        size_t tokensTransmission = get(edgeTokensMap, *eip.first) *
-                    get(vertexRepCountMap, source(*eip.first, g));
-        put(edgeTSizeMap, *eip.first, (normFactor*totalCommunication)/tokensTransmission);
-        i++;
-      }
-    }
     // Add additional initial tokens as specified by option
     if (vm.count("extra-delay-factor")) {
       RandomGenerator<double> extraDelayFactor = vm["extra-delay-factor"].as<RandomGenerator<double> >();
@@ -1003,7 +1018,7 @@ int main(int argc, char** argv) {
           vertexRepLeftMap(vertexRepLeftStorage, g);
         assert(SystemCoDesigner::NGAnalysis::SDF::isGraphDeadlockFree(
           g,
-          vertexRepCountMap,
+          actorRepCountMap,
           vertexRepLeftMap,
           edgeConsMap,
           edgeProdMap,
@@ -1040,7 +1055,7 @@ int main(int argc, char** argv) {
           vertexRepLeftMap(vertexRepLeftStorage, g);
         assert(SystemCoDesigner::NGAnalysis::SDF::isGraphDeadlockFree(
           g,
-          vertexRepCountMap,
+          actorRepCountMap,
           vertexRepLeftMap,
           edgeConsMap,
           edgeProdMap,
@@ -1140,6 +1155,9 @@ int main(int argc, char** argv) {
         actor.schedule() = fsm.toPtr();
         transitionPtrMap[*vip.first] = trun.toPtr();
       }
+
+      SDF::PropEdgeSizeTMap edgeTSizeMap = get(&SDF::EdgeInfo::tokenSize, g);
+
       for (SDF::edge_iterator_pair eip = edges(g);
            eip.first != eip.second;
            ++eip.first) {
