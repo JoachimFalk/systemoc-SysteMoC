@@ -105,14 +105,64 @@ void  saveSNG(Graph const &g, std::ostream &out) {
         break;
       }
       case VertexInfo::FIFO: {
+        ctx.fifoConnections
+             << "  <fifo "
+                     "name=" << XQ(g[*vip.first].name) << " "
+                     "size=\"" << g[*vip.first].fifo.capacity << "\" "
+                     "initial=\"" << g[*vip.first].fifo.delay << "\">\n"
+                "    <opendseattr name=\"smoc-token-size\" type=\"INT\" value=\"" << g[*vip.first].fifo.tokenSize << "\"/>\n";
+
+        for (std::pair<
+               Graph::in_edge_iterator
+             , Graph::in_edge_iterator> eip = in_edges(*vip.first, g);
+            eip.first != eip.second;
+            ++eip.first) {
+          ctx.fifoConnections
+            << "    <source actor=" << XQ(g[boost::source(*eip.first, g)].name)
+            <<             " port=" << XQ(g[*eip.first].name) << "/>\n";
+        }
 
 
+        for (std::pair<
+                Graph::out_edge_iterator
+              , Graph::out_edge_iterator> eip = out_edges(*vip.first, g);
+             eip.first != eip.second;
+             ++eip.first) {
+          ctx.fifoConnections
+            << "    <target actor=" << XQ(g[boost::target(*eip.first, g)].name)
+            <<             " port=" << XQ(g[*eip.first].name) << "/>\n";
+        }
+        ctx.fifoConnections
+            << "  </fifo>\n";
         break;
       }
       case VertexInfo::REGISTER: {
+        ctx.fifoConnections
+            << "  <register "
+                    "name=" << XQ(g[*vip.first].name) << ">\n"
+               "    <opendseattr name=\"smoc-token-size\" type=\"INT\" value=\"" << g[*vip.first].reg.tokenSize << "\"/>\n";
+        for (std::pair<
+               Graph::in_edge_iterator
+             , Graph::in_edge_iterator> eip = in_edges(*vip.first, g);
+            eip.first != eip.second;
+            ++eip.first) {
+          ctx.fifoConnections
+            << "    <source actor=" << XQ(g[boost::source(*eip.first, g)].name)
+            <<             " port=" << XQ(g[*eip.first].name) << "/>\n";
+        }
 
-
-
+        for (std::pair<
+                Graph::out_edge_iterator
+              , Graph::out_edge_iterator> eip = out_edges(*vip.first, g);
+             eip.first != eip.second;
+             ++eip.first) {
+          ctx.fifoConnections
+            << "    <target actor=" << XQ(g[boost::target(*eip.first, g)].name)
+            <<             " port=" << XQ(g[*eip.first].name) << "/>\n";
+        }
+        assert(in_edges(*vip.first, g).first == in_edges(*vip.first, g).second || out_edges(*vip.first, g).first == out_edges(*vip.first, g).second);
+        ctx.fifoConnections
+          << "  </register>\n";
         break;
       }
     }
