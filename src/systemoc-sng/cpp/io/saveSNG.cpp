@@ -63,7 +63,7 @@ void  saveSNG(Graph const &g, std::ostream &out) {
        ++vip.first)
     switch (g[*vip.first].type) {
       case VertexInfo::ACTOR: {
-        std::string key = "A";
+        std::string key;
         for (std::pair<
                 Graph::in_edge_iterator
               , Graph::in_edge_iterator> eip = in_edges(*vip.first, g);
@@ -84,7 +84,13 @@ void  saveSNG(Graph const &g, std::ostream &out) {
         }
         std::string &actorType = ctx.actorTypeCache[key];
         if (actorType.empty()) {
-          actorType = ctx.actorTypeUniquePool("A");
+          std::string            name = g[*vip.first].name;
+          std::string::size_type pos  = name.rfind('.');
+          if (pos != std::string::npos)
+            for (std::string::size_type i = 0; i <= pos; ++i)
+              actorType += std::toupper(name[i]);
+          actorType += "A";
+          actorType = ctx.actorTypeUniquePool(actorType);
           ctx.actorTypes << "  <actorType name=" << XQ(actorType) << ">\n";
           for (std::pair<
                   Graph::in_edge_iterator

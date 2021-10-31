@@ -415,7 +415,8 @@ using namespace smoc::SNG;
 Graph::vertex_descriptor addChannel(
     Graph::vertex_descriptor vdSrcActor
   , std::vector<Graph::vertex_descriptor> vdSnkActors
-  , Graph &g)
+  , Graph &g
+  , std::string const &prefix)
 {
   static size_t i = 0;
 
@@ -432,7 +433,7 @@ Graph::vertex_descriptor addChannel(
 
   VertexInfo &vi = g[vdChannel];
   vi.type = VertexInfo::FIFO;
-  vi.name = Concat("c")(++i);
+  vi.name = Concat(prefix)("c")(++i);
   vi.fifo.tokenSize = -1;
 
   size_t prod = repLcm/repSrc; // production rate
@@ -464,11 +465,12 @@ Graph::vertex_descriptor addChannel(
 Graph::vertex_descriptor addChannel(
     Graph::vertex_descriptor vdSrcActor
   , Graph::vertex_descriptor vdSnkActor
-  , Graph &g)
+  , Graph &g
+  , std::string const &prefix)
 {
   std::vector<Graph::vertex_descriptor> vdSnkActors;
   vdSnkActors.push_back(vdSnkActor);
-  return addChannel(vdSrcActor, vdSnkActors, g);
+  return addChannel(vdSrcActor, vdSnkActors, g, prefix);
 }
 
 void checkGraphDeadlockFree(Graph &g) {
@@ -577,6 +579,7 @@ int main(int argc, char** argv) {
     ("ngx" , po::value<std::string>(), "output network graph xml file")
     ("sng" , po::value<std::string>(), "output simple network graph xml file")
     ("dot" , po::value<std::string>(), "output network graph in dot format")
+    ("prefix", po::value<std::string>(), "prefix for actor and channel names")
     ("nr-actors", po::value<RandomGenerator<size_t> >()
         ->default_value(RandomConst<size_t>(6), "6"),
         "random generator specifying the number of actors to generate")
@@ -686,6 +689,9 @@ int main(int argc, char** argv) {
       }
     }
 
+    std::string prefix = vm.count("prefix")
+        ? vm["prefix"].as<std::string>() + "."
+        : std::string();
     bool createDAG = vm["create-dag"].as<bool>();
     bool allowSelfEdges = vm["allow-self-edges"].as<bool>() && !createDAG;
 
@@ -755,7 +761,7 @@ int main(int argc, char** argv) {
         VertexDescriptor vd = actorMap[j] = add_vertex(g);
         VertexInfo &vi = g[vd];
         vi.type = VertexInfo::ACTOR;
-        vi.name = Concat("a")(clusterMap.size())("_")(j+1);
+        vi.name = Concat(prefix)("a")(clusterMap.size())("_")(j+1);
         vi.actor.repCount = clusterOptions.repCount();
         {
           double actorOutDegree = clusterOptions.actorOutDegree();
@@ -800,7 +806,7 @@ int main(int argc, char** argv) {
             --actorMulticastDegree;
             --actorOutDegree;
           } while (!vdSnks.empty() && actorMulticastDegree > 0 && actorOutDegree > 0);
-          addChannel(vdSrc, vdMulticast, g);
+          addChannel(vdSrc, vdMulticast, g, prefix);
         }
         if (actorOutDegree)
           std::cerr << "Warning: could not create " << actorOutDegree << " output edges for " << g[vdSrc].name << std::endl;
@@ -821,7 +827,7 @@ int main(int argc, char** argv) {
         channelsBetweenClusters.insert(addChannel(
           vertexMapSrc[boost::random::uniform_int_distribution<>(0, vertexMapSrc.size()-1)(randomSourceTopology)],
           vertexMapSnk[boost::random::uniform_int_distribution<>(0, vertexMapSnk.size()-1)(randomSourceTopology)],
-          g));
+          g, prefix));
       }
     }
     // First we ensure that the graph is connected
@@ -850,7 +856,7 @@ int main(int argc, char** argv) {
               (0, components[srcComponent].size()-1)(randomSourceTopology)],
             components[snkComponent][boost::random::uniform_int_distribution<>
               (0, components[snkComponent].size()-1)(randomSourceTopology)],
-            g);
+            g, prefix);
           components[srcComponent].insert(components[srcComponent].end(), 
               components[snkComponent].begin(), components[snkComponent].end());
           components.erase(components.begin()+snkComponent);
@@ -868,7 +874,7 @@ int main(int argc, char** argv) {
         vdSource = add_vertex(g);
         VertexInfo &viSource = g[vdSource];
         viSource.type = VertexInfo::ACTOR;
-        viSource.name = "source";
+        viSource.name = prefix + "source";
         viSource.actor.repCount = 1;
       }
       bool sourceConnected = false;
@@ -880,12 +886,12 @@ int main(int argc, char** argv) {
         // Skip non source vertices
         if (in_degree(*vip.first, g) == 0) {
           if (sourceActorRequested)
-            addChannel(vdSource, *vip.first, g);
+            addChannel(vdSource, *vip.first, g, prefix);
           if (inputDataRequested) {
             VertexDescriptor vdInput = add_vertex(g);
             VertexInfo &viInput = g[vdInput];
             viInput.type = VertexInfo::REGISTER;
-            viInput.name = "regIn";
+            viInput.name = prefix + "regIn";
             EdgeDescriptor edInput = add_edge(vdInput, *vip.first, g).first;
             EdgeInfo &eiInput = g[edInput];
             eiInput.name   = "in";
@@ -902,7 +908,7 @@ int main(int argc, char** argv) {
             continue; // Skip added source vertex
           if (g[vdSource].type != VertexInfo::ACTOR)
             continue; // Skip channels
-          addChannel(vdSource, *vip.first, g);
+          addChannel(vdSource, *vip.first, g, prefix);
           break;
         }
     }
