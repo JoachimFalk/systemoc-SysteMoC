@@ -87,8 +87,13 @@ void  saveSNG(Graph const &g, std::ostream &out) {
           std::string            name = g[*vip.first].name;
           std::string::size_type pos  = name.rfind('.');
           if (pos != std::string::npos)
-            for (std::string::size_type i = 0; i <= pos; ++i)
-              actorType += std::toupper(name[i]);
+            for (std::string::size_type i = 0; i <= pos; ++i) {
+              if (name[i] == '.')
+                actorType += "::";
+              else
+                actorType += std::toupper(name[i]);
+            }
+
           actorType += "A";
           actorType = ctx.actorTypeUniquePool(actorType);
           ctx.actorTypes << "  <actorType name=" << XQ(actorType) << ">\n";
