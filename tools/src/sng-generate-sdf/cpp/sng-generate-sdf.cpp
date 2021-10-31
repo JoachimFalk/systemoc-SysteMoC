@@ -473,6 +473,38 @@ Graph::vertex_descriptor addChannel(
   return addChannel(vdSrcActor, vdSnkActors, g, prefix);
 }
 
+Graph::vertex_descriptor addInput(
+    Graph::vertex_descriptor vdSnkActor
+  , Graph &g
+  , std::string const &prefix)
+{
+  VertexDescriptor vdInput = add_vertex(g);
+  VertexInfo &viInput = g[vdInput];
+  viInput.type = VertexInfo::REGISTER;
+  viInput.name = prefix + "regIn";
+  EdgeDescriptor edInput = add_edge(vdInput, vdSnkActor, g).first;
+  EdgeInfo &eiInput = g[edInput];
+  eiInput.name   = "in";
+  eiInput.tokens = 1;
+  return vdInput;
+}
+
+Graph::vertex_descriptor addOutput(
+    Graph::vertex_descriptor vdSrcActor
+  , Graph &g
+  , std::string const &prefix)
+{
+  VertexDescriptor vdOutput = add_vertex(g);
+  VertexInfo &viOutput = g[vdOutput];
+  viOutput.type = VertexInfo::REGISTER;
+  viOutput.name = prefix + "regOut";
+  EdgeDescriptor edOutput = add_edge(vdSrcActor, vdOutput, g).first;
+  EdgeInfo &eiOutput = g[edOutput];
+  eiOutput.name   = "out";
+  eiOutput.tokens = 1;
+  return vdOutput;
+}
+
 void checkGraphDeadlockFree(Graph &g) {
 #ifndef NDEBUG
   VertexNameMap     vertexNameMap  = get(&VertexInfo::name, g);
@@ -869,6 +901,8 @@ int main(int argc, char** argv) {
       bool inputDataRequested = vm.count("graph-input-communication");
       bool outputDataRequested = vm.count("graph-output-communication");
 
+      VertexMap actorMap;
+
       // Then, we add a source actor if requested.
       if (sourceActorRequested) {
         vdSource = add_vertex(g);
@@ -877,40 +911,46 @@ int main(int argc, char** argv) {
         viSource.name = prefix + "source";
         viSource.actor.repCount = 1;
       }
-      bool sourceConnected = false;
+      bool inputsConnected = false;
+      bool outputsConnected = false;
       for (VertexIteratorPair vip = vertices(g);
            vip.first != vip.second;
            ++vip.first) {
         if (vdSource == *vip.first)
           continue; // Skip added source vertex
-        // Skip non source vertices
-        if (in_degree(*vip.first, g) == 0) {
-          if (sourceActorRequested)
-            addChannel(vdSource, *vip.first, g, prefix);
-          if (inputDataRequested) {
-            VertexDescriptor vdInput = add_vertex(g);
-            VertexInfo &viInput = g[vdInput];
-            viInput.type = VertexInfo::REGISTER;
-            viInput.name = prefix + "regIn";
-            EdgeDescriptor edInput = add_edge(vdInput, *vip.first, g).first;
-            EdgeInfo &eiInput = g[edInput];
-            eiInput.name   = "in";
-            eiInput.tokens = 1;
-          }
-          sourceConnected = true;
-        }
+        if (g[*vip.first].type != VertexInfo::ACTOR)
+          continue; // Skip all channels
+
+        actorMap.push_back(*vip.first);
+
+        bool isSourceActor = !in_degree(*vip.first, g);
+        bool isSinkActor   = !out_degree(*vip.first, g);
+        
+        inputsConnected  |= isSourceActor;
+        outputsConnected |= isSinkActor;
+        
+        if (isSourceActor && sourceActorRequested)
+          addChannel(vdSource, *vip.first, g, prefix);        
+        if (isSourceActor && inputDataRequested)
+          addInput(*vip.first, g, prefix);
+        
+        if (isSinkActor && outputDataRequested)
+          addOutput(*vip.first, g, prefix);
       }
-      if (!sourceConnected)
-        for (VertexIteratorPair vip = vertices(g);
-             vip.first != vip.second;
-             ++vip.first) {
-          if (vdSource == *vip.first)
-            continue; // Skip added source vertex
-          if (g[vdSource].type != VertexInfo::ACTOR)
-            continue; // Skip channels
-          addChannel(vdSource, *vip.first, g, prefix);
-          break;
-        }
+      if (!inputsConnected && (sourceActorRequested || inputDataRequested)) {
+        boost::random::uniform_int_distribution<> dist(0, actorMap.size()-1);
+        VertexDescriptor vdActor = actorMap[dist(randomSourceTopology)];
+        if (sourceActorRequested)
+          addChannel(vdSource, vdActor, g, prefix);
+        if (inputDataRequested)
+          addInput(vdActor, g, prefix);
+      }
+      if (!outputsConnected && outputDataRequested) {
+        boost::random::uniform_int_distribution<> dist(0, actorMap.size()-1);
+        VertexDescriptor vdActor = actorMap[dist(randomSourceTopology)];
+        if (outputDataRequested)
+          addOutput(vdActor, g, prefix);
+      }
     }
 
     // Next, we insert sufficient initial tokens to prevent deadlock
@@ -1051,6 +1091,11 @@ int main(int argc, char** argv) {
         RandomGenerator<size_t> graphInputComm = vm["graph-input-communication"].as<RandomGenerator<size_t> >();
         inputComm = graphInputComm();
       }
+      size_t outputComm = 0;
+      if (vm.count("graph-output-communication")) {
+        RandomGenerator<size_t> graphOutputComm = vm["graph-output-communication"].as<RandomGenerator<size_t> >();
+        outputComm = graphOutputComm();
+      }
       double internalCommScalingSum = 0;
       double inputCommScalingSum = 0;
       double outputCommScalingSum = 0;
@@ -1107,10 +1152,18 @@ int main(int argc, char** argv) {
               size_t tokensTransmission =
                   get(edgeTokensMap, edCons)
                 * get(actorRepCountMap, vdCons);
-              std::cout << "nf: " << normFactor << " ic: " << inputComm << " tt: " << tokensTransmission << std::endl;
+//            std::cout << "nf: " << normFactor << " ic: " << inputComm << " tt: " << tokensTransmission << std::endl;
               put(channelTSizeMap, *vip.first, (normFactor*inputComm)/tokensTransmission);
             } else {
               assert(out_degree(*vip.first, g) == 0);
+              double normFactor = chanComScalingMap[*vip.first]/outputCommScalingSum;
+              Graph::edge_descriptor   edProd = *in_edges(*vip.first, g).first;
+              Graph::vertex_descriptor vdProd = source(edProd, g);
+              size_t tokensTransmission =
+                  get(edgeTokensMap, edProd)
+                * get(actorRepCountMap, vdProd);
+//            std::cout << "nf: " << normFactor << " oc: " << outputComm << " tt: " << tokensTransmission << std::endl;
+              put(channelTSizeMap, *vip.first, (normFactor*outputComm)/tokensTransmission);
             }
             break;
           }
