@@ -593,8 +593,12 @@ int main(int argc, char** argv) {
     ("extra-delay-factor-inter-cluster", po::value<RandomGenerator<double> >()
         ->default_value(RandomUniform<double>(0.3,3.5), "uniform:0.3-3.5"),
         "add factor * cons(edge) extra initial tokens to the edge")
-    ("graph-total-communication", po::value<RandomGenerator<size_t> >(),
-         "random generator specifying the amount of communication in bytes during one graph iteration")
+    ("graph-internal-communication", po::value<RandomGenerator<size_t> >(),
+         "random generator specifying the amount of internal communication in bytes during one graph iteration")
+    ("graph-input-communication", po::value<RandomGenerator<size_t> >(),
+        "random generator specifying the amount of input data in bytes during one graph iteration")
+    ("graph-output-communication", po::value<RandomGenerator<size_t> >(),
+        "random generator specifying the amount of output data in bytes during one graph iteration")
     ("graph-communication-scaling", po::value<RandomGenerator<double> >()
         ->default_value(RandomConst<double>(1), "1"),
          "random generator specifying the scaling of the token size for each fifo in the graph")
@@ -853,23 +857,42 @@ int main(int argc, char** argv) {
         }
       }
     }
-    // Then, we add a source actor if requested.
-    if (!vm.count("no-source-actor")) {
-      VertexDescriptor vdSource = add_vertex(g);
-      VertexInfo &viSource = g[vdSource];
-      viSource.type = VertexInfo::ACTOR;
-      viSource.name = "source";
-      viSource.actor.repCount = 1;
+    {
+      bool sourceActorRequested = !vm.count("no-source-actor");
+      VertexDescriptor vdSource;
+      bool inputDataRequested = vm.count("graph-input-communication");
+      bool outputDataRequested = vm.count("graph-output-communication");
+
+      // Then, we add a source actor if requested.
+      if (sourceActorRequested) {
+        vdSource = add_vertex(g);
+        VertexInfo &viSource = g[vdSource];
+        viSource.type = VertexInfo::ACTOR;
+        viSource.name = "source";
+        viSource.actor.repCount = 1;
+      }
       bool sourceConnected = false;
       for (VertexIteratorPair vip = vertices(g);
            vip.first != vip.second;
            ++vip.first) {
-        if (in_degree(*vip.first, g) > 0)
-          continue; // Skip non source vertices
         if (vdSource == *vip.first)
           continue; // Skip added source vertex
-        addChannel(vdSource, *vip.first, g);
-        sourceConnected = true;
+        // Skip non source vertices
+        if (in_degree(*vip.first, g) == 0) {
+          if (sourceActorRequested)
+            addChannel(vdSource, *vip.first, g);
+          if (inputDataRequested) {
+            VertexDescriptor vdInput = add_vertex(g);
+            VertexInfo &viInput = g[vdInput];
+            viInput.type = VertexInfo::REGISTER;
+            viInput.name = "regIn";
+            EdgeDescriptor edInput = add_edge(vdInput, *vip.first, g).first;
+            EdgeInfo &eiInput = g[edInput];
+            eiInput.name   = "in";
+            eiInput.tokens = 1;
+          }
+          sourceConnected = true;
+        }
       }
       if (!sourceConnected)
         for (VertexIteratorPair vip = vertices(g);
@@ -1005,45 +1028,91 @@ int main(int argc, char** argv) {
     }
 
     // Set the communication size for the graph
-    if (vm.count("graph-total-communication")) {
-      typedef std::vector<double> FIFOComScalingStorage;
-      FIFOComScalingStorage fifoComScalingStorage(num_vertices(g));
-      boost::container_property_map<Graph, VertexDescriptor, FIFOComScalingStorage>
-        fifoComScalingMap(fifoComScalingStorage, g);
+    {
+      typedef std::vector<double> ChanComScalingStorage;
+      ChanComScalingStorage chanComScalingStorage(num_vertices(g));
+      boost::container_property_map<Graph, VertexDescriptor, ChanComScalingStorage>
+        chanComScalingMap(chanComScalingStorage, g);
 
-      RandomGenerator<size_t> graphTotalComm = vm["graph-total-communication"].as<RandomGenerator<size_t> >();
       RandomGenerator<double> graphCommScaling = vm["graph-communication-scaling"].as<RandomGenerator<double> >();
-      size_t totalCommunication = graphTotalComm();
-      double totalCommScaling = 0;
+      size_t internalComm = 0;
+      if (vm.count("graph-internal-communication")) {
+        RandomGenerator<size_t> graphInternalComm = vm["graph-internal-communication"].as<RandomGenerator<size_t> >();
+        internalComm = graphInternalComm();
+      }
+      size_t inputComm = 0;
+      if (vm.count("graph-input-communication")) {
+        RandomGenerator<size_t> graphInputComm = vm["graph-input-communication"].as<RandomGenerator<size_t> >();
+        inputComm = graphInputComm();
+      }
+      double internalCommScalingSum = 0;
+      double inputCommScalingSum = 0;
+      double outputCommScalingSum = 0;
       for (std::pair<
                Graph::vertex_iterator
              , Graph::vertex_iterator> vip = vertices(g);
            vip.first != vip.second;
-           ++vip.first) {
-        if (g[*vip.first].type != VertexInfo::FIFO)
-          continue;
-        double commScaling = std::max(0.0, graphCommScaling());
-        fifoComScalingMap[*vip.first] = commScaling;
-        totalCommScaling += commScaling * (1 + out_degree(*vip.first, g));
-      }
+           ++vip.first)
+        switch (g[*vip.first].type) {
+          case VertexInfo::FIFO: {
+            double commScaling = std::max(0.0, graphCommScaling());
+            chanComScalingMap[*vip.first] = commScaling;
+            internalCommScalingSum += commScaling * (1 + out_degree(*vip.first, g));
+            break;
+          }
+          case VertexInfo::REGISTER: {
+            double commScaling = std::max(0.0, graphCommScaling());
+            chanComScalingMap[*vip.first] = commScaling;
+            if (in_degree(*vip.first, g) == 0)
+              inputCommScalingSum += commScaling * out_degree(*vip.first, g);
+            else {
+              assert(out_degree(*vip.first, g) == 0);
+              outputCommScalingSum += commScaling;
+            }
+            break;
+          }
+          default:
+            // Ignore actors
+            assert(g[*vip.first].type == VertexInfo::ACTOR);
+            break;
+        }
       for (std::pair<
                Graph::vertex_iterator
              , Graph::vertex_iterator> vip = vertices(g);
            vip.first != vip.second;
-           ++vip.first) {
-        if (g[*vip.first].type != VertexInfo::FIFO)
-          continue;
-        double normFactor = fifoComScalingMap[*vip.first]/totalCommScaling;
-        assert(in_degree(*vip.first, g) == 1);
-        Graph::edge_descriptor   edProd = *in_edges(*vip.first, g).first;
-        Graph::vertex_descriptor vdProd = source(edProd, g);
-        size_t tokensTransmission =
-            get(edgeTokensMap, edProd)
-          * get(actorRepCountMap, vdProd);
-//      std::cout << "nf: " << normFactor << " tc: " << totalCommunication << " tt: " << tokensTransmission
-//          << " => " << (normFactor*totalCommunication)/tokensTransmission << std::endl;
-        put(channelTSizeMap, *vip.first, (normFactor*totalCommunication)/tokensTransmission);
-      }
+           ++vip.first)
+        switch (g[*vip.first].type) {
+          case VertexInfo::FIFO: {
+            double normFactor = chanComScalingMap[*vip.first]/internalCommScalingSum;
+            assert(in_degree(*vip.first, g) == 1);
+            Graph::edge_descriptor   edProd = *in_edges(*vip.first, g).first;
+            Graph::vertex_descriptor vdProd = source(edProd, g);
+            size_t tokensTransmission =
+                get(edgeTokensMap, edProd)
+              * get(actorRepCountMap, vdProd);
+            put(channelTSizeMap, *vip.first, (normFactor*internalComm)/tokensTransmission);
+            break;
+          }
+          case VertexInfo::REGISTER: {
+            if (in_degree(*vip.first, g) == 0) {
+              double normFactor = chanComScalingMap[*vip.first]/inputCommScalingSum;
+              Graph::edge_descriptor   edCons = *out_edges(*vip.first, g).first;
+              Graph::vertex_descriptor vdCons = target(edCons, g);
+              size_t tokensTransmission =
+                  get(edgeTokensMap, edCons)
+                * get(actorRepCountMap, vdCons);
+              std::cout << "nf: " << normFactor << " ic: " << inputComm << " tt: " << tokensTransmission << std::endl;
+              put(channelTSizeMap, *vip.first, (normFactor*inputComm)/tokensTransmission);
+            } else {
+              assert(out_degree(*vip.first, g) == 0);
+            }
+            break;
+          }
+          default:
+            // Ignore actors
+            assert(g[*vip.first].type == VertexInfo::ACTOR);
+            break;
+        }
     }
 
     if (vm.count("dot")) {
