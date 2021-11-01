@@ -153,20 +153,35 @@ using CoSupport::Random::randomSource;
 // Mersenne twister pseudo randomness source
 boost::random::mt19937 randomSourceTopology;
 
+using namespace smoc::SNG;
+
 struct ClusterOptions {
   size_t                  count = 0;
+  size_t                  weight;
   std::string             type;
   RandomGenerator<size_t> repCount;
+  RandomGenerator<size_t> inputCount;
+  RandomGenerator<size_t> outputCount;
   RandomGenerator<size_t> actorCount;
   RandomGenerator<double> actorOutDegree;
   RandomGenerator<double> actorMulticastDegree;
+  RandomGenerator<double> outputOutDegree;
+  RandomGenerator<double> outputMulticastDegree;
 };
 
-typedef std::map<size_t, ClusterOptions> ClusterOptionsMap;
-
-using namespace smoc::SNG;
-
 typedef std::vector<VertexDescriptor> VertexMap;
+
+struct ClusterInformation {
+  ClusterInformation(ClusterOptions &clusterOptions)
+    : clusterOptions(clusterOptions) {}
+
+  ClusterOptions &clusterOptions;
+
+  VertexMap vdInputs;
+  VertexMap vdOutputs;
+  VertexMap vdActors;
+};
+
 typedef std::vector<VertexMap>        ClusterMap;
 
 Graph::vertex_descriptor addChannel(
@@ -266,32 +281,39 @@ Graph::vertex_descriptor addOutput(
   return vdOutput;
 }
 
-size_t generateCluster(
+ClusterInformation generateCluster(
     Graph             &g
   , std::string const &prefix
   , ClusterOptions    &clusterOptions
-  , ClusterMap        &clusterMap
   , size_t            maxActors
   , bool              createDAG
   , bool              allowSelfEdges)
 {
+  ClusterInformation clusterInformation(clusterOptions);
+
   clusterOptions.count++;
 
-  size_t clusterSize = std::min(clusterOptions.actorCount(), maxActors);
+  size_t clusterSize    = std::min(clusterOptions.actorCount(), maxActors);
+  size_t clusterInputs  = std::min(clusterOptions.inputCount(), clusterSize*3/2);
+  size_t clusterOutputs = std::min(clusterOptions.outputCount(), clusterSize*3/2);
   assert(clusterSize >= 1);
-  clusterMap.push_back(VertexMap());
-  VertexMap &actorMap = clusterMap.back();
-  actorMap.resize(clusterSize);
+  clusterInformation.vdActors.resize(clusterSize);
 
   std::priority_queue<size_t> actorOutDegrees;
   std::priority_queue<size_t> actorMulticastDegrees;
 
   for (size_t j = 0; j < clusterSize; ++j) {
-    VertexDescriptor vd = actorMap[j] = add_vertex(g);
+    VertexDescriptor vd = clusterInformation.vdActors[j] = add_vertex(g);
     VertexInfo &vi = g[vd];
     vi.type = VertexInfo::ACTOR;
     vi.name = Concat(prefix)(clusterOptions.type)(clusterOptions.count)(".a")(j+1);
     vi.actor.repCount = clusterOptions.repCount();
+    if (j < clusterInputs)
+      clusterInformation.vdInputs.push_back(vd);
+    if (j >= clusterSize - clusterOutputs) {
+      clusterInformation.vdOutputs.push_back(vd);
+      continue;
+    }
     {
       double actorOutDegree = clusterOptions.actorOutDegree();
       if (actorOutDegree > 0)
@@ -305,7 +327,7 @@ size_t generateCluster(
   }
 
   for (size_t j = 0; j < clusterSize; ++j) {
-    VertexDescriptor vdSrc = actorMap[j];
+    VertexDescriptor vdSrc = clusterInformation.vdActors[j];
 
     int actorOutDegree = actorOutDegrees.empty()
         ? 0 : actorOutDegrees.top();
@@ -320,10 +342,10 @@ size_t generateCluster(
 //          << ", actorMulticastDegree: " << actorMulticastDegree << std::endl;
     std::vector<VertexDescriptor> vdSnks;
     if (createDAG) {
-      for (size_t k = j+1; k < clusterSize; ++k)
-        vdSnks.push_back(actorMap[k]);
+      for (size_t k = std::max(j+1, clusterInputs); k < clusterSize; ++k)
+        vdSnks.push_back(clusterInformation.vdActors[k]);
     } else
-      for (VertexDescriptor vdSnk : actorMap)
+      for (VertexDescriptor vdSnk : clusterInformation.vdActors)
         if (allowSelfEdges || vdSrc != vdSnk)
           vdSnks.push_back(vdSnk);
     while (!vdSnks.empty() && actorOutDegree > 0) {
@@ -340,7 +362,7 @@ size_t generateCluster(
     if (actorOutDegree)
       std::cerr << "Warning: could not create " << actorOutDegree << " output edges for " << g[vdSrc].name << std::endl;
   }
-  return clusterSize;
+  return clusterInformation;
 }
 
 void checkGraphDeadlockFree(Graph &g) {
@@ -728,22 +750,21 @@ int main(int argc, char** argv) {
       ("sng" , po::value<std::string>(), "output simple network graph xml file")
       ("dot" , po::value<std::string>(), "output network graph in dot format")
       ("prefix", po::value<std::string>(), "prefix for actor and channel names")
-      ("nr-actors", po::value<RandomGenerator<size_t> >()
+      ("actor-count", po::value<RandomGenerator<size_t> >()
           ->default_value(RandomConst<size_t>(6), "6"),
           "random generator specifying the number of actors to generate")
       ("self-edges", po::value<bool>()->default_value(false, "no")->implicit_value(true),
           "allow generation of self edges")
       ("create-dag", po::value<bool>()->default_value(false, "no")->implicit_value(true),
           "create a directed acyclic graph")
-      ("avg-cluster-degree", po::value<RandomGenerator<double> >()
-          ->default_value(RandomConst<double>(2.1), "2.1"),
-          "random generator specifying the average degree for inter cluster edges")
       ("extra-delay-factor", po::value<RandomGenerator<double> >()
           ->default_value(RandomConst<double>(0.0), "0"),
           "add factor * cons(edge) extra initial tokens to the edge")
       ("extra-delay-factor-inter-cluster", po::value<RandomGenerator<double> >()
           ->default_value(RandomUniform<double>(0.3,3.5), "uniform:0.3-3.5"),
           "add factor * cons(edge) extra initial tokens to the edge")
+      ("random-cluster-selection", po::value<bool>()->default_value(false, "no")->implicit_value(true),
+          "randomly selects a cluster type for generation")
       ("graph-internal-communication", po::value<RandomGenerator<size_t> >(),
            "random generator specifying the amount of internal communication in bytes during one graph iteration")
       ("graph-input-communication", po::value<RandomGenerator<size_t> >(),
@@ -764,12 +785,24 @@ int main(int argc, char** argv) {
       ("cluster-actor-count", (new ClusterOptionParser<RandomGenerator<size_t> >(ncp))
           ->default_value(RandomUniform<size_t>(5,15), "uniform:5-15"),
           "random generator specifying the number of actors in this cluster")
+      ("cluster-input-count", (new ClusterOptionParser<RandomGenerator<size_t> >(ncp))
+          ->default_value(RandomUniform<size_t>(5,15), "uniform:1-3"),
+          "random generator specifying the number of input actors in this cluster")
+      ("cluster-output-count", (new ClusterOptionParser<RandomGenerator<size_t> >(ncp))
+          ->default_value(RandomUniform<size_t>(5,15), "uniform:1-3"),
+          "random generator specifying the number of output actors in this cluster")
       ("cluster-actor-out-degree", (new ClusterOptionParser<RandomGenerator<double> >(ncp))
           ->default_value(RandomNormal<double>(2, 1), "normal:m2,s1"),
           "random generator specifying output degree of the actors in this cluster")
       ("cluster-actor-multicast-degree", (new ClusterOptionParser<RandomGenerator<double> >(ncp))
           ->default_value(RandomConst<double>(1), "1"),
-          "random generator specifying the average degree of the actors in this cluster")
+          "random generator specifying multicast degree of the actors in this cluster")
+      ("cluster-output-out-degree", (new ClusterOptionParser<RandomGenerator<double> >(ncp))
+          ->default_value(RandomNormal<double>(2, 1), "normal:m8,s4"),
+          "random generator specifying the output degree of the output actors in this cluster")
+      ("cluster-output-multicast-degree", (new ClusterOptionParser<RandomGenerator<double> >(ncp))
+          ->default_value(RandomConst<double>(1), "1"),
+          "random generator specifying the multicast degree of the output actors in this cluster")
       ;
   }
   
@@ -799,11 +832,11 @@ int main(int argc, char** argv) {
     if (!vm.count("ngx") && !vm.count("dot")) {
       throw std::runtime_error("no output file specified for generated network graph!");
     }
-    if (!vm.count("nr-actors")) {
+    if (!vm.count("actor-count")) {
       throw std::runtime_error("number of actors in the network graph not specified!");
     }
     if (vm["cluster-weight"].as<std::map<size_t, size_t> >().empty()) {
-      throw std::runtime_error("no clusters given, e.g., use --new-cluster --cluster-nr-actors=3 to specify a cluster with 3 actors");
+      throw std::runtime_error("no clusters given, e.g., use --new-cluster --cluster-actor-count=3 to specify a cluster with 3 actors");
     }
     
 #ifdef SGXUTILS_DEBUG_OUTPUT
@@ -851,70 +884,173 @@ int main(int argc, char** argv) {
 
     EdgeTokensMap   edgeTokensMap  = get(&EdgeInfo::tokens, g);
 
-    std::set<VertexDescriptor> channelsBetweenClusters;
+    typedef std::map<size_t, ClusterOptions> ClusterOptionsMap;
 
     ClusterOptionsMap clusterOptionsMap;
     size_t            clusterEndWeight = 0;
     {
-      std::map<size_t, std::string> const       &clusterType =
+      std::map<size_t, std::string> const              &type =
           vm["new-cluster"].as<std::map<size_t, std::string> >();
-      std::map<size_t, size_t> const            &clusterWeight =
+      std::map<size_t, size_t> const                   &weight =
           vm["cluster-weight"].as<std::map<size_t, size_t> >();
-      std::map<size_t, RandomGenerator<size_t> > const &clusterRepCount =
+      std::map<size_t, RandomGenerator<size_t> > const &repCount =
           vm["cluster-rep-count"].as<std::map<size_t, RandomGenerator<size_t> > >();
-      std::map<size_t, RandomGenerator<size_t> > const &clusterActorCount =
+      std::map<size_t, RandomGenerator<size_t> > const &inputCount =
+          vm["cluster-input-count"].as<std::map<size_t, RandomGenerator<size_t> > >();
+      std::map<size_t, RandomGenerator<size_t> > const &outputCount =
+          vm["cluster-output-count"].as<std::map<size_t, RandomGenerator<size_t> > >();
+      std::map<size_t, RandomGenerator<size_t> > const &actorCount =
           vm["cluster-actor-count"].as<std::map<size_t, RandomGenerator<size_t> > >();
-      std::map<size_t, RandomGenerator<double> > const &clusterActorOutDegree =
+      std::map<size_t, RandomGenerator<double> > const &actorOutDegree =
           vm["cluster-actor-out-degree"].as<std::map<size_t, RandomGenerator<double> > >();
-      std::map<size_t, RandomGenerator<double> > const &clusterActorMulticastDegree =
+      std::map<size_t, RandomGenerator<double> > const &actorMulticastDegree =
           vm["cluster-actor-multicast-degree"].as<std::map<size_t, RandomGenerator<double> > >();
-      assert(clusterType.size() == clusterWeight.size());
-      assert(clusterType.size() == clusterRepCount.size());
-      assert(clusterType.size() == clusterActorCount.size());
-      assert(clusterType.size() == clusterActorOutDegree.size());
-      assert(clusterType.size() == clusterActorMulticastDegree.size());
+      std::map<size_t, RandomGenerator<double> > const &outputOutDegree =
+          vm["cluster-output-out-degree"].as<std::map<size_t, RandomGenerator<double> > >();
+      std::map<size_t, RandomGenerator<double> > const &outputMulticastDegree =
+          vm["cluster-output-multicast-degree"].as<std::map<size_t, RandomGenerator<double> > >();
+      assert(type.size() == weight.size());
+      assert(type.size() == repCount.size());
+      assert(type.size() == actorCount.size());
+      assert(type.size() == actorOutDegree.size());
+      assert(type.size() == actorMulticastDegree.size());
+      assert(type.size() == outputOutDegree.size());
+      assert(type.size() == outputMulticastDegree.size());
 
-      for (size_t i = 0; i < clusterType.size(); ++i) {
-        clusterEndWeight += clusterWeight.find(i)->second;
-        ClusterOptions &clusterOptions      = clusterOptionsMap[clusterEndWeight-1];
-        clusterOptions.type                 = clusterType.find(i)->second;
-        clusterOptions.repCount             = clusterRepCount.find(i)->second;
-        clusterOptions.actorCount           = clusterActorCount.find(i)->second;
-        clusterOptions.actorOutDegree       = clusterActorOutDegree.find(i)->second;
-        clusterOptions.actorMulticastDegree = clusterActorMulticastDegree.find(i)->second;
+      for (size_t i = 0; i < type.size(); ++i) {
+        clusterEndWeight += weight.find(i)->second;
+        ClusterOptions &clusterOptions        = clusterOptionsMap[clusterEndWeight-1];
+        clusterOptions.type                   = type.find(i)->second;
+        clusterOptions.weight                 = weight.find(i)->second;
+        clusterOptions.repCount               = repCount.find(i)->second;
+        clusterOptions.repCount.setRandomSource(&randomSourceTopology);
+        clusterOptions.inputCount             = inputCount.find(i)->second;
+        clusterOptions.inputCount.setRandomSource(&randomSourceTopology);
+        clusterOptions.outputCount            = outputCount.find(i)->second;
+        clusterOptions.outputCount.setRandomSource(&randomSourceTopology);
+        clusterOptions.outputOutDegree        = outputOutDegree.find(i)->second;
+        clusterOptions.outputOutDegree.setRandomSource(&randomSourceTopology);
+        clusterOptions.outputMulticastDegree  = outputMulticastDegree.find(i)->second;
+        clusterOptions.actorCount             = actorCount.find(i)->second;
+        clusterOptions.actorCount.setRandomSource(&randomSourceTopology);
+        clusterOptions.actorOutDegree         = actorOutDegree.find(i)->second;
         clusterOptions.actorOutDegree.setRandomSource(&randomSourceTopology);
+        clusterOptions.actorMulticastDegree   = actorMulticastDegree.find(i)->second;
       }
     }
-    boost::random::uniform_int_distribution<> distClusterTypeSelection(0, clusterEndWeight-1);
    
-    typedef std::vector<VertexDescriptor> VertexMap;
-    typedef std::vector<VertexMap>        ClusterMap;
+    typedef std::vector<ClusterInformation> ClusterMap;
 
     ClusterMap clusterMap;
     
-    {
-      size_t nrActors = vm["nr-actors"].as<RandomGenerator<size_t> >()();
+    if (vm["random-cluster-selection"].as<bool>()) {
+      boost::random::uniform_int_distribution<> distClusterTypeSelection(0, clusterEndWeight-1);
 
-      while (nrActors > 0) {
+      size_t actorCount = vm["actor-count"].as<RandomGenerator<size_t> >()();
+
+      while (actorCount > 0) {
         ClusterOptions &clusterOptions =
             clusterOptionsMap.lower_bound(static_cast<size_t>(distClusterTypeSelection(randomSourceTopology)))->second;
-        nrActors -= generateCluster(g, prefix, clusterOptions, clusterMap, nrActors, createDAG, allowSelfEdges);
+        clusterMap.push_back(generateCluster(
+            g, prefix, clusterOptions, actorCount, createDAG, allowSelfEdges));
+        ClusterInformation &ci = clusterMap.back();
+        actorCount -= ci.vdActors.size();
+      }
+    } else {
+      size_t actorCount = vm["actor-count"].as<RandomGenerator<size_t> >()();
+
+      for (ClusterOptionsMap::iterator iter = clusterOptionsMap.begin();
+           iter != clusterOptionsMap.end();
+           ++iter) {
+        ClusterOptions &clusterOptions = iter->second;
+        while (clusterOptions.count < clusterOptions.weight && actorCount > 0) {
+          clusterMap.push_back(generateCluster(
+              g, prefix, clusterOptions, actorCount, createDAG, allowSelfEdges));
+          ClusterInformation &ci = clusterMap.back();
+          actorCount -= ci.vdActors.size();
+        }
       }
     }
+
+    std::set<VertexDescriptor> channelsBetweenClusters;
+
     if (clusterMap.size() > 1) {
-      boost::random::uniform_int_distribution<> dist(0, clusterMap.size()-1);
-      size_t nrChannels = clusterMap.size()*vm["avg-cluster-degree"].as<RandomGenerator<double> >()()/2;
-      for (size_t i = 0; i < nrChannels; ++i) {
-        size_t srcCluster, snkCluster;
-        srcCluster = dist(randomSourceTopology);
-        do { snkCluster = dist(randomSourceTopology); } while (snkCluster == srcCluster);
-        if (createDAG && snkCluster < srcCluster)
-          std::swap(srcCluster, snkCluster);
-        VertexMap const &vertexMapSrc = clusterMap[srcCluster];
-        VertexMap const &vertexMapSnk = clusterMap[snkCluster];
-        channelsBetweenClusters.insert(addChannel(g, prefix,
-          vertexMapSrc[boost::random::uniform_int_distribution<>(0, vertexMapSrc.size()-1)(randomSourceTopology)],
-          vertexMapSnk[boost::random::uniform_int_distribution<>(0, vertexMapSnk.size()-1)(randomSourceTopology)]));
+      for (size_t srcCluster = 0; srcCluster < clusterMap.size(); ++srcCluster) {
+        ClusterInformation &ci = clusterMap[srcCluster];
+        ClusterOptions     &clusterOptions = ci.clusterOptions;
+
+        std::priority_queue<size_t> outputOutDegrees;
+        std::priority_queue<size_t> outputMulticastDegrees;
+
+        for (size_t i = ci.vdOutputs.size(); i > 0; --i) {
+          {
+            double outputOutDegree = clusterOptions.outputOutDegree();
+            if (outputOutDegree > 0)
+              outputOutDegrees.push(outputOutDegree);
+          }
+          {
+            double outputMulticastDegree = clusterOptions.outputMulticastDegree();
+            if (outputMulticastDegree > 1)
+              outputMulticastDegrees.push(outputMulticastDegree);
+          }
+        }
+        for (VertexDescriptor const vdSrc : ci.vdOutputs) {
+          size_t outputOutDegree = outputOutDegrees.empty()
+              ? 0 : outputOutDegrees.top();
+          if (!outputOutDegrees.empty())
+            outputOutDegrees.pop();
+          int outputMulticastDegree = outputMulticastDegrees.empty()
+              ? 1 : outputMulticastDegrees.top();
+          if (!outputMulticastDegrees.empty())
+            outputMulticastDegrees.pop();
+//        std::cout
+//            << "outputOutDegree: " << outputOutDegree
+//            << ", outputMulticastDegree: " << outputMulticastDegree << std::endl;
+          VertexMap vdSnks;
+          for (size_t snkCluster = (createDAG ? srcCluster + 1 : 0);
+               snkCluster < clusterMap.size();
+               ++snkCluster) {
+            if (srcCluster == snkCluster)
+              continue;
+            vdSnks.insert(vdSnks.end()
+              , clusterMap[snkCluster].vdInputs.begin()
+              , clusterMap[snkCluster].vdInputs.end());
+          }
+          while (vdSnks.size() < outputOutDegree) {
+            size_t oldSnks = vdSnks.size();
+            for (size_t snkCluster = (createDAG ? srcCluster + 1 : 0);
+                 snkCluster < clusterMap.size();
+                 ++snkCluster) {
+              if (srcCluster == snkCluster)
+                continue;
+              if (vdSnks.size() >= outputOutDegree)
+                break;
+              VertexMap vdCandidates;
+              for (VertexDescriptor vdCandidate : clusterMap[snkCluster].vdActors) {
+                if(std::find(vdSnks.begin(), vdSnks.end(), vdCandidate) == vdSnks.end())
+                  vdCandidates.push_back(vdCandidate);
+              }
+              if (!vdCandidates.empty())
+                vdSnks.push_back(vdCandidates
+                    [boost::random::uniform_int_distribution<>(0, vdCandidates.size()-1)(randomSourceTopology)]);
+            }
+            if (oldSnks == vdSnks.size())
+              break;
+          }
+          while (!vdSnks.empty() && outputOutDegree > 0) {
+            std::vector<VertexDescriptor> vdMulticast;
+            do {
+              size_t snkIndex = boost::random::uniform_int_distribution<>(0, vdSnks.size()-1)(randomSourceTopology);
+              vdMulticast.push_back(vdSnks[snkIndex]);
+              vdSnks.erase(vdSnks.begin() + snkIndex);
+              --outputMulticastDegree;
+              --outputOutDegree;
+            } while (!vdSnks.empty() && outputMulticastDegree > 0 && outputOutDegree > 0);
+            addChannel(g, prefix, vdSrc, vdMulticast);
+          }
+          if (outputOutDegree)
+            std::cerr << "Warning: could not create " << outputOutDegree << " output edges for output actor " << g[vdSrc].name << std::endl;
+        }
       }
     }
     // First we ensure that the graph is connected
