@@ -275,6 +275,8 @@ size_t generateCluster(
   , bool              createDAG
   , bool              allowSelfEdges)
 {
+  clusterOptions.count++;
+
   size_t clusterSize = std::min(clusterOptions.actorCount(), maxActors);
   assert(clusterSize >= 1);
   clusterMap.push_back(VertexMap());
@@ -288,7 +290,7 @@ size_t generateCluster(
     VertexDescriptor vd = actorMap[j] = add_vertex(g);
     VertexInfo &vi = g[vd];
     vi.type = VertexInfo::ACTOR;
-    vi.name = Concat(prefix)(clusterOptions.type)(++clusterOptions.count)(".a")(j+1);
+    vi.name = Concat(prefix)(clusterOptions.type)(clusterOptions.count)(".a")(j+1);
     vi.actor.repCount = clusterOptions.repCount();
     {
       double actorOutDegree = clusterOptions.actorOutDegree();
@@ -651,6 +653,14 @@ protected:
   }
 };
 
+std::pair<std::string, std::string> poNoPrefixHandler(const std::string &s) {
+  if (s.find("--no-") == 0) {
+    return std::make_pair(s.substr(5), std::string("false"));
+  } else {
+    return std::make_pair(std::string(), std::string());
+  }
+}
+
 /*
  * program [options] <network_graph>
  */
@@ -712,7 +722,8 @@ int main(int argc, char** argv) {
   #endif //SGXUTILS_DEBUG_OUTPUT
       ("seed", po::value<uint64_t>(), "specify random seed")
       ("dump-seed" , po::value<std::string>(), "dump used seed into file")
-      ("no-source-actor", "disable generation of source actor")
+      ("source-actor", po::value<bool>()->default_value(false, "no")->implicit_value(true),
+          "enable generation of source actor")
       ("ngx" , po::value<std::string>(), "output network graph xml file")
       ("sng" , po::value<std::string>(), "output simple network graph xml file")
       ("dot" , po::value<std::string>(), "output network graph in dot format")
@@ -720,9 +731,9 @@ int main(int argc, char** argv) {
       ("nr-actors", po::value<RandomGenerator<size_t> >()
           ->default_value(RandomConst<size_t>(6), "6"),
           "random generator specifying the number of actors to generate")
-      ("allow-self-edges", po::value<bool>()->default_value(true, "yes"),
+      ("self-edges", po::value<bool>()->default_value(false, "no")->implicit_value(true),
           "allow generation of self edges")
-      ("create-dag", po::value<bool>()->default_value(true, "no"),
+      ("create-dag", po::value<bool>()->default_value(false, "no")->implicit_value(true),
           "create a directed acyclic graph")
       ("avg-cluster-degree", po::value<RandomGenerator<double> >()
           ->default_value(RandomConst<double>(2.1), "2.1"),
@@ -775,7 +786,10 @@ int main(int argc, char** argv) {
   
   try {
 //  store(po::command_line_parser(argc, argv).options(od).positional(pod).run(), vm);
-    store(po::command_line_parser(argc, argv).options(od).run(), vm);
+    store(po::command_line_parser(argc, argv)
+      .options(od)
+      .extra_parser(poNoPrefixHandler)
+      .run(), vm);
     notify(vm);
     
     if (vm.count("help")) {
@@ -825,7 +839,7 @@ int main(int argc, char** argv) {
         ? vm["prefix"].as<std::string>() + "."
         : std::string();
     bool createDAG = vm["create-dag"].as<bool>();
-    bool allowSelfEdges = vm["allow-self-edges"].as<bool>() && !createDAG;
+    bool allowSelfEdges = vm["self-edges"].as<bool>() && !createDAG;
 
     Graph             g;
     VertexIndexMap    vertexIndexMap = get(::boost::vertex_index, g);
@@ -936,7 +950,7 @@ int main(int argc, char** argv) {
       }
     }
     {
-      bool sourceActorRequested = !vm.count("no-source-actor");
+      bool sourceActorRequested = vm["source-actor"].as<bool>();
       VertexDescriptor vdSource;
       bool inputDataRequested = vm.count("graph-input-communication");
       bool outputDataRequested = vm.count("graph-output-communication");
