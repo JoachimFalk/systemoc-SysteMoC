@@ -765,6 +765,8 @@ int main(int argc, char** argv) {
           "add factor * cons(edge) extra initial tokens to the edge")
       ("random-cluster-selection", po::value<bool>()->default_value(false, "no")->implicit_value(true),
           "randomly selects a cluster type for generation")
+      ("graph-internal-read-ratio", po::value<RandomGenerator<double> >(),
+           "random generator specifying the ration between data read and data written, i.e., read bytes/written bytes, for the internal communication")
       ("graph-internal-communication", po::value<RandomGenerator<size_t> >(),
            "random generator specifying the amount of internal communication in bytes during one graph iteration")
       ("graph-input-communication", po::value<RandomGenerator<size_t> >(),
@@ -1286,9 +1288,12 @@ int main(int argc, char** argv) {
         RandomGenerator<size_t> graphOutputComm = vm["graph-output-communication"].as<RandomGenerator<size_t> >();
         outputComm = graphOutputComm();
       }
-      double internalCommScalingSum = 0;
+
+      double singlecastCommScalingSum = 0;
       double inputCommScalingSum = 0;
       double outputCommScalingSum = 0;
+      double multicastCommScalingSum = 0;
+      double multicastAmplification = 0;
       for (std::pair<
                Graph::vertex_iterator
              , Graph::vertex_iterator> vip = vertices(g);
@@ -1298,7 +1303,13 @@ int main(int argc, char** argv) {
           case VertexInfo::FIFO: {
             double commScaling = std::max(0.0, graphCommScaling());
             chanComScalingMap[*vip.first] = commScaling;
-            internalCommScalingSum += commScaling * (1 + out_degree(*vip.first, g));
+            size_t outputs = out_degree(*vip.first, g);
+            assert(outputs >= 1);
+            if (outputs > 1) {
+              multicastCommScalingSum += commScaling;
+              multicastAmplification  += commScaling * outputs;
+            } else
+              singlecastCommScalingSum += commScaling;
             break;
           }
           case VertexInfo::REGISTER: {
@@ -1317,6 +1328,43 @@ int main(int argc, char** argv) {
             assert(g[*vip.first].type == VertexInfo::ACTOR);
             break;
         }
+
+      size_t multicastWrite;
+      size_t singlecastComm;
+
+      if (vm.count("graph-internal-read-ratio")) {
+        double readRatio = vm["graph-internal-read-ratio"].as<RandomGenerator<double> >()();
+
+
+        // Derived from readComm + writeComm == internalComm
+        size_t writeComm = internalComm / (1+readRatio);
+        // This is writeComm * readRatio;
+        size_t readComm  = internalComm * readRatio / (1+readRatio);
+
+  //    std::cout << "writeComm:    " << writeComm << std::endl;
+  //    std::cout << "readComm:     " << readComm << std::endl;
+  //    std::cout << "internalComm: " << (readComm+writeComm) << " (" << internalComm << ")" << std::endl;
+
+        // Here, x denotes the factor by which multicast data is amplified,
+        // i.e., multicastRead = x * multicastWrite
+        double x = multicastAmplification / multicastCommScalingSum;
+  //    std::cout << "x: " << x << std::endl;
+        // Derived from
+        //   multicastRead = x * multicastWrite
+        //   readComm  = singlecastComm + multicastRead;
+        //   writeComm = singlecastComm + multicastWrite
+        multicastWrite = (readComm-writeComm) / (x-1);
+        singlecastComm = writeComm - multicastWrite;
+
+  //    std::cout << "multicastWrite: " << multicastWrite << std::endl;
+  //    std::cout << "singlecastComm: " << singlecastComm << std::endl;
+      } else {
+        multicastWrite = internalComm;
+        singlecastComm = internalComm;
+        singlecastCommScalingSum = 2*singlecastCommScalingSum + multicastCommScalingSum + multicastAmplification;
+        multicastCommScalingSum  = singlecastCommScalingSum;
+      }
+
       for (std::pair<
                Graph::vertex_iterator
              , Graph::vertex_iterator> vip = vertices(g);
@@ -1324,14 +1372,21 @@ int main(int argc, char** argv) {
            ++vip.first)
         switch (g[*vip.first].type) {
           case VertexInfo::FIFO: {
-            double normFactor = chanComScalingMap[*vip.first]/internalCommScalingSum;
             assert(in_degree(*vip.first, g) == 1);
             Graph::edge_descriptor   edProd = *in_edges(*vip.first, g).first;
             Graph::vertex_descriptor vdProd = source(edProd, g);
             size_t tokensTransmission =
                 get(edgeTokensMap, edProd)
               * get(actorRepCountMap, vdProd);
-            put(channelTSizeMap, *vip.first, (normFactor*internalComm)/tokensTransmission);
+            size_t outputs = out_degree(*vip.first, g);
+            assert(outputs >= 1);
+            if (outputs > 1) {
+              double normFactor = chanComScalingMap[*vip.first]/multicastCommScalingSum;
+              put(channelTSizeMap, *vip.first, (normFactor*multicastWrite)/tokensTransmission);
+            } else {
+              double normFactor = chanComScalingMap[*vip.first]/singlecastCommScalingSum;
+              put(channelTSizeMap, *vip.first, (normFactor*singlecastComm)/tokensTransmission);
+            }
             break;
           }
           case VertexInfo::REGISTER: {
