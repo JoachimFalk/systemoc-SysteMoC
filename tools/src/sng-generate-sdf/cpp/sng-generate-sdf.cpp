@@ -146,14 +146,16 @@ void SDF::dump(graph &g) {
 }
 */
 
-using CoSupport::Random::randomSource;
 using CoSupport::Random::RandomGenerator;
-using CoSupport::Random::RandomConst;
-using CoSupport::Random::RandomUniform;
-using CoSupport::Random::RandomUrn;
-using CoSupport::Random::RandomNormal;
+
+using CoSupport::Random::randomSource;
+
+// Mersenne twister pseudo randomness source
+boost::random::mt19937 randomSourceTopology;
 
 struct ClusterOptions {
+  size_t                  count = 0;
+  std::string             type;
   RandomGenerator<size_t> repCount;
   RandomGenerator<size_t> actorCount;
   RandomGenerator<double> actorOutDegree;
@@ -162,102 +164,231 @@ struct ClusterOptions {
 
 typedef std::map<size_t, ClusterOptions> ClusterOptionsMap;
 
-class NewClusterParser: public po::untyped_value {
-public:
-  void addClusrerOptionParser(boost::function<void ()> const &fun)
-    { functions.push_back(fun); } 
-protected:
-  unsigned min_tokens() const { return 0; }
-  unsigned max_tokens() const { return 0; }
+using namespace smoc::SNG;
 
-  void xparse(boost::any &value_store,
-              const std::vector<std::string> &new_tokens) const {
-    for (std::vector<boost::function<void ()> >::const_iterator iter = functions.begin();
-         iter != functions.end();
-         ++iter)
-      (*iter)();
+typedef std::vector<VertexDescriptor> VertexMap;
+typedef std::vector<VertexMap>        ClusterMap;
+
+Graph::vertex_descriptor addChannel(
+    Graph             &g
+  , std::string const &prefix
+  , Graph::vertex_descriptor                     vdSrcActor
+  , std::vector<Graph::vertex_descriptor> const &vdSnkActors)
+{
+  static size_t fifoCount = 0;
+
+  Graph::vertex_descriptor vdChannel = add_vertex(g);
+
+  assert(g[vdSrcActor].type == VertexInfo::ACTOR);
+  size_t repSrc = g[vdSrcActor].actor.repCount;
+  size_t repLcm = repSrc;
+  for (Graph::vertex_descriptor vdSnkActor : vdSnkActors) {
+    assert(g[vdSnkActor].type == VertexInfo::ACTOR);
+    size_t repSnk = g[vdSnkActor].actor.repCount;
+    repLcm = boost::math::lcm(repLcm, repSnk);
   }
-protected:
-  std::vector<boost::function<void ()> > functions;
-};
 
-template <typename T>
-struct ClusterOptionParser: public po::typed_value<T> {
-  typedef ClusterOptionParser<T>  this_type;
-  typedef po::typed_value<T>      base_type;
-public:
-  ClusterOptionParser(NewClusterParser *newClusterParser)
-    : base_type(nullptr), optionBlockIdx(-1), applyDefaultCalled(false)
+  VertexInfo &vi = g[vdChannel];
+  vi.type = VertexInfo::FIFO;
+  vi.name = Concat(prefix)("c")(++fifoCount);
+  vi.fifo.tokenSize = -1;
+
+  size_t prod = repLcm/repSrc; // production rate
   {
-    newClusterParser->addClusrerOptionParser(boost::bind(&this_type::newOptionBlock, this));
+    EdgeDescriptor edProd = add_edge(vdSrcActor, vdChannel, g).first;
+    g[edProd].name = Concat("o")(out_degree(vdSrcActor, g));
+    g[edProd].tokenSize = vi.fifo.tokenSize;
+    g[edProd].tokens = prod;
+  }
+  size_t maxCons = 0;
+  for (Graph::vertex_descriptor vdSnkActor : vdSnkActors) {
+    EdgeDescriptor edCons = add_edge(vdChannel, vdSnkActor, g).first;
+    size_t repSnk = g[vdSnkActor].actor.repCount;
+    size_t cons = repLcm/repSnk; // consumption rate
+    g[edCons].name = Concat("i")(in_degree(vdSnkActor, g));
+    g[edCons].tokenSize = vi.fifo.tokenSize;
+    g[edCons].tokens = cons;
+    maxCons = std::max(maxCons, cons);
   }
 
-  void xparse(boost::any &value_store,
-              const std::vector<std::string> &new_tokens) const {
-    if (optionBlockIdx < 0)
-      throw po::multiple_occurrences();
-    if (value_store.empty())
-      value_store = storage_type();
-    storage_type *storage = boost::any_cast<storage_type>(&value_store);
-    assert(storage != nullptr);
-    base_type::xparse((*storage)[optionBlockIdx], new_tokens);
+  {
+    // Use lower bound for FIFO buffer sizes
+    vi.fifo.capacity = prod+maxCons-1;
+    vi.fifo.delay = 0;
   }
-protected:
-  typedef T                             value_type;
-  typedef std::map<size_t, boost::any>  storage_type;
+  return vdChannel;
+}
 
-  int                 optionBlockIdx;
-  mutable bool        applyDefaultCalled;
-  mutable boost::any  m_default_value;
+Graph::vertex_descriptor addChannel(
+    Graph             &g
+  , std::string const &prefix
+  , Graph::vertex_descriptor vdSrcActor
+  , Graph::vertex_descriptor vdSnkActor)
+{
+  std::vector<Graph::vertex_descriptor> vdSnkActors;
+  vdSnkActors.push_back(vdSnkActor);
+  return addChannel(g, prefix, vdSrcActor, vdSnkActors);
+}
 
-  bool apply_default(boost::any &value_store) const {
-    assert(value_store.empty());
-    
-    applyDefaultCalled = true;
-    if (base_type::apply_default(m_default_value)) {
-      assert(!m_default_value.empty());
-      value_store = storage_type();
-      return true;
-    } else {
-      assert(m_default_value.empty());
-      return false;
+Graph::vertex_descriptor addInput(
+    Graph             &g
+  , std::string const &prefix
+  , Graph::vertex_descriptor vdSnkActor)
+{
+  static size_t inputCount = 0;
+
+  VertexDescriptor vdInput = add_vertex(g);
+  VertexInfo &viInput = g[vdInput];
+  viInput.type = VertexInfo::REGISTER;
+  viInput.name = Concat(prefix)("regIn")(++inputCount);
+  EdgeDescriptor edInput = add_edge(vdInput, vdSnkActor, g).first;
+  EdgeInfo &eiInput = g[edInput];
+  eiInput.name   = "in";
+  eiInput.tokens = 1;
+  return vdInput;
+}
+
+Graph::vertex_descriptor addOutput(
+    Graph             &g
+  , std::string const &prefix
+  , Graph::vertex_descriptor vdSrcActor)
+{
+  static size_t outputCount = 0;
+
+  VertexDescriptor vdOutput = add_vertex(g);
+  VertexInfo &viOutput = g[vdOutput];
+  viOutput.type = VertexInfo::REGISTER;
+  viOutput.name = Concat(prefix)("regOut")(++outputCount);
+  EdgeDescriptor edOutput = add_edge(vdSrcActor, vdOutput, g).first;
+  EdgeInfo &eiOutput = g[edOutput];
+  eiOutput.name   = "out";
+  eiOutput.tokens = 1;
+  return vdOutput;
+}
+
+size_t generateCluster(
+    Graph             &g
+  , std::string const &prefix
+  , ClusterOptions    &clusterOptions
+  , ClusterMap        &clusterMap
+  , size_t            maxActors
+  , bool              createDAG
+  , bool              allowSelfEdges)
+{
+  size_t clusterSize = std::min(clusterOptions.actorCount(), maxActors);
+  assert(clusterSize >= 1);
+  clusterMap.push_back(VertexMap());
+  VertexMap &actorMap = clusterMap.back();
+  actorMap.resize(clusterSize);
+
+  std::priority_queue<size_t> actorOutDegrees;
+  std::priority_queue<size_t> actorMulticastDegrees;
+
+  for (size_t j = 0; j < clusterSize; ++j) {
+    VertexDescriptor vd = actorMap[j] = add_vertex(g);
+    VertexInfo &vi = g[vd];
+    vi.type = VertexInfo::ACTOR;
+    vi.name = Concat(prefix)(clusterOptions.type)(++clusterOptions.count)(".a")(j+1);
+    vi.actor.repCount = clusterOptions.repCount();
+    {
+      double actorOutDegree = clusterOptions.actorOutDegree();
+      if (actorOutDegree > 0)
+        actorOutDegrees.push(actorOutDegree);
+    }
+    {
+      double actorMulticastDegree = clusterOptions.actorMulticastDegree();
+      if (actorMulticastDegree > 1)
+        actorMulticastDegrees.push(actorMulticastDegree);
     }
   }
 
-  void notify(const boost::any &value_store) const {
-    assert(!value_store.empty());
-    storage_type const           &storage = boost::any_cast<storage_type>(value_store);
-    std::map<size_t, value_type>  converted_storage;
-    
-    if (!applyDefaultCalled) {
-      if (base_type::apply_default(m_default_value))
-        assert(!m_default_value.empty());
-      else
-        assert(m_default_value.empty());
-    }
-    for (int i = 0; i <= optionBlockIdx; ++i) {
-      storage_type::const_iterator iter = storage.find(i);
-      if (iter != storage.end()) {
-        sassert(
-          converted_storage.insert(std::make_pair(
-            static_cast<size_t>(i),
-            boost::any_cast<value_type>(iter->second))).second);
-      } else if (!m_default_value.empty()) {
-        sassert(
-          converted_storage.insert(std::make_pair(
-            static_cast<size_t>(i),
-            boost::any_cast<value_type>(m_default_value))).second);
-      }
-    }
-    // This const_cast is a hack!
-    const_cast<boost::any &>(value_store) = converted_storage;
-    base_type::notify(value_store);
-  }
+  for (size_t j = 0; j < clusterSize; ++j) {
+    VertexDescriptor vdSrc = actorMap[j];
 
-  void newOptionBlock() {
-    ++optionBlockIdx;
+    int actorOutDegree = actorOutDegrees.empty()
+        ? 0 : actorOutDegrees.top();
+    if (!actorOutDegrees.empty())
+      actorOutDegrees.pop();
+    int actorMulticastDegree = actorMulticastDegrees.empty()
+        ? 1 : actorMulticastDegrees.top();
+    if (!actorMulticastDegrees.empty())
+      actorMulticastDegrees.pop();
+//      std::cout
+//          << "actorOutDegree: " << actorOutDegree
+//          << ", actorMulticastDegree: " << actorMulticastDegree << std::endl;
+    std::vector<VertexDescriptor> vdSnks;
+    if (createDAG) {
+      for (size_t k = j+1; k < clusterSize; ++k)
+        vdSnks.push_back(actorMap[k]);
+    } else
+      for (VertexDescriptor vdSnk : actorMap)
+        if (allowSelfEdges || vdSrc != vdSnk)
+          vdSnks.push_back(vdSnk);
+    while (!vdSnks.empty() && actorOutDegree > 0) {
+      std::vector<VertexDescriptor> vdMulticast;
+      do {
+        size_t snkIndex = boost::random::uniform_int_distribution<>(0, vdSnks.size()-1)(randomSourceTopology);
+        vdMulticast.push_back(vdSnks[snkIndex]);
+        vdSnks.erase(vdSnks.begin() + snkIndex);
+        --actorMulticastDegree;
+        --actorOutDegree;
+      } while (!vdSnks.empty() && actorMulticastDegree > 0 && actorOutDegree > 0);
+      addChannel(g, prefix, vdSrc, vdMulticast);
+    }
+    if (actorOutDegree)
+      std::cerr << "Warning: could not create " << actorOutDegree << " output edges for " << g[vdSrc].name << std::endl;
   }
-};
+  return clusterSize;
+}
+
+void checkGraphDeadlockFree(Graph &g) {
+#ifndef NDEBUG
+  VertexNameMap     vertexNameMap  = get(&VertexInfo::name, g);
+  ActorRepCountMap  actorRepCountMap(g);
+  FIFODelayMap      fifoDelayMap(g);
+  FIFOCapacityMap   fifoCapacityMap(g);
+  EdgeTokensMap     edgeTokensMap = get(&EdgeInfo::tokens, g);
+
+  typedef NGA::DropChannelVertices<Graph> SDF;
+  SDF gSDF(g, [&g] (VertexDescriptor vd)
+      { return g[vd].type != VertexInfo::ACTOR; });
+
+//    boost::property_map<DFG, boost::vertex_index_t>::const_type flummy
+//      = get(boost::vertex_index, dfg);
+
+  SDF::EdgeConsMap<EdgeTokensMap>::type  sdfEdgeConsMap(edgeTokensMap);
+  SDF::EdgeProdMap<EdgeTokensMap>::type  sdfEdgeProdMap(g, edgeTokensMap);
+  SDF::EdgeNameMap<VertexNameMap>::type  sdfEdgeNameMap(g, vertexNameMap);
+  SDF::EdgeDelayMap<FIFODelayMap>::type  sdfEdgeDelayMap(g, fifoDelayMap);
+  SDF::EdgeCapMap<FIFOCapacityMap>::type sdfEdgeCapMap(g, fifoCapacityMap);
+
+  typedef std::map<SDF::edge_descriptor, size_t> SDFEdgeTokensStorage;
+  SDFEdgeTokensStorage sdfEdgeTokensStorage;
+  boost::associative_property_map<SDFEdgeTokensStorage> sdfEdgeTokensMap(sdfEdgeTokensStorage);
+
+  typedef std::vector<size_t> ActorRepLeftStorage;
+  ActorRepLeftStorage actorRepLeftStorage(num_vertices(gSDF));
+  boost::container_property_map<SDF, VertexDescriptor, ActorRepLeftStorage>
+    actorRepLeftMap(actorRepLeftStorage, gSDF);
+
+  bool noDeadlocks = SystemCoDesigner::NGAnalysis::SDF::isGraphDeadlockFree(
+    gSDF,
+    actorRepCountMap,
+    actorRepLeftMap,
+    sdfEdgeConsMap,
+    sdfEdgeProdMap,
+    sdfEdgeDelayMap,
+    sdfEdgeCapMap,
+    sdfEdgeTokensMap);
+  if (!noDeadlocks) {
+    std::ofstream out("deadlocks-error.dot");
+    VertexPropertyWriter vpw(g);
+    EdgePropertyWriter   epw(g);
+    boost::write_graphviz(out, g, vpw, epw);
+    assert(!"Internal error graph has deadlocks, see deadlocks-error.dot!\n");
+  }
+#endif //NDEBUG
+}
 
 #if 0 && defined(SYSTEMOC_ENABLE_SGX)
 void connectPorts(
@@ -408,158 +539,117 @@ void saveNGX(Graph &g, std::ostream &out) {
 }
 #endif //SYSTEMOC_ENABLE_SGX
 
-using namespace smoc::SNG;
+class NewClusterParser: public po::typed_value<std::string> {
+  typedef po::typed_value<std::string> base_type;
+public:
+  NewClusterParser()
+    : base_type(nullptr), optionBlockIdx(-1) {}
+  void addClusrerOptionParser(boost::function<void ()> const &fun)
+    { functions.push_back(fun); }
+protected:
+  unsigned min_tokens() const { return 0; }
+  unsigned max_tokens() const { return 1; }
 
-
-
-Graph::vertex_descriptor addChannel(
-    Graph::vertex_descriptor vdSrcActor
-  , std::vector<Graph::vertex_descriptor> vdSnkActors
-  , Graph &g
-  , std::string const &prefix)
-{
-  static size_t fifoCount = 0;
-
-  Graph::vertex_descriptor vdChannel = add_vertex(g);
-
-  assert(g[vdSrcActor].type == VertexInfo::ACTOR);
-  size_t repSrc = g[vdSrcActor].actor.repCount;
-  size_t repLcm = repSrc;
-  for (Graph::vertex_descriptor vdSnkActor : vdSnkActors) {
-    assert(g[vdSnkActor].type == VertexInfo::ACTOR);
-    size_t repSnk = g[vdSnkActor].actor.repCount;
-    repLcm = boost::math::lcm(repLcm, repSnk);
+  void xparse(boost::any &value_store,
+              const std::vector<std::string> &new_tokens) const {
+    ++optionBlockIdx;
+    for (std::vector<boost::function<void ()> >::const_iterator iter = functions.begin();
+         iter != functions.end();
+         ++iter)
+      (*iter)();
+    boost::any value_sub_store;
+    base_type::xparse(value_sub_store, new_tokens);
+    if (value_store.empty())
+      value_store = storage_type();
+    storage_type &storage = boost::any_cast<storage_type &>(value_store);
+    storage[optionBlockIdx] = boost::any_cast<value_type>(value_sub_store);
   }
+protected:
+  typedef std::string                  value_type;
+  typedef std::map<size_t, value_type> storage_type;
 
-  VertexInfo &vi = g[vdChannel];
-  vi.type = VertexInfo::FIFO;
-  vi.name = Concat(prefix)("c")(++fifoCount);
-  vi.fifo.tokenSize = -1;
+  std::vector<boost::function<void ()> > functions;
 
-  size_t prod = repLcm/repSrc; // production rate
+  mutable int optionBlockIdx;
+};
+
+template <typename T>
+struct ClusterOptionParser: public po::typed_value<T> {
+  typedef ClusterOptionParser<T>  this_type;
+  typedef po::typed_value<T>      base_type;
+public:
+  ClusterOptionParser(NewClusterParser *newClusterParser)
+    : base_type(nullptr), optionBlockIdx(-1), applyDefaultCalled(false)
   {
-    EdgeDescriptor edProd = add_edge(vdSrcActor, vdChannel, g).first;
-    g[edProd].name = Concat("o")(out_degree(vdSrcActor, g));
-    g[edProd].tokenSize = vi.fifo.tokenSize;
-    g[edProd].tokens = prod;
-  }
-  size_t maxCons = 0;
-  for (Graph::vertex_descriptor vdSnkActor : vdSnkActors) {
-    EdgeDescriptor edCons = add_edge(vdChannel, vdSnkActor, g).first;
-    size_t repSnk = g[vdSnkActor].actor.repCount;
-    size_t cons = repLcm/repSnk; // consumption rate
-    g[edCons].name = Concat("i")(in_degree(vdSnkActor, g));
-    g[edCons].tokenSize = vi.fifo.tokenSize;
-    g[edCons].tokens = cons;
-    maxCons = std::max(maxCons, cons);
+    newClusterParser->addClusrerOptionParser(boost::bind(&this_type::newOptionBlock, this));
   }
 
-  {
-    // Use lower bound for FIFO buffer sizes
-    vi.fifo.capacity = prod+maxCons-1;
-    vi.fifo.delay = 0;
+  void xparse(boost::any &value_store,
+              const std::vector<std::string> &new_tokens) const {
+    if (optionBlockIdx < 0)
+      throw po::multiple_occurrences();
+    if (value_store.empty())
+      value_store = storage_type();
+    storage_type *storage = boost::any_cast<storage_type>(&value_store);
+    assert(storage != nullptr);
+    base_type::xparse((*storage)[optionBlockIdx], new_tokens);
   }
-  return vdChannel;
-}
+protected:
+  typedef T                             value_type;
+  typedef std::map<size_t, boost::any>  storage_type;
 
-Graph::vertex_descriptor addChannel(
-    Graph::vertex_descriptor vdSrcActor
-  , Graph::vertex_descriptor vdSnkActor
-  , Graph &g
-  , std::string const &prefix)
-{
-  std::vector<Graph::vertex_descriptor> vdSnkActors;
-  vdSnkActors.push_back(vdSnkActor);
-  return addChannel(vdSrcActor, vdSnkActors, g, prefix);
-}
+  int                 optionBlockIdx;
+  mutable bool        applyDefaultCalled;
+  mutable boost::any  m_default_value;
 
-Graph::vertex_descriptor addInput(
-    Graph::vertex_descriptor vdSnkActor
-  , Graph &g
-  , std::string const &prefix)
-{
-  static size_t inputCount = 0;
+  bool apply_default(boost::any &value_store) const {
+    assert(value_store.empty());
 
-  VertexDescriptor vdInput = add_vertex(g);
-  VertexInfo &viInput = g[vdInput];
-  viInput.type = VertexInfo::REGISTER;
-  viInput.name = Concat(prefix)("regIn")(++inputCount);
-  EdgeDescriptor edInput = add_edge(vdInput, vdSnkActor, g).first;
-  EdgeInfo &eiInput = g[edInput];
-  eiInput.name   = "in";
-  eiInput.tokens = 1;
-  return vdInput;
-}
-
-Graph::vertex_descriptor addOutput(
-    Graph::vertex_descriptor vdSrcActor
-  , Graph &g
-  , std::string const &prefix)
-{
-  static size_t outputCount = 0;
-
-  VertexDescriptor vdOutput = add_vertex(g);
-  VertexInfo &viOutput = g[vdOutput];
-  viOutput.type = VertexInfo::REGISTER;
-  viOutput.name = Concat(prefix)("regOut")(++outputCount);
-  EdgeDescriptor edOutput = add_edge(vdSrcActor, vdOutput, g).first;
-  EdgeInfo &eiOutput = g[edOutput];
-  eiOutput.name   = "out";
-  eiOutput.tokens = 1;
-  return vdOutput;
-}
-
-void checkGraphDeadlockFree(Graph &g) {
-#ifndef NDEBUG
-  VertexNameMap     vertexNameMap  = get(&VertexInfo::name, g);
-  ActorRepCountMap  actorRepCountMap(g);
-  FIFODelayMap      fifoDelayMap(g);
-  FIFOCapacityMap   fifoCapacityMap(g);
-  EdgeTokensMap     edgeTokensMap = get(&EdgeInfo::tokens, g);
-
-  typedef NGA::DropChannelVertices<Graph> SDF;
-  SDF gSDF(g, [&g] (VertexDescriptor vd)
-      { return g[vd].type != VertexInfo::ACTOR; });
-
-//    boost::property_map<DFG, boost::vertex_index_t>::const_type flummy
-//      = get(boost::vertex_index, dfg);
-
-  SDF::EdgeConsMap<EdgeTokensMap>::type  sdfEdgeConsMap(edgeTokensMap);
-  SDF::EdgeProdMap<EdgeTokensMap>::type  sdfEdgeProdMap(g, edgeTokensMap);
-  SDF::EdgeNameMap<VertexNameMap>::type  sdfEdgeNameMap(g, vertexNameMap);
-  SDF::EdgeDelayMap<FIFODelayMap>::type  sdfEdgeDelayMap(g, fifoDelayMap);
-  SDF::EdgeCapMap<FIFOCapacityMap>::type sdfEdgeCapMap(g, fifoCapacityMap);
-
-  typedef std::map<SDF::edge_descriptor, size_t> SDFEdgeTokensStorage;
-  SDFEdgeTokensStorage sdfEdgeTokensStorage;
-  boost::associative_property_map<SDFEdgeTokensStorage> sdfEdgeTokensMap(sdfEdgeTokensStorage);
-
-  typedef std::vector<size_t> ActorRepLeftStorage;
-  ActorRepLeftStorage actorRepLeftStorage(num_vertices(gSDF));
-  boost::container_property_map<SDF, VertexDescriptor, ActorRepLeftStorage>
-    actorRepLeftMap(actorRepLeftStorage, gSDF);
-
-  bool noDeadlocks = SystemCoDesigner::NGAnalysis::SDF::isGraphDeadlockFree(
-    gSDF,
-    actorRepCountMap,
-    actorRepLeftMap,
-    sdfEdgeConsMap,
-    sdfEdgeProdMap,
-    sdfEdgeDelayMap,
-    sdfEdgeCapMap,
-    sdfEdgeTokensMap);
-  if (!noDeadlocks) {
-    std::ofstream out("deadlocks-error.dot");
-    VertexPropertyWriter vpw(g);
-    EdgePropertyWriter   epw(g);
-    boost::write_graphviz(out, g, vpw, epw);
-    assert(!"Internal error graph has deadlocks, see deadlocks-error.dot!\n");
+    applyDefaultCalled = true;
+    if (base_type::apply_default(m_default_value)) {
+      assert(!m_default_value.empty());
+      value_store = storage_type();
+      return true;
+    } else {
+      assert(m_default_value.empty());
+      return false;
+    }
   }
-#endif //NDEBUG
-}
 
-// Mersenne twister pseudo randomness source
-boost::random::mt19937 randomSourceTopology;
+  void notify(const boost::any &value_store) const {
+    assert(!value_store.empty());
+    storage_type const           &storage = boost::any_cast<storage_type>(value_store);
+    std::map<size_t, value_type>  converted_storage;
+
+    if (!applyDefaultCalled) {
+      if (base_type::apply_default(m_default_value))
+        assert(!m_default_value.empty());
+      else
+        assert(m_default_value.empty());
+    }
+    for (int i = 0; i <= optionBlockIdx; ++i) {
+      storage_type::const_iterator iter = storage.find(i);
+      if (iter != storage.end()) {
+        sassert(
+          converted_storage.insert(std::make_pair(
+            static_cast<size_t>(i),
+            boost::any_cast<value_type>(iter->second))).second);
+      } else if (!m_default_value.empty()) {
+        sassert(
+          converted_storage.insert(std::make_pair(
+            static_cast<size_t>(i),
+            boost::any_cast<value_type>(m_default_value))).second);
+      }
+    }
+    // This const_cast is a hack!
+    const_cast<boost::any &>(value_store) = converted_storage;
+    base_type::notify(value_store);
+  }
+
+  void newOptionBlock() {
+    ++optionBlockIdx;
+  }
+};
 
 /*
  * program [options] <network_graph>
@@ -583,88 +673,94 @@ int main(int argc, char** argv) {
           "\n"
           "Available options";
   po::options_description publicOptions(sstr.str());
+  po::options_description privateOptions;
   
 #ifdef SGXUTILS_DEBUG_OUTPUT
-  sstr.str(""); // reset string stream
-  sstr << "set debug level; level 0 is off; level " << Debug::None.level << " is most verbose";
+  {
+    sstr.str(""); // reset string stream
+    sstr << "set debug level; level 0 is off; level " << Debug::None.level << " is most verbose";
+    privateOptions.add_options()
+      ("debug", po::value<size_t>()->default_value(0), sstr.str().c_str());
+      ;
+  }
 #endif //SGXUTILS_DEBUG_OUTPUT
+  {
+    using CoSupport::Random::RandomConst;
+    using CoSupport::Random::RandomUniform;
+    using CoSupport::Random::RandomUrn;
+    using CoSupport::Random::RandomNormal;
 
-  // urn:1,2,3,6,5,10,15,12,18,30
-  std::vector<std::pair<size_t, size_t> > repCounts;
-  repCounts.push_back(std::make_pair(1,1));
-  repCounts.push_back(std::make_pair(1,2));
-  repCounts.push_back(std::make_pair(1,3));
-  repCounts.push_back(std::make_pair(1,6));
-  repCounts.push_back(std::make_pair(1,5));
-  repCounts.push_back(std::make_pair(1,10));
-  repCounts.push_back(std::make_pair(1,15));
-  repCounts.push_back(std::make_pair(1,12));
-  repCounts.push_back(std::make_pair(1,18));
-  repCounts.push_back(std::make_pair(1,30));
+    // urn:1,2,3,6,5,10,15,12,18,30
+    std::vector<std::pair<size_t, size_t> > repCounts;
+    repCounts.push_back(std::make_pair(1,1));
+    repCounts.push_back(std::make_pair(1,2));
+    repCounts.push_back(std::make_pair(1,3));
+    repCounts.push_back(std::make_pair(1,6));
+    repCounts.push_back(std::make_pair(1,5));
+    repCounts.push_back(std::make_pair(1,10));
+    repCounts.push_back(std::make_pair(1,15));
+    repCounts.push_back(std::make_pair(1,12));
+    repCounts.push_back(std::make_pair(1,18));
+    repCounts.push_back(std::make_pair(1,30));
 
-  NewClusterParser                  *ncp;
-  std::unique_ptr<NewClusterParser> _ncp(ncp = new NewClusterParser());
-  publicOptions.add_options()
-    ("help", "produce help message")
-#ifdef SGXUTILS_DEBUG_OUTPUT
-    ("debug", po::value<size_t>()->default_value(0), sstr.str().c_str())
-#endif //SGXUTILS_DEBUG_OUTPUT
-    ("seed", po::value<uint64_t>(), "specify random seed")
-    ("dump-seed" , po::value<std::string>(), "dump used seed into file")
-    ("no-source-actor", "disable generation of source actor")
-    ("ngx" , po::value<std::string>(), "output network graph xml file")
-    ("sng" , po::value<std::string>(), "output simple network graph xml file")
-    ("dot" , po::value<std::string>(), "output network graph in dot format")
-    ("prefix", po::value<std::string>(), "prefix for actor and channel names")
-    ("nr-actors", po::value<RandomGenerator<size_t> >()
-        ->default_value(RandomConst<size_t>(6), "6"),
-        "random generator specifying the number of actors to generate")
-    ("allow-self-edges", po::value<bool>()->default_value(true, "yes"),
-        "allow generation of self edges")
-    ("create-dag", po::value<bool>()->default_value(true, "no"),
-        "create a directed acyclic graph")
-    ("avg-cluster-degree", po::value<RandomGenerator<double> >()
-        ->default_value(RandomConst<double>(2.1), "2.1"),
-        "random generator specifying the average degree for inter cluster edges")
-    ("extra-delay-factor", po::value<RandomGenerator<double> >()
-        ->default_value(RandomConst<double>(0.0), "0"),
-        "add factor * cons(edge) extra initial tokens to the edge")
-    ("extra-delay-factor-inter-cluster", po::value<RandomGenerator<double> >()
-        ->default_value(RandomUniform<double>(0.3,3.5), "uniform:0.3-3.5"),
-        "add factor * cons(edge) extra initial tokens to the edge")
-    ("graph-internal-communication", po::value<RandomGenerator<size_t> >(),
-         "random generator specifying the amount of internal communication in bytes during one graph iteration")
-    ("graph-input-communication", po::value<RandomGenerator<size_t> >(),
-        "random generator specifying the amount of input data in bytes during one graph iteration")
-    ("graph-output-communication", po::value<RandomGenerator<size_t> >(),
-        "random generator specifying the amount of output data in bytes during one graph iteration")
-    ("graph-communication-scaling", po::value<RandomGenerator<double> >()
-        ->default_value(RandomConst<double>(1), "1"),
-         "random generator specifying the scaling of the token size for each fifo in the graph")
-    ("new-cluster", _ncp.release(), "begin new cluster; options (--cluster-xxx) for the new cluster must be specified after this option")
-    ("cluster-weight", (new ClusterOptionParser<size_t>(ncp))
-        ->default_value(1),
-        "specify the weight for the instantiation of this cluster")
-    ("cluster-rep-count", (new ClusterOptionParser<RandomGenerator<size_t> >(ncp))
-//      ->multitoken()
-        ->default_value(RandomUrn<size_t>(repCounts), "urn:1,2,3,6,5,10,15,12,18,30"),
-        "specify possible repetition counts for actors in this cluster")
-    ("cluster-actor-count", (new ClusterOptionParser<RandomGenerator<size_t> >(ncp))
-        ->default_value(RandomUniform<size_t>(5,15), "uniform:5-15"),
-        "random generator specifying the number of actors in this cluster")
-    ("cluster-actor-out-degree", (new ClusterOptionParser<RandomGenerator<double> >(ncp))
-        ->default_value(RandomNormal<double>(2, 1), "normal:m2,s1"),
-        "random generator specifying output degree of the actors in this cluster")
-    ("cluster-actor-multicast-degree", (new ClusterOptionParser<RandomGenerator<double> >(ncp))
-        ->default_value(RandomConst<double>(1), "1"),
-        "random generator specifying the average degree of the actors in this cluster")
-    ;
-  po::options_description privateOptions;
-  privateOptions.add_options()
-#ifndef SGXUTILS_DEBUG_OUTPUT
-    ("debug", po::value<size_t>()->default_value(0), "turn on debug mode")
-#endif //SGXUTILS_DEBUG_OUTPUT
-    ;
+    NewClusterParser                  *ncp;
+    std::unique_ptr<NewClusterParser> _ncp(ncp = new NewClusterParser());
+    publicOptions.add_options()
+      ("help", "produce help message")
+  #ifdef SGXUTILS_DEBUG_OUTPUT
+      ("debug", po::value<size_t>()->default_value(0), sstr.str().c_str())
+  #endif //SGXUTILS_DEBUG_OUTPUT
+      ("seed", po::value<uint64_t>(), "specify random seed")
+      ("dump-seed" , po::value<std::string>(), "dump used seed into file")
+      ("no-source-actor", "disable generation of source actor")
+      ("ngx" , po::value<std::string>(), "output network graph xml file")
+      ("sng" , po::value<std::string>(), "output simple network graph xml file")
+      ("dot" , po::value<std::string>(), "output network graph in dot format")
+      ("prefix", po::value<std::string>(), "prefix for actor and channel names")
+      ("nr-actors", po::value<RandomGenerator<size_t> >()
+          ->default_value(RandomConst<size_t>(6), "6"),
+          "random generator specifying the number of actors to generate")
+      ("allow-self-edges", po::value<bool>()->default_value(true, "yes"),
+          "allow generation of self edges")
+      ("create-dag", po::value<bool>()->default_value(true, "no"),
+          "create a directed acyclic graph")
+      ("avg-cluster-degree", po::value<RandomGenerator<double> >()
+          ->default_value(RandomConst<double>(2.1), "2.1"),
+          "random generator specifying the average degree for inter cluster edges")
+      ("extra-delay-factor", po::value<RandomGenerator<double> >()
+          ->default_value(RandomConst<double>(0.0), "0"),
+          "add factor * cons(edge) extra initial tokens to the edge")
+      ("extra-delay-factor-inter-cluster", po::value<RandomGenerator<double> >()
+          ->default_value(RandomUniform<double>(0.3,3.5), "uniform:0.3-3.5"),
+          "add factor * cons(edge) extra initial tokens to the edge")
+      ("graph-internal-communication", po::value<RandomGenerator<size_t> >(),
+           "random generator specifying the amount of internal communication in bytes during one graph iteration")
+      ("graph-input-communication", po::value<RandomGenerator<size_t> >(),
+          "random generator specifying the amount of input data in bytes during one graph iteration")
+      ("graph-output-communication", po::value<RandomGenerator<size_t> >(),
+          "random generator specifying the amount of output data in bytes during one graph iteration")
+      ("graph-communication-scaling", po::value<RandomGenerator<double> >()
+          ->default_value(RandomConst<double>(1), "1"),
+           "random generator specifying the scaling of the token size for each fifo in the graph")
+      ("new-cluster", _ncp.release()->implicit_value("a"), "begin new cluster; options (--cluster-xxx) for the new cluster must be specified after this option")
+      ("cluster-weight", (new ClusterOptionParser<size_t>(ncp))
+          ->default_value(1),
+          "specify the weight for the instantiation of this cluster")
+      ("cluster-rep-count", (new ClusterOptionParser<RandomGenerator<size_t> >(ncp))
+  //      ->multitoken()
+          ->default_value(RandomUrn<size_t>(repCounts), "urn:1,2,3,6,5,10,15,12,18,30"),
+          "specify possible repetition counts for actors in this cluster")
+      ("cluster-actor-count", (new ClusterOptionParser<RandomGenerator<size_t> >(ncp))
+          ->default_value(RandomUniform<size_t>(5,15), "uniform:5-15"),
+          "random generator specifying the number of actors in this cluster")
+      ("cluster-actor-out-degree", (new ClusterOptionParser<RandomGenerator<double> >(ncp))
+          ->default_value(RandomNormal<double>(2, 1), "normal:m2,s1"),
+          "random generator specifying output degree of the actors in this cluster")
+      ("cluster-actor-multicast-degree", (new ClusterOptionParser<RandomGenerator<double> >(ncp))
+          ->default_value(RandomConst<double>(1), "1"),
+          "random generator specifying the average degree of the actors in this cluster")
+      ;
+  }
   
 //po::positional_options_description pod; 
 //pod.add("ngx", 1);
@@ -743,11 +839,11 @@ int main(int argc, char** argv) {
 
     std::set<VertexDescriptor> channelsBetweenClusters;
 
-    size_t nrActors = vm["nr-actors"].as<RandomGenerator<size_t> >()();
-
     ClusterOptionsMap clusterOptionsMap;
     size_t            clusterEndWeight = 0;
     {
+      std::map<size_t, std::string> const       &clusterType =
+          vm["new-cluster"].as<std::map<size_t, std::string> >();
       std::map<size_t, size_t> const            &clusterWeight =
           vm["cluster-weight"].as<std::map<size_t, size_t> >();
       std::map<size_t, RandomGenerator<size_t> > const &clusterRepCount =
@@ -758,14 +854,16 @@ int main(int argc, char** argv) {
           vm["cluster-actor-out-degree"].as<std::map<size_t, RandomGenerator<double> > >();
       std::map<size_t, RandomGenerator<double> > const &clusterActorMulticastDegree =
           vm["cluster-actor-multicast-degree"].as<std::map<size_t, RandomGenerator<double> > >();
-      assert(clusterWeight.size() == clusterRepCount.size());
-      assert(clusterWeight.size() == clusterActorCount.size());
-      assert(clusterWeight.size() == clusterActorOutDegree.size());
-      assert(clusterWeight.size() == clusterActorMulticastDegree.size());
+      assert(clusterType.size() == clusterWeight.size());
+      assert(clusterType.size() == clusterRepCount.size());
+      assert(clusterType.size() == clusterActorCount.size());
+      assert(clusterType.size() == clusterActorOutDegree.size());
+      assert(clusterType.size() == clusterActorMulticastDegree.size());
 
-      for (size_t i = 0; i < clusterWeight.size(); ++i) {
+      for (size_t i = 0; i < clusterType.size(); ++i) {
         clusterEndWeight += clusterWeight.find(i)->second;
         ClusterOptions &clusterOptions      = clusterOptionsMap[clusterEndWeight-1];
+        clusterOptions.type                 = clusterType.find(i)->second;
         clusterOptions.repCount             = clusterRepCount.find(i)->second;
         clusterOptions.actorCount           = clusterActorCount.find(i)->second;
         clusterOptions.actorOutDegree       = clusterActorOutDegree.find(i)->second;
@@ -780,74 +878,14 @@ int main(int argc, char** argv) {
 
     ClusterMap clusterMap;
     
-    for (size_t i = 0; i < nrActors; ) {
-      ClusterOptions const &clusterOptions =
-          clusterOptionsMap.lower_bound(static_cast<size_t>(distClusterTypeSelection(randomSourceTopology)))->second;
+    {
+      size_t nrActors = vm["nr-actors"].as<RandomGenerator<size_t> >()();
 
-      size_t clusterSize = std::min(clusterOptions.actorCount(), nrActors-i);
-      assert(clusterSize >= 1);
-      clusterMap.push_back(VertexMap());
-      VertexMap &actorMap = clusterMap.back();
-      actorMap.resize(clusterSize);
-
-      std::priority_queue<size_t> actorOutDegrees;
-      std::priority_queue<size_t> actorMulticastDegrees;
-
-      for (size_t j = 0; j < clusterSize; ++j) {
-        VertexDescriptor vd = actorMap[j] = add_vertex(g);
-        VertexInfo &vi = g[vd];
-        vi.type = VertexInfo::ACTOR;
-        vi.name = Concat(prefix)("a")(clusterMap.size())("_")(j+1);
-        vi.actor.repCount = clusterOptions.repCount();
-        {
-          double actorOutDegree = clusterOptions.actorOutDegree();
-          if (actorOutDegree > 0)
-            actorOutDegrees.push(actorOutDegree);
-        }
-        {
-          double actorMulticastDegree = clusterOptions.actorMulticastDegree();
-          if (actorMulticastDegree > 1)
-            actorMulticastDegrees.push(actorMulticastDegree);
-        }
+      while (nrActors > 0) {
+        ClusterOptions &clusterOptions =
+            clusterOptionsMap.lower_bound(static_cast<size_t>(distClusterTypeSelection(randomSourceTopology)))->second;
+        nrActors -= generateCluster(g, prefix, clusterOptions, clusterMap, nrActors, createDAG, allowSelfEdges);
       }
-
-      for (size_t j = 0; j < clusterSize; ++j) {
-        VertexDescriptor vdSrc = actorMap[j];
-
-        int actorOutDegree = actorOutDegrees.empty()
-            ? 0 : actorOutDegrees.top();
-        if (!actorOutDegrees.empty())
-          actorOutDegrees.pop();
-        int actorMulticastDegree = actorMulticastDegrees.empty()
-            ? 1 : actorMulticastDegrees.top();
-        if (!actorMulticastDegrees.empty())
-          actorMulticastDegrees.pop();
-//      std::cout
-//          << "actorOutDegree: " << actorOutDegree
-//          << ", actorMulticastDegree: " << actorMulticastDegree << std::endl;
-        std::vector<VertexDescriptor> vdSnks;
-        if (createDAG) {
-          for (size_t k = j+1; k < clusterSize; ++k)
-            vdSnks.push_back(actorMap[k]);
-        } else
-          for (VertexDescriptor vdSnk : actorMap)
-            if (allowSelfEdges || vdSrc != vdSnk)
-              vdSnks.push_back(vdSnk);
-        while (!vdSnks.empty() && actorOutDegree > 0) {
-          std::vector<VertexDescriptor> vdMulticast;
-          do {
-            size_t snkIndex = boost::random::uniform_int_distribution<>(0, vdSnks.size()-1)(randomSourceTopology);
-            vdMulticast.push_back(vdSnks[snkIndex]);
-            vdSnks.erase(vdSnks.begin() + snkIndex);
-            --actorMulticastDegree;
-            --actorOutDegree;
-          } while (!vdSnks.empty() && actorMulticastDegree > 0 && actorOutDegree > 0);
-          addChannel(vdSrc, vdMulticast, g, prefix);
-        }
-        if (actorOutDegree)
-          std::cerr << "Warning: could not create " << actorOutDegree << " output edges for " << g[vdSrc].name << std::endl;
-      }
-      i += clusterSize;
     }
     if (clusterMap.size() > 1) {
       boost::random::uniform_int_distribution<> dist(0, clusterMap.size()-1);
@@ -860,10 +898,9 @@ int main(int argc, char** argv) {
           std::swap(srcCluster, snkCluster);
         VertexMap const &vertexMapSrc = clusterMap[srcCluster];
         VertexMap const &vertexMapSnk = clusterMap[snkCluster];
-        channelsBetweenClusters.insert(addChannel(
+        channelsBetweenClusters.insert(addChannel(g, prefix,
           vertexMapSrc[boost::random::uniform_int_distribution<>(0, vertexMapSrc.size()-1)(randomSourceTopology)],
-          vertexMapSnk[boost::random::uniform_int_distribution<>(0, vertexMapSnk.size()-1)(randomSourceTopology)],
-          g, prefix));
+          vertexMapSnk[boost::random::uniform_int_distribution<>(0, vertexMapSnk.size()-1)(randomSourceTopology)]));
       }
     }
     // First we ensure that the graph is connected
@@ -887,12 +924,11 @@ int main(int argc, char** argv) {
           size_t srcComponent, snkComponent;
           srcComponent = dist(randomSourceTopology);
           do { snkComponent = dist(randomSourceTopology); } while (snkComponent == srcComponent);
-          addChannel(
+          addChannel(g, prefix,
             components[srcComponent][boost::random::uniform_int_distribution<>
               (0, components[srcComponent].size()-1)(randomSourceTopology)],
             components[snkComponent][boost::random::uniform_int_distribution<>
-              (0, components[snkComponent].size()-1)(randomSourceTopology)],
-            g, prefix);
+              (0, components[snkComponent].size()-1)(randomSourceTopology)]);
           components[srcComponent].insert(components[srcComponent].end(), 
               components[snkComponent].begin(), components[snkComponent].end());
           components.erase(components.begin()+snkComponent);
@@ -934,26 +970,26 @@ int main(int argc, char** argv) {
         outputsConnected |= isSinkActor;
         
         if (isSourceActor && sourceActorRequested)
-          addChannel(vdSource, *vip.first, g, prefix);        
+          addChannel(g, prefix, vdSource, *vip.first);
         if (isSourceActor && inputDataRequested)
-          addInput(*vip.first, g, prefix);
+          addInput(g, prefix, *vip.first);
         
         if (isSinkActor && outputDataRequested)
-          addOutput(*vip.first, g, prefix);
+          addOutput(g, prefix, *vip.first);
       }
       if (!inputsConnected && (sourceActorRequested || inputDataRequested)) {
         boost::random::uniform_int_distribution<> dist(0, actorMap.size()-1);
         VertexDescriptor vdActor = actorMap[dist(randomSourceTopology)];
         if (sourceActorRequested)
-          addChannel(vdSource, vdActor, g, prefix);
+          addChannel(g, prefix, vdSource, vdActor);
         if (inputDataRequested)
-          addInput(vdActor, g, prefix);
+          addInput(g, prefix, vdActor);
       }
       if (!outputsConnected && outputDataRequested) {
         boost::random::uniform_int_distribution<> dist(0, actorMap.size()-1);
         VertexDescriptor vdActor = actorMap[dist(randomSourceTopology)];
         if (outputDataRequested)
-          addOutput(vdActor, g, prefix);
+          addOutput(g, prefix, vdActor);
       }
     }
 
