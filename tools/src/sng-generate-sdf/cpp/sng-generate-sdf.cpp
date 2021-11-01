@@ -418,7 +418,7 @@ Graph::vertex_descriptor addChannel(
   , Graph &g
   , std::string const &prefix)
 {
-  static size_t i = 0;
+  static size_t fifoCount = 0;
 
   Graph::vertex_descriptor vdChannel = add_vertex(g);
 
@@ -433,7 +433,7 @@ Graph::vertex_descriptor addChannel(
 
   VertexInfo &vi = g[vdChannel];
   vi.type = VertexInfo::FIFO;
-  vi.name = Concat(prefix)("c")(++i);
+  vi.name = Concat(prefix)("c")(++fifoCount);
   vi.fifo.tokenSize = -1;
 
   size_t prod = repLcm/repSrc; // production rate
@@ -478,10 +478,12 @@ Graph::vertex_descriptor addInput(
   , Graph &g
   , std::string const &prefix)
 {
+  static size_t inputCount = 0;
+
   VertexDescriptor vdInput = add_vertex(g);
   VertexInfo &viInput = g[vdInput];
   viInput.type = VertexInfo::REGISTER;
-  viInput.name = prefix + "regIn";
+  viInput.name = Concat(prefix)("regIn")(++inputCount);
   EdgeDescriptor edInput = add_edge(vdInput, vdSnkActor, g).first;
   EdgeInfo &eiInput = g[edInput];
   eiInput.name   = "in";
@@ -494,10 +496,12 @@ Graph::vertex_descriptor addOutput(
   , Graph &g
   , std::string const &prefix)
 {
+  static size_t outputCount = 0;
+
   VertexDescriptor vdOutput = add_vertex(g);
   VertexInfo &viOutput = g[vdOutput];
   viOutput.type = VertexInfo::REGISTER;
-  viOutput.name = prefix + "regOut";
+  viOutput.name = Concat(prefix)("regOut")(++outputCount);
   EdgeDescriptor edOutput = add_edge(vdSrcActor, vdOutput, g).first;
   EdgeInfo &eiOutput = g[edOutput];
   eiOutput.name   = "out";
