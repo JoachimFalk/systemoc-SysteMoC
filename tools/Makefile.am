@@ -36,9 +36,12 @@ AM_LDFLAGS  = @AM_LDFLAGS@ \
 	$(BOOST_LDFLAGS)
 
 bin_PROGRAMS = \
-	sng-to-dot \
+	sng-to-dot
+
+if SYSTEMOC_ENABLE_NGANALYSIS
+bin_PROGRAMS += \
         sng-generate-sdf
-noinst_DATA =
+endif
 
 sng_to_dot_CPPFLAGS = $(AM_CPPFLAGS) \
 	$(COSUPPORT_STRING_INCLUDE) \

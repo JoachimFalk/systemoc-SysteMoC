@@ -232,10 +232,8 @@ fi
 
 SYSTEMOC_OPTIONAL_REQUIRES=""
 SYSTEMOC_OPTIONAL_REQUIRES_PRIVATE=""
+
 ACJF_CHECK_LIB_SGX([enable_sgx=yes], [enable_sgx=no])
-dnl AM_CONDITIONAL([SYSTEMOC_ENABLE_SGX], [test x"$enable_sgx" = x"yes"])
-# This is a define for src/systemoc/headers/systemoc/smoc_config.h to guarantee
-# consistency for Examples and Testcases
 if test x"$enable_sgx" = x"yes"; then
   ACJF_CHECK_LIB_SGXUTILS([enable_sgxutils=yes], [enable_sgxutils=no])
   if test x"$enable_sgxutils" != x"yes"; then
@@ -244,24 +242,14 @@ if test x"$enable_sgx" = x"yes"; then
   AC_DEFINE([SYSTEMOC_ENABLE_SGX], [yes], [Defined if SGX support is enabled])
   SYSTEMOC_OPTIONAL_REQUIRES_PRIVATE="${SYSTEMOC_OPTIONAL_REQUIRES_PRIVATE} libsgx libsgxutils"
 fi
+AM_CONDITIONAL([SYSTEMOC_ENABLE_SGX], [test x"$enable_sgx" = x"yes" -a x"$enable_sgxutils" = x"yes"])
 
-dnl ACJF_CHECK_LIB_SYSTEMC_VPC([enable_vpc=yes], [enable_vpc=no])
-dnl dnl AM_CONDITIONAL([SYSTEMOC_ENABLE_VPC], [test x"$enable_vpc" = x"yes"])
-dnl # This is a define for src/systemoc/headers/systemoc/smoc_config.h to guarantee
-dnl # consistency for Examples and Testcases
-dnl if test x"$enable_vpc" = x"yes"; then
-dnl   AC_DEFINE([SYSTEMOC_ENABLE_VPC], [yes], [Defined if SystemC-VPC support is enabled])
-dnl   SYSTEMOC_OPTIONAL_REQUIRES="${SYSTEMOC_OPTIONAL_REQUIRES} libsystemcvpc"
-dnl fi
-
-ACJF_CHECK_LIB_MAESTRO_METAMAP([enable_maestro_metamap=yes], [enable_maestro_metamap=no])
-AM_CONDITIONAL([SYSTEMOC_ENABLE_MAESTRO], [test x"$enable_maestro_metamap" = x"yes"])
-# This is a define for src/systemoc/headers/systemoc/smoc_config.h to guarantee
-# consistency for Examples and Testcases
-if test x"$enable_maestro_metamap" = x"yes"; then
-  AC_DEFINE([SYSTEMOC_ENABLE_MAESTRO], [yes], [Defined if Maestro MetaMap library support is enabled])
-  SYSTEMOC_OPTIONAL_REQUIRES="${SYSTEMOC_OPTIONAL_REQUIRES} libmaestro-metamap >= 0.3"
+ACJF_CHECK_LIB_NGANALYSIS([enable_nganalysis=yes], [enable_nganalysis=no])
+if test x"$enable_nganalysis" = x"yes"; then
+  AC_DEFINE([SYSTEMOC_ENABLE_NGANALYSIS], [yes], [Defined if network graph analysis support is enabled])
 fi
+AM_CONDITIONAL([SYSTEMOC_ENABLE_NGANALYSIS], [test x"$enable_nganalysis" = x"yes"])
+
 AC_SUBST([SYSTEMOC_OPTIONAL_REQUIRES])
 AC_SUBST([SYSTEMOC_OPTIONAL_REQUIRES_PRIVATE])
 

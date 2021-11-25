@@ -11,3 +11,5 @@ Release-VPC
 Release-VPC-noVCD
 *.user
 !golden*
+.project
+.settings
