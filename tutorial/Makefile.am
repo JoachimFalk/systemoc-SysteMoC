@@ -20,7 +20,7 @@
 
 ## Process this file with automake to produce Makefile.in
 
-RESDIR := $(shell cd $(srcdir) && while [ ! -d HscdTeXRes -a x`pwd` != x'/' ]; do cd ..; done; cd HscdTeXRes; pwd)
+RESDIR := $(srcdir)/res
 
 include $(auxdir)/jfrules.mk
 

@@ -1,0 +1,51 @@
+%-------------------------------------------------------------------------------
+% Font theme file
+%-------------------------------------------------------------------------------
+
+\mode<presentation>
+
+
+% Schriftart Helvetica
+\usepackage[scaled]{helvet}
+\renewcommand*{\familydefault}{\sfdefault} % Standard ist serifenlos
+
+\AtBeginDocument{\fontsize{20}{24}\selectfont}
+
+% normaler Text
+\setbeamerfont{normal text}{size=\fontsize{20}{24}} % ignored currently, its not implemented yet!
+
+% Titel
+\setbeamerfont{title}{series=\bfseries,size=\fontsize{36}{42}}
+\setbeamerfont{subtitle}{series=\normalfont,size=\fontsize{30}{36}}
+\setbeamerfont{frametitle}{size=\fontsize{24}{28},series=\bfseries}
+
+% Fusszeile
+\setbeamerfont{footline}{size=\fontsize{10}{12}}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%% Aufzaehlungen und Listen %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Enumerate item
+\setbeamerfont{enumerate item}{size=\fontsize{20}{24}}
+\setbeamerfont{enumerate subitem}{size=\fontsize{18}{22}}
+\setbeamerfont{enumerate subsubitem}{size=\fontsize{16}{20}}
+
+% Itemize item
+\setbeamerfont{itemize item}{size=\fontsize{20}{24}}
+\setbeamerfont{itemize subitem}{size=\fontsize{18}{22}}
+\setbeamerfont{itemize subsubitem}{size=\fontsize{16}{20}}
+
+% Enumerate and itemize body
+\setbeamerfont{itemize/enumerate body}{size=\fontsize{20}{24}}
+\setbeamerfont{itemize/enumerate subbody}{size=\fontsize{18}{22}}
+\setbeamerfont{itemize/enumerate subsubbody}{size=\fontsize{16}{20}}
+%%%%%%%%%%%%%%%%%%%%%% Aufzaehlungen und Listen Ende %%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\setbeamerfont{block body}{}
+\setbeamerfont{block body alerted}{}
+\setbeamerfont{block body example}{}
+\setbeamerfont{block title}{size=\fontsize{24}{28},parent={structure,block body}}
+\setbeamerfont{block title alerted}{size=\fontsize{24}{28},parent={block title,alerted text}}
+\setbeamerfont{block title example}{size=\fontsize{24}{28},parent={block title,example text}}
+
+\mode
+<all>

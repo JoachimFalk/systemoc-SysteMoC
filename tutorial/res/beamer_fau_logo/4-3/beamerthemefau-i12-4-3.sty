@@ -1,0 +1,61 @@
+%-------------------------------------------------------------------------------
+% Main file
+%-------------------------------------------------------------------------------
+
+\mode<presentation>
+
+% Definiere option clean, welche keine logos im Header und Footer anzeigt
+\newif\ifbeamer@cleanframe
+\beamer@cleanframefalse
+
+\DeclareOptionBeamer{clean}{\beamer@cleanframetrue}
+\ProcessOptionsBeamer
+
+% Workaround damit Folien mit Transparenz den RGB-Farbraum verwenden. Ansonsten
+% werden die Farben unter Acrobat Linux falsch dargestellt
+\pdfpageattr {/Group << /S /Transparency /I true /CS /DeviceRGB>>} 
+
+
+% Einbinden der einzelnen Theme-Dateien
+\usefonttheme{fau-4-3}
+\usecolortheme{fau-4-3}
+\useinnertheme{fau-i12-4-3}
+\useoutertheme{fau-i12-4-3}
+
+% Graphiken
+% FAU-Logos fuer Titelseiten und Kopfzeilen
+% FAU allgemein
+%\pgfdeclareimage[height=15mm]{faulogo}{art/fau-logo}
+%\pgfdeclareimage[height=10mm]{faulogosmall}{art/fau-logo}
+% Medizinische Fakultaet
+%\pgfdeclareimage[height=20.7mm]{faulogo}{art/fau-logo-med}
+%\pgfdeclareimage[height=13.8mm]{faulogosmall}{art/fau-logo-med}
+%% Naturwissenschaftliche Fakultaet
+%\pgfdeclareimage[height=24mm]{faulogo}{art/fau-logo-nat}
+%\pgfdeclareimage[height=16mm]{faulogosmall}{art/fau-logo-nat}
+%% Philosophische Fakultaet und Fachbereich Theologie
+%\pgfdeclareimage[height=24mm]{faulogo}{art/fau-logo-philtheo}
+%\pgfdeclareimage[height=16mm]{faulogosmall}{art/fau-logo-philtheo}
+%% Fachbereich Rechtswissenschaft
+%\pgfdeclareimage[height=24mm]{faulogo}{art/fau-logo-recht}
+%\pgfdeclareimage[height=16mm]{faulogosmall}{art/fau-logo-recht}
+%% Rechts- und Wirtschaftswissenschaftliche Fakultaet
+%\pgfdeclareimage[height=24mm]{faulogo}{art/fau-logo-rechtwirt}
+%\pgfdeclareimage[height=16mm]{faulogosmall}{art/fau-logo-rechtwirt}
+%% Technische Fakultaet
+\pgfdeclareimage[height=20.7mm]{faulogo}{art/fau-logo-tech}
+%\pgfdeclareimage[height=13.8mm]{faulogosmall}{art/fau-logo-tech}
+\pgfdeclareimage[height=9.5mm]{faulogosmall}{art/fau-logo-tech}
+%% Fachbereich Wirtschaftswissenschaften
+%\pgfdeclareimage[height=24mm]{faulogo}{art/fau-logo-wirtschaft}
+%\pgfdeclareimage[height=16mm]{faulogosmall}{art/fau-logo-wirtschaft}
+
+%
+\pgfdeclareimage[width=\paperwidth,height=135.1mm]{fauschloss}{art/4_3_title}  % Hintergrundgraphik fuer Titelseite
+\pgfdeclareimage[width=\paperwidth,height=55.4mm]{fauschlosscropped}{art/4_3_chapter} % Hintergrundgraphik fuer Section-Seite
+
+\setbeamertemplate{projectbox}{\includegraphics[height=24mm]{art/codesign}}
+\setbeamertemplate{projectboxsmall}{\raggedleft\includegraphics[height=10mm]{art/codesign}}
+
+\mode
+<all>

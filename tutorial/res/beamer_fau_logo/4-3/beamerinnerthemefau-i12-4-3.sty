@@ -1,0 +1,123 @@
+%-------------------------------------------------------------------------------
+% Inner theme file
+%-------------------------------------------------------------------------------
+
+\mode<presentation>
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% Titelseite %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\setbeamertemplate{title page}
+{%
+\setlength{\unitlength}{1mm}
+\begin{picture}(254,190.5)(17.4,0) % Ursprung (0,0) minus linke Marginalie
+  % Hintergrundbild Schloss
+  \put(0,55.4){%
+    \pgfuseimage{fauschloss}
+  }
+  % Trennbalken
+  \put(0,55.4){\color{faublue}\rule{\paperwidth}{4mm}}
+  % Titel FAU
+  \put(17.4,110.7){%
+    \begin{minipage}[b][45mm][t]{226mm}
+      \usebeamerfont{title}{\raggedright\inserttitle\par}
+      \usebeamerfont{subtitle}{\raggedright\insertsubtitle\par}
+    \end{minipage}
+  }
+  % Autor, Datum, etc
+  \put(17.4,66){%
+    \begin{minipage}[b][30mm][b]{180mm}
+      \fontsize{18}{22}\selectfont % Schriftgroesse und Zeilenabstand
+      \ifx\insertauthor\empty\else
+        \insertauthor \bigskip
+      \fi
+      \ifx\insertinstitute\empty\else
+        \newline\raggedright\insertinstitute \bigskip
+      \fi
+      \ifx\insertdate\empty\else
+        \newline\raggedright\insertdate
+      \fi
+    \end{minipage}
+  }
+  % Projekt-/Lehrstuhl-Box
+  \put(17.4,0){%
+    \begin{minipage}[b][37.5mm][c]{125.45mm}
+      \raggedleft % Ausrichtung am rechten Rand
+      \color{black}
+      \fontsize{16}{20}\selectfont % Schriftgroesse und Zeilenabstand
+      \usebeamertemplate{projectbox}
+    \end{minipage}
+  }
+  % Logo-Box mit FAU-Logo
+  \put(153.45,0){%
+    \begin{minipage}[b][37.5mm][c]{89.95mm}
+      \raggedleft % Ausrichtung am rechten Rand
+      \pgfuseimage{faulogo}
+    \end{minipage}
+  }
+\end{picture}
+}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%% Titelseite Ende %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%% Section-Seite %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\AtBeginSection{%
+  \frame[plain,c]{%
+    \setlength{\unitlength}{1mm}
+    \begin{picture}(254,190.5)(17.4,0) % Ursprung (0,0) minus linke Marginalie
+      % Hintergrundbild Schloss abgeschnitten
+      \put(0,135.1){%
+        \pgfuseimage{fauschlosscropped}
+      }
+      % Trennbalken
+      \put(0,135.1){\color{faublue}\rule{\paperwidth}{4mm}}
+      % Titel der Section
+      \put(17.4,75.3){%
+        \begin{minipage}[b][25mm][t]{226mm}
+          \fontsize{28}{34}\selectfont % Schriftgroesse und Zeilenabstand
+          \color{faublue}
+          \bfseries % fett
+          \insertsection
+        \end{minipage}
+      }
+      \ifbeamer@cleanframe%
+      \beamer@cleanframefalse%
+      \else%
+      % Projekt-/Lehrstuhl-Box
+      \put(17.4,0){%
+        \color{black}
+        \begin{minipage}[b][37.5mm][c]{125.45mm}
+          \raggedleft % Ausrichtung am rechten Rand
+          \color{black}
+          \fontsize{16}{20}\selectfont % Schriftgroesse und Zeilenabstand
+          \usebeamertemplate{projectbox}
+        \end{minipage}
+      }
+      % Logo-Box mit FAU-Logo
+      \put(153.45,0){%
+        \begin{minipage}[b][37.5mm][c]{89.95mm}
+          \raggedleft % Ausrichtung am rechten Rand
+          \pgfuseimage{faulogo}
+        \end{minipage}
+      }
+      \fi
+    \end{picture}
+  }% end frame
+}
+%%%%%%%%%%%%%%%%%%%%%%%%%% Section-Seite Ende %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+%%%%%%%%%%%%%%%%%%%%%%%% Aufzaehlungen und Listen %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Enumerate item
+\setbeamertemplate{enumerate item}{\insertenumlabel.}
+\setbeamertemplate{enumerate subitem}{\insertenumlabel.\insertsubenumlabel}
+\setbeamertemplate{enumerate subsubitem}{\insertenumlabel.\insertsubenumlabel.\insertsubsubenumlabel}
+
+% Itemize item
+\setbeamertemplate{itemize item}{\Huge\textbullet}
+\setbeamertemplate{itemize subitem}{\huge\textbullet}
+\setbeamertemplate{itemize subsubitem}{\LARGE\textbullet}
+%%%%%%%%%%%%%%%%%%%%%% Aufzaehlungen und Listen Ende %%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+\mode
+<all>

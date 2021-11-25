@@ -1,0 +1,95 @@
+%-------------------------------------------------------------------------------
+% Outer theme file
+%-------------------------------------------------------------------------------
+
+\mode<presentation>
+
+
+% Seitenanpassung
+\usepackage{geometry}
+\geometry{paperwidth=254mm,paperheight=190.5mm,left=0mm,right=0mm,top=0mm,bottom=0mm} % Papiergroesse
+\setbeamersize{text margin left=17.4mm,text margin right=10.6mm} % Marginalien fuer Inhalt
+
+% Deaktivierung der Navigationssymbole
+\setbeamertemplate{navigation symbols}{}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% Folientitel %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\setbeamertemplate{frametitle}
+{%
+  \insertframetitle\\[8pt]
+}
+%%%%%%%%%%%%%%%%%%%%%%%%%%% Folientitel Ende %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% Kopfzeile %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\setbeamertemplate{headline}
+{%
+  \setlength{\unitlength}{1mm}%
+  \begin{picture}(127,15.4)(0,0)%
+    % Trennbalken
+    \put(17.4,0.0){\color{faublue}\rule{226mm}{0.75pt}}%
+    \ifbeamer@cleanframe%
+    \beamer@cleanframefalse%
+    \else%
+    % Projekt-/Lehrstuhl-Box
+    \put(17.4,3.0){%
+      \begin{minipage}[b][10mm][c]{180.71mm}%
+        \raggedleft % Ausrichtung am rechten Rand
+        \color{black}%
+        \fontsize{10}{12}\selectfont % Schriftgroesse und Zeilenabstand
+        \usebeamertemplate{projectboxsmall}%
+      \end{minipage}%
+    }%
+    % Logo-Box mit FAU-Logo
+    \put(208.40,3.0){%
+      \begin{minipage}[b][10mm][c]{35.00mm}%
+        \raggedleft % Ausrichtung am rechten Rand
+        \pgfuseimage{faulogosmall}%
+      \end{minipage}%
+    }%
+    \fi%
+  \end{picture}%
+}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%% Kopfzeile Ende %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% Fusszeile %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\setbeamertemplate{footline}
+{%
+  \setlength{\unitlength}{1mm}
+  \begin{picture}(254,8.0)(0,0)
+    \fontsize{8}{10}\selectfont % Schriftgroesse und Zeilenabstand
+    \ifbeamer@cleanframe%
+    \else%
+    % Box fuer Info
+    \put(17.4,0){%
+      \begin{minipage}[b][8.0mm][c]{169.5mm}
+        {\ }\ifx\insertdate\empty\else
+          \insertshortdate\quad|\quad
+        \fi
+        \ifx\insertauthor\empty\else
+          \insertshortauthor\quad|\quad\
+        \fi
+        \ifx\insertinstitute\empty\else
+          \insertshortinstitute\quad|\quad
+        \fi
+        \insertshorttitle
+      \end{minipage}
+    }
+    \fi%
+    % Box fuer Seitenzahl
+    \put(230.9,0){%
+      \begin{minipage}[b][8.0mm][c]{12.5mm}
+        \raggedleft % Ausrichtung am rechten Rand
+        %\insertpagenumber % Seitenzahl
+        \insertframenumber
+      \end{minipage}
+    }
+  \end{picture}
+}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%% Fusszeile Ende %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+\mode
+<all>

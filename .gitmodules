@@ -1,4 +1,0 @@
-[submodule "tutorial/HscdTeXRes"]
-	path = tutorial/HscdTeXRes
-	url = https://github.com/JoachimFalk/papers-HscdTeXRes.git
-	branch = master
