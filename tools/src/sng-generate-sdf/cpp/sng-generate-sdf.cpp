@@ -114,7 +114,7 @@
 
 std::string prgname = "???";
 
-namespace SGX = SystemCoDesigner::SGXUtils;
+//namespace SGX = SystemCoDesigner::SGXUtils;
 namespace NGA = SystemCoDesigner::NGAnalysis;
 namespace po  = boost::program_options;
 namespace fs  = boost::filesystem;
@@ -125,7 +125,7 @@ using ::CoSupport::String::strAs;
 using ::CoSupport::String::Concat;
 using ::CoSupport::Streams::Debug;
 using ::CoSupport::Streams::ScopedIndent;
-using ::SystemCoDesigner::SGXUtils::outDbg;
+//using ::SystemCoDesigner::SGXUtils::outDbg;
 
 /*
 void SDF::dump(graph &g) {
