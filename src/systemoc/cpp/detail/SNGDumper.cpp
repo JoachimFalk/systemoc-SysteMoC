@@ -592,20 +592,32 @@ public:
 
     {
       std::string key = actorType;
+      std::set<std::string> inputPortNames;
+      std::set<std::string> outputPortNames;
+
       for (SCPortBase2Port::value_type p : sv.ports) {
-        key += ";" + p.second.portName;
-        key += p.second.isInput ? "[IN]" : "[OUT]";
+        if (p.second.isInput)
+          sassert(inputPortNames.insert(p.second.portName).second);
+        else
+          sassert(outputPortNames.insert(p.second.portName).second);
       }
+      for (std::string const &portName : inputPortNames)
+        key += ";" + portName + "[IN]";
+      for (std::string const &portName : outputPortNames)
+        key += ";" + portName + "[OUT]";
       std::string &type = gsv.ctx.actorTypeCache[key];
       if (type.empty()) {
         type = gsv.ctx.actorTypeUniquePool(actorType);
         gsv.ctx.actorTypes
           << "  <actorType name=" << XQ(type) << ">\n";
-        for (SCPortBase2Port::value_type p : sv.ports) {
+        for (std::string const &portName : inputPortNames)
           gsv.ctx.actorTypes
-            << "    <port name=" << XQ(p.second.portName)
-            << " type=" << (p.second.isInput ? "\"in\"" : "\"out\"") << "/>\n";
-        }
+            << "    <port name=" << XQ(portName)
+            << " type=\"in\"/>\n";
+        for (std::string const &portName : outputPortNames)
+          gsv.ctx.actorTypes
+            << "    <port name=" << XQ(portName)
+            << " type=\"out\"/>\n";
         gsv.ctx.actorTypes
           << "  </actorType>\n";
       }
