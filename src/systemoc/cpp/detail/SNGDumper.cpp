@@ -461,13 +461,9 @@ public:
       outDbg << "DumpFifo::operator ()(...) [BEGIN] for " << getName(&p) << std::endl;
     }
 #endif //defined(SYSTEMOC_ENABLE_DEBUG)
-    std::ostringstream out;
-    out
-      << "  <fifo "
-              "name=" << XQ(p.name()) << " "
-              "size=\"" << p.depthCount() << "\" "
-              "initial=\"" << p.usedCount() << "\">\n"
-         "    <opendseattr name=\"smoc-token-size\" type=\"INT\" value=\"" << p.getTokenSize() << "\"/>\n";
+    std::map<std::string, FlummyPort> sources;
+    std::map<std::string, FlummyPort> targets;
+
     for (ChanBase::EntryMap::value_type entry : p.getEntries()) {
       SCInterface2Port::iterator iter =
         gsv.expectedChannelConnections.find(entry.first);
@@ -477,9 +473,8 @@ public:
           outDbg << "DumpFifo::connectPort handled expectedChannelConnection " << reinterpret_cast<void *>(iter->first) << std::endl;
         }
 #endif //defined(SYSTEMOC_ENABLE_DEBUG)
-        out
-          << "    <source actor=" << XQ(iter->second.actorName)
-          <<             " port=" << XQ(iter->second.portName) << "/>\n";
+        sassert(sources.insert(std::pair<std::string, FlummyPort>(
+            Concat(iter->second.actorName)(".")(iter->second.portName), iter->second)).second);
         gsv.expectedChannelConnections.erase(iter); // handled it!
       }
     }
@@ -492,15 +487,33 @@ public:
           outDbg << "DumpFifo::connectPort handled expectedChannelConnection " << reinterpret_cast<void *>(iter->first) << std::endl;
         }
 #endif //defined(SYSTEMOC_ENABLE_DEBUG)
-        out
-          << "    <target actor=" << XQ(iter->second.actorName)
-          <<             " port=" << XQ(iter->second.portName) << "/>\n";
+        sassert(targets.insert(std::pair<std::string, FlummyPort>(
+            Concat(iter->second.actorName)(".")(iter->second.portName), iter->second)).second);
         gsv.expectedChannelConnections.erase(iter); // handled it!
       }
     }
-    out
-      << "  </fifo>\n";
-    sassert(gsv.ctx.channelInstances.insert(std::make_pair(p.name(), out.str())).second);
+    {
+      std::ostringstream out;
+      out
+        << "  <fifo "
+                "name=" << XQ(p.name()) << " "
+                "size=\"" << p.depthCount() << "\" "
+                "initial=\"" << p.usedCount() << "\">\n"
+           "    <opendseattr name=\"smoc-token-size\" type=\"INT\" value=\"" << p.getTokenSize() << "\"/>\n";
+      for (std::pair<std::string, FlummyPort> const &e : sources) {
+        out
+          << "    <source actor=" << XQ(e.second.actorName)
+          <<             " port=" << XQ(e.second.portName) << "/>\n";
+      }
+      for (std::pair<std::string, FlummyPort> const &e : targets) {
+        out
+          << "    <target actor=" << XQ(e.second.actorName)
+          <<             " port=" << XQ(e.second.portName) << "/>\n";
+      }
+      out
+        << "  </fifo>\n";
+      sassert(gsv.ctx.channelInstances.insert(std::make_pair(p.name(), out.str())).second);
+    }
 #ifdef SYSTEMOC_ENABLE_DEBUG
     if (outDbg.isVisible(Debug::Low)) {
       outDbg << "DumpFifo::operator ()(...) [END]" << std::endl;
@@ -524,11 +537,9 @@ public:
       outDbg << "DumpRegister::operator ()(...) [BEGIN] for " << getName(&p) << std::endl;
     }
 #endif //defined(SYSTEMOC_ENABLE_DEBUG)
-    std::ostringstream out;
-    out
-      << "  <register "
-              "name=" << XQ(p.name()) << ">\n"
-         "    <opendseattr name=\"smoc-token-size\" type=\"INT\" value=\"" << p.getTokenSize() << "\"/>\n";
+    std::map<std::string, FlummyPort> sources;
+    std::map<std::string, FlummyPort> targets;
+
     for (ChanBase::EntryMap::value_type entry : p.getEntries()) {
       SCInterface2Port::iterator iter =
         gsv.expectedChannelConnections.find(entry.first);
@@ -538,9 +549,8 @@ public:
           outDbg << "DumpRegister::connectPort handled expectedChannelConnection " << reinterpret_cast<void *>(iter->first) << std::endl;
         }
 #endif //defined(SYSTEMOC_ENABLE_DEBUG)
-        out
-          << "    <source actor=" << XQ(iter->second.actorName)
-          <<             " port=" << XQ(iter->second.portName) << "/>\n";
+        sassert(sources.insert(std::pair<std::string, FlummyPort>(
+            Concat(iter->second.actorName)(".")(iter->second.portName), iter->second)).second);
         gsv.expectedChannelConnections.erase(iter); // handled it!
       }
     }
@@ -553,15 +563,31 @@ public:
           outDbg << "DumpRegister::connectPort handled expectedChannelConnection " << reinterpret_cast<void *>(iter->first) << std::endl;
         }
 #endif //defined(SYSTEMOC_ENABLE_DEBUG)
-        out
-          << "    <target actor=" << XQ(iter->second.actorName)
-          <<             " port=" << XQ(iter->second.portName) << "/>\n";
+        sassert(targets.insert(std::pair<std::string, FlummyPort>(
+            Concat(iter->second.actorName)(".")(iter->second.portName), iter->second)).second);
         gsv.expectedChannelConnections.erase(iter); // handled it!
       }
     }
-    out
-      << "  </register>\n";
-    sassert(gsv.ctx.channelInstances.insert(std::make_pair(p.name(), out.str())).second);
+    {
+      std::ostringstream out;
+      out
+        << "  <register "
+                "name=" << XQ(p.name()) << ">\n"
+           "    <opendseattr name=\"smoc-token-size\" type=\"INT\" value=\"" << p.getTokenSize() << "\"/>\n";
+      for (std::pair<std::string, FlummyPort> const &e : sources) {
+        out
+          << "    <source actor=" << XQ(e.second.actorName)
+          <<             " port=" << XQ(e.second.portName) << "/>\n";
+      }
+      for (std::pair<std::string, FlummyPort> const &e : targets) {
+        out
+          << "    <target actor=" << XQ(e.second.actorName)
+          <<             " port=" << XQ(e.second.portName) << "/>\n";
+      }
+      out
+        << "  </register>\n";
+      sassert(gsv.ctx.channelInstances.insert(std::make_pair(p.name(), out.str())).second);
+    }
 #ifdef SYSTEMOC_ENABLE_DEBUG
     if (outDbg.isVisible(Debug::Low)) {
       outDbg << "DumpRegister::operator ()(...) [END]" << std::endl;
