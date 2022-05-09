@@ -7,6 +7,8 @@
 					<externalSetting>
 						<entry flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="includePath" name="/SysteMoC/obj/src/systemoc/headers"/>
 						<entry flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="includePath" name="/SysteMoC/src/systemoc/headers"/>
+						<entry flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="includePath" name="/SysteMoC/obj/src/systemoc-sng/headers"/>
+						<entry flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="includePath" name="/SysteMoC/src/systemoc-sng/headers"/>
 					</externalSetting>
 				</externalSettings>
 				<extensions>
@@ -38,11 +40,15 @@
 							<tool id="org.eclipse.linuxtools.cdt.autotools.core.toolchain.tool.autogen.1266006839" name="autogen.sh" superClass="org.eclipse.linuxtools.cdt.autotools.core.toolchain.tool.autogen"/>
 							<tool id="org.eclipse.linuxtools.cdt.autotools.core.toolchain.tool.gcc.1903466270" name="GCC C Compiler" superClass="org.eclipse.linuxtools.cdt.autotools.core.toolchain.tool.gcc">
 								<option id="gnu.c.compiler.option.include.paths.342374017" name="Include paths (-I)" superClass="gnu.c.compiler.option.include.paths" valueType="includePath">
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/SysteMoC/obj}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/SysteMoC/obj/src/systemoc/headers}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/SysteMoC/src/systemoc/headers}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/SysteMoC/obj/src/systemoc-sng/headers}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/SysteMoC/obj/src/systemoc-sng/resources}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/SysteMoC/src/systemoc-sng/headers}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/SysteMoC/obj/src/systemoc-sng/resources}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/LibNGAnalysis/obj/src/libnganalysis/headers}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/LibNGAnalysis/src/libnganalysis/headers}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/Support/obj/src/cosupport-base/headers}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/Support/src/cosupport-xerces/headers}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/Support/src/cosupport-tracing/headers}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/Support/src/cosupport-systemc/headers}&quot;"/>
@@ -55,21 +61,24 @@
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/Support/src/cosupport-initializer/headers}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/Support/src/cosupport-allocators/headers}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/Support/src/cosupport-base/headers}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/Support/obj/src/cosupport-base/headers}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/LibSGXUtils/obj/src/libsgxutils/headers}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/LibSGXUtils/src/libsgxutils/headers}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/LibSGX/src/libsgx/headers}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/LibSGX/obj/src/libsgx/headers}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/LibSGX/src/libsgx/headers}&quot;"/>
 								</option>
 								<inputType id="cdt.managedbuild.tool.gnu.c.compiler.input.424922071" superClass="cdt.managedbuild.tool.gnu.c.compiler.input"/>
 							</tool>
 							<tool id="org.eclipse.linuxtools.cdt.autotools.core.toolchain.tool.gpp.224007592" name="GCC C++ Compiler" superClass="org.eclipse.linuxtools.cdt.autotools.core.toolchain.tool.gpp">
 								<option id="gnu.cpp.compiler.option.include.paths.474299919" name="Include paths (-I)" superClass="gnu.cpp.compiler.option.include.paths" valueType="includePath">
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/SysteMoC/obj}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/SysteMoC/obj/src/systemoc/headers}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/SysteMoC/src/systemoc/headers}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/SysteMoC/obj/src/systemoc-sng/headers}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/SysteMoC/obj/src/systemoc-sng/resources}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/SysteMoC/src/systemoc-sng/headers}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/SysteMoC/obj/src/systemoc-sng/resources}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/LibNGAnalysis/obj/src/libnganalysis/headers}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/LibNGAnalysis/src/libnganalysis/headers}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/Support/obj/src/cosupport-base/headers}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/Support/src/cosupport-xerces/headers}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/Support/src/cosupport-tracing/headers}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/Support/src/cosupport-systemc/headers}&quot;"/>
@@ -82,11 +91,10 @@
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/Support/src/cosupport-initializer/headers}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/Support/src/cosupport-allocators/headers}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/Support/src/cosupport-base/headers}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/Support/obj/src/cosupport-base/headers}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/LibSGXUtils/obj/src/libsgxutils/headers}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/LibSGXUtils/src/libsgxutils/headers}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/LibSGX/src/libsgx/headers}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/LibSGX/obj/src/libsgx/headers}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/LibSGX/src/libsgx/headers}&quot;"/>
 								</option>
 								<inputType id="cdt.managedbuild.tool.gnu.cpp.compiler.input.1819347454" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.input"/>
 							</tool>
@@ -110,19 +118,19 @@
 				</configuration>
 			</storageModule>
 			<storageModule moduleId="org.eclipse.cdt.core.externalSettings">
-				<externalSettings containerId="LibSGX;" factoryId="org.eclipse.cdt.core.cfg.export.settings.sipplier">
+				<externalSettings containerId="LibSGX;org.eclipse.linuxtools.cdt.autotools.core.configuration.build.669217374" factoryId="org.eclipse.cdt.core.cfg.export.settings.sipplier">
 					<externalSetting>
 						<entry flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="includePath" name="/LibSGX/src/libsgx/headers"/>
 						<entry flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="includePath" name="/LibSGX/obj/src/libsgx/headers"/>
 					</externalSetting>
 				</externalSettings>
-				<externalSettings containerId="LibSGXUtils;" factoryId="org.eclipse.cdt.core.cfg.export.settings.sipplier">
+				<externalSettings containerId="LibSGXUtils;org.eclipse.linuxtools.cdt.autotools.core.configuration.build.468632663" factoryId="org.eclipse.cdt.core.cfg.export.settings.sipplier">
 					<externalSetting>
 						<entry flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="includePath" name="/LibSGXUtils/obj/src/libsgxutils/headers"/>
 						<entry flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="includePath" name="/LibSGXUtils/src/libsgxutils/headers"/>
 					</externalSetting>
 				</externalSettings>
-				<externalSettings containerId="Support;" factoryId="org.eclipse.cdt.core.cfg.export.settings.sipplier">
+				<externalSettings containerId="Support;org.eclipse.linuxtools.cdt.autotools.core.configuration.build.296649554" factoryId="org.eclipse.cdt.core.cfg.export.settings.sipplier">
 					<externalSetting>
 						<entry flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="includePath" name="/Support/src/cosupport-xerces/headers"/>
 						<entry flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="includePath" name="/Support/src/cosupport-tracing/headers"/>
@@ -137,6 +145,12 @@
 						<entry flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="includePath" name="/Support/src/cosupport-allocators/headers"/>
 						<entry flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="includePath" name="/Support/src/cosupport-base/headers"/>
 						<entry flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="includePath" name="/Support/obj/src/cosupport-base/headers"/>
+					</externalSetting>
+				</externalSettings>
+				<externalSettings containerId="LibNGAnalysis;org.eclipse.linuxtools.cdt.autotools.core.configuration.build.384467600" factoryId="org.eclipse.cdt.core.cfg.export.settings.sipplier">
+					<externalSetting>
+						<entry flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="includePath" name="/LibNGAnalysis/obj/src/libnganalysis/headers"/>
+						<entry flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="includePath" name="/LibNGAnalysis/src/libnganalysis/headers"/>
 					</externalSetting>
 				</externalSettings>
 			</storageModule>
@@ -162,6 +176,22 @@
 	</storageModule>
 	<storageModule moduleId="org.eclipse.cdt.make.core.buildtargets">
 		<buildTargets>
+			<target name="%-dtd.c" path="" targetID="org.eclipse.cdt.build.MakeTargetBuilder">
+				<buildCommand>make</buildCommand>
+				<buildArguments>-j8</buildArguments>
+				<buildTarget>%-dtd.c</buildTarget>
+				<stopOnError>true</stopOnError>
+				<useDefaultCommand>true</useDefaultCommand>
+				<runAllBuilders>false</runAllBuilders>
+			</target>
+			<target name="%-xsd.c" path="" targetID="org.eclipse.cdt.build.MakeTargetBuilder">
+				<buildCommand>make</buildCommand>
+				<buildArguments>-j8</buildArguments>
+				<buildTarget>%-xsd.c</buildTarget>
+				<stopOnError>true</stopOnError>
+				<useDefaultCommand>true</useDefaultCommand>
+				<runAllBuilders>false</runAllBuilders>
+			</target>
 			<target name="%.pc" path="" targetID="org.eclipse.cdt.build.MakeTargetBuilder">
 				<buildCommand>make</buildCommand>
 				<buildArguments>-j8</buildArguments>
@@ -222,6 +252,14 @@
 				<buildCommand>make</buildCommand>
 				<buildArguments>-j8</buildArguments>
 				<buildTarget>clean-libtool</buildTarget>
+				<stopOnError>true</stopOnError>
+				<useDefaultCommand>true</useDefaultCommand>
+				<runAllBuilders>false</runAllBuilders>
+			</target>
+			<target name="clean-noinstLTLIBRARIES" path="" targetID="org.eclipse.cdt.build.MakeTargetBuilder">
+				<buildCommand>make</buildCommand>
+				<buildArguments>-j8</buildArguments>
+				<buildTarget>clean-noinstLTLIBRARIES</buildTarget>
 				<stopOnError>true</stopOnError>
 				<useDefaultCommand>true</useDefaultCommand>
 				<runAllBuilders>false</runAllBuilders>
@@ -546,6 +584,14 @@
 				<useDefaultCommand>true</useDefaultCommand>
 				<runAllBuilders>false</runAllBuilders>
 			</target>
+			<target name="libsystemoc-sng.la" path="" targetID="org.eclipse.cdt.build.MakeTargetBuilder">
+				<buildCommand>make</buildCommand>
+				<buildArguments>-j8</buildArguments>
+				<buildTarget>libsystemoc-sng.la</buildTarget>
+				<stopOnError>true</stopOnError>
+				<useDefaultCommand>true</useDefaultCommand>
+				<runAllBuilders>false</runAllBuilders>
+			</target>
 			<target name="libsystemoc.la" path="" targetID="org.eclipse.cdt.build.MakeTargetBuilder">
 				<buildCommand>make</buildCommand>
 				<buildArguments>-j8</buildArguments>
@@ -614,6 +660,30 @@
 				<buildCommand>make</buildCommand>
 				<buildArguments>-j8</buildArguments>
 				<buildTarget>ps</buildTarget>
+				<stopOnError>true</stopOnError>
+				<useDefaultCommand>true</useDefaultCommand>
+				<runAllBuilders>false</runAllBuilders>
+			</target>
+			<target name="src/systemoc-sng/cpp/io/libsystemoc_sng_la-loadSNG.lo" path="" targetID="org.eclipse.cdt.build.MakeTargetBuilder">
+				<buildCommand>make</buildCommand>
+				<buildArguments>-j8</buildArguments>
+				<buildTarget>src/systemoc-sng/cpp/io/libsystemoc_sng_la-loadSNG.lo</buildTarget>
+				<stopOnError>true</stopOnError>
+				<useDefaultCommand>true</useDefaultCommand>
+				<runAllBuilders>false</runAllBuilders>
+			</target>
+			<target name="src/systemoc-sng/cpp/io/libsystemoc_sng_la-saveSNG.lo" path="" targetID="org.eclipse.cdt.build.MakeTargetBuilder">
+				<buildCommand>make</buildCommand>
+				<buildArguments>-j8</buildArguments>
+				<buildTarget>src/systemoc-sng/cpp/io/libsystemoc_sng_la-saveSNG.lo</buildTarget>
+				<stopOnError>true</stopOnError>
+				<useDefaultCommand>true</useDefaultCommand>
+				<runAllBuilders>false</runAllBuilders>
+			</target>
+			<target name="src/systemoc-sng/cpp/transform/libsystemoc_sng_la-transform.lo" path="" targetID="org.eclipse.cdt.build.MakeTargetBuilder">
+				<buildCommand>make</buildCommand>
+				<buildArguments>-j8</buildArguments>
+				<buildTarget>src/systemoc-sng/cpp/transform/libsystemoc_sng_la-transform.lo</buildTarget>
 				<stopOnError>true</stopOnError>
 				<useDefaultCommand>true</useDefaultCommand>
 				<runAllBuilders>false</runAllBuilders>
@@ -746,6 +816,14 @@
 				<useDefaultCommand>true</useDefaultCommand>
 				<runAllBuilders>false</runAllBuilders>
 			</target>
+			<target name="src/systemoc/cpp/detail/libsystemoc_la-FifoChanBase.lo" path="" targetID="org.eclipse.cdt.build.MakeTargetBuilder">
+				<buildCommand>make</buildCommand>
+				<buildArguments>-j8</buildArguments>
+				<buildTarget>src/systemoc/cpp/detail/libsystemoc_la-FifoChanBase.lo</buildTarget>
+				<stopOnError>true</stopOnError>
+				<useDefaultCommand>true</useDefaultCommand>
+				<runAllBuilders>false</runAllBuilders>
+			</target>
 			<target name="src/systemoc/cpp/detail/libsystemoc_la-GraphBase.lo" path="" targetID="org.eclipse.cdt.build.MakeTargetBuilder">
 				<buildCommand>make</buildCommand>
 				<buildArguments>-j8</buildArguments>
@@ -786,6 +864,30 @@
 				<useDefaultCommand>true</useDefaultCommand>
 				<runAllBuilders>false</runAllBuilders>
 			</target>
+			<target name="src/systemoc/cpp/detail/libsystemoc_la-RegisterChanBase.lo" path="" targetID="org.eclipse.cdt.build.MakeTargetBuilder">
+				<buildCommand>make</buildCommand>
+				<buildArguments>-j8</buildArguments>
+				<buildTarget>src/systemoc/cpp/detail/libsystemoc_la-RegisterChanBase.lo</buildTarget>
+				<stopOnError>true</stopOnError>
+				<useDefaultCommand>true</useDefaultCommand>
+				<runAllBuilders>false</runAllBuilders>
+			</target>
+			<target name="src/systemoc/cpp/detail/libsystemoc_la-RegisterEntry.lo" path="" targetID="org.eclipse.cdt.build.MakeTargetBuilder">
+				<buildCommand>make</buildCommand>
+				<buildArguments>-j8</buildArguments>
+				<buildTarget>src/systemoc/cpp/detail/libsystemoc_la-RegisterEntry.lo</buildTarget>
+				<stopOnError>true</stopOnError>
+				<useDefaultCommand>true</useDefaultCommand>
+				<runAllBuilders>false</runAllBuilders>
+			</target>
+			<target name="src/systemoc/cpp/detail/libsystemoc_la-RegisterOutlet.lo" path="" targetID="org.eclipse.cdt.build.MakeTargetBuilder">
+				<buildCommand>make</buildCommand>
+				<buildArguments>-j8</buildArguments>
+				<buildTarget>src/systemoc/cpp/detail/libsystemoc_la-RegisterOutlet.lo</buildTarget>
+				<stopOnError>true</stopOnError>
+				<useDefaultCommand>true</useDefaultCommand>
+				<runAllBuilders>false</runAllBuilders>
+			</target>
 			<target name="src/systemoc/cpp/detail/libsystemoc_la-SimulationContext.lo" path="" targetID="org.eclipse.cdt.build.MakeTargetBuilder">
 				<buildCommand>make</buildCommand>
 				<buildArguments>-j8</buildArguments>
@@ -806,6 +908,14 @@
 				<buildCommand>make</buildCommand>
 				<buildArguments>-j8</buildArguments>
 				<buildTarget>src/systemoc/cpp/detail/libsystemoc_la-SMXImporter.lo</buildTarget>
+				<stopOnError>true</stopOnError>
+				<useDefaultCommand>true</useDefaultCommand>
+				<runAllBuilders>false</runAllBuilders>
+			</target>
+			<target name="src/systemoc/cpp/detail/libsystemoc_la-SNGDumper.lo" path="" targetID="org.eclipse.cdt.build.MakeTargetBuilder">
+				<buildCommand>make</buildCommand>
+				<buildArguments>-j8</buildArguments>
+				<buildTarget>src/systemoc/cpp/detail/libsystemoc_la-SNGDumper.lo</buildTarget>
 				<stopOnError>true</stopOnError>
 				<useDefaultCommand>true</useDefaultCommand>
 				<runAllBuilders>false</runAllBuilders>
@@ -882,14 +992,6 @@
 				<useDefaultCommand>true</useDefaultCommand>
 				<runAllBuilders>false</runAllBuilders>
 			</target>
-			<target name="src/systemoc/cpp/libsystemoc_la-smoc_fifo.lo" path="" targetID="org.eclipse.cdt.build.MakeTargetBuilder">
-				<buildCommand>make</buildCommand>
-				<buildArguments>-j8</buildArguments>
-				<buildTarget>src/systemoc/cpp/libsystemoc_la-smoc_fifo.lo</buildTarget>
-				<stopOnError>true</stopOnError>
-				<useDefaultCommand>true</useDefaultCommand>
-				<runAllBuilders>false</runAllBuilders>
-			</target>
 			<target name="src/systemoc/cpp/libsystemoc_la-smoc_firing_state.lo" path="" targetID="org.eclipse.cdt.build.MakeTargetBuilder">
 				<buildCommand>make</buildCommand>
 				<buildArguments>-j8</buildArguments>
@@ -958,14 +1060,6 @@
 				<buildCommand>make</buildCommand>
 				<buildArguments>-j8</buildArguments>
 				<buildTarget>src/systemoc/cpp/libsystemoc_la-smoc_port_out.lo</buildTarget>
-				<stopOnError>true</stopOnError>
-				<useDefaultCommand>true</useDefaultCommand>
-				<runAllBuilders>false</runAllBuilders>
-			</target>
-			<target name="src/systemoc/cpp/libsystemoc_la-smoc_register.lo" path="" targetID="org.eclipse.cdt.build.MakeTargetBuilder">
-				<buildCommand>make</buildCommand>
-				<buildArguments>-j8</buildArguments>
-				<buildTarget>src/systemoc/cpp/libsystemoc_la-smoc_register.lo</buildTarget>
 				<stopOnError>true</stopOnError>
 				<useDefaultCommand>true</useDefaultCommand>
 				<runAllBuilders>false</runAllBuilders>
