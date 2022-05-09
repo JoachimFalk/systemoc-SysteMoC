@@ -2,7 +2,7 @@
 // vim: set sw=2 ts=8 et:
 /*
  * Copyright (c)
- *  2021 FAU -- Joachim Falk <joachim.falk@fau.de>
+ *  2021-2022 FAU -- Joachim Falk <joachim.falk@fau.de>
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -92,13 +92,13 @@ int main(int argc, char** argv)
 #ifndef NDEBUG
   sstr.str(""); // reset string stream
   sstr << "set debug level; level 0 is off; level " << Debug::None.level << " is most verbose";
-#endif //SGXUTILS_DEBUG_OUTPUT
+#endif //!defined(NDEBUG)
   
   publicOptions.add_options()
     ("help", "produce help message")
 #ifndef NDEBUG
     ("debug", po::value<size_t>()->default_value(0), sstr.str().c_str())
-#endif //SGXUTILS_DEBUG_OUTPUT
+#endif //!defined(NDEBUG)
     ("transform", po::value<smoc::SNG::Transform>()->default_value(smoc::SNG::Transform::FIFOS_NO_MERGING), "one of "
         "FIFOS_NO_MERGING (default), "
         "FIFOS_SAME_CONTENT_MERGING, "
@@ -113,9 +113,9 @@ int main(int argc, char** argv)
 
   po::options_description privateOptions;
   privateOptions.add_options()
-#ifndef SGXUTILS_DEBUG_OUTPUT
+#ifdef NDEBUG
     ("debug", po::value<size_t>()->default_value(0), "turn on debug mode")
-#endif //SGXUTILS_DEBUG_OUTPUT
+#endif //defined(NDEBUG)
     ;
   
   po::positional_options_description pod;
