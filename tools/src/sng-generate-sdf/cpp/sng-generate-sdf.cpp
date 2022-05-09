@@ -1,35 +1,21 @@
+// -*- tab-width:8; indent-tabs-mode:nil; c-basic-offset:2; -*-
+// vim: set sw=2 ts=8 et:
 /*
- * Copyright (c) 2013-2013 Hardware-Software-CoDesign, University of
- * Erlangen-Nuremberg. All rights reserved.
+ * Copyright (c)
+ *  2021-2022 FAU -- Joachim Falk <joachim.falk@fau.de>
  * 
- *   This library is free software; you can redistribute it and/or modify it under
- *   the terms of the GNU Lesser General Public License as published by the Free
- *   Software Foundation; either version 2 of the License, or (at your option) any
- *   later version.
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
  * 
- *   This library is distributed in the hope that it will be useful, but WITHOUT
- *   ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
- *   FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more
- *   details.
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
  * 
- *   You should have received a copy of the GNU Lesser General Public License
- *   along with this library; if not, write to the Free Software Foundation, Inc.,
- *   59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
- * 
- * --- This software and any associated documentation is provided "as is" 
- * 
- * IN NO EVENT SHALL HARDWARE-SOFTWARE-CODESIGN, UNIVERSITY OF ERLANGEN NUREMBERG
- * BE LIABLE TO ANY PARTY FOR DIRECT, INDIRECT, SPECIAL, INCIDENTAL, OR
- * CONSEQUENTIAL DAMAGES ARISING OUT OF THE USE OF THIS SOFTWARE AND ITS
- * DOCUMENTATION, EVEN IF HARDWARE-SOFTWARE-CODESIGN, UNIVERSITY OF ERLANGEN
- * NUREMBERG HAS BEEN ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- * 
- * HARDWARE-SOFTWARE-CODESIGN, UNIVERSITY OF ERLANGEN NUREMBERG, SPECIFICALLY
- * DISCLAIMS ANY WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
- * OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE. THE SOFTWARE PROVIDED
- * HEREUNDER IS ON AN "AS IS" BASIS, AND HARDWARE-SOFTWARE-CODESIGN, UNIVERSITY OF
- * ERLANGEN NUREMBERG HAS NO OBLIGATION TO PROVIDE MAINTENANCE, SUPPORT, UPDATES,
- * ENHANCEMENTS, OR MODIFICATIONS.
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
 #include "config.h"
@@ -120,11 +106,25 @@ namespace po  = boost::program_options;
 namespace fs  = boost::filesystem;
 
 // Some usefull functions from CoSupport.
-using ::CoSupport::String::asStr;
-using ::CoSupport::String::strAs;
 using ::CoSupport::String::Concat;
 using ::CoSupport::Streams::Debug;
-using ::CoSupport::Streams::ScopedIndent;
+
+typedef
+#ifdef NDEBUG
+  CoSupport::Streams::NullStreambuf::Stream<
+#endif //NDEBUG
+    CoSupport::Streams::DebugStreambuf::Stream<
+      CoSupport::Streams::IndentStreambuf::Stream<
+        CoSupport::Streams::HeaderFooterStreambuf::Stream<
+    > > >
+#ifdef NDEBUG
+  >
+#endif //NDEBUG
+  DebugOStream;
+
+/// Debug output stream
+DebugOStream outDbg(std::cerr);
+
 //using ::SystemCoDesigner::SGXUtils::outDbg;
 
 /*
@@ -707,15 +707,13 @@ int main(int argc, char** argv) {
   po::options_description publicOptions(sstr.str());
   po::options_description privateOptions;
   
-#ifdef SGXUTILS_DEBUG_OUTPUT
   {
-    sstr.str(""); // reset string stream
-    sstr << "set debug level; level 0 is off; level " << Debug::None.level << " is most verbose";
     privateOptions.add_options()
-      ("debug", po::value<size_t>()->default_value(0), sstr.str().c_str());
+#ifdef NDEBUG
+      ("debug", po::value<size_t>()->default_value(0), "turn on debug mode")
+#endif //defined(NDEBUG)
       ;
   }
-#endif //SGXUTILS_DEBUG_OUTPUT
   {
     using CoSupport::Random::RandomConst;
     using CoSupport::Random::RandomUniform;
@@ -735,13 +733,18 @@ int main(int argc, char** argv) {
     repCounts.push_back(std::make_pair(1,18));
     repCounts.push_back(std::make_pair(1,30));
 
+#ifndef NDEBUG
+    sstr.str(""); // reset string stream
+    sstr << "set debug level; level 0 is off; level " << Debug::None.level << " is most verbose";
+#endif //!defined(NDEBUG)
+
     NewClusterParser                  *ncp;
     std::unique_ptr<NewClusterParser> _ncp(ncp = new NewClusterParser());
     publicOptions.add_options()
       ("help", "produce help message")
-  #ifdef SGXUTILS_DEBUG_OUTPUT
+#ifndef NDEBUG
       ("debug", po::value<size_t>()->default_value(0), sstr.str().c_str())
-  #endif //SGXUTILS_DEBUG_OUTPUT
+#endif //!defined(NDEBUG)
       ("seed", po::value<uint64_t>(), "specify random seed")
       ("dump-seed" , po::value<std::string>(), "dump used seed into file")
       ("source-actor", po::value<bool>()->default_value(false, "no")->implicit_value(true),
@@ -840,14 +843,15 @@ int main(int argc, char** argv) {
     if (vm["cluster-weight"].as<std::map<size_t, size_t> >().empty()) {
       throw std::runtime_error("no clusters given, e.g., use --new-cluster --cluster-actor-count=3 to specify a cluster with 3 actors");
     }
-    
-#ifdef SGXUTILS_DEBUG_OUTPUT
+
+#ifndef NDEBUG
     int   debugLevel = Debug::None.level - vm["debug"].as<size_t>();
     outDbg.setLevel(debugLevel < 0 ? 0 : debugLevel);
-#else  //!SGXUTILS_DEBUG_OUTPUT
+    outDbg << Debug::High;
+#else  //NDEBUG
     if (vm["debug"].as<size_t>() != 0)
       std::cerr << prgname << ": Warning --debug support not compiled in!" << std::endl;
-#endif //!SGXUTILS_DEBUG_OUTPUT
+#endif //NDEBUG
     
     {
       uint64_t seed;
