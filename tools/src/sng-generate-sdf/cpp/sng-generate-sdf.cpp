@@ -834,7 +834,7 @@ int main(int argc, char** argv) {
       std::cout << publicOptions << std::endl;
       return 0;
     }
-    if (!vm.count("ngx") && !vm.count("dot")) {
+    if (!vm.count("sng") && !vm.count("dot")) {
       throw std::runtime_error("no output file specified for generated network graph!");
     }
     if (!vm.count("actor-count")) {
@@ -1359,6 +1359,8 @@ int main(int argc, char** argv) {
         //   writeComm = singlecastComm + multicastWrite
         multicastWrite = (readComm-writeComm) / (x-1);
         singlecastComm = writeComm - multicastWrite;
+        if (writeComm < multicastWrite)
+          throw std::runtime_error("increase --cluster-output-multicast-degree >= --cluster-output-out-degree or --cluster-actor-multicast-degree >= --cluster-actor-out-degree!");
 
   //    std::cout << "multicastWrite: " << multicastWrite << std::endl;
   //    std::cout << "singlecastComm: " << singlecastComm << std::endl;
