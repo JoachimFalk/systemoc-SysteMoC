@@ -85,7 +85,6 @@ ACJF_CHECK_CROSSTOOL(CC, gcc)
 ACJF_CHECK_CROSSTOOL(CXX, g++)
 ACJF_CHECK_CROSSTOOL(AR, ar)
 ACJF_CHECK_CROSSTOOL(RANLIB, ranlib)
-ACJF_CHECK_CROSSTOOL(NM, nm)
 
 ACJF_ENABLE_DIALECTS_C99_CXX11
 
@@ -93,13 +92,12 @@ AM_INIT_AUTOMAKE([subdir-objects])
 AC_PROG_CXXCPP
 AC_PROG_CPP
 # Checks for programs.
-#AC_PROG_LIBTOOL
 #AC_PROG_INSTALL
 #AC_PROG_LN_S
 #AC_PROG_MAKE_SET
 
 AC_DISABLE_SHARED
-AC_PROG_LIBTOOL
+LT_INIT
 
 ACJF_ARG_DEBUG([yes], [], [-DNDEBUG])
 if test x"$enable_debug" = x"yes"; then
@@ -260,8 +258,9 @@ else
 fi
 AM_CONDITIONAL(SGXUTILS, test x"$sgxutils" = x"true")
 
-AC_CONFIG_HEADER([config.h])
-AC_CONFIG_HEADER([src/systemoc/headers/systemoc/smoc_config.h])
+AC_CONFIG_HEADERS(
+  [config.h]dnl
+  [src/systemoc/headers/systemoc/smoc_config.h])
 AC_CONFIG_FILES([
   Makefile
   src/systemoc/headers/Makefile
