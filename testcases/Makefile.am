@@ -357,9 +357,10 @@ clean-local:
 	rm -f $(addsuffix .smx,$(noinst_PROGRAMS))
 	rm -f $(TEST_LOGS) $(TEST_FSMS)
 
-.PHONY: test-logs check-logs
-check-am: check-logs
+CHECK_TARGETS :=
+.PHONY: test-logs check-logs 
 test-logs: $(TEST_LOGS)
+CHECK_TARGETS += check-logs
 check-logs: $(TEST_LOGS)
 	@error=0; \
 	for test in $(noinst_PROGRAMS); do \
@@ -393,10 +394,10 @@ check-logs: $(TEST_LOGS)
 
 # .PHONY is outside conditionals to make automake happy
 .PHONY: test-fsms check-fsms
-if SGXUTILS
-
-check-am: check-fsms
 test-fsms: $(TEST_FSMS)
+if SGXUTILS
+CHECK_TARGETS += check-fsms
+endif
 check-fsms: $(TEST_FSMS)
 	@error=0; \
 	for test in $(noinst_PROGRAMS); do \
@@ -418,4 +419,6 @@ check-fsms: $(TEST_FSMS)
  	  esac; \
 	done; \
 	exit $$error
-endif
+
+check-am: $(CHECK_TARGETS)
+

@@ -32,7 +32,7 @@ SUBDIRS =
 
 TEXINPUTS    := figs:$(srcdir)/figs:tex:$(srcdir)/tex:$(RESDIR):$(RESDIR)/beamer_fau_logo/4-3:$(TEXINPUTS)
 TEXCLEANDIRS := figs .
-TEX_SOURCES  := \
+TEXSOURCES  := \
 	tex/SysteMoC-Tutorial-slides.tex \
 	tex/SysteMoC-Tutorial-report.tex
 

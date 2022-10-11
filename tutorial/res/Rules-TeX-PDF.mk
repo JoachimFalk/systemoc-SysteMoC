@@ -1,6 +1,7 @@
 # vim: set noet ts=8 sts=0 sw=2:
 
-TEX_TARGETS=$(TEX_SOURCES:.tex=.pdf) $(TEX_SOURCES:.tex=-2x1.pdf)
+TEX_SOURCES ?= $(TEXSOURCES)
+TEX_TARGETS := $(TEX_SOURCES:.tex=.pdf) $(TEX_SOURCES:.tex=-2x1.pdf)
 
 PS_OR_PDF=pdf
 
