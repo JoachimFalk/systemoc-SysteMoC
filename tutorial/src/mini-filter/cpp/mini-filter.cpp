@@ -2,6 +2,9 @@
 // vim: set sw=2 ts=8 et:
 /*
  * Copyright (c)
+ *   2010 FAU -- Joachim Falk <joachim.falk@fau.de>
+ *   2010 FAU -- Martin Streubuehr <martin.streubuehr@fau.de>
+ *   2016 FAU -- Joachim Falk <joachim.falk@fau.de>
  *   2019 FAU -- Joachim Falk <joachim.falk@fau.de>
  * 
  * This program is free software; you can redistribute it and/or modify it under
