@@ -128,9 +128,6 @@ void smoc_scheduler_top::before_end_of_elaboration() {
     MM::MMAPI* api = MM::MMAPI::getInstance();
     api->beforeEndOfElaboration();
 #endif //SYSTEMOC_ENABLE_MAESTRO
-//  g->finalise();
-#ifdef SYSTEMOC_ENABLE_VPC
-#endif //SYSTEMOC_ENABLE_VPC
   } catch (std::exception &e) {
     std::cerr << "Got exception at smoc_scheduler_top::before_end_of_elaboration():\n\t"
               << e.what();
