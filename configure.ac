@@ -24,6 +24,7 @@
 #   2018 FAU -- Joachim Falk <joachim.falk@fau.de>
 #   2019 FAU -- Joachim Falk <joachim.falk@fau.de>
 #   2021 FAU -- Joachim Falk <joachim.falk@fau.de>
+#   2023 FAU -- Joachim Falk <joachim.falk@fau.de>
 # 
 # This library is free software; you can redistribute it and/or modify it under
 # the terms of the GNU Lesser General Public License as published by the Free
@@ -250,13 +251,16 @@ fi
 AM_CONDITIONAL(SGXUTILS, test x"$sgxutils" = x"true")
 
 AC_CONFIG_HEADERS(
-  [config.h]dnl
-  [src/systemoc/headers/systemoc/smoc_config.h])
+ [config.h]dnl
+ [src/systemoc/headers/systemoc/smoc_config.h]dnl
+ [src/actorlibrary/cpp/config.h])
 AC_CONFIG_FILES([
   Makefile
-  src/systemoc/headers/Makefile
   src/systemoc-sng/headers/Makefile
+  src/systemoc/headers/Makefile
+  src/actorlibrary/headers/Makefile
   pkgconfig/libsystemoc.pc
+  pkgconfig/libactorlibrary.pc
   testcases/Makefile
   tutorial/Makefile
   tools/Makefile

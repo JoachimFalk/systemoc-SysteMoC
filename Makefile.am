@@ -22,6 +22,7 @@
 #   2019 FAU -- Joachim Falk <joachim.falk@fau.de>
 #   2020 FAU -- Joachim Falk <joachim.falk@fau.de>
 #   2021 FAU -- Joachim Falk <joachim.falk@fau.de>
+#   2023 FAU -- Joachim Falk <joachim.falk@fau.de>
 # 
 # This library is free software; you can redistribute it and/or modify it under
 # the terms of the GNU Lesser General Public License as published by the Free
@@ -42,7 +43,13 @@
 include $(auxdir)/jfrules.mk
 include ../BuildSystem/doxygen.am
 
-SUBDIRS = . src/systemoc-sng/headers src/systemoc/headers testcases tutorial tools
+SUBDIRS = . \
+	src/systemoc-sng/headers \
+	src/systemoc/headers \
+	src/actorlibrary/headers \
+	testcases \
+	tutorial \
+	tools
 
 AUTOMAKE_OPTIONS = nostdinc
 # This is only needed if there is a configure.ac in this directory
@@ -77,7 +84,8 @@ CLEANFILES=
 pkgconfigdir = $(libdir)/pkgconfig
 
 nodist_pkgconfig_DATA =	\
-	libsystemoc.pc
+	libsystemoc.pc \
+	libactorlibrary.pc
 
 CLEANFILES += $(nodist_pkgconfig_DATA)
 
@@ -85,8 +93,12 @@ BUILT_SOURCES=src/systemoc-sng/resources/sng-xsd.c
 
 CLEANFILES += $(BUILT_SOURCES)
 
-lib_LTLIBRARIES = libsystemoc.la
-noinst_LTLIBRARIES = libsystemoc-sng.la
+noinst_LTLIBRARIES = \
+	libsystemoc-sng.la
+
+lib_LTLIBRARIES = \
+	libsystemoc.la \
+	libactorlibrary.la
 
 libsystemoc_sng_la_SOURCES = \
 	src/systemoc-sng/cpp/io/loadSNG.cpp \
@@ -183,3 +195,17 @@ libsystemoc_la_LDFLAGS = \
 	-Wl,--no-undefined \
 	$(AM_LDFLAGS) \
 	$(filter-out %/libsystemoc.la, $(shell PKG_CONFIG_PATH="$(PKG_CONFIG_PATH)"; export PKG_CONFIG_PATH; $(PKG_CONFIG) --static --libs libsystemoc))
+
+libactorlibrary_la_SOURCES = \
+	src/actorlibrary/cpp/TT.cpp
+libactorlibrary_la_DEPENDENCIES = \
+	libsystemoc.la
+libactorlibrary_la_CPPFLAGS = \
+	-Isrc/actorlibrary/cpp \
+	-I$(srcdir)/src/actorlibrary/headers \
+	$(AM_CPPFLAGS) \
+	$(shell PKG_CONFIG_PATH="$(PKG_CONFIG_PATH)"; export PKG_CONFIG_PATH; $(PKG_CONFIG) --static --cflags libactorlibrary)
+libactorlibrary_la_LDFLAGS = \
+	-Wl,--no-undefined \
+	$(AM_LDFLAGS) \
+	$(filter-out %/libactorlibrary.la, $(shell PKG_CONFIG_PATH="$(PKG_CONFIG_PATH)"; export PKG_CONFIG_PATH; $(PKG_CONFIG) --static --libs libactorlibrary))

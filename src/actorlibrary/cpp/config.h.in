@@ -1,0 +1,108 @@
+/* config.h.in.  Generated from configure.ac by autoheader.  */
+
+/* vim: set sw=2 ts=8 syn=c: */
+
+#ifndef _INCLUDED_CONFIG_H
+#define _INCLUDED_CONFIG_H
+
+
+/* Define to 1 if you have the <dlfcn.h> header file. */
+#undef HAVE_DLFCN_H
+
+/* Define to 1 if you have the <inttypes.h> header file. */
+#undef HAVE_INTTYPES_H
+
+/* Define to 1 if you have the `ltdl' library (-lltdl). */
+#undef HAVE_LIBLTDL
+
+/* Define to 1 if you have the <stdint.h> header file. */
+#undef HAVE_STDINT_H
+
+/* Define to 1 if you have the <stdio.h> header file. */
+#undef HAVE_STDIO_H
+
+/* Define to 1 if you have the <stdlib.h> header file. */
+#undef HAVE_STDLIB_H
+
+/* Define to 1 if you have the <strings.h> header file. */
+#undef HAVE_STRINGS_H
+
+/* Define to 1 if you have the <string.h> header file. */
+#undef HAVE_STRING_H
+
+/* Define to 1 if you have the <sys/stat.h> header file. */
+#undef HAVE_SYS_STAT_H
+
+/* Define to 1 if you have the <sys/types.h> header file. */
+#undef HAVE_SYS_TYPES_H
+
+/* Define to 1 if you have the <unistd.h> header file. */
+#undef HAVE_UNISTD_H
+
+/* Define to the sub-directory where libtool stores uninstalled libraries. */
+#undef LT_OBJDIR
+
+/* Name of package */
+#undef PACKAGE
+
+/* Define to the address where bug reports for this package should be sent. */
+#undef PACKAGE_BUGREPORT
+
+/* Define to the full name of this package. */
+#undef PACKAGE_NAME
+
+/* Define to the full name and version of this package. */
+#undef PACKAGE_STRING
+
+/* Define to the one symbol short name of this package. */
+#undef PACKAGE_TARNAME
+
+/* Define to the home page for this package. */
+#undef PACKAGE_URL
+
+/* Define to the version of this package. */
+#undef PACKAGE_VERSION
+
+/* Define to 1 if all of the C90 standard headers exist (not just the ones
+   required in a freestanding environment). This macro is provided for
+   backward compatibility; new code need not use it. */
+#undef STDC_HEADERS
+
+/* Defined if tracing support is enabled */
+#undef SYSTEMOC_ENABLE_DATAFLOW_TRACE
+
+/* Defined if debug support is enabled */
+#undef SYSTEMOC_ENABLE_DEBUG
+
+/* Defined if hooking infrastructure is provided */
+#undef SYSTEMOC_ENABLE_HOOKING
+
+/* Defined if network graph analysis support is enabled */
+#undef SYSTEMOC_ENABLE_NGANALYSIS
+
+/* Defined if routing support is enabled */
+#undef SYSTEMOC_ENABLE_ROUTING
+
+/* Defined if SGX support is enabled */
+#undef SYSTEMOC_ENABLE_SGX
+
+/* Defined if tracing support is enabled */
+#undef SYSTEMOC_ENABLE_TRANSITION_TRACE
+
+/* For SysteMoC version x.y.z defined to major version, e.g., x */
+#undef SYSTEMOC_MAJOR_VERSION
+
+/* For SysteMoC version x.y.z defined to micro version, e.g., z */
+#undef SYSTEMOC_MICRO_VERSION
+
+/* For SysteMoC version x.y.z defined to minor version, e.g., y */
+#undef SYSTEMOC_MINOR_VERSION
+
+/* Defined to SysteMoC version */
+#undef SYSTEMOC_VERSION
+
+/* Version number of package */
+#undef VERSION
+
+#endif /* _INCLUDED_CONFIG_H */
+
