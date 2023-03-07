@@ -21,6 +21,7 @@
 #   2018 FAU -- Joachim Falk <joachim.falk@fau.de>
 #   2019 FAU -- Joachim Falk <joachim.falk@fau.de>
 #   2022 FAU -- Joachim Falk <joachim.falk@fau.de>
+#   2023 FAU -- Joachim Falk <joachim.falk@fau.de>
 # 
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of the GNU General Public License as published by the Free Software
@@ -381,10 +382,12 @@ check-logs: $(TEST_LOGS)
 		  fi; \
 		done; \
 		if test x"$$status" = x"failed"; then \
-		  echo "Check for $${test} failed!!!"; error=1; \
+		  echo "FAILURE for $${test} golden log check."; error=1; \
 		  for log in $(srcdir)/src/$${test}/golden-*.log; do \
 		    diff -u $${test}-$${log##*/golden-} $${log}; \
 		  done; \
+		else \
+		  echo "SUCCESS for $${test} golden log check."; \
 		fi; \
 	      fi; \
 	      ;; \
@@ -412,8 +415,10 @@ check-fsms: $(TEST_FSMS)
 		  status=failed; \
 		fi; \
 		if test x"$$status" = x"failed"; then \
-		  echo "Check for $${test}-fsms failed!!!"; error=1; \
+		  echo "FAILURE for $${test} golden FSMs check."; error=1; \
 		  diff -u $${test_fsms} $${golden_fsms}; \
+		else \
+		  echo "SUCCESS for $${test} golden FSMs check."; \
 		fi; \
 	      fi; \
 	      ;; \
