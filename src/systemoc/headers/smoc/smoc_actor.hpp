@@ -36,11 +36,6 @@
 
 #include <systemoc/smoc_config.h>
 
-#ifdef SYSTEMOC_ENABLE_MAESTRO
-# include <Maestro/MetaMap/SMoCActor.hpp>
-# include <Maestro/MetaMap/includes.hpp>
-#endif //SYSTEMOC_ENABLE_MAESTRO
-
 // Not needed for actor, but users will likely require this.
 #include "smoc_firing_state.hpp"
 // Not needed for actor, but users will likely require this.
@@ -52,79 +47,7 @@ namespace smoc {
 
 class smoc_actor: public Detail::NodeBase {
 protected:
-  smoc_actor(sc_core::sc_module_name name, smoc_state &s, unsigned int thread_stack_size = 0
-#ifdef SYSTEMOC_ENABLE_MAESTRO
-      , bool useLogFile = false
-#endif //defined(SYSTEMOC_ENABLE_MAESTRO)
-    );
-//smoc_actor(smoc_hierarchical_state &s, unsigned int thread_stack_size = 0
-//#ifdef SYSTEMOC_ENABLE_MAESTRO
-//    , bool useLogFile = false
-//#endif //defined(SYSTEMOC_ENABLE_MAESTRO)
-//  );
-
-//  void before_end_of_elaboration();
-
-#ifdef SYSTEMOC_ENABLE_MAESTRO
-  void initMMactor();
-
-  double getLocalTimeDiff();
-#endif //SYSTEMOC_ENABLE_MAESTRO
-public:
-
-#ifdef SYSTEMOC_ENABLE_MAESTRO
-  /**
-   * Delta cycle wait
-   */
-  void wait();
-
-  /**
-   * Timespan wait
-   */
-  void wait(double v, sc_time_unit tu);
-
-  /**
-   * Wait for event
-   */
-  void wait(sc_event& waitEvent);
-
-  /**
-   * Timespan wait
-   */
-  void wait(sc_time sct);
-
-  /**
-   * Timespan wait according to actor-local time (as oppossed to simulation global time)
-   */
-  void localClockWait(sc_time sct);
-
-  /**
-   * Timespan wait according to actor-local time (as oppossed to simulation global time)
-   */
-  void localClockWait(double v, sc_time_unit tu);
-
-  /**
-   * Wait for timespan or event
-   */
-  void wait(sc_time sct, sc_event& waitEvent);
-
-  virtual bool testCanExecute();
-
-  virtual bool canExecute();
-  virtual void getCurrentTransition(MetaMap::Transition*& activeTransition);
-  virtual void registerTransitionReadyListener(MetaMap::TransitionReadyListener& trListener);
-  
-# ifdef MAESTRO_ENABLE_POLYPHONIC
-  virtual void registerThreadDoneListener(MetaMap::ThreadDoneListener& tdListener);
-# endif
-  
-  virtual void sleep(sc_event& wakeUpEvent);
-  virtual void execute();
-
-  virtual bool isScheduled();
-
-  virtual void setScheduled(bool set);
-#endif // SYSTEMOC_ENABLE_MAESTRO
+  smoc_actor(sc_core::sc_module_name name, smoc_state &s, unsigned int thread_stack_size = 0);
 };
 
 } // namespace smoc

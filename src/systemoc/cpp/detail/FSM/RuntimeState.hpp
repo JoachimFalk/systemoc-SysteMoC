@@ -45,9 +45,6 @@ namespace smoc { namespace Detail { namespace FSM {
 
   class RuntimeState
     :
-#if defined(SYSTEMOC_ENABLE_MAESTRO) && defined(MAESTRO_ENABLE_BRUCKNER)
-      public Bruckner::Model::State,
-#endif //defined(SYSTEMOC_ENABLE_MAESTRO) && defined(MAESTRO_ENABLE_BRUCKNER)
 #ifdef SYSTEMOC_NEED_IDS
       public NamedIdedObj,
 #endif // SYSTEMOC_NEED_IDS
@@ -56,11 +53,7 @@ namespace smoc { namespace Detail { namespace FSM {
       typedef RuntimeState this_type;
       friend class RuntimeTransition;
   public:
-    RuntimeState(std::string const &name
-#if defined(SYSTEMOC_ENABLE_MAESTRO) && defined(MAESTRO_ENABLE_BRUCKNER)
-        , Bruckner::Model::Hierarchical* sParent = nullptr
-#endif
-      );
+    RuntimeState(std::string const &name);
 
     RuntimeTransitionList       &getTransitions();
     RuntimeTransitionList const &getTransitions() const;

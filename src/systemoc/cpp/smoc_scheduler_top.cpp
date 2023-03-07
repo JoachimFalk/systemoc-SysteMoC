@@ -113,10 +113,6 @@ void smoc_scheduler_top::_before_end_of_elaboration() {
 //#ifdef SYSTEMOC_ENABLE_VPC
 //    SystemC_VPC::Director::getInstance().beforeVpcFinalize();
 //#endif //SYSTEMOC_ENABLE_VPC
-#ifdef SYSTEMOC_ENABLE_MAESTRO
-    MM::MMAPI* api = MM::MMAPI::getInstance();
-    api->beforeEndOfElaboration();
-#endif //SYSTEMOC_ENABLE_MAESTRO
   } catch (std::exception &e) {
     std::cerr << "Got exception at smoc_scheduler_top::_before_end_of_elaboration():\n\t"
               << e.what();
@@ -141,10 +137,6 @@ void smoc_scheduler_top::_end_of_elaboration() {
 //#ifdef SYSTEMOC_ENABLE_VPC
 //    SystemC_VPC::Director::getInstance().endOfVpcFinalize();
 //#endif //SYSTEMOC_ENABLE_VPC
-#ifdef SYSTEMOC_ENABLE_MAESTRO
-    MM::MMAPI* api = MM::MMAPI::getInstance();
-    api->endOfElaboration();
-#endif //SYSTEMOC_ENABLE_MAESTRO
   } catch (std::exception &e) {
     std::cerr << "Got exception at smoc_scheduler_top::_end_of_elaboration():\n\t"
               << e.what();

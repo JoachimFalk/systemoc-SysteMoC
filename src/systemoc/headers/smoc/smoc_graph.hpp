@@ -33,10 +33,6 @@
 
 #include <systemoc/smoc_config.h>
 
-#ifdef SYSTEMOC_ENABLE_MAESTRO
-# include <Maestro/MetaMap/SMoCGraph.hpp>
-#endif //SYSTEMOC_ENABLE_MAESTRO
-
 namespace smoc {
 
 /**

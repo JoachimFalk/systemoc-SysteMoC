@@ -58,10 +58,6 @@
 
 #include <smoc/smoc_hooking.hpp>
 
-#ifdef MAESTRO_ENABLE_POLYPHONIC
-# include <PolyphoniC/Callip.h>
-#endif //MAESTRO_ENABLE_POLYPHONIC
-
 #include <smoc/SimulatorAPI/TaskInterface.hpp>
 
 #define SMOC_REGISTER_CPARAM(name)  this->registerParam(#name,name)
@@ -115,12 +111,6 @@ class NodeBase
   , public NamedIdedObj
 #endif // SYSTEMOC_NEED_IDS
   , public SimulatorAPI::TaskHandle
-#ifdef SYSTEMOC_ENABLE_MAESTRO
-  , public MetaMap::SMoCActor
-# ifdef MAESTRO_ENABLE_POLYPHONIC
-  , public MAESTRO::PolyphoniC::psmoc_root_node
-# endif //MAESTRO_ENABLE_POLYPHONIC
-#endif //SYSTEMOC_ENABLE_MAESTRO
 {
   typedef NodeBase this_type;
 
@@ -273,17 +263,6 @@ private:
 
   // FIXME: (Maybe) Only actors have this info => move to smoc_actor?
   ParamInfoVisitor   constrArgs;
-
-#ifdef SYSTEMOC_ENABLE_MAESTRO
-public:
-  /**
-   * Flag to determine if the actor can be executed if its schedulers enables it
-   */
-  bool scheduled;
-
-  void getCurrentTransition(MetaMap::Transition*& activeTransition);
-private:
-#endif //SYSTEMOC_ENABLE_MAESTRO
 
   /// @brief Resets this node, calls reset()
   virtual void doReset();

@@ -56,9 +56,6 @@ smoc_graph::smoc_graph(const sc_core::sc_module_name &name, smoc_state &state)
   { constructor(); }
 
 void smoc_graph::constructor() {
-#ifdef SYSTEMOC_ENABLE_MAESTRO
-  this->setName(this->name());
-#endif //SYSTEMOC_ENABLE_MAESTRO
   // if there is at least one active transition: execute it
   //run = smoc::Expr::till(ol) >> SMOC_CALL(smoc_graph::scheduleDDF) >> run;
 }

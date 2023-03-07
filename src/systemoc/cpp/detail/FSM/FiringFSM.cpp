@@ -259,11 +259,7 @@ void FiringFSM::before_end_of_elaboration(NodeBase *node, StateImpl *hsinit) {
     ProdState psinit;
     top->getInitialState(psinit, Marking());
 
-#if defined(SYSTEMOC_ENABLE_MAESTRO) && defined(MAESTRO_ENABLE_BRUCKNER)
-    init = *rts.insert(new RuntimeState (Concat("")(psinit), dynamic_cast<Bruckner::Model::Hierarchical*>(node) )).first;
-#else //!defined(SYSTEMOC_ENABLE_MAESTRO) || !defined(MAESTRO_ENABLE_BRUCKNER)
     init = *rts.insert(new RuntimeState(Concat(node->name())(":")(psinit))).first;
-#endif //!defined(SYSTEMOC_ENABLE_MAESTRO) || !defined(MAESTRO_ENABLE_BRUCKNER)
 
     ns.push_back(
         st.insert(STEntry(psinit, init)).first);
@@ -316,11 +312,7 @@ void FiringFSM::before_end_of_elaboration(NodeBase *node, StateImpl *hsinit) {
           if (ins.second) {
             // FIXME: construct state name and pass to RuntimeState
             ProdState f = ins.first->first;
-#if defined(SYSTEMOC_ENABLE_MAESTRO) && defined(MAESTRO_ENABLE_BRUCKNER)
-            ins.first->second = *rts.insert(new RuntimeState(Concat("")(f), dynamic_cast<Bruckner::Model::Hierarchical*>(node))).first;
-#else //!defined(SYSTEMOC_ENABLE_MAESTRO) || !defined(MAESTRO_ENABLE_BRUCKNER)
             ins.first->second = *rts.insert(new RuntimeState(Concat(node->name())(":")(f))).first;
-#endif //!defined(SYSTEMOC_ENABLE_MAESTRO) || !defined(MAESTRO_ENABLE_BRUCKNER)
             ns.push_back(ins.first);
 #ifdef FSM_FINALIZE_BENCHMARK
             nRunStates++;
@@ -330,12 +322,6 @@ void FiringFSM::before_end_of_elaboration(NodeBase *node, StateImpl *hsinit) {
           RuntimeState* rd = ins.first->second;
           assert(rd);
 
-#ifdef SYSTEMOC_ENABLE_MAESTRO
-          MetaMap::SMoCActor* a = nullptr;
-          if (node->isActor()) {
-            a = dynamic_cast<MetaMap::SMoCActor*>(node);
-          }
-#endif //SYSTEMOC_ENABLE_MAESTRO
           rs->addTransition(
             RuntimeTransition(
 #ifdef SYSTEMOC_ENABLE_HOOKING
@@ -343,9 +329,6 @@ void FiringFSM::before_end_of_elaboration(NodeBase *node, StateImpl *hsinit) {
               rs,
 #endif //SYSTEMOC_ENABLE_HOOKING
               t->getFiringRule(),
-#ifdef SYSTEMOC_ENABLE_MAESTRO
-              *a,
-#endif //SYSTEMOC_ENABLE_MAESTRO
               rd));
 #ifdef FSM_FINALIZE_BENCHMARK
           nRunTrans++;

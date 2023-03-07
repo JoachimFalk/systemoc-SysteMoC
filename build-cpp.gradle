@@ -61,12 +61,6 @@ class GenerateSysteMoCConfigH extends DefaultTask {
           } else {
             output.append("/* #undef "+mline.group(1)+" */\n")
           }
-        } else if (mline.group(1) == 'SYSTEMOC_ENABLE_MAESTRO') {
-          if (binary.flavor.name.matches('(?i).*maestro.*')) {
-            output.append("#define "+mline.group(1)+" yes\n")
-          } else {
-            output.append("/* #undef "+mline.group(1)+" */\n")
-          }
         } else {
           output.append("/* unknown definition "+line+" */\n")
         }

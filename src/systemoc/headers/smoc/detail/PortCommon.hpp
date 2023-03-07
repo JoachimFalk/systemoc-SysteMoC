@@ -34,19 +34,12 @@
 # include <sysc/utils/sc_typeindex.h>
 #endif // SYSTEMC_VERSION >= 20181013 // SystemC 2.3.3
 
-#if defined(SYSTEMOC_ENABLE_MAESTRO) && defined(MAESTRO_ENABLE_BRUCKNER)
-# include  <Maestro/Bruckner/Port.hpp>
-#endif //defined(SYSTEMOC_ENABLE_MAESTRO) && defined(MAESTRO_ENABLE_BRUCKNER)
-
 namespace smoc { namespace Detail {
 
   /// IFACE: interface type (this is basically sc_port_b<IFACE>)
   template <typename BASE, typename IFACE>
   class PortCommon
     : public BASE
-#if defined(SYSTEMOC_ENABLE_MAESTRO) && defined(MAESTRO_ENABLE_BRUCKNER)
-    , public Bruckner::Model::Port
-#endif //defined(SYSTEMOC_ENABLE_MAESTRO) && defined(MAESTRO_ENABLE_BRUCKNER)
   {
     typedef PortCommon<BASE, IFACE>  this_type;
     typedef BASE                     base_type;
@@ -71,12 +64,7 @@ namespace smoc { namespace Detail {
 
   protected:
     PortCommon(const char *name)
-      : BASE(name) {
-#if defined(SYSTEMOC_ENABLE_MAESTRO) && defined(MAESTRO_ENABLE_BRUCKNER)
-      this->memberName = name_;
-      this->instanceName = name_;
-#endif //defined(SYSTEMOC_ENABLE_MAESTRO) && defined(MAESTRO_ENABLE_BRUCKNER)
-    }
+      : BASE(name) {}
   private:
 #if SYSTEMC_VERSION >= 20181013 // SystemC 2.3.3
     const char *if_typename() const

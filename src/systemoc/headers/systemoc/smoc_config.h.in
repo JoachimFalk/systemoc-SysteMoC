@@ -29,9 +29,6 @@
 /* Defined if routing support is enabled */
 #undef SYSTEMOC_ENABLE_ROUTING
 
-/* Defined if Maestro library support is enabled */
-#undef SYSTEMOC_ENABLE_MAESTRO
-
 #if defined(SYSTEMOC_ENABLE_DATAFLOW_TRACE) || defined(SYSTEMOC_ENABLE_TRANSITION_TRACE) || defined(SYSTEMOC_ENABLE_SGX)
 # define SYSTEMOC_NEED_IDS
 #endif //defined(SYSTEMOC_ENABLE_DATAFLOW_TRACE) || defined(SYSTEMOC_ENABLE_TRANSITION_TRACE) || defined(SYSTEMOC_ENABLE_SGX)
@@ -39,10 +36,5 @@
 #if defined(SYSTEMOC_ENABLE_DATAFLOW_TRACE)
 # define SYSTEMOC_ENABLE_DEBUG
 #endif //defined(SYSTEMOC_ENABLE_DATAFLOW_TRACE)
-
-// Pull config of Maestro libraries
-#ifdef SYSTEMOC_ENABLE_MAESTRO
-# include <Maestro/maestro_config.h>
-#endif //SYSTEMOC_ENABLE_MAESTRO
 
 #endif /* _INCLUDED_SYSTEMOC_SMOC_CONFIG_H */

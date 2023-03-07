@@ -40,10 +40,6 @@
 #include <smoc/SimulatorAPI/SimulatorInterface.hpp>
 #include <smoc/detail/SimCTXBase.hpp>
 
-#ifdef MAESTRO_ENABLE_POLYPHONIC
-# include <boost/thread/mutex.hpp>
-#endif //MAESTRO_ENABLE_POLYPHONIC
-
 #include <boost/noncopyable.hpp>
 
 #include "SMXDumper.hpp"
@@ -81,10 +77,6 @@ private:
 public:
   SimulationContext(int _argc, char *_argv[]);
 
-
-#ifdef MAESTRO_ENABLE_POLYPHONIC
-  boost::mutex* event_mutex;
-#endif
 
   int    getArgc();
   char **getArgv();

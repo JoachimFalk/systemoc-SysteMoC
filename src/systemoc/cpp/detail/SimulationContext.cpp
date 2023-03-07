@@ -79,12 +79,6 @@ SimulationContext::SimulationContext(int _argc, char *_argv[])
   , dataflowTraceLog(nullptr)
 #endif // SYSTEMOC_ENABLE_DATAFLOW_TRACE
 {
-#ifdef MAESTRO_ENABLE_POLYPHONIC
-  event_mutex = new boost::mutex();
-  sc_core::sc_get_curr_simcontext();
-  sc_core::sc_curr_simcontext->event_mutex = event_mutex;
-#endif
-
   registeredSimulators.push_back(&systeMoCSimulator);
 
   lt_dlinit();

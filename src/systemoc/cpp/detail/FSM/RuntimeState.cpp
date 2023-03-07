@@ -31,20 +31,10 @@
 
 namespace smoc { namespace Detail { namespace FSM {
 
-  RuntimeState::RuntimeState(std::string const &name
-#if defined(SYSTEMOC_ENABLE_MAESTRO) && defined(MAESTRO_ENABLE_BRUCKNER)
-      , Bruckner::Model::Hierarchical* sParent = nullptr
-#endif//defined(SYSTEMOC_ENABLE_MAESTRO) && defined(MAESTRO_ENABLE_BRUCKNER)
-    ) :
-#if defined(SYSTEMOC_ENABLE_MAESTRO) && defined(MAESTRO_ENABLE_BRUCKNER)
-      Bruckner::Model::State(name),
-#endif // !defined(SYSTEMOC_ENABLE_MAESTRO) || !defined(MAESTRO_ENABLE_BRUCKNER)
-      stateName(name)
+  RuntimeState::RuntimeState(std::string const &name)
+    : stateName(name)
   {
     assert(!name.empty());
-#if defined(SYSTEMOC_ENABLE_MAESTRO) && defined(MAESTRO_ENABLE_BRUCKNER)
-    dynamic_cast<Bruckner::Model::Hierarchical *>(this)->parent = sParent;
-#endif //defined(SYSTEMOC_ENABLE_MAESTRO) && defined(MAESTRO_ENABLE_BRUCKNER)
 #ifdef SYSTEMOC_NEED_IDS
     // Allocate Id for myself.
     getSimCTX()->getIdPool().addIdedObj(this);

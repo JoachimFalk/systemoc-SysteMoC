@@ -45,22 +45,11 @@ namespace smoc { namespace Detail { namespace FSM {
 #ifdef SYSTEMOC_NEED_IDS
     , public IdedObj
 #endif // SYSTEMOC_NEED_IDS
-#ifdef SYSTEMOC_ENABLE_MAESTRO
-    , public MetaMap::Transition
-#endif //SYSTEMOC_ENABLE_MAESTRO
     , public SimCTXBase
   {
     typedef RuntimeTransition this_type;
   private:
     RuntimeState *destState;
-
-#ifdef SYSTEMOC_ENABLE_MAESTRO
-    /**
-     * Method to be used by a thread to execute this transition's actions
-     */
-    virtual void executeTransition(NodeBase *node);
-
-#endif //SYSTEMOC_ENABLE_MAESTRO
 
 #ifdef SYSTEMOC_ENABLE_HOOKING
     typedef std::vector<const smoc::smoc_pre_hook_callback  *> PreHooks;
@@ -78,9 +67,6 @@ namespace smoc { namespace Detail { namespace FSM {
       RuntimeState                 *srcState,
 #endif //SYSTEMOC_ENABLE_HOOKING
       RuntimeFiringRule            *firingRule,
-#ifdef SYSTEMOC_ENABLE_MAESTRO
-      MetaMap::SMoCActor           &parentActor,
-#endif //SYSTEMOC_ENABLE_MAESTRO
       RuntimeState                 *destState
     );
 
@@ -111,10 +97,6 @@ namespace smoc { namespace Detail { namespace FSM {
 
     /// @brief Execute transitions
     RuntimeState *execute(NodeBase *actor);
-
-#ifdef SYSTEMOC_ENABLE_MAESTRO
-    virtual bool hasWaitAction();
-#endif //SYSTEMOC_ENABLE_MAESTRO
   };
 
   typedef std::list<RuntimeTransition>   RuntimeTransitionList;

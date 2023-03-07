@@ -48,9 +48,6 @@
 #include "FSM/StateImpl.hpp"
 
 #include <systemoc/smoc_config.h>
-#ifdef SYSTEMOC_ENABLE_MAESTRO
-# include <Maestro/MetaMap/MAESTRORuntimeException.hpp>
-#endif //SYSTEMOC_ENABLE_MAESTRO
 
 #include <list>
 #include <typeinfo>
@@ -59,12 +56,6 @@ namespace smoc { namespace Detail {
 
 NodeBase::NodeBase(sc_core::sc_module_name name, NodeType nodeType, smoc_state *s, unsigned int thread_stack_size)
   : sc_core::sc_module(name)
-#if defined(SYSTEMOC_ENABLE_MAESTRO)
-  , MetaMap::SMoCActor(thread_stack_size)
-# ifdef MAESTRO_ENABLE_POLYPHONIC
-  , MAESTRO::PolyphoniC::psmoc_root_node()
-# endif
-#endif // defined(SYSTEMOC_ENABLE_MAESTRO)
   , initialState(s)
   , currentState(nullptr)
   , ct(nullptr)
@@ -74,9 +65,6 @@ NodeBase::NodeBase(sc_core::sc_module_name name, NodeType nodeType, smoc_state *
   , signalingEventRemove(false)
   , useActivationCallback(true)
   , active(true)
-#ifdef SYSTEMOC_ENABLE_MAESTRO
-  , scheduled(false)
-#endif //SYSTEMOC_ENABLE_MAESTRO
 {
 #ifdef SYSTEMOC_NEED_IDS
   // Allocate Id for myself. This must be here and not in before_end_of_elaboration
@@ -217,9 +205,6 @@ bool NodeBase::signaled(smoc::smoc_event_waiter *e) {
 #endif // SYSTEMOC_ENABLE_DEBUG
       
       if (ct) {
-#ifdef SYSTEMOC_ENABLE_MAESTRO
-        ct->notifyListenersTransitionReady();
-#endif //SYSTEMOC_ENABLE_MAESTRO
         getScheduler()->notifyActivation(this, true);
       }
     } else if (ct) {
@@ -268,10 +253,6 @@ void NodeBase::setCurrentState(FSM::RuntimeState *newState) {
           << std::endl << smoc::Detail::Indent::Up;
   }
 #endif // SYSTEMOC_ENABLE_DEBUG
-#ifdef SYSTEMOC_ENABLE_MAESTRO
-  if (newState == NULL)
-    throw MAESTRORuntimeException(std::string("Error while trying to set the new state to NULL on actor: ") + this->name());
-#endif //SYSTEMOC_ENABLE_MAESTRO
   assert(newState);
   
   if (useActivationCallback && active) {
@@ -418,13 +399,5 @@ bool NodeBase::canFire() {
 
 sc_core::sc_time const &NodeBase::getNextReleaseTime() const
   { return sc_core::sc_time_stamp(); }
-
-#ifdef SYSTEMOC_ENABLE_MAESTRO
-void NodeBase::getCurrentTransition(MetaMap::Transition *&activeTransition)
-{
-  activeTransition = static_cast<MetaMap::Transition *>(this->ct);
-}
-#endif //defined(SYSTEMOC_ENABLE_MAESTRO)
-
 
 } } // namespace smoc::Detail

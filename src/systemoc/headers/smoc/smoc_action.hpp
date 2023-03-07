@@ -58,15 +58,9 @@ private:
   private:
     F  f;
     PL pl;
-#ifdef MAESTRO_ENABLE_POLYPHONIC
-    bool canRunInParallel;
-#endif
   public:
     MemFuncCallImpl(const F &_f, const PL &_pl = PL())
       : f(_f), pl(_pl)
-#ifdef MAESTRO_ENABLE_POLYPHONIC
-      , canRunInParallel(_f.canRunInParallel)
-#endif
     {}
 
     void call() const
